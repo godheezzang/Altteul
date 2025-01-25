@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:80" # 개발 중에는 프론트엔드 3000번 포트 사용
     volumes:
-      - ./frontend:/app
+      - ./altteul-fe:/app
     command: ["yarn", "dev"]
 
   backend:
@@ -19,5 +19,5 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
     volumes:
-      - ./backend:/app
+      - ./altteul-be:/app
     command: ["./gradlew", "bootRun"]
