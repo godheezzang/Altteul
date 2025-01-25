@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.fe
+    ports:
+      - "3000:80" # 개발 중에는 프론트엔드 3000번 포트 사용
+    volumes:
+      - ./frontend:/app
+    command: ["yarn", "dev"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.be
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - ./backend:/app
+    command: ["./gradlew", "bootRun"]
