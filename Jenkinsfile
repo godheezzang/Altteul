@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     // frontend, backend 이미지 빌드
-                    sh "docker-compose build"
+                    sh "docker compose build"
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     // 기존 실행 중인 컨테이너들 정리
-                    sh "docker-compose down || true"
+                    sh "docker compose down || true"
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     // 데이터베이스 볼륨 유지하면서 컨테이너 시작
-                    sh "docker-compose up -d"
+                    sh "docker compose up -d"
                 }
             }
         }
@@ -64,7 +64,7 @@ pipeline {
         failure {
             script {
                 // 실패 시 컨테이너 로그 확인
-                sh "docker-compose logs"
+                sh "docker compose logs"
             }
         }
     }
