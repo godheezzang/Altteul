@@ -7,7 +7,7 @@ pipeline {
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
 
-    // stages {
+    stages {
     //     stage('Clone Repository') {
     //         steps {
     //             git branch: 'master', url: 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
