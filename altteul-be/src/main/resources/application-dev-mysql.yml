@@ -1,0 +1,24 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+spring:
+  config:
+    activate:
+      on-profile: dev-mysql
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_BINDING_PORT}/${MYSQL_DATABASE}?autoReconnect=true&useUnicode=true&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+      default_batch_fetch_size: 100
+    open-in-view: false

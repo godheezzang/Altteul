@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  profiles:
+    group:
+      dev:
+        - dev-mysql
+        - dev-token
+        - dev-redis
+      prod:
+        - prod-mysql
+        - prod-token
+        - prod-redis
+    active: ${SPRING_PROFILES_ACTIVE}
