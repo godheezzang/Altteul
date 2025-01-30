@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -66,6 +67,7 @@ public class SecurityConfig {
 			.requestMatchers(HttpMethod.POST).authenticated()
 			.requestMatchers(HttpMethod.PUT).authenticated()
 			.requestMatchers(HttpMethod.DELETE).authenticated()
+			.requestMatchers("/api/login", "api/register").permitAll()
 			.anyRequest().permitAll());
 		http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 		//loginfilter 쓸거임
@@ -75,5 +77,10 @@ public class SecurityConfig {
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
+	}
+
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
