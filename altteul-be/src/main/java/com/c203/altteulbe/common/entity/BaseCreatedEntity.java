@@ -2,25 +2,22 @@ package com.c203.altteulbe.common.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * createdAt을 만드는 Entity
  */
-@Setter
-@Getter
+@EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
+@SuperBuilder(toBuilder = true)
 public class BaseCreatedEntity {
-	@Column(updatable = false)
+	@CreationTimestamp
+	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
-
-	@PrePersist
-	public void prePersist(){
-		createdAt = LocalDateTime.now();
-	}
 }
