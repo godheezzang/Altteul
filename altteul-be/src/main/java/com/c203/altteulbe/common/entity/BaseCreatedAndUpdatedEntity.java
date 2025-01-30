@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -15,6 +17,8 @@ import lombok.experimental.SuperBuilder;
  */
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
+@NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class BaseCreatedAndUpdatedEntity extends BaseCreatedEntity {
 	@UpdateTimestamp
