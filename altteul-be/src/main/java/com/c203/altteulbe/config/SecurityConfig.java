@@ -64,10 +64,10 @@ public class SecurityConfig {
 		http.authorizeHttpRequests((auth) -> auth
 			.requestMatchers(HttpMethod.GET).permitAll()
 			.requestMatchers("/api/admin").authenticated()
+			.requestMatchers("/api/login", "/api/register").permitAll()
 			.requestMatchers(HttpMethod.POST).authenticated()
 			.requestMatchers(HttpMethod.PUT).authenticated()
 			.requestMatchers(HttpMethod.DELETE).authenticated()
-			.requestMatchers("/api/login", "api/register").permitAll()
 			.anyRequest().permitAll());
 		http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 		//loginfilter 쓸거임
