@@ -5,14 +5,14 @@ import com.c203.altteulbe.friend.persistent.entity.Friend;
 public record FriendResponseDto(
 	Long id,
 	String nickname,
-	String profileImage,
+	String profileImg,
 	Boolean isOnline
 ) {
 	public static FriendResponseDto from(Friend friend, boolean isOnline) {
 		return new FriendResponseDto(
-			friend.getFriend().getId(),
+			friend.getFriend().getUserId(),
 			friend.getFriend().getNickname(),
-			friend.getFriend().getProfileImage(),
+			friend.getFriend().getProfileImg(),
 			isOnline
 		);
 	}

@@ -15,9 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FriendId implements Serializable {
-	@Column(name = "user_id")
-	private int userId;
+	// 유저 ID와 친구 ID를 합쳐서 복합키로 만듬
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
 
-	@Column(name = "friend_id")
-	private int friendId;
+	@Column(name = "friend_id", nullable = false)
+	private Long friendId;
 }

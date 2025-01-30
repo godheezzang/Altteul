@@ -3,6 +3,7 @@ package com.c203.altteulbe.friend.persistent.entity;
 import org.springframework.data.domain.Persistable;
 
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -14,12 +15,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Persistable은 Spring Data JPA가 엔티티가 새로운 것인지(INSERT) 기존 데이터인지(UPDATE) 판단할 때 사용
+ * 기본적으로 JPA는 ID 값이 null이면 새로운 엔티티(INSERT)로 인식하지만,
+ * 복합키(EmbeddedId)를 사용하면 ID가 null인지로 판별하기 어려움 → 직접 isNew()를 구현해야 함
+ */
+
 @Entity
 @Getter
 @NoArgsConstructor
 public class Friend extends BaseCreatedEntity implements Persistable<FriendId> {
 	@EmbeddedId
-	private FriendId id;
+	private FriendId id; // 복합키
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -43,9 +50,8 @@ public class Friend extends BaseCreatedEntity implements Persistable<FriendId> {
 
 	@Builder
 	public Friend(User user, User friend) {
-		this.id = new FriendId(user.getId(), friend.getId());
+		this.id = new FriendId(user.getUserId(), friend.getUserId());
 		this.user = user;
 		this.friend = friend;
 	}
-
 }
