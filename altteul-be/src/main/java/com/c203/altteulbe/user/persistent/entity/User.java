@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 
 import jakarta.persistence.Column;
@@ -50,14 +51,14 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "main_lang", nullable = false, length = 2)
-	private MainLang mainLang;  // Enum 타입 사용
+	private Language mainLang;  // Enum 타입 사용
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_status", nullable = false, length = 1)
 	private UserStatus userStatus;  // Enum 타입 사용
 
-	@Column(name = "email", length = 50, nullable = false, unique = true)
-	private String email;
+	@Column(name = "username", length = 50, nullable = false, unique = true)
+	private String username;
 
 	@Column(name = "password", length = 128, nullable = false)
 	private String password;
@@ -71,10 +72,6 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails {
 
 	@Column(name = "last_out_time")
 	private Timestamp lastOutTime;
-
-	public enum MainLang {
-		JV, PY
-	}
 
 	public enum UserStatus {
 		A, S, D
@@ -91,7 +88,7 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return email;
+		return username;
 	}
 
 	@Override
