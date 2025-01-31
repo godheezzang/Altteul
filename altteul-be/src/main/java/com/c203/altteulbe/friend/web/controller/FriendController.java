@@ -1,5 +1,9 @@
 package com.c203.altteulbe.friend.web.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
@@ -27,13 +32,20 @@ public class FriendController {
 
 	@GetMapping("/friends")
 	@PreAuthorize("isAuthenticated()")
-	public ApiResponseEntity<ResponseBody.Success<Page<FriendResponseDto>>> getFriends(
-		@AuthenticationPrincipal User user,
-		@RequestParam(defaultValue = "0") @Min(0) int page,
-		@RequestParam(defaultValue = "10") @Min(1) int size
+	public ApiResponseEntity<ResponseBody.Success<Map<String, Object>>> getFriends(
+		@AuthenticationPrincipal Long id,
+		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
+		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Long userId = user.getUserId();
-		Page<FriendResponseDto> friends = friendService.getFriendsList(userId, page, size);
-		return ApiResponse.success(friends, HttpStatus.OK);
+		Page<FriendResponseDto> friends = friendService.getFriendsList(id, page, size);
+		List<FriendResponseDto> friendList = friends.getContent();
+		Map<String, Object> responseData = new HashMap<>();
+		responseData.put("friends", friendList);
+		responseData.put("pageable", friends.getPageable());
+		responseData.put("totalElements", friends.getTotalElements());
+		responseData.put("totalPages", friends.getTotalPages());
+		responseData.put("currentPage", friends.getNumber());
+		responseData.put("size", friends.getSize());
+		return ApiResponse.success(responseData, HttpStatus.OK);
 	}
 }
