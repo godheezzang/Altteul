@@ -1,6 +1,6 @@
 package com.c203.altteulbe.friend.web.dto.response;
 
-import com.c203.altteulbe.friend.persistent.entity.Friend;
+import com.c203.altteulbe.friend.persistent.entity.Friendship;
 
 public record FriendResponseDto(
 	Long id,
@@ -8,11 +8,11 @@ public record FriendResponseDto(
 	String profileImg,
 	Boolean isOnline
 ) {
-	public static FriendResponseDto from(Friend friend, boolean isOnline) {
+	public static FriendResponseDto from(Friendship friendship, boolean isOnline) {
 		return new FriendResponseDto(
-			friend.getFriend().getUserId(),
-			friend.getFriend().getNickname(),
-			friend.getFriend().getProfileImg(),
+			friendship.getFriend().getUserId(),
+			friendship.getFriend().getNickname(),
+			friendship.getFriend().getProfileImg(),
 			isOnline
 		);
 	}

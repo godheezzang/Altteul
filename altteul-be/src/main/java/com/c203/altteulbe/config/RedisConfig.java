@@ -60,11 +60,11 @@ class RedisConfig {
 		redisTemplate.setValueSerializer(new StringRedisSerializer());
 
 		// Hash를 사용할 경우 시리얼라이저
-		// redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		// redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
 		// 모든 경우
-		// redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+		redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 
 		return redisTemplate;
 	}

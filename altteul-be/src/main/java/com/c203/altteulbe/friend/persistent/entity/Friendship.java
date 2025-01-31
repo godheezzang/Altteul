@@ -11,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Friend extends BaseCreatedEntity implements Persistable<FriendId> {
+public class Friendship extends BaseCreatedEntity implements Persistable<FriendId> {
 	@EmbeddedId
 	private FriendId id; // 복합키
 
@@ -48,8 +47,7 @@ public class Friend extends BaseCreatedEntity implements Persistable<FriendId> {
 		return getCreatedAt() == null;
 	}
 
-	@Builder
-	public Friend(User user, User friend) {
+	public Friendship(User user, User friend) {
 		this.id = new FriendId(user.getUserId(), friend.getUserId());
 		this.user = user;
 		this.friend = friend;
