@@ -1,5 +1,7 @@
 package com.c203.altteulbe.user.persistent.repository;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 
 import com.c203.altteulbe.user.persistent.entity.QUser;
@@ -48,6 +50,14 @@ public class UserRepositoryImpl implements UserRepository {
 			.where(QUser.user.nickname.eq(nickname))
 			.fetchFirst();
 		return fetchOne != null;
+	}
+
+	@Override
+	public User findByUsername(String username) {
+		return jpaQueryFactory
+			.selectFrom(QUser.user)
+			.where(QUser.user.username.eq(username))
+			.fetchOne();
 	}
 
 }
