@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.friend.service.FriendService;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
-import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
