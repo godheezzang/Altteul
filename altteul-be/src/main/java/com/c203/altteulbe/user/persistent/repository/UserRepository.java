@@ -1,5 +1,7 @@
 package com.c203.altteulbe.user.persistent.repository;
 
+import java.util.Optional;
+
 import com.c203.altteulbe.user.persistent.entity.User;
 
 public interface UserRepository {
@@ -7,4 +9,5 @@ public interface UserRepository {
 	void save(User user);
 	boolean existsByUsername(String username);
 	boolean existsByNickname(String nickname);
+	User findByUsername(String username);
 }
