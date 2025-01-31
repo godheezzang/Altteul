@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.setAllowedOrigins("http://localhost:3000", "http://localhost:80")
 			.withSockJS();
 	}
-	
+
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		registry.enableSimpleBroker("/sub");
