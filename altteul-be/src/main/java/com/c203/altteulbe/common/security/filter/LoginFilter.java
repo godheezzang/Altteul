@@ -3,12 +3,14 @@ package com.c203.altteulbe.common.security.filter;
 import java.io.BufferedReader;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.web.dto.request.LoginRequestDto;
@@ -44,7 +46,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			ObjectMapper objectMapper = new ObjectMapper();
 			loginRequestDto = objectMapper.readValue(stringBuilder.toString(), LoginRequestDto.class);
 		} catch (Exception e) {
-			throw new RuntimeException("Authentication failed", e);
+			throw new BusinessException("AuthenticationFailed", HttpStatus.UNAUTHORIZED);
 		}
 		String id = loginRequestDto.getId();
 		String password = loginRequestDto.getPassword();
