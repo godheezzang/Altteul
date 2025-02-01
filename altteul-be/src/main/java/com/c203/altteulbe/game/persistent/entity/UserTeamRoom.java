@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Persistable;
 
+import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.persistence.EmbeddedId;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UserTeamRoom implements Persistable<UserTeamRoomId> {
+public class UserTeamRoom extends BaseCreatedEntity implements Persistable<UserTeamRoomId> {
 	@EmbeddedId
 	private UserTeamRoomId id;
 
@@ -38,11 +39,8 @@ public class UserTeamRoom implements Persistable<UserTeamRoomId> {
 
 	private int teamOrder;
 
-	@CreatedDate
-	private LocalDate createdAt;
-
 	@Override
 	public boolean isNew() {
-		return createdAt == null;
+		return super.getCreatedAt() == null;
 	}
 }
