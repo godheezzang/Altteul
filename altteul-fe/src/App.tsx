@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/select" element={<SelectPage />} />
-        <Route path="/SingleSearchPage" element={<SingleSearchPage />} />
+        <Route path="/SingleSearch" element={<SingleSearchPage />} />
       </Routes>
     </Router>
   );
