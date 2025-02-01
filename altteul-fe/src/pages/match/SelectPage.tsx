@@ -27,7 +27,7 @@ const MatchingSelectPage = () => {
         {/* 개인전 링크 */}
         <div className="flex flex-col items-center">
           <Link 
-            to="/SingleSearchPage"
+            to="/SingleSearch"
             className="w-[150px] h-[150px] rounded-full transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-orange)]"
           >
             <img src={userIcon} alt="개인전" className="w-full h-full" />
