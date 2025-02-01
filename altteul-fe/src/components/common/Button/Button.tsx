@@ -2,7 +2,7 @@
 
 import React from "react";
 import "./Button.css";
-import "@/styles/colors.css";
+import "@/styles/base/colors.css";
 
 type ButtonProps = {
   onClick?: () => void; // 버튼 클릭 시 동작
