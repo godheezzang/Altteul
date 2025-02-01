@@ -25,11 +25,12 @@ public class FriendResponseDto {
 	public Boolean isOnline;
 
 	public static FriendResponseDto from(Friendship friendship, boolean isOnline) {
-		return new FriendResponseDto(
-			friendship.getFriend().getUserId(),
-			friendship.getFriend().getNickname(),
-			friendship.getFriend().getProfileImg(),
-			isOnline
-		);
+		return FriendResponseDto.builder()
+			.id(friendship.getFriend().getUserId())
+			.nickname(friendship.getFriend().getNickname())
+			.profileImg(friendship.getFriend().getProfileImg())
+			.isOnline(isOnline)
+			.build();
+
 	}
 }

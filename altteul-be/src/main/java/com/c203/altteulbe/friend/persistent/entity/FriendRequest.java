@@ -16,14 +16,15 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 public class FriendRequest extends BaseCreatedAndUpdatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "friend_request_id", nullable = false)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -33,7 +34,7 @@ public class FriendRequest extends BaseCreatedAndUpdatedEntity {
 	private User to;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "request_status", nullable = false, length = 1)
+	@Column(nullable = false, length = 1)
 	private RequestStatus requestStatus;
 
 	@Builder
@@ -41,5 +42,9 @@ public class FriendRequest extends BaseCreatedAndUpdatedEntity {
 		this.from = from;
 		this.to = to;
 		this.requestStatus = RequestStatus.P;
+	}
+
+	public void updateStatus(RequestStatus status) {
+		this.requestStatus = status;
 	}
 }
