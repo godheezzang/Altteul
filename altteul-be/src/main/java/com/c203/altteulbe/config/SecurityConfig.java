@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -32,6 +34,8 @@ public class SecurityConfig {
 
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JWTUtil jwtUtil;
+	private final AuthenticationSuccessHandler authenticationSuccessHandler;
+	private final DefaultOAuth2UserService defaultOAuth2UserService;
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws
@@ -63,6 +67,7 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests((auth) -> auth
 			.requestMatchers(HttpMethod.GET).permitAll()
+			.requestMatchers("/ws/**").permitAll()
 			.requestMatchers("/api/admin").authenticated()
 			.requestMatchers("/api/login", "/api/register").permitAll()
 			.requestMatchers(HttpMethod.POST).authenticated()
@@ -75,6 +80,14 @@ public class SecurityConfig {
 			UsernamePasswordAuthenticationFilter.class);
 		//인가 stateless
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+		http
+			.oauth2Login(oauth -> oauth
+				.successHandler(authenticationSuccessHandler)
+				.userInfoEndpoint(user -> user
+					.userService(defaultOAuth2UserService)
+				)
+			);
 
 		return http.build();
 	}
