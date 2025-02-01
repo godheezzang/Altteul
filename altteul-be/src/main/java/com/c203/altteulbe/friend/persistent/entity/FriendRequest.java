@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 public class FriendRequest extends BaseCreatedAndUpdatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long friendRequestId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User from;

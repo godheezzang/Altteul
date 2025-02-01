@@ -2,16 +2,14 @@ package com.c203.altteulbe.friend.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.exception.BusinessException;
-import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendRepository;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
+import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

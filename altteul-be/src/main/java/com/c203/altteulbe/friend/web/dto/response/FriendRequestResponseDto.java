@@ -32,7 +32,7 @@ public class FriendRequestResponseDto {
 
 	public static FriendRequestResponseDto from(FriendRequest friendRequest) {
 		return FriendRequestResponseDto.builder()
-			.friendRequestId(friendRequest.getId())
+			.friendRequestId(friendRequest.getFriendRequestId())
 			.fromUserId(friendRequest.getFrom().getUserId())
 			.fromUserNickname(friendRequest.getFrom().getNickname())
 			.fromUserProfileImg(friendRequest.getFrom().getProfileImg())
