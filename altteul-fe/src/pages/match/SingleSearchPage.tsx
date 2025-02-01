@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { User, Users } from '@/types';
+import { Users } from '@/types';
 import UserProfile from '@components/match/UserProfile';
 import Button from "@components/common/Button/Button";
 import backgroundImage from '@assets/background/single_matching.svg';
@@ -25,7 +25,7 @@ const SingleSearchPage = () => {
   const [fact, setFact] = useState<string>('');
   const [facts, setFacts] = useState<string[]>(tmi.facts);
 
-  // Timer logic
+  // 타이머 로직
   useEffect(() => {
     const timer = setInterval(() => {
       setSeconds((prev) => {
@@ -41,14 +41,14 @@ const SingleSearchPage = () => {
     return () => clearInterval(timer);
   }, [navigate]);
 
-  // Format time as MM:SS
+  // 시간 포맷팅
   const formatTime = (timeInSeconds: number): string => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
-  // Load and rotate facts
+  // 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
     setFact(facts[Math.floor(Math.random() * facts.length)]);
     
@@ -70,7 +70,7 @@ const SingleSearchPage = () => {
       {/* 로고 링크 */}
       <Link 
         to="/"
-        className="absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+        className="z-20 absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
       >
         <img src={logo} alt="홈으로" className="w-full h-full" />
       </Link>
@@ -92,7 +92,7 @@ const SingleSearchPage = () => {
           className = "mb-4"
         />
 
-        {/* Username */}
+        {/* 방장 이름 */}
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
         {/* Status Message */}
