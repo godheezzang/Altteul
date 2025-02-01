@@ -2,10 +2,12 @@ package com.c203.altteulbe.user.persistent.entity;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
@@ -18,23 +20,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
  * 생성일시, 변경일시를 상속받은 Entity 생성 가능
  */
 @Entity
-@Table(name = "user")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(name = "user")
 @SuperBuilder(toBuilder = true)
-public class User extends BaseCreatedAndUpdatedEntity implements UserDetails {
+public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OAuth2User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id", nullable = false, updatable = false)
@@ -73,12 +74,22 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails {
 	@Column(name = "last_out_time")
 	private Timestamp lastOutTime;
 
+	@Override
+	public String getName() {
+		return null;
+	}
+
 	public enum UserStatus {
 		A, S, D
 	}
 
 	public enum Provider {
 		LC, GH
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		return null;
 	}
 
 	@Override
