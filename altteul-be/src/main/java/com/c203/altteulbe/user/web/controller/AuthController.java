@@ -2,6 +2,7 @@ package com.c203.altteulbe.user.web.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -37,8 +38,8 @@ public class AuthController {
 		return ApiResponse.success();
 	}
 
-	@PostMapping("/api/id-check")
-	public ApiResponseEntity<Void> validateId(ValidateIdRequestDto request) {
+	@GetMapping("/api/id-check")
+	public ApiResponseEntity<Void> validateId(@ModelAttribute ValidateIdRequestDto request) {
 		authService.validateId(request.getUsername());
 		return ApiResponse.success();
 	}
