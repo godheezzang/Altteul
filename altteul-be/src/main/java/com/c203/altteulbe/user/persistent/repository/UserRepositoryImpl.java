@@ -17,24 +17,6 @@ public class UserRepositoryImpl implements UserRepository {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public Optional<User> findByUserId(Long userId) {
-		return Optional.ofNullable(jpaQueryFactory
-			.selectFrom(QUser.user)
-			.where(QUser.user.userId.eq(userId))
-			.fetchOne()
-		);
-	}
-
-	@Override
-	public void save(User user) {
-		System.out.println(user.getUsername()+" "+user.getProvider());
-		jpaQueryFactory.insert(QUser.user)
-			.columns(QUser.user.username, QUser.user.password, QUser.user.nickname, QUser.user.mainLang, QUser.user.provider, QUser.user.profileImg)
-			.values(user.getUsername(), user.getPassword(), user.getNickname(), user.getMainLang(), user.getProvider(), user.getProfileImg())
-			.execute();
-	}
-
-	@Override
 	public boolean existsByUsername(String username) {
 		Integer fetchOne = jpaQueryFactory
 			.selectOne()
