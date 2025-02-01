@@ -1,8 +1,5 @@
 package com.c203.altteulbe.common.security.service;
 
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,9 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
+import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,10 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username);
-		user = Optional.ofNullable(user)
-			.orElseThrow(() -> new BusinessException("아이디가 존재하지 않습니다.", HttpStatus.BAD_REQUEST));
-		System.out.println(user.getUsername());
+		User user = userRepository.findByUsername(username)
+			.orElseThrow(NotFoundUserException::new);
 		return user;
 	}
 }
