@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +32,11 @@ import lombok.experimental.SuperBuilder;
  */
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 @AllArgsConstructor
 @Table(name = "user")
 @SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OAuth2User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
