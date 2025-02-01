@@ -7,33 +7,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.exception.BusinessException;
-import com.c203.altteulbe.friend.persistent.repository.FriendRepository;
-import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
+import com.c203.altteulbe.friend.persistent.repository.FriendRequestRepository;
+import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class FriendService {
-
-	private final FriendRepository friendRepository;
-	private final UserStatusService userStatusService;
+public class FriendRequestService {
+	private final FriendRequestRepository friendRequestRepository;
 	private final UserRepository userRepository;
 
-	@Transactional(readOnly = true)
-	public Page<FriendResponseDto> getFriendsList(Long userId, int page, int size) {
+	@Transactional
+	public Page<FriendRequestResponseDto> getReceivedRequests(Long userId, int page, int size) {
 		if (userRepository.findByUserId(userId) == null) {
-			// 나중에 UserNotFoundException으로 교체 예정
 			throw new BusinessException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 		}
-		return friendRepository.findAllByIdUserId(
+		return friendRequestRepository.findAllByToUserId(
 			userId,
 			PageRequest.of(page, size)
-		).map(friendship -> FriendResponseDto.from(
-			friendship,
-			userStatusService.isUserOnline(friendship.getFriend().getUserId())
-		));
+		).map(FriendRequestResponseDto::from);
 	}
-
 }
