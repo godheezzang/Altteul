@@ -8,27 +8,29 @@ import com.c203.altteulbe.user.persistent.entity.QUser;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public User findByUserId(Long userId) {
-		return jpaQueryFactory
+	public Optional<User> findByUserId(Long userId) {
+		return Optional.ofNullable(jpaQueryFactory
 			.selectFrom(QUser.user)
 			.where(QUser.user.userId.eq(userId))
-			.fetchOne();
+			.fetchOne()
+		);
 	}
 
 	@Override
 	public void save(User user) {
+		System.out.println(user.getUsername()+" "+user.getProvider());
 		jpaQueryFactory.insert(QUser.user)
-			.columns(QUser.user.username, QUser.user.password, QUser.user.nickname, QUser.user.mainLang)
-			.values(user.getUsername(), user.getPassword(), user.getNickname(), user.getMainLang())
+			.columns(QUser.user.username, QUser.user.password, QUser.user.nickname, QUser.user.mainLang, QUser.user.provider, QUser.user.profileImg)
+			.values(user.getUsername(), user.getPassword(), user.getNickname(), user.getMainLang(), user.getProvider(), user.getProfileImg())
 			.execute();
 	}
 
@@ -53,11 +55,22 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
-	public User findByUsername(String username) {
-		return jpaQueryFactory
+	public Optional<User> findByUsername(String username) {
+		return Optional.ofNullable(jpaQueryFactory
 			.selectFrom(QUser.user)
 			.where(QUser.user.username.eq(username))
-			.fetchOne();
+			.fetchOne()
+		);
 	}
 
+	@Override
+	public Optional<User> findByProviderAndUsername(User.Provider provider, String username) {
+		System.out.println(provider);
+		return Optional.ofNullable(jpaQueryFactory
+			.selectFrom(QUser.user)
+			.where(QUser.user.username.eq(username)
+				.and(QUser.user.provider.eq(provider)))
+			.fetchOne()
+		);
+	}
 }
