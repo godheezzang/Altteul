@@ -31,7 +31,7 @@ const SingleSearchPage = () => {
       setSeconds((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-        //   navigate('/single-final');
+          navigate('/single-final');
           return 0;
         }
         return prev - 1;
@@ -109,13 +109,13 @@ const SingleSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mb-12">
-            <Link to='/SigleFinal'>
+            <Link to='/single-final'>
                 <Button width="160px" height="48px"
                 className = "transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
                     게임 시작
                 </Button>
             </Link>
-            <Link to='/Select'>
+            <Link to='/select'>
             <Button width="160px" height="48px"
                 className = "transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
                     매칭 취소하기
