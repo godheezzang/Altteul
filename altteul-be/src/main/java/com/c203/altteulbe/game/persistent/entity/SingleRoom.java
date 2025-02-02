@@ -70,4 +70,12 @@ public class SingleRoom extends BaseCreatedEntity {
 						 .activatation(true)
 						 .build();
 	}
+
+	public static SingleRoom addUser(Long roomId, User user) {
+		return SingleRoom.builder()
+						 .id(roomId)
+						 .user(user)
+						 .activatation(true)
+						 .build();
+	}
 }
