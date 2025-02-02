@@ -14,9 +14,41 @@ const mockUsers: Users = {
   user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
   user2: { nickName: "샤샤샤", profileImage: peopleIcon, tier: tierIcon },
   user3: { nickName: "오리진", profileImage: peopleIcon, tier: tierIcon },
+  user4: { nickName: "가희바희보", profileImage: peopleIcon, tier: tierIcon },
 };
 
 const SingleSearchPage = () => {
+  const navigate = useNavigate();
+  const [fact, setFact] = useState<string>("");
+  const [facts, setFacts] = useState<string[]>(tmi.facts);
+
+  // 타이머 로직
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate("/single-final");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [navigate]);
+
+  // 첫 fact 생성 후 5초 간격으로 Rotation
+  useEffect(() => {
+    setFact(facts[Math.floor(Math.random() * facts.length)]);
+
+    const factRotation = setInterval(() => {
+      setFact(facts[Math.floor(Math.random() * facts.length)]);
+    }, 5000);
+
+    return () => clearInterval(factRotation);
+  }, [facts]);
+
   return (
     <div
       className="relative min-h-screen w-full bg-cover bg-center"
@@ -35,6 +67,18 @@ const SingleSearchPage = () => {
 
       {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
+        {/* Status Message */}
+        <div className="text-white text-3xl mb-8 flex flex-col items-center">
+          대전 할 상대를 찾고 있어요. 🧐
+          <div className="flex text-base mt-3">
+            조금만 기다려 주세요
+            <div className="ml-2">
+              {/* 스피너 */}
+              <div className="animate-bounce">...</div>
+            </div>
+          </div>
+        </div>
+
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
           {Object.values(mockUsers).map((user, index) => (
@@ -49,27 +93,28 @@ const SingleSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
-          <Link to="/team-search">
+          <Link to="/team-final">
             <Button
-              width="120px"
+              width="160px"
               height="48px"
-              fontSize="18px"
               className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
             >
-              매칭 시작
+              (매칭 완료)
             </Button>
           </Link>
-          <Link to="/select">
+          <Link to="/team-composition">
             <Button
-              width="120px"
+              width="160px"
               height="48px"
-              fontSize="18px"
               className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
             >
-              나가기
+              매칭 취소하기
             </Button>
           </Link>
         </div>
+
+        {/* TMI */}
+        <div className="absolute bottom-8 text-gray-300 text-sm">{fact}</div>
       </div>
     </div>
   );

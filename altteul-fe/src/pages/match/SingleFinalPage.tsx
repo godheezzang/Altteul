@@ -21,9 +21,7 @@ const mockUsers: Users = {
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const [seconds, setSeconds] = useState<number>(180); // 3minutes in seconds
-  const [fact, setFact] = useState<string>('');
-  const [facts, setFacts] = useState<string[]>(tmi.facts);
+  const [seconds, setSeconds] = useState<number>(10); // 3minutes in seconds
 
   // 타이머 로직
   useEffect(() => {
@@ -31,7 +29,7 @@ const SingleSearchPage = () => {
       setSeconds((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/single-final');
+        //   navigate('/single-final');
           return 0;
         }
         return prev - 1;
@@ -47,17 +45,6 @@ const SingleSearchPage = () => {
     const seconds = timeInSeconds % 60;
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
-
-  // 첫 fact 생성 후 5초 간격으로 Rotation
-  useEffect(() => {
-    setFact(facts[Math.floor(Math.random() * facts.length)]);
-    
-    const factRotation = setInterval(() => {
-      setFact(facts[Math.floor(Math.random() * facts.length)]);
-    }, 5000);
-
-    return () => clearInterval(factRotation);
-  }, [facts]);
 
   return (
     <div 
@@ -79,10 +66,7 @@ const SingleSearchPage = () => {
       <div className='relative min-h-screen w-full z-10 flex flex-col items-center justify-center'>
 
 
-        {/* Timer */}
-        <div className="text-white text-4xl mb-8">
-            {formatTime(seconds)}
-        </div>
+        
 
         {/* 방장 */}
         <UserProfile
@@ -96,31 +80,13 @@ const SingleSearchPage = () => {
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
         {/* Status Message */}
-        <div className="text-white text-xl mb-8 flex flex-col items-center">
-            같이 플레이 할 상대를 찾고 있어요. 🧐
-            <div className='flex text-base'>
-                조금만 기다려 주세요
-                <div className="ml-2">
-                    {/* 스피너 */}
-                    <div className="animate-bounce">...</div>
-                </div>
-            </div>
+        <div className="text-white text-3xl mb-8 flex flex-col items-center">
+            게임이 시작됩니다!
         </div>
 
-        {/* 버튼 */}
-        <div className="flex gap-6 mb-12">
-            <Link to='/single-final'>
-                <Button width="160px" height="48px"
-                className = "transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
-                    게임 시작
-                </Button>
-            </Link>
-            <Link to='/select'>
-            <Button width="160px" height="48px"
-                className = "transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
-                    매칭 취소하기
-                </Button>
-            </Link>
+        {/* Timer */}
+        <div className="text-white text-4xl mb-8">
+            {formatTime(seconds)}
         </div>
 
         {/* 상대유저 */}
@@ -135,13 +101,7 @@ const SingleSearchPage = () => {
             ))}
         </div>
 
-        {/* TMI */}
-        <div className="absolute bottom-8 text-gray-300 text-sm">
-            {fact}
-        </div>
       </div>
-
-      
 
     </div>
   );
