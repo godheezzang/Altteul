@@ -34,6 +34,29 @@ services:
     restart: always
     networks: #사용할 네트워크 지정
       - altteul-network
+  judge:
+    image: registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1
+    container_name: altteul-judge
+    ports:
+      - "8080:8080"
+    cap_drop:
+      - SETPCAP
+      - MKNOD
+      - NET_BIND_SERVICE
+      - SYS_CHROOT
+      - SETFCAP
+      - FSETID
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./data/backend/test_case:/test_case:ro
+      - ./data/judge_server/log:/log
+      - ./data/judge_server/run:/judger
+    environment:
+      - SERVICE_URL=http://judge:8080
+      - BACKEND_URL=http://host.docker.internal:8081/api/judge-ping-check
+      - TOKEN=${SECRET_KEY}
+      # - judger_debug=1
   #  backend:
   #    env_file:
   #      - .env
