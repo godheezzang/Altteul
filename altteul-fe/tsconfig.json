@@ -3,7 +3,6 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"], // '@/'를 src 디렉토리로 매핑
       "@assets/*": ["assets/*"],
       "@components/*": ["components/*"],
       "@hooks/*": ["hooks/*"],
@@ -14,6 +13,7 @@
       "@styles/*": ["styles/*"]
     }
   },
+  "include": ["src"],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
