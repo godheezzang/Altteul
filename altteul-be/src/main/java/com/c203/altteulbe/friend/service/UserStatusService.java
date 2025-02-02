@@ -1,5 +1,12 @@
 package com.c203.altteulbe.friend.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -62,6 +69,27 @@ public class UserStatusService {
 			log.error("사용자 상태 확인 중 오류 발생: {}", e.getMessage());
 			return false;
 		}
+	}
+
+	// 사용자들의 온라인 상태 한 번에 확인하기
+	public Map<Long, Boolean> getBulkOnlineStatus(List<Long> userIds) {
+		// Redis 파이프라인을 사용하여 여러 Redis 명령을 한 번에 처리하는 방법
+		List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>)connection -> {
+			StringRedisConnection stringConn = (StringRedisConnection)connection;
+			userIds.forEach(id ->
+				// exists 명령은 Long 타입의 값을 반환
+				// 각 키에 대해 Long 타입의 1 또는 0 값을 반환
+				stringConn.exists(USER_STATUS + ":" + id)); // redis에 해당 키가 있는지 확인 (존재하면 온라인)
+			return null;
+		});
+		// // 결과를 userIds에 맞게 매핑하여 Map으로 반환
+		return IntStream
+			.range(0, userIds.size())
+			.boxed()
+			.collect(Collectors.toMap(
+				userIds::get, // // userId를 키로 사용
+				i -> ((Long)results.get(i)) > 0 // Redis 결과를 Long으로 캐스팅 후 존재 여부로 처리
+			));
 	}
 
 	private void validateUserId(Long userId) {

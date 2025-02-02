@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -32,17 +33,6 @@ class RedisConfig {
 	}
 
 	/**
-	 * Redis Repository Config 양식
-	 */
-	// @Bean
-	// public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-	//
-	// 	RedisTemplate<byte[], byte[]> template = new RedisTemplate<byte[], byte[]>();
-	// 	template.setConnectionFactory(redisConnectionFactory);
-	// 	return template;
-	// }
-
-	/**
 	 * RedisTemplate을 활용할 경우 아래의 양식 커스텀하여 사용
 	 */
 	// /**
@@ -65,7 +55,9 @@ class RedisConfig {
 
 		// 모든 경우
 		redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+		redisTemplate.afterPropertiesSet();
 
 		return redisTemplate;
 	}
+
 }
