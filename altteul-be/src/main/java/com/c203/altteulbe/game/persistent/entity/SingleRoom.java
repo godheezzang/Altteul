@@ -19,13 +19,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 public class SingleRoom extends BaseCreatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,6 +61,13 @@ public class SingleRoom extends BaseCreatedEntity {
 	@Enumerated(EnumType.STRING)
 	private Language lang;
 
-	private boolean activation;
+	private boolean activatation;    // DB 오타
 	private LocalDateTime finishTime;
+
+	public static SingleRoom create(User user) {
+		return SingleRoom.builder()
+						 .user(user)
+						 .activatation(true)
+						 .build();
+	}
 }

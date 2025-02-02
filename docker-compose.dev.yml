@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   frontend:
-    image: node:18-alpine
+    image: node:20-alpine
     working_dir: /app
     ports:
       - "5173:5173"
@@ -35,11 +35,9 @@ services:
 
   mysql:
     image: mysql:8
-    environment:
-      - MYSQL_ROOT_PASSWORD=ssafy
-      - MYSQL_DATABASE=altteul
-      - MYSQL_USER=ssafy
-      - MYSQL_PASSWORD=ssafy
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - ./be/.env
     ports:
       - "3306:3306"
     volumes:

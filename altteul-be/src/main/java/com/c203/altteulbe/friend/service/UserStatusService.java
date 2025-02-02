@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.c203.altteulbe.common.exception.BusinessException;
+import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class UserStatusService {
 
 	private void validateUserId(Long userId) {
 		if (userId == null) {
-			throw new BusinessException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+			throw new NotFoundUserException();
 		}
 	}
 

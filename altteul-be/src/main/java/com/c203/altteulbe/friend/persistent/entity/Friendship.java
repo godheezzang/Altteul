@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Persistable은 Spring Data JPA가 엔티티가 새로운 것인지(INSERT) 기존 데이터인지(UPDATE) 판단할 때 사용
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 public class Friendship extends BaseCreatedEntity implements Persistable<FriendId> {
 	@EmbeddedId
 	private FriendId id; // 복합키
@@ -44,7 +46,7 @@ public class Friendship extends BaseCreatedEntity implements Persistable<FriendI
 
 	@Override
 	public boolean isNew() {
-		return getCreatedAt() == null;
+		return super.getCreatedAt() == null;
 	}
 
 	public Friendship(User user, User friend) {
