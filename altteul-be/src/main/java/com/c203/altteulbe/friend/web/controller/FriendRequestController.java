@@ -13,8 +13,8 @@ import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.friend.service.FriendService;
-import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
+import com.c203.altteulbe.friend.service.FriendRequestService;
+import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +22,18 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class FriendController {
-	private final FriendService friendService;
+@PreAuthorize("isAuthenticated()")
+public class FriendRequestController {
+	private final FriendRequestService friendRequestService;
 
-	@GetMapping("/friends")
-	@PreAuthorize("isAuthenticated()")
-	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendResponseDto>>> getFriends(
+	@GetMapping("/friend/request")
+	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendRequestResponseDto>>> getFriendRequestList(
 		@AuthenticationPrincipal Long id,
 		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
 		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Page<FriendResponseDto> friends = friendService.getFriendsList(id, page, size);
-		return ApiResponse.success(new PageResponse<>("friends", friends), HttpStatus.OK);
+		Page<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequests(id, page, size);
+		return ApiResponse.success(new PageResponse<>("friendRequests", friendRequest), HttpStatus.OK);
 	}
+
 }

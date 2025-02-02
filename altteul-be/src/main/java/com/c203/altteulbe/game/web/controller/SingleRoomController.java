@@ -12,7 +12,7 @@ import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.common.response.WebSocketResponse;
 import com.c203.altteulbe.game.service.SingleRoomService;
-import com.c203.altteulbe.game.web.dto.request.SingleRoomEnterRequestDto;
+import com.c203.altteulbe.game.web.dto.request.SingleRoomRequestDto;
 import com.c203.altteulbe.game.web.dto.response.SingleRoomEnterResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -31,21 +31,19 @@ public class SingleRoomController {
 	 */
 	@PostMapping("/enter")
 	public ApiResponseEntity<ResponseBody.Success<SingleRoomEnterResponseDto>> enterSingleRoom(
-		@RequestBody SingleRoomEnterRequestDto requestDto) {
+										@RequestBody SingleRoomRequestDto requestDto) {
 
 		SingleRoomEnterResponseDto responseDto = singleRoomService.enterSingleRoom(requestDto);
 
-		try {
-			// 기존 유저들에게 새로운 유저 입장 메시지를 WebSocket으로 전송
-			messagingTemplate.convertAndSend("/sub/single/room/" + responseDto.getRoomId(),
-												new WebSocketResponse<>("ENTER", responseDto));
-		} catch (Exception e) {
-			log.error("WebSocket 메시지 전송 실패 : {}", e.getMessage());
-		}
-
-		// 입장한 유저에게 API 응답
 		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
 
-
+	/*
+	 * 개인전 방 퇴장 API
+	 */
+	@PostMapping("/leave")
+	public ApiResponseEntity<Void> leaveSingleRoom(@RequestBody SingleRoomRequestDto requestDto) {
+		singleRoomService.leaveSingleRoom(requestDto);
+		return ApiResponse.success();
+	}
 }
