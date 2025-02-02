@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.response.WebSocketResponse;
 import com.c203.altteulbe.game.repository.SingleRoomRepository;
-import com.c203.altteulbe.game.web.dto.request.SingleRoomEnterRequestDto;
+import com.c203.altteulbe.game.web.dto.request.SingleRoomRequestDto;
 import com.c203.altteulbe.game.web.dto.response.SingleRoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
@@ -56,7 +56,7 @@ class SingleRoomServiceTest {
 			.build();
 		userRepository.save(user);
 
-		SingleRoomEnterRequestDto requestDto = SingleRoomEnterRequestDto.builder()
+		SingleRoomRequestDto requestDto = SingleRoomRequestDto.builder()
 																		.userId(user.getUserId())
 																		.build();
 
@@ -90,7 +90,7 @@ class SingleRoomServiceTest {
 		userRepository.save(user);
 
 		// Given: 유저가 방에 입장
-		SingleRoomEnterRequestDto requestDto = SingleRoomEnterRequestDto.builder()
+		SingleRoomRequestDto requestDto = SingleRoomRequestDto.builder()
 																		.userId(user.getUserId())
 																		.build();
 		// When: WebSocket 전송이 실패하도록 설정

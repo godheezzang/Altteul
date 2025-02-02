@@ -1,7 +1,7 @@
 import React from "react";
 
 type DropdownProps = {
-  options: { id: string | null; value: string }[];
+  options: { id: number | null; value: string }[];
   value: string;
   onChange: () => void;
   width?: string;
