@@ -35,7 +35,7 @@ public class FriendRequestService {
 	private static final Duration CACHE_TTL = Duration.ofMinutes(5);
 
 	@Transactional
-	public Page<FriendRequestResponseDto> getPendingRequests(Long userId, int page, int size) {
+	public Page<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
 		String cacheKey = FRIEND_REQUEST_CACHE_KEY + userId + ":" + page + ":" + size;
 
 		String cachedValue = redisTemplate.opsForValue().get(cacheKey);
@@ -45,7 +45,7 @@ public class FriendRequestService {
 				});
 			} catch (RedisConnectionException e) {
 				log.error("Redis 연결 실패: {}", e.getMessage());
-				return getPendingFriendRequests(userId, page, size);
+				return getPendingFriendRequestsFromDB(userId, page, size);
 			} catch (JsonProcessingException e) {
 				log.error("캐시 역직렬화 에러: {}", e.getMessage());
 				invalidateRequestCache(userId);
@@ -56,7 +56,7 @@ public class FriendRequestService {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
 		});
-		Page<FriendRequestResponseDto> requests = getPendingFriendRequests(
+		Page<FriendRequestResponseDto> requests = getPendingFriendRequestsFromDB(
 			userId, page, size);
 
 		try {
@@ -68,7 +68,7 @@ public class FriendRequestService {
 		return requests;
 	}
 
-	private Page<FriendRequestResponseDto> getPendingFriendRequests(Long userId, int page, int size) {
+	private Page<FriendRequestResponseDto> getPendingFriendRequestsFromDB(Long userId, int page, int size) {
 		Page<FriendRequestResponseDto> requests = friendRequestRepository.findAllByToUserIdAndRequestStatus(
 			userId,
 			RequestStatus.P,

@@ -32,7 +32,7 @@ public class FriendRequestController {
 		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
 		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Page<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequests(id, page, size);
+		Page<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequestsFromRedis(id, page, size);
 		return ApiResponse.success(new PageResponse<>("friendRequests", friendRequest), HttpStatus.OK);
 	}
 
