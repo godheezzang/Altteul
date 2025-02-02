@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: dev-judge
+judge:
+  server:
+    url: http://localhost:8080
+    key: ${JUDGE_KEY}

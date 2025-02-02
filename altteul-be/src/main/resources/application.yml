@@ -8,6 +8,7 @@ spring:
         - dev-token
         - dev-redis
         - dev-oauth
+        - dev-judge
       prod:
         - prod-mysql
         - prod-token
