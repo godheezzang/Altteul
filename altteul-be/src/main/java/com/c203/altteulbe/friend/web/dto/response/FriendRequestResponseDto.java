@@ -16,19 +16,19 @@ import lombok.NoArgsConstructor;
 public class FriendRequestResponseDto {
 
 	@NotNull
-	public Long friendRequestId;
+	private Long friendRequestId;
 
 	@NotNull
-	public Long fromUserId;
+	private Long fromUserId;
 
 	@NotNull
-	public String fromUserNickname;
+	private String fromUserNickname;
 
 	@NotNull
-	public String fromUserProfileImg;
+	private String fromUserProfileImg;
 
 	@NotNull
-	public RequestStatus requestStatus;
+	private RequestStatus requestStatus;
 
 	public static FriendRequestResponseDto from(FriendRequest friendRequest) {
 		return FriendRequestResponseDto.builder()

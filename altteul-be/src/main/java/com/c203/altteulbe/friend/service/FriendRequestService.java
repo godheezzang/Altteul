@@ -1,9 +1,12 @@
 package com.c203.altteulbe.friend.service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,16 +39,19 @@ public class FriendRequestService {
 
 	@Transactional
 	public Page<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
-		String cacheKey = FRIEND_REQUEST_CACHE_KEY + userId + ":" + page + ":" + size;
+		String cacheKey = FRIEND_REQUEST_CACHE_KEY + userId;
+		List<FriendRequestResponseDto> allRequest;
 
 		String cachedValue = redisTemplate.opsForValue().get(cacheKey);
 		if (cachedValue != null) {
 			try {
-				return objectMapper.readValue(cachedValue, new TypeReference<Page<FriendRequestResponseDto>>() {
+				allRequest = objectMapper.readValue(cachedValue, new TypeReference<>() {
 				});
+				return paginate(allRequest, page, size);
 			} catch (RedisConnectionException e) {
 				log.error("Redis 연결 실패: {}", e.getMessage());
-				return getPendingFriendRequestsFromDB(userId, page, size);
+				allRequest = getPendingFriendRequestsFromDB(userId);
+				return paginate(allRequest, page, size);
 			} catch (JsonProcessingException e) {
 				log.error("캐시 역직렬화 에러: {}", e.getMessage());
 				invalidateRequestCache(userId);
@@ -56,32 +62,43 @@ public class FriendRequestService {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
 		});
-		Page<FriendRequestResponseDto> requests = getPendingFriendRequestsFromDB(
-			userId, page, size);
+		allRequest = getPendingFriendRequestsFromDB(userId);
 
 		try {
-			String value = objectMapper.writeValueAsString(requests);
+			String value = objectMapper.writeValueAsString(allRequest);
 			redisTemplate.opsForValue().set(cacheKey, value, CACHE_TTL);
 		} catch (JsonProcessingException e) {
 			log.error("캐시 직렬화 에러: {}", e.getMessage());
 		}
-		return requests;
+		return paginate(allRequest, page, size);
 	}
 
-	private Page<FriendRequestResponseDto> getPendingFriendRequestsFromDB(Long userId, int page, int size) {
-		Page<FriendRequestResponseDto> requests = friendRequestRepository.findAllByToUserIdAndRequestStatus(
-			userId,
-			RequestStatus.P,
-			PageRequest.of(page, size)
-		).map(FriendRequestResponseDto::from);
-		return requests;
+	private List<FriendRequestResponseDto> getPendingFriendRequestsFromDB(Long userId) {
+		return friendRequestRepository.findAllByToUserIdAndRequestStatus(
+				userId,
+				RequestStatus.P)
+			.stream()
+			.map(FriendRequestResponseDto::from)
+			.collect(Collectors.toList());
 	}
 
 	public void invalidateRequestCache(Long userId) {
-		Set<String> keys = redisTemplate.keys(FRIEND_REQUEST_CACHE_KEY + userId + ":*");
+		Set<String> keys = redisTemplate.keys(FRIEND_REQUEST_CACHE_KEY + userId);
 		if (keys != null) {
 			redisTemplate.delete(keys);
 		}
+	}
+
+	private Page<FriendRequestResponseDto> paginate(List<FriendRequestResponseDto> allRequests, int page, int size) {
+		int total = allRequests.size();
+		int start = Math.min(page * size, total);
+		int end = Math.min((page + 1) * size, total);
+
+		return new PageImpl<>(
+			allRequests.subList(start, end),
+			PageRequest.of(page, size),
+			total
+		);
 	}
 
 }
