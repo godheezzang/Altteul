@@ -15,9 +15,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public class JudgeRequest {
 	String src;
-	Map<String, Object> language_config;
+	JavaLangDto language_config;
 	Long max_cpu_time;
 	Long max_memory;
 	String test_case_id;
 	Boolean output;
+	String io_mode;
 }

@@ -1,6 +1,7 @@
 package com.c203.altteulbe.game.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.c203.altteulbe.game.service.exception.JudgeCompileException;
 import com.c203.altteulbe.game.service.exception.JudgeServerException;
+import com.c203.altteulbe.game.web.dto.request.JavaLangDto;
 import com.c203.altteulbe.game.web.dto.request.JudgeRequest;
 import com.c203.altteulbe.game.web.dto.request.SubmitCodeRequest;
 import com.c203.altteulbe.game.web.dto.response.JudgeResponse;
@@ -32,34 +34,40 @@ public class JudgeService {
 
 	// 일반 채점 실행
 	public JudgeResponse judgeSubmission(SubmitCodeRequest request) {
-		Map<String, Object> javaLangConfig = new HashMap<>();
 
-		javaLangConfig.put("name", "java");
-
-		Map<String, Object> compile = new HashMap<>();
-		compile.put("src_name", "Main.java");
-		compile.put("exe_name", "Main");
-		compile.put("max_cpu_time", 3000);
-		compile.put("max_real_time", 5000);
-		compile.put("max_memory", -1);
-		compile.put("compile_command", "/usr/bin/javac {src_path} -d {exe_dir} -encoding UTF8");
-
-		javaLangConfig.put("compile", compile);
-
-		Map<String, Object> run = new HashMap<>();
-		run.put("command", "/usr/bin/java -cp {exe_dir} -XX:MaxRAM={max_memory}k -Djava.security.manager -Dfile.encoding=UTF-8 -Djava.security.policy==/etc/java_policy -Djava.awt.headless=true Main");
-		run.put("seccomp_rule", null);
-		run.put("env", "default_env");  // 실제 환경에서는 적절한 환경 변수 맵으로 대체해야 합니다.
-		run.put("memory_limit_check_only", 1);
-
-		javaLangConfig.put("run", run);
 		String url = judgeServerUrl + "/judge";
+
+		// Compile 설정
+		JavaLangDto.CompileConfig compileConfig = JavaLangDto.CompileConfig.builder()
+			.src_name("Main.java")
+			.exe_name("Main")
+			.max_cpu_time(5000)
+			.max_real_time(10000)
+			.max_memory(-1)
+			.compile_command("/usr/bin/javac {src_path} -d {exe_dir}")
+			.build();
+
+		// Run 설정
+		JavaLangDto.RunConfig runConfig = JavaLangDto.RunConfig.builder()
+			.command("/usr/bin/java -cp {exe_dir} -XX:MaxRAM={max_memory}k Main")
+			.seccomp_rule(null)
+			.env(List.of("LANG=en_US.UTF-8", "LANGUAGE=en_US:en", "LC_ALL=en_US.UTF-8"))
+			.memory_limit_check_only(1)
+			.build();
+
+		// JavaLangDto 생성
+		JavaLangDto javaLangDto = JavaLangDto
+			.builder()
+			.template("//PREPEND BEGIN\nclass Main {\n//PREPEND END\n\n//TEMPLATE BEGIN\n  static int add(int a, int b) {\n    // code\n  }\n//TEMPLATE END\n\n//APPEND BEGIN\n  public static void main(String [] args) {\n    System.out.println(add(1, 2));\n  }\n}\n//APPEND END")
+			.compile(compileConfig)
+			.run(runConfig)
+			.build();
 		JudgeRequest judgeRequest = JudgeRequest.builder()
+			.language_config(javaLangDto)
 			.src(request.getCode())
+			.max_cpu_time(5000L)
+			.max_memory(1024*1024*100L)
 			.test_case_id(request.getProblemId())
-			.language_config(javaLangConfig)
-			.max_cpu_time(1L)
-			.max_memory(512L)
 			.output(true)
 			.build();
 		return restTemplate.postForObject(url, judgeRequest, JudgeResponse.class);
