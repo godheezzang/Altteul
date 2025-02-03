@@ -48,9 +48,9 @@ pipeline {
 
     post {
         failure {
-            node {  // 'any' 레이블 제거
+            node('built-in') {  // 내장 노드 사용
                 script {
-                    sh "docker compose logs"
+                    sh "docker compose logs"  // 실패 시 도커 로그 확인
                 }
             }
         }
