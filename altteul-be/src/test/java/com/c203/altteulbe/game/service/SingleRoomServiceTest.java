@@ -12,10 +12,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.c203.altteulbe.common.dto.Language;
-import com.c203.altteulbe.common.response.WebSocketResponse;
-import com.c203.altteulbe.game.repository.SingleRoomRepository;
-import com.c203.altteulbe.game.web.dto.request.SingleRoomRequestDto;
-import com.c203.altteulbe.game.web.dto.response.SingleRoomEnterResponseDto;
+import com.c203.altteulbe.websocket.dto.response.WebSocketResponse;
+import com.c203.altteulbe.room.persistent.repository.SingleRoomRepository;
+import com.c203.altteulbe.room.web.dto.request.SingleRoomRequestDto;
+import com.c203.altteulbe.room.web.dto.response.SingleRoomEnterResponseDto;
+import com.c203.altteulbe.room.service.SingleRoomService;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 

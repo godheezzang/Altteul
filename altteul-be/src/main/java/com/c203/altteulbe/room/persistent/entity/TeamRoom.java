@@ -1,9 +1,11 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.room.persistent.entity;
 
 import java.time.LocalDateTime;
 
-import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.common.dto.BattleResult;
+import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.Game;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,35 +21,36 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true)
-public class Game extends BaseCreatedEntity {
-
+public class TeamRoom extends BaseCreatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "game_id", nullable = false, updatable = false)
+	@Column(name = "team_room_id", nullable = false, updatable = false)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "problem_id", nullable = false)
-	private Problem problem;
+	@JoinColumn(name = "game_id")
+	private Game game;
+
+	@Column(columnDefinition = "TEXT")
+	private String code;
+
+	private Integer solvedTestcaseCount;
 
 	@Enumerated(EnumType.STRING)
-	private BattleType battleType;
+	private BattleResult battleResult;
 
-	private LocalDateTime startedAt;
-	private LocalDateTime completedAt;
+	private Integer rewardPoint;
+	private String lastExecuteTime;
+	private String lastExecuteMemory;
 
-	public static Game create(Long gameId, Problem problem, BattleType battleType) {
-		return Game.builder()
-			.id(gameId)
-			.problem(problem)
-			.battleType(battleType)
-			.build();
-	}
+	@Enumerated(EnumType.STRING)
+	private Language lang;
+
+	private boolean activation;
+	private LocalDateTime finishTime;
 }
