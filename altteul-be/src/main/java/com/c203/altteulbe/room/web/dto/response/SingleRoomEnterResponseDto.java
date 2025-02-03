@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.response;
+package com.c203.altteulbe.room.web.dto.response;
 
 import java.util.List;
 

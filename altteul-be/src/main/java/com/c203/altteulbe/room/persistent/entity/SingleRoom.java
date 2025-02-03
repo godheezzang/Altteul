@@ -1,10 +1,11 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.room.persistent.entity;
 
 import java.time.LocalDateTime;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.persistence.Column;
@@ -19,10 +20,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -64,17 +63,11 @@ public class SingleRoom extends BaseCreatedEntity {
 	private boolean activatation;    // DB 오타
 	private LocalDateTime finishTime;
 
-	public static SingleRoom create(User user) {
+	public static SingleRoom create(Game game, User user, int order) {
 		return SingleRoom.builder()
+						 .game(game)
 						 .user(user)
-						 .activatation(true)
-						 .build();
-	}
-
-	public static SingleRoom addUser(Long roomId, User user) {
-		return SingleRoom.builder()
-						 .id(roomId)
-						 .user(user)
+						 .matchingOrder(order)
 						 .activatation(true)
 						 .build();
 	}

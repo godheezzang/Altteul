@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.service.exception;
+package com.c203.altteulbe.room.service.exception;
 
 import org.springframework.http.HttpStatus;
 

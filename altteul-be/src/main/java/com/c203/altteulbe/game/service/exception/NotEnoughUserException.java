@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 
 import com.c203.altteulbe.common.exception.BusinessException;
 
-public class RoomNotFoundException extends BusinessException {
-	public RoomNotFoundException() {
-		super("존재하지 않는 방입니다.", HttpStatus.NOT_FOUND);
+public class NotEnoughUserException extends BusinessException {
+	public NotEnoughUserException() {
+		super("인원수가 부족합니다.", HttpStatus.BAD_REQUEST);
 	}
 }

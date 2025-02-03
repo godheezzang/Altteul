@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.controller;
+package com.c203.altteulbe.room.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.common.response.WebSocketResponse;
-import com.c203.altteulbe.game.service.SingleRoomService;
-import com.c203.altteulbe.game.web.dto.request.SingleRoomRequestDto;
-import com.c203.altteulbe.game.web.dto.response.SingleRoomEnterResponseDto;
+import com.c203.altteulbe.room.service.SingleRoomService;
+import com.c203.altteulbe.room.web.dto.request.SingleRoomGameStartRequestDto;
+import com.c203.altteulbe.room.web.dto.request.SingleRoomRequestDto;
+import com.c203.altteulbe.room.web.dto.response.SingleRoomEnterResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +44,15 @@ public class SingleRoomController {
 	@PostMapping("/leave")
 	public ApiResponseEntity<Void> leaveSingleRoom(@RequestBody SingleRoomRequestDto requestDto) {
 		singleRoomService.leaveSingleRoom(requestDto);
+		return ApiResponse.success();
+	}
+
+	/*
+	 * 개인전 게임 시작 API
+	 */
+	@PostMapping("/start")
+	public ApiResponseEntity<Void> startGame(@RequestBody SingleRoomGameStartRequestDto requestDto) {
+		singleRoomService.startGame(requestDto);
 		return ApiResponse.success();
 	}
 }

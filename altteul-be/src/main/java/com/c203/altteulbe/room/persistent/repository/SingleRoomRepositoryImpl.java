@@ -1,7 +1,8 @@
-package com.c203.altteulbe.game.repository;
+package com.c203.altteulbe.room.persistent.repository;
 
-import static com.c203.altteulbe.game.persistent.entity.QSingleRoom.*;
+import static com.c203.altteulbe.room.persistent.entity.QSingleRoom.*;
 import org.springframework.stereotype.Repository;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 

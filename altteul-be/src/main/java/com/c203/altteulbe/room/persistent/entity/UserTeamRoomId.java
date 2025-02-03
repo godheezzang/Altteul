@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.room.persistent.entity;
 
 import java.io.Serializable;
 

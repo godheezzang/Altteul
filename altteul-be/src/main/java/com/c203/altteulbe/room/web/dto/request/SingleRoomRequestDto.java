@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.request;
+package com.c203.altteulbe.room.web.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

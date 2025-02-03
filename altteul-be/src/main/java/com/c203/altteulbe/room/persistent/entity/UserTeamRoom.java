@@ -1,8 +1,5 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.room.persistent.entity;
 
-import java.time.LocalDate;
-
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Persistable;
 
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;

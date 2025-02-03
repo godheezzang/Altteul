@@ -1,10 +1,11 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.room.persistent.entity;
 
 import java.time.LocalDateTime;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.Game;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
