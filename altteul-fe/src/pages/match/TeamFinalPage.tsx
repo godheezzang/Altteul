@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Users } from "@/types";
+import { formatTime } from '@utils/formatTime';
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
@@ -51,13 +52,6 @@ const SingleSearchPage = () => {
       return () => clearTimeout(typingTimer);
     }
   }, [textIndex]);
-
-  // 시간 포맷팅(MM:SS)
-  const formatTime = (timeInSeconds: number): string => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  };
 
   return (
     <div
