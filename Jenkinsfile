@@ -9,26 +9,26 @@ pipeline {
 
     stages {
 
-        stage('Prune Git Remote') {
-            steps {
-                script {
-                    // 더 강력한 정리 명령어 추가
-                    sh """
-                        git remote prune origin || true
-                        git fetch --prune || true
-                        git clean -fd || true
-                    """
-                }
-            }
-        }
+        // stage('Prune Git Remote') {
+        //     steps {
+        //         script {
+        //             // 더 강력한 정리 명령어 추가
+        //             sh """
+        //                 git remote prune origin || true
+        //                 git fetch --prune || true
+        //                 git clean -fd || true
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Checkout SCM') {
-            steps {
-                script {
-                    checkout scm
-                }
-            }
-        }
+        // stage('Checkout SCM') {
+        //     steps {
+        //         script {
+        //             checkout scm
+        //         }
+        //     }
+        // }
 
         stage('Create .env File') {
             steps {
