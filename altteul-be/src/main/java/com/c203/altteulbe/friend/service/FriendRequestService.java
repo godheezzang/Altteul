@@ -3,8 +3,6 @@ package com.c203.altteulbe.friend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -36,17 +34,22 @@ public class FriendRequestService {
 	private final FriendshipRepository friendshipRepository;
 	private final RedisUtils redisUtils;
 
-	private static final String FRIEND_REQUEST_CACHE = "friendRequests";
-
 	// 친구 요청 목록 조회
-	@Cacheable(value = FRIEND_REQUEST_CACHE, key = "#userId")
 	@Transactional
 	public Page<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
 		userJPARepository.findByUserId(userId).orElseThrow(() -> {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
 		});
+		// 캐시된 친구 요청 목록 페이지네이션
+		List<FriendRequestResponseDto> cachedRequest = redisUtils.getCachedFriendRequests(userId);
+		if (cachedRequest != null) {
+			return paginate(cachedRequest, page, size);
+		}
+		// 캐시된 친구 요청 목록이 없을 경우 db에서 가져오기
 		List<FriendRequestResponseDto> allRequest = getPendingFriendRequestsFromDB(userId);
+		// db에서 가져온 친구 요청 목록 캐싱
+		redisUtils.cacheFriendRequests(userId, allRequest);
 		return paginate(allRequest, page, size);
 	}
 
@@ -83,12 +86,13 @@ public class FriendRequestService {
 			.from(fromUser)
 			.to(toUser)
 			.build();
+		// 친구 요청이 새로 생겼으니 이미 있던 친구 요청 목록 캐시 삭제
+		redisUtils.invalidateFriendRequests(toUser.getUserId());
 		return FriendRequestResponseDto.from(friendRequestRepository.save(friendRequest));
 	}
 
 	// 요청 처리
 	@Transactional
-	@CacheEvict(value = FRIEND_REQUEST_CACHE, key = "#userId + ':*'")
 	public void processRequest(Long requestId, Long userId, RequestStatus status) {
 		// 요청 조회 및 검증
 		FriendRequest request = friendRequestRepository.findById(requestId)
@@ -113,6 +117,9 @@ public class FriendRequestService {
 		request.updateStatus(status);
 		friendRequestRepository.save(request);
 
+		// 친구 요청 상태가 업데이트 됐으니 이미 있던 친구 요청 목록 캐시 삭제
+		redisUtils.invalidateFriendRequests(userId);
+
 		// 수락된 경우 친구 관계 생성
 		if (status == RequestStatus.A) {
 
@@ -131,6 +138,7 @@ public class FriendRequestService {
 				List.of(friendshipFromTo, friendshipToFrom)
 			);
 
+			// 친구 관계 캐시에 넣기
 			redisUtils.setFriendRelation(
 				request.getFrom().getUserId(),
 				request.getTo().getUserId()

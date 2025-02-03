@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FriendRequestDto {
 
-	@NotNull
+	@NotNull(groups = {Process.class})
 	private Long friendRequestId;
 
 	@NotNull
@@ -23,6 +23,9 @@ public class FriendRequestDto {
 	@NotNull
 	private Long toUserId;
 
-	@NotNull
-	private RequestStatus status;
+	@NotNull(groups = {Process.class})
+	private RequestStatus requestStatus;
+
+	public interface Process {
+	}
 }
