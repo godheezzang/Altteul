@@ -1,14 +1,19 @@
 package com.c203.altteulbe.game.web.dto.judge.request.lang;
 
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
+@NoArgsConstructor
+@Getter
 public class JavaLangDto extends LangDto {
 	private CompileConfig compile;
 	private RunConfig run;
 
-	@Builder()
+	@SuperBuilder
+	@Getter
 	public static class CompileConfig {
 		private final String src_name = "Main.java";
 		private final String exe_name = "Main";
@@ -18,10 +23,11 @@ public class JavaLangDto extends LangDto {
 		@Builder.Default
 		private int max_real_time = 10000;
 		@Builder.Default
-		private int max_memory = 128 * 1024 * 1024;
+		private int max_memory = -1;
 	}
 
-	@SuperBuilder(toBuilder = true)
+	@SuperBuilder
+	@Getter
 	public static class RunConfig extends CommonRunConfig {
 		private final String command = "/usr/bin/java -cp {exe_dir} -XX:MaxRAM={max_memory}k Main";
 		private final String seccomp_rule = null;
