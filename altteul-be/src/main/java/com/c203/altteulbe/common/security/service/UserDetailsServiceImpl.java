@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
+import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,9 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User testUser = User.builder().userId(1L).password("string").build();
-		testUser.hashPassword(passwordEncoder);
-
-		return testUser;
+		User user = userRepository.findByUsername(username)
+			.orElseThrow(NotFoundUserException::new);
+		return user;
 	}
 }

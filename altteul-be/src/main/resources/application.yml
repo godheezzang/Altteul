@@ -7,8 +7,10 @@ spring:
         - dev-mysql
         - dev-token
         - dev-redis
+        - dev-oauth
       prod:
         - prod-mysql
         - prod-token
         - prod-redis
+        - prod-oauth
     active: ${SPRING_PROFILES_ACTIVE}
