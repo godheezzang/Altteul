@@ -1,9 +1,9 @@
 import React from "react";
 
 type DropdownProps = {
-  options: { id: number | null; value: string }[];
+  options: { id: number | null; value: string; label: string }[];
   value: string;
-  onChange: () => void;
+  onChange: (selected: string) => void;
   width?: string;
   height?: string;
   className?: string;
@@ -17,16 +17,20 @@ const Dropdown = ({
   height,
   className = "",
 }: DropdownProps) => {
+  const handleChange = (e) => {
+    onChange(e.target.value);
+  };
+
   return (
     <select
       className={`dropdown ${className}`.trim()}
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       style={{ width, height }}
     >
       {options.map((el) => (
         <option key={el.id} value={el.value}>
-          {el.value}
+          {el.label}
         </option>
       ))}
     </select>
