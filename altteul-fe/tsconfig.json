@@ -1,6 +1,19 @@
 {
-  "files": [],
   "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+
+    // Bundler Mode
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "baseUrl": "./src",
     "paths": {
       "@assets/*": ["assets/*"],
@@ -13,9 +26,6 @@
       "@styles/*": ["styles/*"]
     }
   },
-  "include": ["src"],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
