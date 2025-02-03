@@ -3,15 +3,16 @@ package com.c203.altteulbe.friend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.RequestStatus;
 import com.c203.altteulbe.common.exception.BusinessException;
+import com.c203.altteulbe.common.response.PageResponse;
+import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.common.utils.RedisUtils;
 import com.c203.altteulbe.friend.persistent.entity.FriendRequest;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
@@ -33,10 +34,11 @@ public class FriendRequestService {
 	private final UserJPARepository userJPARepository;
 	private final FriendshipRepository friendshipRepository;
 	private final RedisUtils redisUtils;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 친구 요청 목록 조회
 	@Transactional
-	public Page<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
+	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
 		userJPARepository.findByUserId(userId).orElseThrow(() -> {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
@@ -44,13 +46,16 @@ public class FriendRequestService {
 		// 캐시된 친구 요청 목록 페이지네이션
 		List<FriendRequestResponseDto> cachedRequest = redisUtils.getCachedFriendRequests(userId);
 		if (cachedRequest != null) {
-			return paginate(cachedRequest, page, size);
+
+			Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(cachedRequest, page, size);
+			return new PageResponse<>("friendRequests", paginateResult);
 		}
 		// 캐시된 친구 요청 목록이 없을 경우 db에서 가져오기
 		List<FriendRequestResponseDto> allRequest = getPendingFriendRequestsFromDB(userId);
 		// db에서 가져온 친구 요청 목록 캐싱
 		redisUtils.cacheFriendRequests(userId, allRequest);
-		return paginate(allRequest, page, size);
+		Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(allRequest, page, size);
+		return new PageResponse<>("friendRequests", paginateResult);
 	}
 
 	// db에서 친구 요청 목록 가져오기
@@ -61,19 +66,6 @@ public class FriendRequestService {
 			.stream()
 			.map(FriendRequestResponseDto::from)
 			.collect(Collectors.toList());
-	}
-
-	// 가져온 목록을 페이지네이션하기
-	private Page<FriendRequestResponseDto> paginate(List<FriendRequestResponseDto> allRequests, int page, int size) {
-		int total = allRequests.size();
-		int start = Math.min(page * size, total);
-		int end = Math.min((page + 1) * size, total);
-
-		return new PageImpl<>(
-			allRequests.subList(start, end),
-			PageRequest.of(page, size),
-			total
-		);
 	}
 
 	// 친구 신청 생성
@@ -143,6 +135,11 @@ public class FriendRequestService {
 				request.getFrom().getUserId(),
 				request.getTo().getUserId()
 			);
+
+			// 친구 관계가 새롭게 갱신되어서 이전에 캐싱된 친구 리스트 삭제
+			redisUtils.invalidateFriendList(request.getFrom().getUserId());
+			redisUtils.invalidateFriendList(request.getTo().getUserId());
+
 		}
 	}
 
@@ -177,6 +174,7 @@ public class FriendRequestService {
 			throw new BusinessException("정지된 사용자입니다.", HttpStatus.BAD_REQUEST);
 		}
 	}
+
 }
 
 

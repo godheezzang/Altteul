@@ -1,6 +1,5 @@
 package com.c203.altteulbe.friend.web.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,14 +25,16 @@ import lombok.RequiredArgsConstructor;
 public class FriendRequestController {
 	private final FriendRequestService friendRequestService;
 
+	// 친구 요청 리스트 조회
 	@GetMapping("/friend/request")
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendRequestResponseDto>>> getFriendRequestList(
 		@AuthenticationPrincipal Long id,
 		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
 		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Page<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequestsFromRedis(id, page, size);
-		return ApiResponse.success(new PageResponse<>("friendRequests", friendRequest), HttpStatus.OK);
+		PageResponse<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequestsFromRedis(id,
+			page, size);
+		return ApiResponse.success(friendRequest, HttpStatus.OK);
 	}
 
 }

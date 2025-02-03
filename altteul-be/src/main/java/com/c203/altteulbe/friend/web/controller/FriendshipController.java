@@ -1,6 +1,5 @@
 package com.c203.altteulbe.friend.web.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class FriendshipController {
 	private final FriendshipService friendshipService;
 
+	// 친구 리스트 조회
 	@GetMapping("/friends")
 	@PreAuthorize("isAuthenticated()")
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendResponseDto>>> getFriends(
@@ -32,7 +32,7 @@ public class FriendshipController {
 		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
 		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Page<FriendResponseDto> friends = friendshipService.getFriendsList(id, page, size);
-		return ApiResponse.success(new PageResponse<>("friends", friends), HttpStatus.OK);
+		PageResponse<FriendResponseDto> friends = friendshipService.getFriendsList(id, page, size);
+		return ApiResponse.success(friends, HttpStatus.OK);
 	}
 }

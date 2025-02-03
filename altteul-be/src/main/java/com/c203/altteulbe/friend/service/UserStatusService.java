@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.c203.altteulbe.common.exception.BusinessException;
+import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import io.lettuce.core.RedisConnectionException;
@@ -23,13 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserStatusService {
 	private final RedisTemplate<String, String> redisTemplate;
-	private static final String USER_STATUS = "user_status";
 
 	// 유저 온라인 상태 설정
 	public void setUserOnline(Long userId) {
 		validateUserId(userId);
 		try {
-			String key = getUserStatusKey(userId);
+			String key = RedisKeys.getUserStatusKey(userId);
 			redisTemplate.opsForValue().set(key, "online");
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
@@ -45,7 +45,7 @@ public class UserStatusService {
 	public void setUserOffline(Long userId) {
 		validateUserId(userId);
 		try {
-			String key = getUserStatusKey(userId);
+			String key = RedisKeys.getUserStatusKey(userId);
 			redisTemplate.delete(key);
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
@@ -60,7 +60,7 @@ public class UserStatusService {
 	public boolean isUserOnline(Long userId) {
 		validateUserId(userId);
 		try {
-			String key = getUserStatusKey(userId);
+			String key = RedisKeys.getUserStatusKey(userId);
 			return Boolean.TRUE.equals(redisTemplate.hasKey(key));
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
@@ -79,7 +79,7 @@ public class UserStatusService {
 			userIds.forEach(id ->
 				// exists 명령은 Long 타입의 값을 반환
 				// 각 키에 대해 Long 타입의 1 또는 0 값을 반환
-				stringConn.exists(getUserStatusKey(id))); // redis에 해당 키가 있는지 확인 (존재하면 온라인)
+				stringConn.exists(RedisKeys.getUserStatusKey(id))); // redis에 해당 키가 있는지 확인 (존재하면 온라인)
 			return null;
 		});
 		// // 결과를 userIds에 맞게 매핑하여 Map으로 반환
@@ -96,10 +96,6 @@ public class UserStatusService {
 		if (userId == null) {
 			throw new NotFoundUserException();
 		}
-	}
-
-	private static String getUserStatusKey(Long userId) {
-		return USER_STATUS + ":" + userId;
 	}
 
 }

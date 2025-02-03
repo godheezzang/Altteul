@@ -8,6 +8,18 @@ public class RedisKeys {
 	// 개인전 대기 중인 방 목록
 	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
 
+	// 친구 관계
+	private static final String FRIEND_RELATION_CACHE = "friendRelation";
+
+	// 친구 요청
+	private static final String FRIEND_REQUEST_CACHE = "friendRequests";
+
+	// 친구 리스트
+	private static final String FRIEND_LIST_CACHE = "friendList";
+
+	// 유저 상태
+	private static final String USER_STATUS = "user_status";
+
 	// 개인전 방 상태
 	public static String SingleRoomStatus(Long roomId) {
 		return "room:single:" + roomId + ":status";
@@ -26,5 +38,25 @@ public class RedisKeys {
 	// 개인전 방 카운팅 관리
 	public static String SingleRoomCountdown(Long roomId) {
 		return "room:single:" + roomId + ":countdown";
+	}
+
+	// 친구 요청 키
+	public static String geFriendRequestKey(Long userId) {
+		return FRIEND_REQUEST_CACHE + ":" + userId;
+	}
+
+	// 친구 관계 키
+	public static String getFriendRelationKey(Long userId) {
+		return FRIEND_RELATION_CACHE + ":" + userId;
+	}
+
+	// 유저 상태 키
+	public static String getUserStatusKey(Long userId) {
+		return USER_STATUS + ":" + userId;
+	}
+
+	// 친구 리스트 키
+	public static String getFriendListKey(Long userId) {
+		return FRIEND_LIST_CACHE + ":" + userId;
 	}
 }
