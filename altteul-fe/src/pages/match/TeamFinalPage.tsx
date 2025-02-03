@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Users } from "@/types";
 import { formatTime } from '@utils/formatTime';
-import { useTimer } from '@/hooks/useTimer';
+import { useTimer } from '@hooks/useTimer';
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
