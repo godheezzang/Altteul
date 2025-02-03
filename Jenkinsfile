@@ -8,32 +8,32 @@ pipeline {
     }
 
     stages {
-        stage('Cleanup Workspace') {
-            steps {
-                script {
-                    // Git 충돌 방지: 기존 Git 저장소를 완전히 삭제
-                    sh "rm -rf /var/lib/jenkins/workspace/Altteul/.git || true"
-                }
-            }
-        }
 
-        stage('Checkout SCM') {
-            steps {
-                script {
-                    // 깨끗한 상태에서 다시 Clone
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/master']],  // 사용할 브랜치 지정
-                        userRemoteConfigs: [[
-                            credentialsId: 'C203',  // Jenkins GitLab 인증 정보
-                            url: 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
-                        ]],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'WipeWorkspace']]  // 기존 파일 삭제 후 새로 체크아웃
-                    ])
-                }
-            }
-        }
+        // stage('Cleanup Git Repository') {
+        //     steps {
+        //         script {
+        //             sh """
+        //             git remote prune origin || true
+        //             """
+        //         }
+        //     }
+        // }
+
+        // stage('Cleanup Workspace') {
+        //     steps {
+        //         script {
+        //             git remote prune https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git
+        //         }
+        //     }
+        // }
+
+        // stage('Checkout SCM') {
+        //     steps {
+        //         script {
+        //             checkout scm
+        //         }
+        //     }
+        // }
 
         stage('Create .env File') {
             steps {
@@ -46,14 +46,17 @@ pipeline {
         stage('Build Images') {
             steps {
                 script {
+                    // frontend, backend 이미지 빌드
                     sh "docker compose build"
                 }
             }
         }
 
+
         stage('Stop Previous Containers') {
             steps {
                 script {
+                    // 기존 실행 중인 컨테이너들 정리
                     sh "docker compose down || true"
                 }
             }
@@ -62,6 +65,7 @@ pipeline {
         stage('Start Containers') {
             steps {
                 script {
+                    // 데이터베이스 볼륨 유지하면서 컨테이너 시작
                     sh "docker compose up -d"
                 }
             }
@@ -71,6 +75,7 @@ pipeline {
     post {
         failure {
             script {
+                // 실패 시 컨테이너 로그 확인
                 sh "docker compose logs"
             }
         }
