@@ -9,31 +9,22 @@ pipeline {
 
     stages {
 
-        // stage('Cleanup Git Repository') {
-        //     steps {
-        //         script {
-        //             sh """
-        //             git remote prune origin || true
-        //             """
-        //         }
-        //     }
-        // }
+        stage('Prune Git Remote') {
+            steps {
+                script {
+                    // Git의 오래된 참조를 정리
+                    sh "git remote prune origin || true"
+                }
+            }
+        }
 
-        // stage('Cleanup Workspace') {
-        //     steps {
-        //         script {
-        //             git remote prune https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git
-        //         }
-        //     }
-        // }
-
-        // stage('Checkout SCM') {
-        //     steps {
-        //         script {
-        //             checkout scm
-        //         }
-        //     }
-        // }
+        stage('Checkout SCM') {
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
 
         stage('Create .env File') {
             steps {
