@@ -9,12 +9,29 @@ pipeline {
 
     stages {
 
-        stage('Cleanup Git Repository') {
+        // stage('Cleanup Git Repository') {
+        //     steps {
+        //         script {
+        //             sh """
+        //             git remote prune origin || true
+        //             """
+        //         }
+        //     }
+        // }
+
+        stage('Cleanup Workspace') {
             steps {
                 script {
-                    sh """
-                    git remote prune origin || true
-                    """
+                    // 기존 작업공간 삭제 (오류 방지)
+                    sh "rm -rf /var/lib/jenkins/workspace/Altteul/* || true"
+                }
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                script {
+                    checkout scm
                 }
             }
         }
