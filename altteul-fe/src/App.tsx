@@ -5,7 +5,7 @@ import SelectPage from "./pages/match/SelectPage";
 import SingleSearchPage from "./pages/match/SingleSearchPage";
 import SingleFinalPage from "./pages/match/SingleFinalPage";
 import TeamcompositionPage from "./pages/match/TeamcompositionPage";
-import TeamSerchPage from "./pages/match/TeamSerchPage";
+import TeamSearchPage from "./pages/match/TeamSearchPage";
 import TeamFinalPage from "./pages/match/TeamFinalPage";
 
 
@@ -18,7 +18,7 @@ function App() {
         <Route path="/single-search" element={<SingleSearchPage />} />
         <Route path="/single-final" element={<SingleFinalPage />} />
         <Route path="/team-composition" element={<TeamcompositionPage />} />
-        <Route path="/team-search" element={<TeamSerchPage />} />
+        <Route path="/team-search" element={<TeamSearchPage />} />
         <Route path="/team-final" element={<TeamFinalPage />} />
       </Routes>
     </Router>
