@@ -1,12 +1,9 @@
 package com.c203.altteulbe.room.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -20,7 +17,7 @@ import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.Testcase;
-import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
 import com.c203.altteulbe.game.service.exception.GameCannotStartException;
@@ -58,7 +55,7 @@ public class SingleRoomService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
-	private final GameRepository gameRepository;
+	private final GameJPARepository gameRepository;
 
 	/*
 	 * 개인전 대기방 입장 처리

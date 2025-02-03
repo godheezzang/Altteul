@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.c203.altteulbe.game.persistent.entity.Game;
 
-public interface GameRepository extends JpaRepository<Game, Long> {
+public interface GameJPARepository extends JpaRepository<Game, Long> {
 }
