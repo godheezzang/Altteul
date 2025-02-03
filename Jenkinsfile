@@ -48,8 +48,10 @@ pipeline {
 
     post {
         failure {
-            script {
-                sh "docker compose logs"
+            node {  // 'any' 레이블 제거
+                script {
+                    sh "docker compose logs"
+                }
             }
         }
     }
