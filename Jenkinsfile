@@ -48,10 +48,8 @@ pipeline {
 
     post {
         failure {
-            node('any') {  // node 블록 추가
-                script {
-                    sh "docker compose logs"
-                }
+            script {
+                sh "docker compose logs"
             }
         }
     }
