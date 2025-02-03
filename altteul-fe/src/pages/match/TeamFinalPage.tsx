@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Users } from "@/types";
 import { formatTime } from '@utils/formatTime';
+import { useTimer } from '@/hooks/useTimer';
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
@@ -19,27 +20,17 @@ const mockUsers: Users = {
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const [seconds, setSeconds] = useState<number>(10); //타이머 시간 설정 변수
   const ProblemTitle = "물류 창고 로봇"; //문제 제목 부분
   const [displayText, setDisplayText] = useState(""); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0);  //타이핑 효과 추적 변수
 
-  // 타이머 로직
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          //타이머 종료 후 이동
-          // navigate('/single-final');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate]);
+  const { seconds } = useTimer({
+    initialSeconds: 10, // 시작 시간 설정
+    // 타이머 완료 시 실행할 콜백
+    onComplete: () => { 
+      // navigate('/single-final'); 
+    }
+  });
 
   // 타이핑 효과 로직
   useEffect(() => {
