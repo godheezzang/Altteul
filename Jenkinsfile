@@ -12,8 +12,12 @@ pipeline {
         stage('Prune Git Remote') {
             steps {
                 script {
-                    // Git의 오래된 참조를 정리
-                    sh "git remote prune origin || true"
+                    // 더 강력한 정리 명령어 추가
+                    sh """
+                        git remote prune origin || true
+                        git fetch --prune || true
+                        git clean -fd || true
+                    """
                 }
             }
         }
