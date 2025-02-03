@@ -20,7 +20,7 @@ public class SingleRoomGameStartResponseDto {
 	private Long leaderId;
 	private List<UserInfoResponseDto> users;
 	private GameStartForProblemDto problem;
-	private List<GameStartForTestcaseDto> testcase;
+	private List<GameStartForTestcaseDto> testcases;
 
 	public static SingleRoomGameStartResponseDto from(Long gameId, Long leaderId,
 									  List<UserInfoResponseDto> users,
@@ -31,7 +31,7 @@ public class SingleRoomGameStartResponseDto {
 			.leaderId(leaderId)
 			.users(users)
 			.problem(problem)
-			.testcase(testcase)
+			.testcases(testcase)
 			.build();
 	}
 }

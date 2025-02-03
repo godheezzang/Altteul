@@ -3,6 +3,8 @@ package com.c203.altteulbe.room.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
-import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
+import com.c203.altteulbe.room.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.Testcase;
@@ -98,6 +101,9 @@ public class SingleRoomService {
 
 		// 유저가 속한 방 조회
 		Long roomId = singleRoomRedisRepository.getUserRoomId(userId);
+		if (roomId == null) {
+			throw new UserNotInRoomException();
+		}
 
 		// 현재 방에 존재하는 유저들 조회
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
@@ -155,10 +161,10 @@ public class SingleRoomService {
 		if (!singleRoomValidator.isRoomLeader(roomId, leaderId)) throw new NotRoomLeaderException();
 		if (!singleRoomValidator.isEnoughUsers(roomId)) throw new NotEnoughUserException();
 
-		// 방 상태 변경
+		// 방 상태 변경 (waiting → counting)
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
-		// 카운트다운 시작
+		// 카운트다운 시작 → Scheduler가 인식
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "5");
 	}
 
@@ -174,8 +180,13 @@ public class SingleRoomService {
 		}
 
 		// 문제 및 테스트케이스 조회
-		Problem problemEntity = problemRepository.findRandomProblem()
-			                               .orElseThrow(()-> new ProblemNotFoundException());
+		List<Long> problemIds = problemRepository.findAllProblemIds();
+		if (problemIds.isEmpty()) {
+			throw new ProblemNotFoundException();
+		}
+		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
+		Problem problemEntity = problemRepository.findById(randomProblemId)
+												 .orElseThrow(()->new ProblemNotFoundException());
 
 		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
 
@@ -186,15 +197,11 @@ public class SingleRoomService {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 
-		if (userIds == null || userIds.isEmpty()) {
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.");
-			return;
-		}
 		Long leaderId = Long.parseLong(userIds.get(0));
 
 		// [1] DB에 SingleRoom 저장 : 입장 순서 유지를 위해 userId List를 User List로 변환 후 Map으로 저장
 		Map<Long, User> userMap = getUserByIds(userIds).stream()
-						.collect(Collectors.toMap(User::getUserId, user -> user));
+									.collect(Collectors.toMap(User::getUserId, user -> user));
 
 		// [2] DB에 SingleRoom 저장 : SingleRoom 생성 후 DB에 저장
 		List<SingleRoom> singleRooms = new ArrayList<>();
@@ -214,15 +221,16 @@ public class SingleRoomService {
 
 		// WebSocket으로 게임 시작 데이터 전송
 		List<User> userEntities = getUserByIds(userIds);
+		List<UserInfoResponseDto> users = UserInfoResponseDto.fromEntities(userEntities);
+
 		List<GameStartForTestcaseDto> testcase = testcaseEntities.stream()
 													.map(GameStartForTestcaseDto::from)
 													.collect(Collectors.toList());
 
-		List<UserInfoResponseDto> users = UserInfoResponseDto.fromEntities(userEntities);
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 
 		SingleRoomGameStartResponseDto responseDto = SingleRoomGameStartResponseDto.from(
-			game.getId(),leaderId, users, problem, testcase
+			game.getId(), leaderId, users, problem, testcase
 		);
 
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto);

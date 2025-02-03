@@ -1,4 +1,4 @@
-package com.c203.altteulbe.common.utils;
+package com.c203.altteulbe.room.utils;
 
 public class RedisKeys {
 

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.room.utils.RedisKeys;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -45,10 +45,7 @@ public class SingleRoomRedisRepository {
 	// 유저가 속한 방 조회
 	public Long getUserRoomId(Long userId) {
 		String roomIdStr = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(userId));
-		if (roomIdStr == null) {
-			throw new UserNotInRoomException();
-		}
-		return Long.parseLong(roomIdStr);
+		return (roomIdStr != null) ? Long.parseLong(roomIdStr) : null;
 	}
 
 	// 개인전 대기방 생성
@@ -86,16 +83,15 @@ public class SingleRoomRedisRepository {
 		return SingleRoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
 	}
 
-	// 개인전 방 데이터 삭제 (게임 완료 후)
-	// userSingleRoom도 제거해야 함
-	/*public void deleteRedisSingleRoom(Long roomId) {
+	// 카운팅 중 유저가 모두 퇴장한 경우 → 개인전 방 데이터 삭제
+	public void deleteRedisSingleRoom(Long roomId) {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
 
 		redisTemplate.delete(roomUsersKey);  // 방에 속한 유저 삭제
 		redisTemplate.delete(roomStatusKey); // 방 상태 삭제
 		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString()); // 대기방 목록에서 제거
-	}*/
+	}
 
 
 	// single_room_id 생성

@@ -1,6 +1,7 @@
 package com.c203.altteulbe.websocket;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,10 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.c203.altteulbe.friend.service.UserStatusService;
+import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
+import com.c203.altteulbe.room.service.SingleRoomService;
+import com.c203.altteulbe.room.utils.RedisKeys;
+import com.c203.altteulbe.room.web.dto.request.SingleRoomRequestDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSocketEventListener {
 	private final UserStatusService userStatusService;
+	private final SingleRoomRedisRepository singleRoomRedisRepository;
+	private final SingleRoomService singleRoomService;
+	private final RedisTemplate<String, String> redisTemplate;
 	private final JWTUtil jwtUtil;
 
 	@EventListener
@@ -38,6 +46,19 @@ public class WebSocketEventListener {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 		try {
 			Long userId = getUserIdFromSession(accessor);
+			Long roomId = singleRoomRedisRepository.getUserRoomId(userId);
+
+			// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리
+			if (roomId != null) {
+				String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
+				String status = redisTemplate.opsForValue().get(roomStatusKey);
+
+				if ("counting".equals(status)) {
+					log.info("WebSocket Disconnect 발생 : userId : {}, roomId : {}", userId, roomId);
+					SingleRoomRequestDto leftUser = SingleRoomRequestDto.toDto(userId);
+					singleRoomService.leaveSingleRoom(leftUser);
+				}
+			}
 			userStatusService.setUserOffline(userId);
 			log.info("유저가 연결 해제 되었습니다 - userId: {}", userId);
 		} catch (Exception e) {
