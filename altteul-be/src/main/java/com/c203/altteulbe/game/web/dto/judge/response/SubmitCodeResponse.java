@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.response;
+package com.c203.altteulbe.game.web.dto.judge.response;
 
 public class SubmitCodeResponse {
 	// String status;         // AC, WA, TLE 등

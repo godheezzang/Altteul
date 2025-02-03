@@ -1,6 +1,6 @@
-package com.c203.altteulbe.game.web.dto.request;
+package com.c203.altteulbe.game.web.dto.judge.request;
 
-import java.util.Map;
+import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +13,11 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class JudgeRequest {
+public class JudgeRequestDto {
 	String src;
-	JavaLangDto language_config;
+	LangDto language_config;
 	Long max_cpu_time;
 	Long max_memory;
 	String test_case_id;
 	Boolean output;
-	String io_mode;
 }

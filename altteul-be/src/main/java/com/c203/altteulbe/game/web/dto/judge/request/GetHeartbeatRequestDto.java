@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.response;
+package com.c203.altteulbe.game.web.dto.judge.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetHeartbeatResponse {
-	private Boolean error;
-	private Object data;
+public class GetHeartbeatRequestDto {
+	private int cpu;
+	private int memory;
 }
