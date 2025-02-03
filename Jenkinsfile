@@ -2,17 +2,20 @@ pipeline {
     agent any
 
     environment {
-        // DOCKER_REGISTRY = "your-registry"
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        ENV_FILE_CONTENTS = credentials('ENV_FILE_CONTENTS')
     }
 
     stages {
-    //     stage('Clone Repository') {
-    //         steps {
-    //             git branch: 'master', url: 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
-    //         }
-    //     }
+
+        stage('Create .env File') {
+            steps {
+                script {
+                    writeFile file: './altteul-be/.env', text: "${ENV_FILE_CONTENTS}"
+                }
+            }
+        }
 
         stage('Build Images') {
             steps {
@@ -22,6 +25,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Stop Previous Containers') {
             steps {
@@ -40,24 +44,6 @@ pipeline {
                 }
             }
         }
-
-        // stage('Health Check') {
-        //     steps {
-        //         script {
-        //             // 서비스들이 정상적으로 시작됐는지 확인
-        //             sh '''
-        //                 # Frontend health check
-        //                 curl -f http://localhost:3000/health || exit 1
-                        
-        //                 # Backend health check
-        //                 curl -f http://localhost:8080/actuator/health || exit 1
-                        
-        //                 # Database connection check
-        //                 docker-compose exec -T backend ./gradlew checkDbConnection || exit 1
-        //             '''
-        //         }
-        //     }
-        // }
     }
 
     post {
