@@ -9,6 +9,16 @@ pipeline {
 
     stages {
 
+        stage('Cleanup Git Repository') {
+            steps {
+                script {
+                    sh """
+                    git remote prune origin || true
+                    """
+                }
+            }
+        }
+
         stage('Create .env File') {
             steps {
                 script {
