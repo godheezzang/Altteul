@@ -4,31 +4,10 @@ pipeline {
     environment {
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        ENV_FILE_CONTENTS = credentials('ENV_FILE_CONTENTS')
+        ENV_FILE_CONTENTS = credentials('BE_ENV_FILE_CONTENTS')
     }
 
     stages {
-
-        // stage('Prune Git Remote') {
-        //     steps {
-        //         script {
-        //             // 더 강력한 정리 명령어 추가
-        //             sh """
-        //                 git remote prune origin || true
-        //                 git fetch --prune || true
-        //                 git clean -fd || true
-        //             """
-        //         }
-        //     }
-        // }
-
-        // stage('Checkout SCM') {
-        //     steps {
-        //         script {
-        //             checkout scm
-        //         }
-        //     }
-        // }
 
         stage('Create .env File') {
             steps {
@@ -69,9 +48,10 @@ pipeline {
 
     post {
         failure {
-            script {
-                // 실패 시 컨테이너 로그 확인
-                sh "docker compose logs"
+            node('any') {  // node 블록 추가
+                script {
+                    sh "docker compose logs"
+                }
             }
         }
     }
