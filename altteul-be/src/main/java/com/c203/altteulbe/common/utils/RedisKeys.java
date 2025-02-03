@@ -22,4 +22,9 @@ public class RedisKeys {
 	public static String userSingleRoom(Long userId) {
 		return "user:" + userId + ":single_room";
 	}
+
+	// 개인전 방 카운팅 관리
+	public static String SingleRoomCountdown(Long roomId) {
+		return "room:single:" + roomId + ":countdown";
+	}
 }
