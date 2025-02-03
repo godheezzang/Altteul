@@ -13,4 +13,5 @@ spring:
         - prod-mysql
         - prod-token
         - prod-redis
+        - prod-oauth
     active: ${SPRING_PROFILES_ACTIVE}

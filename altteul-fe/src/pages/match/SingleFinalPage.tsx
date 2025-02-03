@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Users } from '@/types';
+import { formatTime } from '@utils/formatTime';
+import { useTimer } from '@hooks/useTimer';
 import UserProfile from '@components/match/UserProfile';
 import Button from "@components/common/Button/Button";
 import backgroundImage from '@assets/background/single_matching.svg';
@@ -21,30 +23,14 @@ const mockUsers: Users = {
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const [seconds, setSeconds] = useState<number>(10); // 3minutes in seconds
 
-  // 타이머 로직
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-        //   navigate('/single-final');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate]);
-
-  // 시간 포맷팅
-  const formatTime = (timeInSeconds: number): string => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  };
+  const { seconds } = useTimer({
+    initialSeconds: 10, // 시작 시간 설정
+    // 타이머 완료 시 실행할 콜백
+    onComplete: () => { 
+      // navigate('/single-final'); 
+    }
+  });
 
   return (
     <div 

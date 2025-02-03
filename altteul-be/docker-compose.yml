@@ -55,7 +55,7 @@ services:
       - ./entrypoint_override.sh:/app/entrypoint_override.sh
     environment:
       - SERVICE_URL=http://judge:8082
-      - BACKEND_URL=http://host.docker.internal:8081/api/judge-ping-check
+      - BACKEND_URL=http://host.docker.internal:8081/api/judge/check
       - TOKEN=${SECRET_KEY}
     entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint_override.sh"]
 

@@ -1,55 +1,92 @@
-version: '3.8'
 services:
   frontend:
-    build:
-      context: ./altteul-fe
-      dockerfile: dockerfile.fe
+    image: node:20-alpine
+    container_name: altteul-ie-frontend
+    working_dir: /app
     ports:
-      - "80:80"
+      - "5173:5173"
+    volumes:
+      - ./altteul-fe:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: sh -c "yarn install && yarn dev"
     depends_on:
       - backend
 
   backend:
-    build:
-      context: ./altteul-be
-      dockerfile: dockerfile.be
+    image: gradle:8.6.0-jdk17
+    container_name: altteul-ie-backend
+    working_dir: /app
     ports:
-      - "8090:8080"
+      - "8080:8080"
+    volumes:
+      - ./altteul-be:/app
+      - gradle_cache:/home/gradle/.gradle
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/altteul
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/altteul
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://altteul-ie-mysql:3306/altteul
+      - SPRING_DATA_MONGODB_URI=mongodb://altteul-ie-mongodb:27017/altteul
       - SPRING_REDIS_HOST=redis
+    command: ./gradlew bootRun
+    networks: #사용할 네트워크 지정
+      - altteul-ie-network
     depends_on:
       - mysql
       - mongodb
       - redis
 
   mysql:
-    image: mysql:8
+    env_file:
+      - ./altteul-be/.env
+    container_name: altteul-ie-mysql
+    image: mysql/mysql-server:8.0.27
     environment:
-      - MYSQL_ROOT_PASSWORD=ssafy
-      - MYSQL_DATABASE=altteul
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=Asia/Seoul
+    command: [ "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--skip-character-set-client-handshake", "--lower_case_table_names=1", "--max_connections=2048", "--wait_timeout=3600" ]
     ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - "13306:3306"
+    volumes: #볼륨 지정
+      - ./altteul-be/${MYSQL_INIT_VOLUME}:/docker-entrypoint-initdb.d
+      - ./altteul-be/${MYSQL_VOLUME}:/var/lib/mysql
+    networks: #사용할 네트워크 지정
+      - altteul-ie-network
 
   mongodb:
     image: mongo:latest
+    container_name: altteul-ie-mongodb
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_dev_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=altteul
 
   redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+    env_file:
+      - ./altteul-be/.env
+    container_name: altteul-ie-redis
+    image: redis:6.2.6-alpine
+    ports: # 바인딩할 포트:내부 포트
+      - ${REDIS_BINDING_PORT}:${REDIS_PORT}
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes: # 마운트할 볼륨 설정
+      - ${REDIS_DATA_PATH}:/data
+      - ./altteul-be/${REDIS_DEFAULT_CONFIG_FILE}:/usr/local/etc/redis/redis.conf
+    restart: always
+    networks: #사용할 네트워크 지정
+      - altteul-ie-network
 
 volumes:
-  mysql_data:
-  mongodb_data:
-  redis_data:
+  mysql_dev_data:
+  mongodb_dev_data:
+  redis_dev_data:
+  gradle_cache:
+
+networks:
+  altteul-ie-network:
+    driver: bridge
