@@ -34,11 +34,11 @@ services:
     networks: #사용할 네트워크 지정
       - altteul-network
   judge:
-    image: registry.cn-hangzhou.aliyuncs.com/onlinejudge/judge_server
+    image: registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1
     container_name: altteul-judge
     restart: always
     ports:
-      - "8080:8080"
+      - "8082:8082"
     cap_drop:
       - SETPCAP
       - MKNOD
@@ -52,11 +52,14 @@ services:
       - ./data/backend/test_case:/test_case:ro
       - ./data/judge_server/log:/log
       - ./data/judge_server/run:/judger
+      - ./entrypoint_override.sh:/app/entrypoint_override.sh
     environment:
-      - SERVICE_URL=http://judge:8080
-      - BACKEND_URL=http://host.docker.internal:8080/api/judge-ping-check
+      - SERVICE_URL=http://judge:8082
+      - BACKEND_URL=http://host.docker.internal:8081/api/judge-ping-check
       - TOKEN=${SECRET_KEY}
-      # - judger_debug=1
+    entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint_override.sh"]
+
+
   #  backend:
   #    env_file:
   #      - .env
