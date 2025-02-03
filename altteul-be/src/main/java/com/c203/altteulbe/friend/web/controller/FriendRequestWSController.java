@@ -2,7 +2,6 @@ package com.c203.altteulbe.friend.web.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -10,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.c203.altteulbe.common.dto.RequestStatus;
 import com.c203.altteulbe.friend.service.FriendRequestService;
+import com.c203.altteulbe.friend.service.FriendWSService;
 import com.c203.altteulbe.friend.service.FriendshipService;
 import com.c203.altteulbe.friend.web.dto.request.CreateFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.request.DeleteFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.request.ProcessFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
-import com.c203.altteulbe.websocket.dto.response.WebSocketResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +23,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 public class FriendRequestWSController {
 	private final FriendRequestService friendRequestService;
-	private final SimpMessagingTemplate simpMessagingTemplate;
+
 	private final FriendshipService friendshipService;
+
+	private final FriendWSService friendWSService;
 
 	// 친구 신청
 	@MessageMapping("/friend/request")
@@ -35,10 +36,7 @@ public class FriendRequestWSController {
 		Long toUserId = request.getToUserId();
 		FriendRequestResponseDto result = friendRequestService.createFriendRequest(fromUserid, toUserId);
 
-		simpMessagingTemplate.convertAndSend(
-			"/sub/user/" + request.getToUserId() + "/notification",
-			WebSocketResponse.withData("친구 신청이 도착했습니다.", result)
-		);
+		friendWSService.sendRequestMessage(request.getToUserId(), result);
 	}
 
 	// 친구 요청 처리
@@ -51,8 +49,13 @@ public class FriendRequestWSController {
 		Long requestId = request.getFriendRequestId();
 		RequestStatus status = request.getRequestStatus();
 		friendRequestService.processRequest(requestId, fromUserid, status);
-		// Todo: websocket 부분 로직
 
+		// 친구 신청을 수락했을 경우
+		if (status == RequestStatus.A) {
+			// 클라이언트에게 업데이트가 필요하다고 알림
+			friendWSService.sendFriendListUpdateMessage(fromUserid);
+			friendWSService.sendFriendListUpdateMessage(request.getToUserId());
+		}
 	}
 
 	// 친구 삭제
@@ -61,7 +64,10 @@ public class FriendRequestWSController {
 	public void handleFriendDelete(@Payload DeleteFriendRequestDto request,
 		@AuthenticationPrincipal Long userId) {
 		friendshipService.deleteFriendship(userId, request.getFriendId());
-		// Todo : websocket 부분 로직
+
+		// 친구 삭제 했을 경우 클라이언트에게 업데이트가 필요하다고 알림
+		friendWSService.sendFriendListUpdateMessage(userId);
+		friendWSService.sendFriendListUpdateMessage(request.getFriendId());
 
 	}
 }

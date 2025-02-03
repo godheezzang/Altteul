@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,7 @@ public class FriendRequestService {
 
 	// 친구 요청 목록 조회
 	@Transactional
-	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, int page, int size) {
+	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, Pageable pageable) {
 		userJPARepository.findByUserId(userId).orElseThrow(() -> {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
@@ -47,14 +48,16 @@ public class FriendRequestService {
 		List<FriendRequestResponseDto> cachedRequest = redisUtils.getCachedFriendRequests(userId);
 		if (cachedRequest != null) {
 
-			Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(cachedRequest, page, size);
+			Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(cachedRequest,
+				pageable.getPageNumber(), pageable.getPageSize());
 			return new PageResponse<>("friendRequests", paginateResult);
 		}
 		// 캐시된 친구 요청 목록이 없을 경우 db에서 가져오기
 		List<FriendRequestResponseDto> allRequest = getPendingFriendRequestsFromDB(userId);
 		// db에서 가져온 친구 요청 목록 캐싱
 		redisUtils.cacheFriendRequests(userId, allRequest);
-		Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(allRequest, page, size);
+		Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(allRequest,
+			pageable.getPageNumber(), pageable.getPageSize());
 		return new PageResponse<>("friendRequests", paginateResult);
 	}
 

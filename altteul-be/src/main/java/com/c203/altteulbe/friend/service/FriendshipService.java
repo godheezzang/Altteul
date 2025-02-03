@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,20 +34,22 @@ public class FriendshipService {
 	private final RedisUtils redisUtils;
 
 	@Transactional(readOnly = true)
-	public PageResponse<FriendResponseDto> getFriendsList(Long userId, int page, int size) {
+	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) {
 		userRepository.findByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
 		// 캐시된 친구 리스트 조회
 		List<FriendResponseDto> cachedFriendList = redisUtils.getCachedFriendList(userId);
 		if (cachedFriendList != null && !cachedFriendList.isEmpty()) {
-			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, page, size);
-			return new PageResponse<>("friendList", paginateResult);
+			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, pageable.getPageNumber(),
+				pageable.getPageSize());
+			return new PageResponse<>("friends", paginateResult);
 		}
 
 		Page<Friendship> friendships = friendshipRepository.findAllByUserIdWithFriend(
 			userId,
-			PageRequest.of(page, size)
+			PageRequest.of(pageable.getPageNumber(),
+				pageable.getPageSize())
 		);
 		// 친구 관계이 있는 유저의 id들을 리스트로 만들기
 		List<Long> friendIds = friendships.getContent().stream()
@@ -63,7 +66,8 @@ public class FriendshipService {
 		// 친구 리스트 캐싱
 		redisUtils.setFriendList(userId, friendList);
 
-		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(friendList, page, size);
+		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(friendList, pageable.getPageNumber(),
+			pageable.getPageSize());
 		return new PageResponse<>("friends", paginateResult);
 	}
 
