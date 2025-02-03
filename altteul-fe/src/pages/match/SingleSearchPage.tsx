@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Users } from '@/types';
 import { formatTime } from '@utils/formatTime';
+import { useTimer } from '@/hooks/useTimer';
 import UserProfile from '@components/match/UserProfile';
 import Button from "@components/common/Button/Button";
 import backgroundImage from '@assets/background/single_matching.svg';
@@ -22,25 +23,15 @@ const mockUsers: Users = {
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const [seconds, setSeconds] = useState<number>(180); // 3minutes in seconds
   const [fact, setFact] = useState<string>('');
   const [facts, setFacts] = useState<string[]>(tmi.facts);
 
-  // 타이머 로직
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate('/single-final');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate]);
+  const { seconds } = useTimer({
+    initialSeconds: 180, // 시작 시간 설정
+    onComplete: () => {
+      navigate('/single-final'); // 타이머 완료 시 실행할 콜백
+    }
+  });
 
 
   // 첫 fact 생성 후 5초 간격으로 Rotation
