@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // frontend, backend 이미지 빌드
-                    sh "docker compose build"
+                    sh "docker compose --env-file ./altteul-be/.env build"
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     // 데이터베이스 볼륨 유지하면서 컨테이너 시작
-                    sh "docker compose up -d"
+                    sh "docker compose --env-file ./altteul-be/.env up -d"
                 }
             }
         }
