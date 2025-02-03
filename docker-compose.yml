@@ -4,7 +4,7 @@ services:
     container_name: altteul-ie-frontend
     working_dir: /app
     ports:
-      - "80:80"
+      - "80:5173"
     volumes:
       - ./altteul-fe:/app
       - /app/node_modules
