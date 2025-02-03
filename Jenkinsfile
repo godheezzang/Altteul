@@ -12,7 +12,7 @@ pipeline {
         stage('Create .env File') {
             steps {
                 script {
-                    writeFile file: './altteul-be/.env', text: "${BE_ENV_FILE_CONTENTS}"
+                    writeFile file: './altteul-be/.env', text: BE_ENV_FILE_CONTENTS.trim()
                 }
             }
         }
