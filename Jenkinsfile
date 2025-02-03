@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        BE_ENV_FILE_CONTENTS = credentials('BE_ENV_FILE_CONTENTS')
+        BE_ENV_FILE = credentials('BE_ENV_FILE')
     }
 
     stages {
@@ -12,7 +12,7 @@ pipeline {
         stage('Create .env File') {
             steps {
                 script {
-                    writeFile file: './altteul-be/.env', text: BE_ENV_FILE_CONTENTS.trim()
+                    sh "cp ${BE_ENV_FILE} ./altteul-be/.env"
                 }
             }
         }
