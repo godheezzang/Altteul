@@ -3,7 +3,6 @@ package com.c203.altteulbe.friend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,6 @@ public class FriendRequestService {
 	private final UserJPARepository userJPARepository;
 	private final FriendshipRepository friendshipRepository;
 	private final RedisUtils redisUtils;
-	private final ApplicationEventPublisher eventPublisher;
 
 	// 친구 요청 목록 조회
 	@Transactional
