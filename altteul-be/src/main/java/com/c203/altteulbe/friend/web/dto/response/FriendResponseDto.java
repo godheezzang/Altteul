@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 public class FriendResponseDto {
 
 	@NotNull
-	public Long userid;
+	private Long userid;
 
 	@NotNull(message = "Nickname is required")
-	public String nickname;
+	private String nickname;
 
-	public String profileImg;
+	private String profileImg;
 
-	public Boolean isOnline;
+	private Boolean isOnline;
 
 	public static FriendResponseDto from(Friendship friendship, boolean isOnline) {
 		return FriendResponseDto.builder()

@@ -49,9 +49,12 @@ public class Friendship extends BaseCreatedEntity implements Persistable<FriendI
 		return super.getCreatedAt() == null;
 	}
 
-	public Friendship(User user, User friend) {
-		this.id = new FriendId(user.getUserId(), friend.getUserId());
-		this.user = user;
-		this.friend = friend;
+	// 양방향 관계 생성을 위한 메소드
+	public static Friendship createFriendship(User user, User friend) {
+		return Friendship.builder()
+			.id(new FriendId(user.getUserId(), friend.getUserId()))
+			.user(user)
+			.friend(friend)
+			.build();
 	}
 }

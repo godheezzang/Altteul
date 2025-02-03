@@ -13,7 +13,7 @@ import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.friend.service.FriendService;
+import com.c203.altteulbe.friend.service.FriendshipService;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
 
 import jakarta.validation.constraints.Min;
@@ -22,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class FriendController {
-	private final FriendService friendService;
+public class FriendshipController {
+	private final FriendshipService friendshipService;
 
 	@GetMapping("/friends")
 	@PreAuthorize("isAuthenticated()")
@@ -32,7 +32,7 @@ public class FriendController {
 		@RequestParam(defaultValue = "0", value = "page") @Min(0) int page,
 		@RequestParam(defaultValue = "10", value = "size") @Min(1) int size
 	) {
-		Page<FriendResponseDto> friends = friendService.getFriendsList(id, page, size);
+		Page<FriendResponseDto> friends = friendshipService.getFriendsList(id, page, size);
 		return ApiResponse.success(new PageResponse<>("friends", friends), HttpStatus.OK);
 	}
 }
