@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Users } from "@/types";
+import { Users } from "types";
+import { User } from "types";
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
@@ -18,25 +18,8 @@ const mockUsers: Users = {
 };
 
 const SingleSearchPage = () => {
-  const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
-  const [facts, setFacts] = useState<string[]>(tmi.facts);
-
-  // 타이머 로직
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate("/single-final");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate]);
+  const [facts] = useState<string[]>(tmi.facts);
 
   // 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
@@ -81,7 +64,7 @@ const SingleSearchPage = () => {
 
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {Object.values(mockUsers).map((user, index) => (
+          {Object.values(mockUsers).map((user:User, index) => (
             <UserProfile
               key={index}
               nickName={user.nickName}

@@ -11,6 +11,7 @@ import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
 import { useTimer } from "@hooks/useTimer";
 import { Users } from "types";
+import { User } from "types";
 
 const mockUsers: Users = {
   user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
@@ -24,7 +25,7 @@ const mockUsers: Users = {
 const SingleSearchPage = () => {
   const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
-  const [facts, setFacts] = useState<string[]>(tmi.facts);
+  const [facts] = useState<string[]>(tmi.facts);
 
   const { seconds } = useTimer({
     initialSeconds: 180, // 시작 시간 설정
@@ -112,7 +113,7 @@ const SingleSearchPage = () => {
 
         {/* 상대유저 */}
         <div className="flex justify-center items-center gap-20">
-          {Object.values(mockUsers).map((user, index) => (
+          {Object.values(mockUsers).map((user:User, index) => (
             <UserProfile
               key={index}
               nickName={user.nickName}
