@@ -49,9 +49,9 @@ services:
     tmpfs:
       - /tmp
     volumes:
-      - ./data/backend/test_case:/test_case:ro
-      - ./data/judge_server/log:/log
-      - ./data/judge_server/run:/judger
+      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ./resources/judge/data/judge_server/log:/log
+      - ./resources/judge/data/judge_server/run:/judger
       - ./entrypoint_override.sh:/app/entrypoint_override.sh
     environment:
       - SERVICE_URL=http://judge:8082
