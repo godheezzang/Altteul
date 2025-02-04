@@ -1,8 +1,8 @@
 spring:
   config:
     activate:
-      on-profile: dev-judge
+      on-profile: prod-judge
 judge:
   server:
-    url: http://localhost:9999
+    url: http://judge:8080
     key: ${JUDGE_KEY}
