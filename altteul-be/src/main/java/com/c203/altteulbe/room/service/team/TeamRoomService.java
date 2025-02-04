@@ -47,16 +47,17 @@ public class TeamRoomService {
 		// 입장 가능한 대기방 조회
 		Long existingRoomId = teamRoomRedisRepository.getAvailableRoom();
 
-		// 입장 가능한 대기방이 있는 경우 유저 저장
+		// 입장 가능한 대기방이 있는 경우 유저 저장 (API 응답 + WebSocket 전송)
 		if (existingRoomId != null) {
-			return teamRoomRedisRepository.insertUserToExistingRoom(existingRoomId, user);
+			RoomEnterResponseDto responseDto = teamRoomRedisRepository.insertUserToExistingRoom(existingRoomId, user);
+
+			// 웹소켓 메시지 브로드캐스트
+			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(), "ENTER", responseDto, BattleType.T);
+			return responseDto;
 		}
 
-		// 입장 가능한 대기방이 없는 경우 대기방 생성 후 유저 저장
+		// 입장 가능한 대기방이 없는 경우 대기방 생성 후 유저 저장 (API 응답)
 		RoomEnterResponseDto responseDto = teamRoomRedisRepository.createRedisTeamRoom(user);
-
-		// 웹소켓 메시지 브로드캐스트
-		roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(), "ENTER", responseDto, BattleType.S);
 		return responseDto;
 	}
 }
