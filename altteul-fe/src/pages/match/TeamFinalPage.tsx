@@ -65,7 +65,7 @@ const TeamFinalPage = () => {
           {/* 아군 유저 */}
           <div className="flex gap-20 animate-slide-left">
             {TeamData.map((user: User) => (
-              <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tier={tierIcon} />
+              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
             ))}
           </div>
 
@@ -75,7 +75,7 @@ const TeamFinalPage = () => {
           {/* 상대 유저 */}
           <div className="flex animate-slide-right gap-20">
             {TeamData.map((user: User) => (
-              <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tier={tierIcon} />
+              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
             ))}
           </div>
         </div>

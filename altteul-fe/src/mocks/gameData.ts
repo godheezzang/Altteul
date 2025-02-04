@@ -4,9 +4,9 @@ export const mockGameData = {
     gameId: 1,
     leaderId: 23,
     users: [
-      { userId: 2, nickname: "알고리즘짱", profileImg: "이미지Byte", tierId: "1" },
-      { userId: 3, nickname: "알뜰짱", profileImg: "이미지Byte", tierId: "2" },
-      { userId: 4, nickname: "잠온다능", profileImg: "이미지Byte", tierId: "3" },
+      { userId: 2, nickName: "알고리즘짱", profileImg: "이미지Byte", tierId: 1 },
+      { userId: 3, nickName: "알뜰짱", profileImg: "이미지Byte", tierId: 2 },
+      { userId: 4, nickName: "잠온다능", profileImg: "이미지Byte", tierId: 3 },
     ],
     problem: {
       problemId: 3,

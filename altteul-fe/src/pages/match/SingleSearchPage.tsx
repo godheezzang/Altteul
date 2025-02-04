@@ -13,15 +13,6 @@ import { useTimer } from "@hooks/useTimer";
 import { User, Users } from "types/types";
 import { userData } from "mocks/userData";
 
-const mockUsers: Users = {
-  user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
-  user2: { nickName: "샤샤샤", profileImage: peopleIcon, tier: tierIcon },
-  user3: { nickName: "오리진", profileImage: peopleIcon, tier: tierIcon },
-  user4: { nickName: "가희바희보", profileImage: peopleIcon, tier: tierIcon },
-  user5: { nickName: "쿨드캡슐", profileImage: peopleIcon, tier: tierIcon },
-  user6: { nickName: "리카스", profileImage: peopleIcon, tier: tierIcon },
-};
-
 const SingleSearchPage = () => {
   const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
@@ -62,7 +53,7 @@ const SingleSearchPage = () => {
         <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
 
         {/* 방장 */}
-        <UserProfile nickName="방장" profileImage={peopleIcon} tier={tierIcon} className="mb-4" />
+        <UserProfile nickName="방장" profileImg={peopleIcon} tier={tierIcon} className="mb-4" />
 
         {/* 방장 이름 */}
         <div className="text-white text-2xl mb-4">나는 방장</div>
@@ -96,7 +87,7 @@ const SingleSearchPage = () => {
         {/* 상대유저 */}
         <div className="flex justify-center items-center gap-20">
           {userData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tier={tierIcon} />
+            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
           ))}
         </div>
 

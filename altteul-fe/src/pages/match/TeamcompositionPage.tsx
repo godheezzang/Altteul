@@ -23,7 +23,7 @@ const TeamcompositionPage = () => {
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
           {TeamData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tier={tierIcon} />
+            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
           ))}
         </div>
 

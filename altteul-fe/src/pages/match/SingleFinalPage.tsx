@@ -28,7 +28,7 @@ const SingleFinalPage = () => {
       </Link>
 
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
-        <UserProfile nickName="방장" profileImage={peopleIcon} tier={tierIcon} className="mb-4" />
+        <UserProfile nickName="방장" profileImg={peopleIcon} tier={tierIcon} className="mb-4" />
 
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
@@ -38,7 +38,7 @@ const SingleFinalPage = () => {
 
         <div className="flex justify-center items-center gap-20">
           {userData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tier={tierIcon} />
+            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
           ))}
         </div>
       </div>
