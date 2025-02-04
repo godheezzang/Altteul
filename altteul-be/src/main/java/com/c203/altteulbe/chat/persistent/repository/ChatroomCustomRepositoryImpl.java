@@ -15,7 +15,6 @@ import com.c203.altteulbe.chat.persistent.entity.QUserChatRoom;
 import com.c203.altteulbe.chat.web.dto.response.ChatroomResponseDto;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.QUser;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -46,7 +45,18 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qUser.profileImg,
 				Expressions.constant(false),
 				qChatMessage.messageContent,
-				qChatMessage.checked,
+				Expressions.cases()          // 내가 읽었는지 확인하는 로직 추가
+					.when(
+						JPAExpressions
+							.selectOne()
+							.from(qChatMessage)
+							.where(qChatMessage.chatroom.eq(qChatroom)
+								.and(qChatMessage.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
+								.and(qChatMessage.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
+							.exists()
+					)
+					.then(false)
+					.otherwise(true),
 				Expressions.cases()
 					.when(qChatMessage.createdAt.isNotNull())
 					.then(qChatMessage.createdAt)
@@ -102,7 +112,18 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qUser.profileImg,
 				Expressions.constant(false),
 				qChatMessage.messageContent,
-				qChatMessage.checked,
+				Expressions.cases()          // 내가 읽었는지 확인하는 로직 추가
+					.when(
+						JPAExpressions
+							.selectOne()
+							.from(qChatMessage)
+							.where(qChatMessage.chatroom.eq(qChatroom)
+								.and(qChatMessage.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
+								.and(qChatMessage.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
+							.exists()
+					)
+					.then(false)
+					.otherwise(true),
 				Expressions.cases()
 					.when(qChatMessage.createdAt.isNotNull())
 					.then(qChatMessage.createdAt)
@@ -112,7 +133,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.join(qUser).on(qUserChatRoom.user.eq(qUser))
 			.leftJoin(qChatMessage).on(qChatMessage.chatroom.eq(qChatroom))
 			.where(
-				qChatroom.ChatroomId.eq(chatroomId)
+				qChatroom.chatroomId.eq(chatroomId)
 					.and(qUserChatRoom.user.userId.ne(userId))
 			)
 			.orderBy(qChatMessage.createdAt.desc())
@@ -134,4 +155,6 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 		return Optional.of(chatroomDto);
 
 	}
+
+
 }

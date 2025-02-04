@@ -17,5 +17,5 @@ import lombok.experimental.SuperBuilder;
 public class Chatroom extends BaseCreatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long ChatroomId;
+	private Long chatroomId;
 }

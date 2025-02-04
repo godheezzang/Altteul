@@ -3,6 +3,7 @@ package com.c203.altteulbe.chat.persistent.entity;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 import com.c203.altteulbe.user.persistent.entity.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,5 +31,7 @@ public class ChatMessage extends BaseCreatedAndUpdatedEntity {
 
 	private String messageContent;
 
+	@Column(nullable = false)
 	private boolean checked;
+
 }
