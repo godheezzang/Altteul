@@ -12,10 +12,10 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.c203.altteulbe.friend.service.UserStatusService;
-import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
-import com.c203.altteulbe.room.service.SingleRoomService;
+import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
+import com.c203.altteulbe.room.service.single.SingleRoomService;
 import com.c203.altteulbe.common.utils.RedisKeys;
-import com.c203.altteulbe.room.web.dto.request.SingleRoomRequestDto;
+import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,7 @@ public class WebSocketEventListener {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 		try {
 			Long userId = getUserIdFromSession(accessor);
-			Long roomId = singleRoomRedisRepository.getUserRoomId(userId);
+			Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
 
 			// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리
 			if (roomId != null) {
@@ -65,7 +65,7 @@ public class WebSocketEventListener {
 
 				if ("counting".equals(status)) {
 					log.info("WebSocket Disconnect 발생 : userId : {}, roomId : {}", userId, roomId);
-					SingleRoomRequestDto leftUser = SingleRoomRequestDto.toDto(userId);
+					RoomRequestDto leftUser = RoomRequestDto.toDto(userId);
 					singleRoomService.leaveSingleRoom(leftUser);
 				}
 			}

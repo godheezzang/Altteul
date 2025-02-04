@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.persistent.repository;
+package com.c203.altteulbe.room.persistent.repository.single;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.persistent.repository;
+package com.c203.altteulbe.room.persistent.repository.single;
 
 import java.util.List;
 import java.util.Set;
@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.c203.altteulbe.common.utils.RedisKeys;
-import com.c203.altteulbe.room.web.dto.response.SingleRoomEnterResponseDto;
+import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
@@ -22,7 +22,7 @@ public class SingleRoomRedisRepository {
 	private final UserJPARepository userJPARepository;
 
 	// 입장 가능한 대기방 조회
-	public Long findAvailableRoom() {
+	public Long getAvailableRoom() {
 		Set<String> roomIds = redisTemplate.opsForZSet().range(RedisKeys.SINGLE_WAITING_ROOMS, 0, 0);
 		if (roomIds == null || roomIds.isEmpty()) {
 			return null;
@@ -42,13 +42,13 @@ public class SingleRoomRedisRepository {
 	}
 
 	// 유저가 속한 방 조회
-	public Long getUserRoomId(Long userId) {
+	public Long getRoomIdByUser(Long userId) {
 		String roomIdStr = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(userId));
 		return (roomIdStr != null) ? Long.parseLong(roomIdStr) : null;
 	}
 
 	// 개인전 대기방 생성
-	public SingleRoomEnterResponseDto createRedisSingleRoom(User user) {
+	public RoomEnterResponseDto createRedisSingleRoom(User user) {
 		Long roomId = generateUniqueRoomId();  // Redis를 통해 id 생성
 
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
@@ -60,11 +60,11 @@ public class SingleRoomRedisRepository {
 		redisTemplate.opsForValue().set(RedisKeys.userSingleRoom(user.getUserId()), roomId.toString());
 
 		List<UserInfoResponseDto> users = List.of(UserInfoResponseDto.fromEntity(user));   // List로 변환
-		return SingleRoomEnterResponseDto.from(roomId, user.getUserId(), users);
+		return RoomEnterResponseDto.from(roomId, user.getUserId(), users);
 	}
 
 	// 기존 대기방에 유저 추가
-	public SingleRoomEnterResponseDto addUserToExistingRoom(Long roomId, User user) {
+	public RoomEnterResponseDto insertUserToExistingRoom(Long roomId, User user) {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 
 		// Redis에 유저 추가
@@ -79,7 +79,7 @@ public class SingleRoomRedisRepository {
 		);
 		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(users);
 
-		return SingleRoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
+		return RoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
 	}
 
 	// 카운팅 중 유저가 모두 퇴장한 경우 → 개인전 방 데이터 삭제
@@ -92,8 +92,7 @@ public class SingleRoomRedisRepository {
 		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString()); // 대기방 목록에서 제거
 	}
 
-
-	// single_room_id 생성
+	// roomId 생성 → DB 저장 시 game_id로 저장됨
 	public Long generateUniqueRoomId() {
 		return redisTemplate.opsForValue().increment(RedisKeys.ROOM_ID_COUNTER, 1);
 	}
