@@ -4,5 +4,5 @@ spring:
       on-profile: dev-judge
 judge:
   server:
-    url: http://localhost:9999
+    url: ${LOCAL_JUDGE_SERVER_URL}
     key: ${JUDGE_KEY}

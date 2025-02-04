@@ -34,7 +34,7 @@ services:
     networks: #사용할 네트워크 지정
       - altteul-network
   judge:
-    image: jinwooseok/altteul-judge:latest
+    image: registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1
     container_name: altteul-judge
     restart: always
     ports:
@@ -53,7 +53,7 @@ services:
       - ./resources/judge/data/judge_server/log:/log
       - ./resources/judge/data/judge_server/run:/judger
     environment:
-      - SERVICE_URL=http://judge:8080
+      - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
       - BACKEND_URL=http://host.docker.internal:8080/api/judge/check
       - TOKEN=${SECRET_KEY}
     entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint.sh"]
