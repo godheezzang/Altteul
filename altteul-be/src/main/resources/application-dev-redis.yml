@@ -1,9 +1,13 @@
 spring:
+  redis:
+    enable-transaction-support: true
   config:
     activate:
       on-profile: dev-redis
   data:
     redis:
+      repositories:
+        enabled: false
       lettuce:
         pool:
           max-active: 10
