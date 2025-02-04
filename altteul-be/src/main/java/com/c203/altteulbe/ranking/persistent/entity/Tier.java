@@ -1,6 +1,6 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.ranking.persistent.entity;
 
-import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
+import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,18 +13,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Problem extends BaseCreatedAndUpdatedEntity {
+@Getter
+public class Tier extends BaseCreatedEntity {
+
 	@Id
-	@Column(name = "problem_id", nullable = false, updatable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "tier_id")
 	private Long id;
 
-	private String problemTitle;
-
-	@Column(columnDefinition = "TEXT")
-	private String description;
-	private int point;
-	private int totalCount;
+	private String tierName;
+	private int minPoint;
+	private int maxPoint;
 }

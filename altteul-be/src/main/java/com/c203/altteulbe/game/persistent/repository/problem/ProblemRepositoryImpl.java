@@ -20,24 +20,11 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom {
 
 	private JPAQueryFactory queryFactory;
 
-	// 게임 시작 시 문제 랜덤 추출
 	@Override
-	public Optional<Problem> findRandomProblem() {
-		List<Long> problemIds = queryFactory
-										.select(problem.id)
-										.from(problem)
-										.fetch();
-		if (problemIds.isEmpty()) {
-			return Optional.empty();
-		}
-
-		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
-
-		Problem selectedProblem = queryFactory
-											.selectFrom(problem)
-											.where(problem.id.eq(randomProblemId))
-											.fetchOne();
-
-		return Optional.ofNullable(selectedProblem);
+	public List<Long> findAllProblemIds() {
+		return queryFactory
+						.select(problem.id)
+						.from(problem)
+						.fetch();
 	}
 }

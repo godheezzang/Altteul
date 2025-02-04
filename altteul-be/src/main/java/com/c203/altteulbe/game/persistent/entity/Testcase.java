@@ -35,6 +35,6 @@ public class Testcase extends BaseCreatedAndUpdatedEntity {
 	@Column(columnDefinition = "TEXT")
 	private String input;
 
-	@Column(columnDefinition = "TEXT")
+	@Column(columnDefinition = "TEXT", nullable = false)
 	private String output;
 }
