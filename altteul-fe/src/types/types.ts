@@ -1,7 +1,8 @@
 export interface User {
+  userId: number;
   nickName: string;
   profileImage: string;
-  tier: string;
+  tierId: number;
 }
 
 export interface Users {
