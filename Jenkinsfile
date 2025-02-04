@@ -4,7 +4,6 @@ pipeline {
     environment {
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        ENV_FILE = "${WORKSPACE}/Altteul/altteul-be/.env"
     }
 
     stages {
@@ -14,7 +13,7 @@ pipeline {
                 script {
                     sh '''
                     set -a
-                    source ${ENV_FILE}
+                    . ${WORKSPACE}/altteul-be/.env
                     set +a
                     '''
                 }
