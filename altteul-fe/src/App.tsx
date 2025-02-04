@@ -1,19 +1,18 @@
-import "./styles/App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import SelectPage from "./pages/match/SelectPage";
-import SingleSearchPage from "./pages/match/SingleSearchPage";
-import SingleFinalPage from "./pages/match/SingleFinalPage";
-import TeamcompositionPage from "./pages/match/TeamcompositionPage";
-import TeamSearchPage from "./pages/match/TeamSearchPage";
-import TeamFinalPage from "./pages/match/TeamFinalPage";
 import Main from "@pages/Main/Main";
+import MatchingSelectPage from "@pages/Match/SelectPage";
+import SingleSearchPage from "@pages/Match/SingleSearchPage";
+import SingleFinalPage from "@pages/Match/SingleFinalPage";
+import TeamcompositionPage from "@pages/Match/TeamcompositionPage";
+import TeamSearchPage from "@pages/Match/TeamSearchPage";
+import TeamFinalPage from "@pages/Match/TeamFinalPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/select" element={<SelectPage />} />
+        <Route path="/select" element={<MatchingSelectPage />} />
         <Route path="/single-search" element={<SingleSearchPage />} />
         <Route path="/single-final" element={<SingleFinalPage />} />
         <Route path="/team-composition" element={<TeamcompositionPage />} />
