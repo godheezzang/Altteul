@@ -1,5 +1,4 @@
 package com.c203.altteulbe.websocket;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.utils.RedisKeys;
+import com.c203.altteulbe.common.utils.RedisKeys;
 
 @ExtendWith(MockitoExtension.class)
 class WebSocketEventListenerTest {

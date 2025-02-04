@@ -13,7 +13,7 @@ import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.utils.RedisKeys;
+import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.web.dto.request.SingleRoomRequestDto;
 
 import lombok.RequiredArgsConstructor;

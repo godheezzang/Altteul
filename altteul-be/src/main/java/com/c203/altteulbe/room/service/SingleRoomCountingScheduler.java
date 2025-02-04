@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
-import com.c203.altteulbe.room.utils.RedisKeys;
+import com.c203.altteulbe.common.utils.RedisKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

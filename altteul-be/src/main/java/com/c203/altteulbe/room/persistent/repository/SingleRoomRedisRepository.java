@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.c203.altteulbe.room.utils.RedisKeys;
-import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
+import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;

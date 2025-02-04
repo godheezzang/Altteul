@@ -2,7 +2,7 @@ package com.c203.altteulbe.room.service;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import com.c203.altteulbe.room.utils.RedisKeys;
+import com.c203.altteulbe.common.utils.RedisKeys;
 import lombok.RequiredArgsConstructor;
 
 @Component
