@@ -34,47 +34,46 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "game",
+        children: [],
+      },
     ],
   },
   {
-    path: "game",
+    path: "match",
     children: [
       {
-        path: "matching",
+        path: "select",
+        element: <SelectPage />,
+      },
+      {
+        path: "team",
         children: [
           {
-            path: "select",
-            element: <SelectPage />,
+            path: "composition",
+            element: <TeamcompositionPage />,
           },
           {
-            path: "team",
-            children: [
-              {
-                path: "composition",
-                element: <TeamcompositionPage />,
-              },
-              {
-                path: "search",
-                element: <TeamSearchPage />,
-              },
-              {
-                path: "final",
-                element: <TeamFinalPage />,
-              },
-            ],
+            path: "search",
+            element: <TeamSearchPage />,
           },
           {
-            path: "single",
-            children: [
-              {
-                path: "search",
-                element: <SingleSearchPage />,
-              },
-              {
-                path: "final",
-                element: <SingleFinalPage />,
-              },
-            ],
+            path: "final",
+            element: <TeamFinalPage />,
+          },
+        ],
+      },
+      {
+        path: "single",
+        children: [
+          {
+            path: "search",
+            element: <SingleSearchPage />,
+          },
+          {
+            path: "final",
+            element: <SingleFinalPage />,
           },
         ],
       },
