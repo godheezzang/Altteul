@@ -47,8 +47,9 @@ export const validateSignUpForm = (
 
   // 닉네임 유효성 검사
   // 공백포함 안됨
-  if (/\s/.test(form.nickname)) {
-    errors.nickname = "닉네임에 공백을 포함할 수 없습니다.";
+
+  if (form.nickname.trim().length === 0) {
+    errors.nickname = "닉네임을 입력해주세요.";
     isValid = false;
   }
 
