@@ -14,9 +14,6 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
-import com.c203.altteulbe.room.service.single.RoomWebSocketService;
-import com.c203.altteulbe.room.service.single.SingleRoomCountingScheduler;
-import com.c203.altteulbe.room.service.single.SingleRoomService;
 
 @ExtendWith(MockitoExtension.class)
 class SingleRoomCountingSchedulerTest {

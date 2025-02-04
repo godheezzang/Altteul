@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.room.service.single.SingleRoomService;
+import com.c203.altteulbe.room.service.SingleRoomService;
 import com.c203.altteulbe.room.web.dto.request.SingleRoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
@@ -33,7 +33,6 @@ public class SingleRoomController {
 										@RequestBody RoomRequestDto requestDto) {
 
 		RoomEnterResponseDto responseDto = singleRoomService.enterSingleRoom(requestDto);
-
 		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
 

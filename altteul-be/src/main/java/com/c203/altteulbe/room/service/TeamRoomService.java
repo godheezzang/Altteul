@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.service.team;
+package com.c203.altteulbe.room.service;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -7,9 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
-import com.c203.altteulbe.room.service.RoomValidator;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
-import com.c203.altteulbe.room.service.single.RoomWebSocketService;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;

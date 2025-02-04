@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.service.single;
+package com.c203.altteulbe.room.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.room.service.RoomValidator;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;

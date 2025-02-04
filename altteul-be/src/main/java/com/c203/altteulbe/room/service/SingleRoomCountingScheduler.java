@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.service.single;
+package com.c203.altteulbe.room.service;
 
 import java.util.List;
 import java.util.Set;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.common.utils.RedisKeys;
-import com.c203.altteulbe.room.service.RoomValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

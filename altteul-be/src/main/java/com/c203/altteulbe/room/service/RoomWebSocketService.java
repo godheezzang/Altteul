@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.service.single;
+package com.c203.altteulbe.room.service;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

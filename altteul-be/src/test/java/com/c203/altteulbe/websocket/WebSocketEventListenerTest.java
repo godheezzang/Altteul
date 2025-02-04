@@ -14,7 +14,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
-import com.c203.altteulbe.room.service.single.SingleRoomService;
+import com.c203.altteulbe.room.service.SingleRoomService;
 import com.c203.altteulbe.common.utils.RedisKeys;
 
 @ExtendWith(MockitoExtension.class)
