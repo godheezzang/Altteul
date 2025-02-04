@@ -19,11 +19,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 public class Game extends BaseCreatedEntity {
 
 	@Id
@@ -40,4 +42,12 @@ public class Game extends BaseCreatedEntity {
 
 	private LocalDateTime startedAt;
 	private LocalDateTime completedAt;
+
+	public static Game create(Long gameId, Problem problem, BattleType battleType) {
+		return Game.builder()
+			.id(gameId)
+			.problem(problem)
+			.battleType(battleType)
+			.build();
+	}
 }

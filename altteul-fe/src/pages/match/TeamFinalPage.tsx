@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Users } from "@/types";
+import { Users } from "types";
+import { User } from "types";
 import { formatTime } from '@utils/formatTime';
 import { useTimer } from '@hooks/useTimer';
 import UserProfile from "@components/match/UserProfile";
-import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
 import peopleIcon from "@assets/icon/people.svg";
@@ -81,7 +81,7 @@ const SingleSearchPage = () => {
         <div className="flex justify-center items-center">
           {/* 아군 유저 */}
           <div className="flex gap-20 animate-slide-left">
-          {Object.values(mockUsers).map((user, index) => (
+          {Object.values(mockUsers).map((user:User, index) => (
             <UserProfile
               key={index}
               nickName={user.nickName}
@@ -98,7 +98,7 @@ const SingleSearchPage = () => {
 
           {/* 상대 유저 */}
           <div className="flex animate-slide-right gap-20">
-          {Object.values(mockUsers).map((user, index) => (
+          {Object.values(mockUsers).map((user:User, index) => (
             <UserProfile
               key={index}
               nickName={user.nickName}

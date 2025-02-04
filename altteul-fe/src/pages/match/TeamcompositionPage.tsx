@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Users } from "@/types";
+import { Users } from "types";
+import { User } from "types";
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
 import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
-import tmi from "@assets/tmi.json";
 
 const mockUsers: Users = {
   user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
@@ -37,7 +35,7 @@ const SingleSearchPage = () => {
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {Object.values(mockUsers).map((user, index) => (
+          {Object.values(mockUsers).map((user:User, index) => (
             <UserProfile
               key={index}
               nickName={user.nickName}

@@ -38,7 +38,8 @@
       "@router/*": ["router/*"],
       "@store/*": ["store/*"],
       "@utils/*": ["utils/*"],
-      "@styles/*": ["styles/*"]
+      "@styles/*": ["styles/*"],
+      "@types/*": ["types/*"]
     }
   },
   "include": ["src/**/*"],
