@@ -3,13 +3,13 @@ server:
     encoding:
       charset: utf-8
       force: true
-  port: 8080
+  port: ${SERVER_PORT}
 spring:
   config:
     activate:
       on-profile: prod-mysql
   datasource:
-    url: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?autoReconnect=true&useUnicode=true&serverTimezone=Asia/Seoul"
+    url: jdbc:mysql://${MYSQL_HOST_DEPLOY}:${MYSQL_PORT}/${MYSQL_DATABASE}?autoReconnect=true&useUnicode=true&serverTimezone=Asia/Seoul
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
@@ -22,4 +22,3 @@ spring:
         format_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
-
