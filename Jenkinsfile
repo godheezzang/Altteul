@@ -42,8 +42,9 @@ pipeline {
         stage('Start Containers') {
             steps {
                 script {
-                    // 데이터베이스 볼륨 유지하면서 컨테이너 시작
-                    sh "docker compose up -d"
+                    sh '''
+                    docker compose --env-file ${WORKSPACE}/altteul-be/.env up -d
+                    '''
                 }
             }
         }
