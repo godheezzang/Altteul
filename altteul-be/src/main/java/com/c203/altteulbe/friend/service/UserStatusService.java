@@ -2,6 +2,7 @@ package com.c203.altteulbe.friend.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -30,7 +31,7 @@ public class UserStatusService {
 		validateUserId(userId);
 		try {
 			String key = RedisKeys.getUserStatusKey(userId);
-			redisTemplate.opsForValue().set(key, "online");
+			redisTemplate.opsForValue().set(key, "online", 60, TimeUnit.SECONDS);
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
 			throw new BusinessException("Redis 연결에 실패했습니다.", HttpStatus.SERVICE_UNAVAILABLE);
@@ -97,5 +98,4 @@ public class UserStatusService {
 			throw new NotFoundUserException();
 		}
 	}
-
 }
