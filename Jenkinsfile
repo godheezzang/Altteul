@@ -4,15 +4,19 @@ pipeline {
     environment {
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        BE_ENV_FILE = credentials('BE_ENV_FILE')
+        ENV_FILE = "${WORKSPACE}/Altteul/altteul-be/.env"
     }
 
     stages {
 
-        stage('Create .env File') {
+        stage('Load Environment Variables') {
             steps {
                 script {
-                    sh "cp ${BE_ENV_FILE} ./altteul-be/.env"
+                    sh '''
+                    set -a
+                    source ${ENV_FILE}
+                    set +a
+                    '''
                 }
             }
         }
