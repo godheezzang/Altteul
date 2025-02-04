@@ -56,7 +56,14 @@ public class SecurityConfig {
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				CorsConfiguration configuration = new CorsConfiguration();
 				configuration.setAllowedOrigins(
-					Arrays.asList("http://localhost:3000", "http://localhost:80"));
+					Arrays.asList(
+						"http://localhost:3000",
+						"http://localhost:5173",
+						"http://localhost:5174",
+						"http://localhost:8080",
+						"http://localhost:8081",
+						"http://localhost:8082",
+						"http://localhost:80"));
 				configuration.setAllowedMethods(Collections.singletonList("*"));
 				configuration.setAllowCredentials(true);
 				configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -69,9 +76,10 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests((auth) -> auth
 			.requestMatchers(HttpMethod.GET).permitAll()
+			.requestMatchers(HttpMethod.POST).permitAll()
 			.requestMatchers("/ws/**").permitAll()
 			.requestMatchers("/api/admin").authenticated()
-			.requestMatchers("/api/login", "/api/register").permitAll()
+			.requestMatchers("/api/login", "/api/register", "/api/judge-ping-check").permitAll()
 			.requestMatchers(HttpMethod.POST).authenticated()
 			.requestMatchers(HttpMethod.PUT).authenticated()
 			.requestMatchers(HttpMethod.DELETE).authenticated()

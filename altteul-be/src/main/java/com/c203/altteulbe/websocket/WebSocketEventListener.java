@@ -4,11 +4,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
+import com.c203.altteulbe.friend.service.FriendService;
 import com.c203.altteulbe.friend.service.UserStatusService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSocketEventListener {
 	private final UserStatusService userStatusService;
+	private final FriendService friendService;
 	private final JWTUtil jwtUtil;
+
+	private final String ONLINE = "online";
+	private final String OFFLINE = "offline";
+
+	@EventListener
+	public void handleWebSocketConnectListener(SessionConnectEvent event) {
+		log.info("연결중");
+	}
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -27,6 +38,7 @@ public class WebSocketEventListener {
 		try {
 			Long userId = getUserIdFromSession(accessor);
 			userStatusService.setUserOnline(userId);
+			//friendService.notifyFriendsOnlineStatus(userId, ONLINE);
 			log.info("유저가 연결되었습니다 - userId: {}", userId);
 		} catch (Exception e) {
 			log.error("WebSocket 연결 처리 실패: {}", e.getMessage());
