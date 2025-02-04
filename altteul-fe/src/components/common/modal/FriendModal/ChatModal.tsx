@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "@components/common/modal/FriendModal/ChatModal.css";
 
-import Modal from "@components/common/modal/Modal";
+import Modal from "@components/Common/modal/Modal";
 
 type ChatModalProps = {
   isOpen: boolean;
@@ -45,12 +45,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps) => {
 
         {/* 입력창 & 전송버튼 */}
         <div className="chat-input">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="메시지를 입력하세요"
-          />
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="메시지를 입력하세요" />
           <button className="send-btn" onClick={sendMessage}>
             전송
           </button>
