@@ -11,14 +11,18 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
+import com.c203.altteulbe.ranking.persistent.entity.Tier;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,8 +45,9 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	@Column(name = "user_id", nullable = false, updatable = false)
 	private Long userId;
 
-	@Column(name = "tier_id", nullable = false)
-	private Byte tierId;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "tier_id")
+	private Tier tier;
 
 	@Column(name = "profile_img", length = 1024)
 	private String profileImg;

@@ -85,6 +85,5 @@ public class WebSocketEventListener {
 		} catch (Exception e) {
 			throw new BusinessException("토큰 처리 중 오류가 발생했습니다.", HttpStatus.UNAUTHORIZED);
 		}
-
 	}
 }
