@@ -10,7 +10,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
-import com.c203.altteulbe.friend.service.FriendService;
 import com.c203.altteulbe.friend.service.UserStatusService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSocketEventListener {
 	private final UserStatusService userStatusService;
-	private final FriendService friendService;
 	private final JWTUtil jwtUtil;
 
 	private final String ONLINE = "online";
