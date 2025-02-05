@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Problem extends BaseCreatedAndUpdatedEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "problem_id", nullable = false, updatable = false)
 	private Long id;
 
@@ -26,9 +25,6 @@ public class Problem extends BaseCreatedAndUpdatedEntity {
 
 	@Column(columnDefinition = "TEXT")
 	private String description;
-
-	private String inputFile;
-	private String outputFile;
 	private int point;
 	private int totalCount;
 }

@@ -3,17 +3,13 @@
 
 import { useState } from "react";
 
-import Input from "@components/common/Input/Input";
-import Button from "@components/common/Button/Button";
-import Modal from "@components/common/modal/Modal";
-import Dropdown from "@components/common/Drpodown/Dropdown";
+import Input from "@components/Common/Input/Input";
+import Button from "@components/Common/Button/Button";
+import Modal from "@components/Common/modal/Modal";
+import Dropdown from "@components/Common/Drpodown/Dropdown";
 
 import { registerUser } from "@utils/api/auth";
-import {
-  validateSignUpForm,
-  SignUpFormData,
-  ValidationErrors,
-} from "@utils/validation";
+import { validateSignUpForm, SignUpFormData, ValidationErrors } from "@utils/validation";
 
 // 회원가입 모달에 필요한 props
 interface SignUpProps {
@@ -137,9 +133,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       }
     } catch (error) {
       console.error("회원가입 중 오류 발생 : ", error);
-      setApiError(
-        error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요."
-      );
+      setApiError(error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요.");
     } finally {
       setIsSubmitting(false); // 로딩 끝
     }
@@ -150,50 +144,23 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       <h2>회원가입</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <Input
-            name="username"
-            type="text"
-            placeholder="아이디"
-            onChange={handleChange}
-            value={form.username}
-          />
+          <Input name="username" type="text" placeholder="아이디" onChange={handleChange} value={form.username} />
           {errors.username && <p className="error">{errors.username}</p>}
         </div>
         <div>
-          <Input
-            name="password"
-            type="password"
-            placeholder="비밀번호"
-            onChange={handleChange}
-            value={form.password}
-          />
+          <Input name="password" type="password" placeholder="비밀번호" onChange={handleChange} value={form.password} />
           {errors.password && <p className="error">{errors.password}</p>}
         </div>
         <div>
-          <Input
-            name="nickname"
-            type="text"
-            placeholder="닉네임"
-            onChange={handleChange}
-            value={form.nickname}
-          />
+          <Input name="nickname" type="text" placeholder="닉네임" onChange={handleChange} value={form.nickname} />
           {errors.nickname && <p className="error">{errors.nickname}</p>}
         </div>
         <div>
-          <Dropdown
-            options={languageOptions}
-            value={form.mainLang}
-            onChange={handleSelectChange}
-          />
+          <Dropdown options={languageOptions} value={form.mainLang} onChange={handleSelectChange} />
           {errors.mainLang && <p className="error">{errors.mainLang}</p>}
         </div>
         <div>
-          <input
-            type="file"
-            name="profileImg"
-            onChange={handleFileChange}
-            accept="image/png, image/jpg, image/jpeg"
-          />
+          <input type="file" name="profileImg" onChange={handleFileChange} accept="image/png, image/jpg, image/jpeg" />
           {errors.profileImg && <p className="error">{errors.profileImg}</p>}
         </div>
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
