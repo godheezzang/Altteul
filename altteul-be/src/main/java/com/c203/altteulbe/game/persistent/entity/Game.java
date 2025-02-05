@@ -29,7 +29,6 @@ import lombok.experimental.SuperBuilder;
 public class Game extends BaseCreatedEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "game_id", nullable = false, updatable = false)
 	private Long id;
 

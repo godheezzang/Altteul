@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.persistent.repository;
+package com.c203.altteulbe.room.persistent.repository.single;
 
 import static com.c203.altteulbe.room.persistent.entity.QSingleRoom.*;
 import org.springframework.stereotype.Repository;

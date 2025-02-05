@@ -9,6 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SingleRoomRequestDto {
+public class RoomRequestDto {
 	private Long userId;
+
+	public static RoomRequestDto toDto(Long userId) {
+		return RoomRequestDto.builder()
+								   .userId(userId)
+								   .build();
+	}
 }

@@ -36,7 +36,7 @@
       "@hooks/*": ["hooks/*"],
       "@pages/*": ["pages/*"],
       "@router/*": ["router/*"],
-      "@store/*": ["store/*"],
+      "@stores/*": ["stores/*"],
       "@utils/*": ["utils/*"],
       "@styles/*": ["styles/*"]
       // "@types/*": ["types/*"]
