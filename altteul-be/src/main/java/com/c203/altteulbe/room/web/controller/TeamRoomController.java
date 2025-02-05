@@ -32,4 +32,14 @@ public class TeamRoomController {
 		RoomEnterResponseDto responseDto = teamRoomService.enterTeamRoom(requestDto);
 		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
+
+	/*
+	 * 팀전 방 퇴장 API
+	 */
+	@PostMapping("/leave")
+	public ApiResponseEntity<Void> leaveTeamRoom(@RequestBody RoomRequestDto requestDto) {
+		teamRoomService.leaveTeamRoom(requestDto);
+		return ApiResponse.success();
+	}
+
 }
