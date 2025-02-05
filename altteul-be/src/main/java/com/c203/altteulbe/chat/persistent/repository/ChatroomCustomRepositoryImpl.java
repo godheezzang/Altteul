@@ -31,6 +31,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 		this.userStatusService = userStatusService;
 	}
 
+	// 유저의 모든 채팅방 조회
 	@Override
 	public List<ChatroomResponseDto> findAllChatroomsByUserId(Long userId) {
 		QChatMessage qChatMessage = QChatMessage.chatMessage;
@@ -43,9 +44,9 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qUser.userId,
 				qUser.nickname,
 				qUser.profileImg,
-				Expressions.constant(false),
+				Expressions.constant(false), // 유저의 온라인 상태
 				qChatMessage.messageContent,
-				Expressions.cases()          // 내가 읽었는지 확인하는 로직 추가
+				Expressions.cases()          // 내가 읽었는지 확인하는 로직
 					.when(
 						JPAExpressions
 							.selectOne()
@@ -57,7 +58,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 					)
 					.then(false)
 					.otherwise(true),
-				Expressions.cases()
+				Expressions.cases() // 메세지 보낸 시간
 					.when(qChatMessage.createdAt.isNotNull())
 					.then(qChatMessage.createdAt)
 					.otherwise(qChatroom.createdAt)))
@@ -68,23 +69,24 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qChatMessage.chatroom.eq(qChatroom)
 					.and(qChatMessage.chatMessageId.eq(
 						JPAExpressions
-							.select(qChatMessage.chatMessageId.max())
+							.select(qChatMessage.chatMessageId.max()) // 제일 최신 메세지 선택
 							.from(qChatMessage)
 							.where(qChatMessage.chatroom.eq(qChatroom))
 					))
 			)
-			.where(qUserChatRoom.user.userId.ne(userId))
-			.orderBy(
+			.where(qUserChatRoom.user.userId.ne(userId)) // 상대방이 보낸 메세지(자신 X)
+			.orderBy( // 최신 순으로 정렬
 				Expressions.cases()
 					.when(qChatMessage.createdAt.isNotNull())
 					.then(qChatMessage.createdAt)
 					.otherwise(qChatroom.createdAt).desc()
 			)
 			.fetch();
+		// 채팅방의 친구 id 리스트
 		List<Long> userIds = chatrooms.stream()
 			.map(ChatroomResponseDto::getFriendId)
 			.toList();
-		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(userIds);
+		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(userIds); // 친구들의 온라인 상태 파악
 		return chatrooms.stream()
 			.map(chatroom -> ChatroomResponseDto.builder()
 				.friendId(chatroom.getFriendId())
@@ -98,6 +100,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.collect(Collectors.toList());
 	}
 
+	// 단일 채팅방 조회
 	@Override
 	public Optional<ChatroomResponseDto> findChatroomById(Long chatroomId, Long userId) {
 		QChatMessage qChatMessage = QChatMessage.chatMessage;
@@ -110,9 +113,9 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qUser.userId,
 				qUser.nickname,
 				qUser.profileImg,
-				Expressions.constant(false),
+				Expressions.constant(false), // 유저(친구)의 온라인 상태
 				qChatMessage.messageContent,
-				Expressions.cases()          // 내가 읽었는지 확인하는 로직 추가
+				Expressions.cases()          // 내가 읽었는지 확인하는 로직
 					.when(
 						JPAExpressions
 							.selectOne()
@@ -124,7 +127,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 					)
 					.then(false)
 					.otherwise(true),
-				Expressions.cases()
+				Expressions.cases() // 메세지 보낸 시간
 					.when(qChatMessage.createdAt.isNotNull())
 					.then(qChatMessage.createdAt)
 					.otherwise(qChatroom.createdAt)))
@@ -136,13 +139,13 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				qChatroom.chatroomId.eq(chatroomId)
 					.and(qUserChatRoom.user.userId.ne(userId))
 			)
-			.orderBy(qChatMessage.createdAt.desc())
+			.orderBy(qChatMessage.createdAt.desc()) // 메세지 최신순 정렬
 			.limit(1)
 			.fetchOne();
 		if (chatroom == null) {
 			return Optional.empty();
 		}
-		Boolean isOnline = userStatusService.isUserOnline(chatroom.getFriendId());
+		Boolean isOnline = userStatusService.isUserOnline(chatroom.getFriendId()); // 유저(친구) 온라인 상태 파악
 		ChatroomResponseDto chatroomDto = ChatroomResponseDto.builder()
 			.friendId(chatroom.getFriendId())
 			.nickname(chatroom.getNickname())

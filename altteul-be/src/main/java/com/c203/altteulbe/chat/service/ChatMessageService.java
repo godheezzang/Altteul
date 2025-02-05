@@ -32,6 +32,8 @@ public class ChatMessageService {
 	private final ChatMessageRepository chatMessageRepository;
 	private final UserChatRoomRepository userChatRoomRepository;
 
+
+	// 메세지 읽음으로 처리하기
 	@Transactional
 	public ChatMessageReadResponseDto markMessageAsRead(Long chatroomId, Long userId) {
 
@@ -58,6 +60,7 @@ public class ChatMessageService {
 			.build();
 	}
 
+	// 메세지 저장
 	@Transactional
 	public ChatMessageResponseDto saveMessage(Long chatroomId, ChatMessageRequestDto requestDto) {
 		validateMessageContent(requestDto.getContent());
@@ -73,12 +76,14 @@ public class ChatMessageService {
 		return ChatMessageResponseDto.from(savedMessage);
 	}
 
+	// 메세지 검증
 	private void validateMessageContent(String content) {
 		if (content == null || content.trim().isEmpty()) {
 			throw new MessageContentRequiredException();
 		}
 	}
 
+	// 채팅방 참여자 검증
 	private void validateChatroomParticipant(Long chatroomId, Long userId) {
 		boolean isParticipant = userChatRoomRepository.existsByChatroom_ChatroomIdAndUser_UserId(chatroomId, userId);
 		if (!isParticipant) {

@@ -19,6 +19,7 @@ public class ChatMessageRequestDto {
 	private Long senderId;
 	private String content;
 
+	// Dto -> Entity
 	public static ChatMessage to(ChatMessageRequestDto dto, Chatroom chatroom, User sender) {
 		return ChatMessage.builder()
 			.chatroom(chatroom)

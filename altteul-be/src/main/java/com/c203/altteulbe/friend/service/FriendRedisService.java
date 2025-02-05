@@ -143,7 +143,7 @@ public class FriendRedisService {
 		redisTemplate.delete(key);
 	}
 
-	// 찬구 관계 update
+	// 찬구 관계 업데이트
 	private void updateFriendList(RedisOperations operations, ObjectMapper objectMapper, Long userId,
 		Long friendId) throws JsonProcessingException {
 		String key = RedisKeys.getFriendRelationKey(userId);
@@ -156,6 +156,7 @@ public class FriendRedisService {
 
 		if (!friendList.contains(friendId)) {
 			friendList.add(friendId);
+			// 추가 후 redis 데이터 업데이트
 			operations.opsForValue().set(key, objectMapper.writeValueAsString(friendList), 30, TimeUnit.MINUTES);
 		}
 
@@ -174,6 +175,7 @@ public class FriendRedisService {
 		List<Long> friendList = objectMapper.readValue(jsonFriendList, new TypeReference<List<Long>>() {
 		});
 		if (friendList.remove(friendId)) { // 친구 ID 삭제
+			// 삭제 후 redis 데이터 업데이트
 			operations.opsForValue().set(key, objectMapper.writeValueAsString(friendList), 30, TimeUnit.MINUTES);
 		}
 	}

@@ -22,6 +22,7 @@ public class ChatMessageResponseDto {
 	private boolean checked;
 	private LocalDateTime createdAt;
 
+	// Entity -> Dto
 	public static ChatMessageResponseDto from(ChatMessage chatMessage) {
 		return ChatMessageResponseDto.builder()
 			.type(MessageType.SEND)

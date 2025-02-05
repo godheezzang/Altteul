@@ -15,10 +15,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatMessageReadResponseDto {
+
 	private MessageType type;
+
 	private Long chatroomId;
+
 	private Long readerId;
+
 	private Long senderId;
+
 	private LocalDateTime readAt;
+
 	private List<Long> messageIds;
 }

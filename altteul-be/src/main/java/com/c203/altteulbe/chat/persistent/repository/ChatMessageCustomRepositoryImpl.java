@@ -19,6 +19,7 @@ public class ChatMessageCustomRepositoryImpl extends QuerydslRepositorySupport i
 		this.queryFactory = queryFactory;
 	}
 
+	// 메세지 읽음 처리
 	@Override
 	@Transactional
 	public void updateMessageAsRead(List<Long> messageIds) {
@@ -31,6 +32,7 @@ public class ChatMessageCustomRepositoryImpl extends QuerydslRepositorySupport i
 			.execute();
 	}
 
+	// 읽지 않은 메세지 찾기
 	@Override
 	public List<ChatMessage> findUnreadMessages(Long chatroomId, Long readerId) {
 		QChatMessage qChatMessage = QChatMessage.chatMessage;
@@ -40,7 +42,7 @@ public class ChatMessageCustomRepositoryImpl extends QuerydslRepositorySupport i
 			.where(qChatMessage.chatroom.chatroomId.eq(chatroomId)
 				.and(qChatMessage.sender.userId.ne(readerId))
 				.and(qChatMessage.checked.eq(false)))
-			.orderBy(qChatMessage.createdAt.asc())
+			.orderBy(qChatMessage.createdAt.asc()) // 오래된 순으로 정렬
 			.fetch();
 	}
 }

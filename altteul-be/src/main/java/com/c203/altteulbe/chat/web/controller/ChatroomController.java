@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class ChatroomController {
 	private final ChatroomService chatroomService;
 
+
+	// 채팅방 목록 조회
 	@GetMapping("/chatroom")
 	@PreAuthorize("isAuthenticated()")
 	public ApiResponseEntity<ResponseBody.Success<List<ChatroomResponseDto>>> getChatroomList(
@@ -31,7 +33,8 @@ public class ChatroomController {
 		return ApiResponse.success(chatroomService.getAllChatrooms(id), HttpStatus.OK);
 	}
 
-	@GetMapping("/{chatroomId}")
+	// 채팅방 단일 조회(쓰진 않지만 혹시 몰라서 만들어놓음)
+	@GetMapping("chatroom/{chatroomId}")
 	public ApiResponseEntity<ResponseBody.Success<ChatroomResponseDto>> getChatroom(
 		@PathVariable(value = "chatroomId") Long chatroomId,
 		@AuthenticationPrincipal Long id) {
