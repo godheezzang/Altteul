@@ -6,15 +6,14 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
+import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -74,7 +73,7 @@ public class FriendshipService {
 	@Transactional
 	public void deleteFriendship(Long userId, Long friendId) {
 		if (!friendshipRepository.existsByUserAndFriend(userId, friendId)) {
-			throw new BusinessException("친구 관계가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
+			throw new FriendRelationNotFoundException();
 		}
 		friendshipRepository.deleteFriendRelation(userId, friendId);
 

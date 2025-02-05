@@ -5,18 +5,24 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.RequestStatus;
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.friend.persistent.entity.FriendRequest;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendRequestRepository;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
+import com.c203.altteulbe.friend.service.exception.AlreadyFriendException;
+import com.c203.altteulbe.friend.service.exception.AlreadyProcessRequestException;
+import com.c203.altteulbe.friend.service.exception.AuthorizationException;
+import com.c203.altteulbe.friend.service.exception.ExistingPendingFriendRequestException;
+import com.c203.altteulbe.friend.service.exception.FriendRequestNotFoundException;
+import com.c203.altteulbe.friend.service.exception.InvalidFriendRequestException;
+import com.c203.altteulbe.friend.service.exception.SuspendedUserException;
+import com.c203.altteulbe.friend.service.exception.WithdrawUserException;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
@@ -90,19 +96,19 @@ public class FriendRequestService {
 		FriendRequest request = friendRequestRepository.findById(requestId)
 			.orElseThrow(() -> {
 				log.error("친구 신청 찾기 실패");
-				return new BusinessException("친구 신청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+				return new FriendRequestNotFoundException();
 			});
 
 		// 수신자 본인 확인
 		if (!request.getTo().getUserId().equals(userId)) {
 			log.error("권한 없음");
-			throw new BusinessException("권한이 없습니다.", HttpStatus.FORBIDDEN);
+			throw new AuthorizationException();
 		}
 
 		// 이미 처리된 요청인지 확인
 		if (request.getRequestStatus() != RequestStatus.P) {
 			log.error("이미 처리된 친구 신청");
-			throw new BusinessException("이미 처리된 친구 신청입니다.", HttpStatus.BAD_REQUEST);
+			throw new AlreadyProcessRequestException();
 		}
 
 		// 상태 업데이트
@@ -146,32 +152,32 @@ public class FriendRequestService {
 	// 친구 요청 검증
 	private void validateFriendRequest(User fromUser, User toUser) {
 		if (fromUser.getUserId().equals(toUser.getUserId())) {
-			throw new BusinessException("자기 자신에게 친구 신청할 수 없습니다.", HttpStatus.BAD_REQUEST);
+			throw new InvalidFriendRequestException();
 		}
 
 		// redis에서 친구인지 확인
 		if (friendRedisService.checkFriendRelation(fromUser.getUserId(), toUser.getUserId())) {
-			throw new BusinessException("이미 친구입니다.", HttpStatus.BAD_REQUEST);
+			throw new AlreadyFriendException();
 		}
 
 		// redis에 없는 경우 db 확인
 		if (friendshipRepository.existsByUserAndFriend(fromUser.getUserId(), toUser.getUserId())) {
 			// db에 있다면 redis에 캐싱
 			friendRedisService.setFriendRelation(fromUser.getUserId(), toUser.getUserId());
-			throw new BusinessException("이미 친구 입니다.", HttpStatus.BAD_REQUEST);
+			throw new AlreadyFriendException();
 		}
 
 		if (friendRequestRepository.existsByFromUserIdAndToUserIdAndRequestStatus(
 			fromUser.getUserId(), toUser.getUserId(), RequestStatus.P)) {
-			throw new BusinessException("이미 보류 중인 친구 신청이 있습니다.", HttpStatus.BAD_REQUEST);
+			throw new ExistingPendingFriendRequestException();
 		}
 
 		if (toUser.getUserStatus() == User.UserStatus.D) {
-			throw new BusinessException("탈퇴한 사용자입니다.", HttpStatus.BAD_REQUEST);
+			throw new WithdrawUserException();
 		}
 
 		if (toUser.getUserStatus() == User.UserStatus.S) {
-			throw new BusinessException("정지된 사용자입니다.", HttpStatus.BAD_REQUEST);
+			throw new SuspendedUserException();
 		}
 	}
 
