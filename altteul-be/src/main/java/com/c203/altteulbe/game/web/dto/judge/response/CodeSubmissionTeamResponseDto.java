@@ -28,7 +28,7 @@ public class CodeSubmissionTeamResponseDto {
 
 			for (int i = 0; i < testCaseResults.size(); i++) {
 				TestCaseResult testCaseResult = testCaseResults.get(i);
-				boolean isPassed = testCaseResult.getResultEnum() == TestCaseResult.Result.SUCCESS;
+				boolean isPassed = testCaseResult.getResultEnum() == TestCaseResult.Result.P;
 				if (isPassed)
 					passCount++;
 

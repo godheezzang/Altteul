@@ -43,6 +43,6 @@ public class JudgeController {
 
 	@PostMapping("/judge/submit")
 	public ApiResponseEntity<ResponseBody.Success<JudgeResponse>> submitCode(@RequestBody SubmitCodeRequestDto request, @AuthenticationPrincipal Long id) {
-		return ApiResponse.success(judgeService.submitToJudge(request, id, "problem"));
+		return ApiResponse.success(judgeService.submitToJudge(request, "problem_"));
 	}
 }

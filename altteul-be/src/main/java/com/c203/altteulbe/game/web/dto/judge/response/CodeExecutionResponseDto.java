@@ -30,11 +30,11 @@ public class CodeExecutionResponseDto {
 				TestCaseResult testCaseResult = testCaseResults.get(i);
 				String status = null;
 				switch (testCaseResult.getResultEnum()) {
-					case SUCCESS -> status = "P";
-					case WRONG_ANSWER -> status = "F";
-					case RUNTIME_ERROR -> status = "RUN";
-					case CPU_TIME_LIMIT_EXCEEDED -> status = "TLE";
-					case MEMORY_LIMIT_EXCEEDED -> status = "MLE";
+					case P -> status = "P";
+					case F -> status = "F";
+					case RUN -> status = "RUN";
+					case TLE, CLE -> status = "TLE";
+					case MLE -> status = "MLE";
 				}
 
 				testCaseResponses.add(ExampleResponseDto.builder()

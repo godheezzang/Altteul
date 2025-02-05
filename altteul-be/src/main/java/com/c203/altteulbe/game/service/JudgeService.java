@@ -1,5 +1,7 @@
 package com.c203.altteulbe.game.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Problem;
+import com.c203.altteulbe.game.persistent.entity.TestHistory;
+import com.c203.altteulbe.game.persistent.entity.TestResult;
+import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.service.exception.JudgeCompileException;
 import com.c203.altteulbe.game.service.exception.JudgeServerException;
@@ -30,6 +35,7 @@ public class JudgeService {
 	private final RestTemplate restTemplate;
 	private final JudgeWebsocketService judgeWebsocketService;
 	private final ProblemRepository problemRepository;
+	private final TestHistoryRepository testHistoryRepository;
 
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
@@ -44,7 +50,7 @@ public class JudgeService {
 	}
 
 	// 일반 채점 실행
-	public JudgeResponse submitToJudge(SubmitCodeRequestDto request, Long id, String prefix) {
+	public JudgeResponse submitToJudge(SubmitCodeRequestDto request, String prefix) {
 		// 채점 서버 url
 		String url = judgeServerUrl + "/judge";
 		String problemFolderName = prefix + request.getProblemId();
@@ -80,7 +86,7 @@ public class JudgeService {
 	 */
 	public void submitCode(SubmitCodeRequestDto request, Long id) {
 		// 저지에게 코드 제출
-		JudgeResponse judgeResponse = submitToJudge(request, id, PROBLEM_PREFIX);
+		JudgeResponse judgeResponse = submitToJudge(request, PROBLEM_PREFIX);
 
 		if (judgeResponse == null) throw new NullPointerException();
 
@@ -102,11 +108,24 @@ public class JudgeService {
 
 		// 결과를 내역 db에 저장, 게임 db에 저장
 		// 1. 내역 Entity 생성, 레포지토리 쿼리문 생성, 언어별 제한 테이블 추가
+
+		TestHistory testHistory = TestHistory.from(
+			teamResponseDto,
+			request.getGameId(),
+			request.getProblemId(),
+			id,
+			request.getCode(),
+			request.getLang()
+		);
+
+		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
+
+		testHistoryRepository.save(testHistory);
 	}
 
-	public void executeCode(SubmitCodeRequestDto request, Long id) {
+	public void executeCode(SubmitCodeRequestDto request) {
 		// 저지에게 코드 제출
-		JudgeResponse judgeResponse = submitToJudge(request, id, EXAMPLE_PREFIX);
+		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX);
 
 		if (judgeResponse == null) throw new NullPointerException();
 
