@@ -7,7 +7,6 @@ import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.service.exception.SelfSearchException;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
-import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
 

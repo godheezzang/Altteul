@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.service.UserService;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
-import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
