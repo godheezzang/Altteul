@@ -10,13 +10,19 @@ import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
 import { useTimer } from "@hooks/useTimer";
 import { User } from "types/types";
-import { mockSingleEnterData } from "mocks/singleData";
+import { mockSingleEnterData, mockSingleWatingData } from "mocks/singleData";
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
   const [facts] = useState<string[]>(tmi.facts);
-  const waitUsers = mockSingleEnterData.data.users
+  const [waitUsers, setWaitUsers] = useState(mockSingleEnterData.data.users)
+
+  const userEnter = () => {
+    //유저 입장시 소켓 메세지의 users 부분 세팅
+    setWaitUsers(mockSingleWatingData.data.users)
+
+  }
 
   const { seconds } = useTimer({
     initialSeconds: 180, // 시작 시간 설정
@@ -64,7 +70,12 @@ const SingleSearchPage = () => {
 
         {/* Status Message */}
         <div className="text-white text-xl mb-8 flex flex-col items-center">
-          같이 플레이 할 상대를 찾고 있어요. 🧐
+
+          {/* 임시로 텍스트 클릭시 새로운 유저 유입 만듬 */}
+          <div onClick={userEnter} >
+            같이 플레이 할 상대를 찾고 있어요. 🧐
+          </div>
+
           <div className="flex text-base">
             조금만 기다려 주세요
             <div className="ml-2">
