@@ -15,13 +15,13 @@ services:
       - backend
 
   backend:
-    image: gradle:8.6.0-jdk17
     env_file:
-      - ./altteul-be/.env
+    - ./altteul-be/.env
+    image: gradle:8.6.0-jdk17
     container_name: altteul-ie-backend
     working_dir: /app
     ports:
-      - "8090:8080"
+      - "8090:8081"
     volumes:
       - ./altteul-be:/app
       - gradle_cache:/home/gradle/.gradle
