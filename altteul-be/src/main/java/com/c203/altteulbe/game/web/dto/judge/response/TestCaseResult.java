@@ -10,9 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestCaseResult {
-	private long cpuTime;
-	private long realTime;
-	private long memory;
+	private int cpuTime;
+	private int realTime;
+	private int memory;
 	private int signal;
 	private int exitCode;
 	private int error;
@@ -23,13 +23,13 @@ public class TestCaseResult {
 
 	// 결과 해석을 위한 enum
 	public enum Result {
-		WRONG_ANSWER(-1),
-		SUCCESS(0),
-		CPU_TIME_LIMIT_EXCEEDED(1),
-		REAL_TIME_LIMIT_EXCEEDED(2),
-		MEMORY_LIMIT_EXCEEDED(3),
-		RUNTIME_ERROR(4),
-		SYSTEM_ERROR(5);
+		F(-1),
+		P(0),
+		CLE(1),
+		TLE(2),
+		MLE(3),
+		RUN(4),
+		SYS(5);
 
 		private final int value;
 
@@ -49,7 +49,7 @@ public class TestCaseResult {
 
 	// 에러 해석을 위한 enum
 	public enum Error {
-		SUCCESS(0),
+		P(0),
 		INVALID_CONFIG(-1),
 		CLONE_FAILED(-2),
 		PTHREAD_FAILED(-3),
