@@ -21,6 +21,15 @@ export default {
         'lang-PY': '#506C9E',
       },
 
+      fontSize: {
+        xs: '0.75rem', // 12px
+        sm: '0.875rem', // 14px
+        md: '1rem', // 16px
+        lg: '1.125rem', // 18px
+        xl: '1.25rem', // 20px
+        xxl: '1.5rem', // 24px
+      },
+
       // 팀매칭때 유저 좌우 슬라이드 효과
       keyframes: {
         slideLeft: {
