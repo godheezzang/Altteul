@@ -1,4 +1,4 @@
-import Editor from '@components/Ide/Editor';
+import CodeEditor from '@components/Ide/CodeEditor';
 import GameUserList from '@components/Ide/GameUserList';
 import ProblemInfo from '@components/Ide/ProblemInfo';
 import Terminal from '@components/Ide/Terminal';
@@ -21,7 +21,7 @@ const SingleIdePage = () => {
         <ProblemInfo />
       </div>
       <div className='col-start-3 col-end-11 border-r border-gray-04'>
-        <Editor />
+        <CodeEditor />
         <Terminal />
         <div>ide footer</div>
       </div>
