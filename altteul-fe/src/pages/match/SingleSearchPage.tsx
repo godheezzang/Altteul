@@ -16,7 +16,7 @@ const SingleSearchPage = () => {
   const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
   const [facts] = useState<string[]>(tmi.facts);
-  const userData = mockSingleEnterData.data.users
+  const waitUsers = mockSingleEnterData.data.users
 
   const { seconds } = useTimer({
     initialSeconds: 180, // 시작 시간 설정
@@ -90,7 +90,7 @@ const SingleSearchPage = () => {
 
         {/* 방장 제외 대기 유저 */}
         <div className="flex justify-center items-center gap-20">
-          {userData.map((user: User) => (
+          {waitUsers.map((user: User) => (
             <UserProfile key={user.userId} 
                          nickName={user.nickname} 
                          profileImage={user.profileImage}
