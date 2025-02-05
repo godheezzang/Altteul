@@ -10,7 +10,7 @@ type ButtonProps = {
   fontColor?: string;
 };
 
-export const LargeButton = ({
+const LargeButton = ({
   onClick,
   type = "button",
   children,
@@ -25,3 +25,5 @@ export const LargeButton = ({
     {children}
   </button>
 );
+
+export default LargeButton;

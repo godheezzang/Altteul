@@ -11,7 +11,7 @@ type ButtonProps = {
   fontSize?: string;
 };
 
-export const MediumButton = ({
+const MediumButton = ({
   onClick,
   type = "button",
   children,
@@ -26,3 +26,5 @@ export const MediumButton = ({
     {children}
   </button>
 );
+
+export default MediumButton;

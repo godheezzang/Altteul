@@ -12,7 +12,8 @@ type ButtonProps = {
   width?: string;
   height?: string;
 };
-export const SmallButton = ({
+
+const SmallButton = ({
   onClick,
   type = "button",
   children,
@@ -30,3 +31,5 @@ export const SmallButton = ({
     {children}
   </button>
 );
+
+export default SmallButton;
