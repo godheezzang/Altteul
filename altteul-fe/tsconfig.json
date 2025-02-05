@@ -28,6 +28,9 @@
     "allowJs": true,
     "checkJs": true,
 
+    // monaco editor 설정
+    "types": ["monaco-editor"],
+
     "jsx": "react-jsx",
     "baseUrl": "./src",
     "paths": {
