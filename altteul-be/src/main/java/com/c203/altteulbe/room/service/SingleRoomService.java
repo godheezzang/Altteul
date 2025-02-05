@@ -31,8 +31,7 @@ import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepos
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
 import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
-import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
-import com.c203.altteulbe.room.web.dto.request.SingleRoomGameStartRequestDto;
+import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
@@ -151,7 +150,7 @@ public class SingleRoomService {
 	 */
 	@Transactional
 	@DistributedLock(key = "requestDto.roomId")
-	public void startGame(SingleRoomGameStartRequestDto requestDto) {
+	public void startGame(RoomGameStartRequestDto requestDto) {
 		Long roomId = requestDto.getRoomId();
 		Long leaderId = requestDto.getLeaderId();
 

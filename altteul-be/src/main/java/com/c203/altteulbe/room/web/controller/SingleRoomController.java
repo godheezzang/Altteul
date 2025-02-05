@@ -10,7 +10,7 @@ import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.web.dto.request.SingleRoomGameStartRequestDto;
+import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 
@@ -49,7 +49,7 @@ public class SingleRoomController {
 	 * 개인전 게임 시작 API
 	 */
 	@PostMapping("/start")
-	public ApiResponseEntity<Void> startGame(@RequestBody SingleRoomGameStartRequestDto requestDto) {
+	public ApiResponseEntity<Void> startGame(@RequestBody RoomGameStartRequestDto requestDto) {
 		singleRoomService.startGame(requestDto);
 		return ApiResponse.success();
 	}

@@ -10,10 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.game.service.exception.NotEnoughUserException;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
+import com.c203.altteulbe.room.service.exception.CannotMatchingException;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
+import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
+import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
@@ -88,8 +92,7 @@ public class TeamRoomService {
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
 		// 방 상태 확인
-		String roomStatusKey = RedisKeys.TeamRoomStatus(roomId);
-		String status = redisTemplate.opsForValue().get(roomStatusKey);
+		String status = teamRoomRedisRepository.getRoomStatus(roomId);
 
 		if (!"waiting".equals(status)) {
 			throw new CannotLeaveRoomException();
@@ -127,5 +130,31 @@ public class TeamRoomService {
 		return userJPARepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
+	}
+
+	/**
+	 * 팀전 매칭 시작
+	 */
+	@DistributedLock(key = "requestDto.roomId")
+	@Transactional
+	public void startTeamMatch(RoomGameStartRequestDto requestDto) {
+		Long roomId = requestDto.getRoomId();
+		Long leaderId = requestDto.getLeaderId();
+
+		// 방장 여부, 인원 수 충족 여부, 대기 중 여부 검증
+		if (!validator.isRoomLeader(roomId, leaderId, BattleType.T)) throw new NotRoomLeaderException();
+		if (!validator.isEnoughUsers(roomId, BattleType.T)) throw new NotEnoughUserException();
+		if (!teamRoomRedisRepository.getRoomStatus(roomId).equals("waiting")) throw new CannotMatchingException();
+
+		// matching 상태로 변경
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId), "matching");
+
+		// matching 시작
+		findMatchingTeam(roomId);
+
+	}
+
+	private void findMatchingTeam(Long roomId) {
+
 	}
 }
