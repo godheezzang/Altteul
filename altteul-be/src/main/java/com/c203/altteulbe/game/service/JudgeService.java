@@ -1,6 +1,7 @@
 package com.c203.altteulbe.game.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -10,6 +11,8 @@ import com.c203.altteulbe.game.web.dto.judge.request.JudgeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDto;
 import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDtoFactory;
+import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmitionOpponentResponseDto;
+import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmitionTeamResponseDto;
 import com.c203.altteulbe.game.web.dto.judge.response.JudgeResponse;
 import com.c203.altteulbe.game.web.dto.judge.response.PingResponse;
 
@@ -23,6 +26,10 @@ public class JudgeService {
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
 
+	private final SimpMessagingTemplate simpMessagingTemplate;
+
+	private final String PROBLEM_PREFIX = "problem_";
+
 	// 시스템 정보 조회
 	public PingResponse getSystemInfo() {
 		String url = judgeServerUrl + "/ping";
@@ -30,12 +37,13 @@ public class JudgeService {
 	}
 
 	// 일반 채점 실행
-	public JudgeResponse judgeSubmission(SubmitCodeRequestDto request) {
+	public void judgeSubmission(SubmitCodeRequestDto request, Long id) {
 		// 채점 서버 url
 		String url = judgeServerUrl + "/judge";
+		String problemFolderName = PROBLEM_PREFIX + request.getProblemId();
 
 		// 언어에 따른 설정 분리
-		LangDto langDto = switch (request.getLanguage()) {
+		LangDto langDto = switch (request.getLang()) {
 			case "JV" -> LangDtoFactory.createJavaLangDto();
 			case "PY" -> LangDtoFactory.createPython3LangDto();
 			case "CPP" -> LangDtoFactory.createCppLangDto();
@@ -50,14 +58,26 @@ public class JudgeService {
 			.language_config(langDto)
 			.max_cpu_time(1000L)
 			.max_memory(100*1024*1024L)
-			.test_case_id(request.getProblemId())
+			.test_case_id(problemFolderName)
 			.output(true)
 			.build();
 
-		// 받은 결과로 점수 산정. result가 0인 개수, 테스트 결과 반환
-		// 다른 사람들에게는 점수 보내기
+		JudgeResponse result  = restTemplate.postForObject(url, judgeRequestDto, JudgeResponse.class);
 
-		return restTemplate.postForObject(url, judgeRequestDto, JudgeResponse.class);
+		// 예외 처리
+		if (result != null) handleJudgeError(result);
+		else throw new NullPointerException();
+
+		// 2. 우리 팀 구독 경로로 결과 전송 (자세한 테스트케이스 결과 포함)
+		simpMessagingTemplate.convertAndSend(
+			"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/team-submission/result",
+			CodeSubmitionTeamResponseDto.from(result));
+
+		// 3. 상대 팀 구독 경로로 결과 전송 (간략한 정보만 전송)
+		CodeSubmitionOpponentResponseDto oppResult = CodeSubmitionOpponentResponseDto.builder().build();
+		simpMessagingTemplate.convertAndSend(
+			"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/opponent-submission/result",
+			CodeSubmitionOpponentResponseDto.from(result));
 	}
 
 	// 컴파일 에러 처리
