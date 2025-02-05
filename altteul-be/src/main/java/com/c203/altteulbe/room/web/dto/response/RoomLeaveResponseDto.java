@@ -13,16 +13,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class SingleRoomLeaveResponseDto {
+public class RoomLeaveResponseDto {
 	private Long roomId;
 	private Long leaderId;
 	private UserInfoResponseDto leftUser;             // 떠난 유저
 	private List<UserInfoResponseDto> remainingUsers; // 남은 유저
 
-	public static SingleRoomLeaveResponseDto toResponse(Long roomId, Long leaderId,
+	public static RoomLeaveResponseDto toResponse(Long roomId, Long leaderId,
 														UserInfoResponseDto leftUser,
 														List<UserInfoResponseDto> remainingUsers) {
-		return SingleRoomLeaveResponseDto.builder()
+		return RoomLeaveResponseDto.builder()
 										 .roomId(roomId)
 										 .leaderId(leaderId)
 										 .leftUser(leftUser)

@@ -1,6 +1,5 @@
 package com.c203.altteulbe.room.service;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
+
+import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SingleRoomCountingSchedulerTest {
@@ -24,7 +25,7 @@ class SingleRoomCountingSchedulerTest {
 	private SingleRoomService singleRoomService;
 
 	@Mock
-	private SingleRoomValidator singleRoomValidator;
+	private RoomValidator singleRoomValidator;
 
 	@Mock
 	private RoomWebSocketService roomWebSocketService;
@@ -51,7 +52,7 @@ class SingleRoomCountingSchedulerTest {
 		when(redisTemplate.opsForList()).thenReturn(listOperations);
 		when(listOperations.range("room:single:1:users", 0, -1)).thenReturn(List.of("1", "2")); // 유저 ID 목록
 
-		when(singleRoomValidator.isEnoughUsers(anyLong())).thenReturn(true);
+		when(singleRoomValidator.isEnoughUsers(anyLong(), eq(BattleType.S))).thenReturn(true);
 
 		// When
 		scheduler.counting();
@@ -60,7 +61,8 @@ class SingleRoomCountingSchedulerTest {
 		verify(roomWebSocketService).sendWebSocketMessage(
 			eq("1"),
 			eq("COUNTING"),
-			eq(5)
+			eq(5),
+			eq(BattleType.S)
 		);
 	}
 
@@ -75,13 +77,17 @@ class SingleRoomCountingSchedulerTest {
 		when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 		when(valueOperations.get("room:single:1:countdown")).thenReturn("5");
 
-		when(singleRoomValidator.isEnoughUsers(anyLong())).thenReturn(false);
+		ListOperations<String, String> listOperations = mock(ListOperations.class);
+		when(redisTemplate.opsForList()).thenReturn(listOperations);
+		when(listOperations.range("room:single:1:users", 0, -1)).thenReturn(List.of("1", "2"));
+
+		when(singleRoomValidator.isEnoughUsers(anyLong(), eq(BattleType.S))).thenReturn(false);
 
 		// When
 		scheduler.counting();
 
 		// Then
-		verify(roomWebSocketService).sendWebSocketMessage(eq("1"), eq("COUNTING_CANCEL"), eq("인원 수가 부족합니다."));
+		verify(roomWebSocketService).sendWebSocketMessage(eq("1"), eq("COUNTING_CANCEL"), eq("인원 수가 부족합니다."), eq(BattleType.S));
 		verify(redisTemplate).delete("room:single:1:countdown"); // 카운트다운 삭제 검증
 	}
 
@@ -123,7 +129,7 @@ class SingleRoomCountingSchedulerTest {
 		when(redisTemplate.opsForList()).thenReturn(listOperations);
 		when(listOperations.range("room:single:1:users", 0, -1)).thenReturn(List.of("1", "2"));
 
-		when(singleRoomValidator.isEnoughUsers(anyLong())).thenReturn(true);
+		when(singleRoomValidator.isEnoughUsers(anyLong(), eq(BattleType.S))).thenReturn(true);
 
 		// When
 		scheduler.counting();

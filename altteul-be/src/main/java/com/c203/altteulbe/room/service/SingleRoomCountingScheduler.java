@@ -7,7 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
+import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.common.utils.RedisKeys;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class SingleRoomCountingScheduler {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final SingleRoomService singleRoomService;
 	private final SingleRoomRedisRepository singleRoomRedisRepository;
-	private final SingleRoomValidator singleRoomValidator;
+	private final RoomValidator singleRoomValidator;
 	private final RoomWebSocketService roomWebSocketService;
 
 	// 1초마다 실행
@@ -51,9 +52,9 @@ public class SingleRoomCountingScheduler {
 			}
 
 			// 인원 검증 : 방을 이전 상태로 되돌릴 것이라고 가정하고 구현했기 때문에 관련 redis key는 카운팅만 제거
-			if (!singleRoomValidator.isEnoughUsers(roomId)) {
+			if (!singleRoomValidator.isEnoughUsers(roomId, BattleType.S)) {
 				log.info("[Scheduler] 카운팅 중 최소 인원 미달 : roomId : {}", roomId);
-				roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId),"COUNTING_CANCEL", "인원 수가 부족합니다.");
+				roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.S);
 				redisTemplate.delete(roomKey);
 				continue;
 			}
@@ -66,7 +67,7 @@ public class SingleRoomCountingScheduler {
 				continue;
 			}
 
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING", remainingTime);
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING", remainingTime, BattleType.S);
 			redisTemplate.opsForValue().set(roomKey, String.valueOf(remainingTime-1));
 		}
 	}
