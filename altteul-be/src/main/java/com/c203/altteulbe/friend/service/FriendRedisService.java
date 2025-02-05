@@ -1,4 +1,4 @@
-package com.c203.altteulbe.common.utils;
+package com.c203.altteulbe.friend.service;
 
 import java.util.List;
 import java.util.Set;
@@ -8,18 +8,19 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class RedisUtils {
+public class FriendRedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 

@@ -53,7 +53,7 @@ public class FriendshipRepositoryImpl extends QuerydslRepositorySupport implemen
 	}
 
 	@Override
-	public void deleteFriendshipBiDirectional(Long user1, Long user2) {
+	public void deleteFriendRelation(Long user1, Long user2) {
 		queryFactory
 			.delete(friendship)
 			.where(
