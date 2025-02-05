@@ -3,15 +3,9 @@ import UserProfile from "@components/Match/UserProfile";
 import Button from "@components/Common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
-import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
-import { User, Users } from "types/types";
-
-const mockUsers: Users = {
-  user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
-  user2: { nickName: "샤샤샤", profileImage: peopleIcon, tier: tierIcon },
-  user3: { nickName: "오리진", profileImage: peopleIcon, tier: tierIcon },
-};
+import { User } from "types/types";
+import { TeamData } from "mocks/userData";
 
 const TeamcompositionPage = () => {
   return (
@@ -28,8 +22,8 @@ const TeamcompositionPage = () => {
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {Object.values(mockUsers).map((user: User, index) => (
-            <UserProfile key={index} nickName={user.nickName} profileImage={user.profileImage} tier={user.tier} />
+          {TeamData.map((user: User) => (
+            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
           ))}
         </div>
 

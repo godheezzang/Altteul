@@ -5,16 +5,9 @@ import { useTimer } from "@hooks/useTimer";
 import UserProfile from "@components/Match/UserProfile";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
-import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
-import { User, Users } from "types/types";
-
-const mockUsers: Users = {
-  user1: { nickName: "알리언", profileImage: peopleIcon, tier: tierIcon },
-  user2: { nickName: "샤샤샤", profileImage: peopleIcon, tier: tierIcon },
-  user3: { nickName: "오리진", profileImage: peopleIcon, tier: tierIcon },
-  user4: { nickName: "가희바희보", profileImage: peopleIcon, tier: tierIcon },
-};
+import { User } from "types/types";
+import { TeamData } from "mocks/userData";
 
 const TeamFinalPage = () => {
   const ProblemTitle = "물류 창고 로봇"; //문제 제목 부분
@@ -71,8 +64,8 @@ const TeamFinalPage = () => {
         <div className="flex justify-center items-center">
           {/* 아군 유저 */}
           <div className="flex gap-20 animate-slide-left">
-            {Object.values(mockUsers).map((user: User, index) => (
-              <UserProfile key={index} nickName={user.nickName} profileImage={user.profileImage} tier={user.tier} />
+            {TeamData.map((user: User) => (
+              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
             ))}
           </div>
 
@@ -81,8 +74,8 @@ const TeamFinalPage = () => {
 
           {/* 상대 유저 */}
           <div className="flex animate-slide-right gap-20">
-            {Object.values(mockUsers).map((user: User, index) => (
-              <UserProfile key={index} nickName={user.nickName} profileImage={user.profileImage} tier={user.tier} />
+            {TeamData.map((user: User) => (
+              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
             ))}
           </div>
         </div>
