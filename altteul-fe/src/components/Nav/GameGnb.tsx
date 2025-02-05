@@ -33,7 +33,7 @@ const GameGnb = () => {
                 </>
               )}
               <p className='py-3 text-primary-white font-semibold text-lg'>
-                {problem.problemId}. {problem.problemTitle}
+                {problem?.problemId}. {problem?.problemTitle}
               </p>
             </div>
           </div>
