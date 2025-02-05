@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
@@ -35,7 +36,7 @@ import com.c203.altteulbe.room.web.dto.request.SingleRoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
-import com.c203.altteulbe.room.web.dto.response.SingleRoomLeaveResponseDto;
+import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -104,31 +105,30 @@ public class SingleRoomService {
 			throw new UserNotInRoomException();
 		}
 
-		// 현재 방에 존재하는 유저들 조회
-		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
-		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
-
-		if (userIds == null || userIds.isEmpty()) {
-			throw new RoomNotFoundException();
-		}
-
 		// 퇴장하는 유저 정보 조회
 		User user = userJPARepository.findByUserId(userId)
 						.orElseThrow(()->new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
+		// 방 상태 확인
+		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
+		String status = redisTemplate.opsForValue().get(roomStatusKey);
+
+		if (!"waiting".equals(status)) {
+			throw new CannotLeaveRoomException();
+		}
+
 		// Redis에서 퇴장하는 유저 삭제
+		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 		redisTemplate.opsForList().remove(roomUsersKey, 0, userId.toString());
 		redisTemplate.delete(RedisKeys.userSingleRoom(userId));
 
-		// 방에 남은 유저 수 확인
+		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
-			redisTemplate.delete(roomUsersKey);
-			redisTemplate.delete(RedisKeys.SingleRoomStatus(roomId));
-			redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, Long.toString(roomId));
+			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
 
@@ -139,7 +139,7 @@ public class SingleRoomService {
 		List<User> remainingUsers = getUserByIds(remainingUserIds);
 		List<UserInfoResponseDto> remainingUserDtos = UserInfoResponseDto.fromEntities(remainingUsers);
 
-		SingleRoomLeaveResponseDto responseDto = SingleRoomLeaveResponseDto.toResponse(
+		RoomLeaveResponseDto responseDto = RoomLeaveResponseDto.toResponse(
 			roomId, leaderId, leftUserDto, remainingUserDtos
 		);
 		// WebSocket 메시지 브로드캐스트
