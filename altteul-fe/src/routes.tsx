@@ -1,3 +1,4 @@
+import Layout from "@components/Layout/Layout";
 import MainPage from "@pages/Main/MainPage";
 import SelectPage from "@pages/Match/SelectPage";
 import SingleFinalPage from "@pages/Match/SingleFinalPage";
@@ -5,26 +6,42 @@ import SingleSearchPage from "@pages/Match/SingleSearchPage";
 import TeamcompositionPage from "@pages/Match/TeamcompositionPage";
 import TeamFinalPage from "@pages/Match/TeamFinalPage";
 import TeamSearchPage from "@pages/Match/TeamSearchPage";
+import RankPage from "@pages/Rank/RankPage";
 import MyPage from "@pages/User/MyPage";
+import App from "App";
 import { createBrowserRouter } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainPage />,
-  },
-  // 회원
-  {
-    path: "user",
+    element: <App />,
     children: [
       {
-        path: "mypage",
-        element: <MyPage />,
+        index: true,
+        element: <MainPage />,
+      },
+      {
+        path: "rank",
+        element: <RankPage />,
+      },
+      // 회원
+      {
+        path: "user",
+        children: [
+          {
+            path: "mypage",
+            element: <MyPage />,
+          },
+        ],
+      },
+      {
+        path: "game",
+        children: [],
       },
     ],
   },
   {
-    path: "matching",
+    path: "match",
     children: [
       {
         path: "select",
@@ -59,14 +76,6 @@ const router = createBrowserRouter([
             element: <SingleFinalPage />,
           },
         ],
-      },
-    ],
-  },
-  {
-    path: "game",
-    children: [
-      {
-        path: "team",
       },
     ],
   },
