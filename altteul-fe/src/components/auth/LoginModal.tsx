@@ -6,7 +6,7 @@ import Button from "@components/Common/Button/Button";
 import axios from "axios";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ id: "", password: "" });
   const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +20,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     console.log("전송할 데이터:", form);
 
     try {
-      const response = await loginUser(form.username, form.password);
+      const response = await loginUser(form.id, form.password);
       console.log("로그인 성공:", response);
 
       if (!response) {
@@ -58,9 +58,9 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       <form onSubmit={handleSubmit}>
         <Input
           type="text"
-          name="username"
+          name="id"
           placeholder="아이디를 입력해주세요"
-          value={form.username}
+          value={form.id}
           onChange={handleChange}
         />
         <Input
