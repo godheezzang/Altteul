@@ -13,7 +13,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.c203.altteulbe.friend.service.UserStatusService;
-import com.c203.altteulbe.room.persistent.repository.SingleRoomRedisRepository;
+import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
 import com.c203.altteulbe.common.utils.RedisKeys;
 
@@ -45,7 +45,7 @@ class WebSocketEventListenerTest {
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
 
 		// Mock Redis 반환값 설정
-		when(singleRoomRedisRepository.getUserRoomId(userId)).thenReturn(roomId);
+		when(singleRoomRedisRepository.getRoomIdByUser(userId)).thenReturn(roomId);
 		when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 		when(valueOperations.get(roomStatusKey)).thenReturn("counting");
 
@@ -59,7 +59,7 @@ class WebSocketEventListenerTest {
 		WebSocketEventListener spyListener = Mockito.spy(webSocketEventListener);
 
 		// WebSocketEventListener의 getUserIdFromSession을 protected로 변경해야 테스트 실행 가능
-		// doReturn(userId).when(spyListener).getUserIdFromSession(any());
+		//doReturn(userId).when(spyListener).getUserIdFromSession(any());
 
 		// When
 		spyListener.handleWebSocketDisconnectListener(event);
