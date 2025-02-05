@@ -14,6 +14,6 @@ public class CodeSubmitionOpponentResponseDto {
 	private int passCount;
 	private int totalCount;
 
-	public static CodeSubmitionOpponentResponseDto from(JudgeResponse result) {
-	}
+	// public static CodeSubmitionOpponentResponseDto from(JudgeResponse result) {
+	// }
 }

@@ -17,12 +17,13 @@ public class CodeSubmitionTeamResponseDto {
 	private int passCount;
 	private int totalCount;
 
-	public static CodeSubmitionTeamResponseDto from(JudgeResponse result) {
-		CodeSubmitionTeamResponseDto.builder()
-			.status()
-			.testCases()
-			.passCount()
-			.totalCount()
-			.build();
-	}
+	// public static CodeSubmitionTeamResponseDto from(JudgeResponse result) {
+		// CodeSubmitionTeamResponseDto.builder()
+		// 	.status("P")
+		// 	.testCases(new List<TestCaseResult>() {
+		// 	})
+		// 	.passCount()
+		// 	.totalCount()
+		// 	.build();
+	// }
 }

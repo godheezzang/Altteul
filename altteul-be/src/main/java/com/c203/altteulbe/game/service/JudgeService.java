@@ -68,16 +68,16 @@ public class JudgeService {
 		if (result != null) handleJudgeError(result);
 		else throw new NullPointerException();
 
-		// 2. 우리 팀 구독 경로로 결과 전송 (자세한 테스트케이스 결과 포함)
-		simpMessagingTemplate.convertAndSend(
-			"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/team-submission/result",
-			CodeSubmitionTeamResponseDto.from(result));
-
-		// 3. 상대 팀 구독 경로로 결과 전송 (간략한 정보만 전송)
-		CodeSubmitionOpponentResponseDto oppResult = CodeSubmitionOpponentResponseDto.builder().build();
-		simpMessagingTemplate.convertAndSend(
-			"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/opponent-submission/result",
-			CodeSubmitionOpponentResponseDto.from(result));
+		// // 2. 우리 팀 구독 경로로 결과 전송 (자세한 테스트케이스 결과 포함)
+		// simpMessagingTemplate.convertAndSend(
+		// 	"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/team-submission/result",
+		// 	CodeSubmitionTeamResponseDto.from(result));
+		//
+		// // 3. 상대 팀 구독 경로로 결과 전송 (간략한 정보만 전송)
+		// CodeSubmitionOpponentResponseDto oppResult = CodeSubmitionOpponentResponseDto.builder().build();
+		// simpMessagingTemplate.convertAndSend(
+		// 	"/sub/" + request.getGameId() + "/" + request.getTeamId() + "/opponent-submission/result",
+		// 	CodeSubmitionOpponentResponseDto.from(result));
 	}
 
 	// 컴파일 에러 처리
