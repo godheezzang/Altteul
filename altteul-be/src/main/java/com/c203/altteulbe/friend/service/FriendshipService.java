@@ -17,6 +17,7 @@ import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundExcepti
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,8 @@ public class FriendshipService {
 	private final FriendRedisService friendRedisService;
 
 	@Transactional(readOnly = true)
-	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) {
+	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) throws
+		JsonProcessingException {
 		userRepository.findByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 

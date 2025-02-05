@@ -15,6 +15,7 @@ import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.friend.service.FriendRequestService;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,7 @@ public class FriendRequestController {
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendRequestResponseDto>>> getFriendRequestList(
 		@AuthenticationPrincipal Long id,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
-	) {
+	) throws JsonProcessingException {
 		PageResponse<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequestsFromRedis(id,
 			pageable);
 		return ApiResponse.success(friendRequest, HttpStatus.OK);

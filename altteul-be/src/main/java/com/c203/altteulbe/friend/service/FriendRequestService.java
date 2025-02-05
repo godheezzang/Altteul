@@ -27,6 +27,7 @@ import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,8 @@ public class FriendRequestService {
 
 	// 친구 요청 목록 조회
 	@Transactional
-	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, Pageable pageable) {
+	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, Pageable pageable) throws
+		JsonProcessingException {
 		userJPARepository.findByUserId(userId).orElseThrow(() -> {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
@@ -76,7 +78,7 @@ public class FriendRequestService {
 
 	// 친구 신청 생성
 	@Transactional
-	public FriendRequestResponseDto createFriendRequest(Long fromUserId, Long toUserId) {
+	public FriendRequestResponseDto createFriendRequest(Long fromUserId, Long toUserId) throws JsonProcessingException {
 		User fromUser = userJPARepository.findById(fromUserId).orElseThrow(NotFoundUserException::new);
 		User toUser = userJPARepository.findById(toUserId).orElseThrow(NotFoundUserException::new);
 		validateFriendRequest(fromUser, toUser);
@@ -91,7 +93,7 @@ public class FriendRequestService {
 
 	// 요청 처리
 	@Transactional
-	public void processRequest(Long requestId, Long userId, RequestStatus status) {
+	public void processRequest(Long requestId, Long userId, RequestStatus status) throws JsonProcessingException {
 		// 요청 조회 및 검증
 		FriendRequest request = friendRequestRepository.findById(requestId)
 			.orElseThrow(() -> {
@@ -150,7 +152,7 @@ public class FriendRequestService {
 	}
 
 	// 친구 요청 검증
-	private void validateFriendRequest(User fromUser, User toUser) {
+	private void validateFriendRequest(User fromUser, User toUser) throws JsonProcessingException {
 		if (fromUser.getUserId().equals(toUser.getUserId())) {
 			throw new InvalidFriendRequestException();
 		}
