@@ -5,24 +5,23 @@ import { formatTime } from "@utils/formatTime";
 import UserProfile from "@components/Match/UserProfile";
 import Button from "@components/Common/Button/Button";
 import backgroundImage from "@assets/background/single_matching.svg";
-import tierIcon from "@assets/icon/Badge_09.svg";
 import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
 import { useTimer } from "@hooks/useTimer";
-import { User, Users } from "types/types";
-import { userData } from "mocks/userData";
+import { User } from "types/types";
+import { mockSingleEnterData } from "mocks/singleData";
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
   const [fact, setFact] = useState<string>("");
   const [facts] = useState<string[]>(tmi.facts);
+  const userData = mockSingleEnterData.data.users
 
   const { seconds } = useTimer({
     initialSeconds: 180, // 시작 시간 설정
     onComplete: () => {
-      // TODO: 링크 변경
-      navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
+      // navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
     },
   });
 
@@ -37,6 +36,11 @@ const SingleSearchPage = () => {
     return () => clearInterval(factRotation);
   }, [facts]);
 
+  useEffect(() => {
+    console.log(mockSingleEnterData.data);
+    console.log(mockSingleEnterData.data.users);
+  }, []);
+  
   return (
     <div className="relative min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
       {/* 배경 오버레이 */}
@@ -52,8 +56,8 @@ const SingleSearchPage = () => {
         {/* Timer */}
         <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
 
-        {/* 방장 */}
-        <UserProfile nickName="방장" profileImg={peopleIcon} tier={tierIcon} className="mb-4" />
+        {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
+        <UserProfile nickName="방장" profileImage={peopleIcon} tierId={4} className="mb-4" />
 
         {/* 방장 이름 */}
         <div className="text-white text-2xl mb-4">나는 방장</div>
@@ -84,10 +88,13 @@ const SingleSearchPage = () => {
           </Link>
         </div>
 
-        {/* 상대유저 */}
+        {/* 방장 제외 대기 유저 */}
         <div className="flex justify-center items-center gap-20">
           {userData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
+            <UserProfile key={user.userId} 
+                         nickName={user.nickname} 
+                         profileImage={user.profileImage}
+                         tierId= {user.tierId} />
           ))}
         </div>
 
