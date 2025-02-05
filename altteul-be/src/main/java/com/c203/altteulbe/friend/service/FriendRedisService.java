@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FriendRedisService {
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@PostConstruct
 	public void init() {
@@ -64,7 +65,7 @@ public class FriendRedisService {
 	public void setFriendRelation(Long userId1, Long userId2) {
 		redisTemplate.execute(new SessionCallback<>() {
 			@Override
-			public Object execute(RedisOperations operations) {
+			public Object execute(RedisOperations operations) throws DataAccessException {
 				ObjectMapper objectMapper = new ObjectMapper();
 				operations.multi();
 
@@ -144,7 +145,7 @@ public class FriendRedisService {
 	}
 
 	// 찬구 관계 업데이트
-	private void updateFriendList(RedisOperations operations, ObjectMapper objectMapper, Long userId,
+	private void updateFriendList(RedisOperations<String, String> operations, ObjectMapper objectMapper, Long userId,
 		Long friendId) throws JsonProcessingException {
 		String key = RedisKeys.getFriendRelationKey(userId);
 		String jsonFriendList = (String)operations.opsForValue().get(key);
@@ -163,7 +164,7 @@ public class FriendRedisService {
 	}
 
 	// 친구 관계 삭제(친구 삭제)
-	private void removeFriendFromList(RedisOperations operations, ObjectMapper objectMapper, Long userId,
+	private void removeFriendFromList(RedisOperations<String, String> operations, ObjectMapper objectMapper, Long userId,
 		Long friendId) throws JsonProcessingException {
 		String key = RedisKeys.getFriendRelationKey(userId);
 		String jsonFriendList = (String)operations.opsForValue().get(key);
