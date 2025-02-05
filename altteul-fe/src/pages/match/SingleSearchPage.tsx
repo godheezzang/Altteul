@@ -22,7 +22,7 @@ const SingleSearchPage = () => {
     initialSeconds: 180, // 시작 시간 설정
     onComplete: () => {
       // TODO: 링크 변경
-      navigate("/single-final"); // 타이머 완료 시 실행할 콜백
+      navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
     },
   });
 
@@ -72,12 +72,12 @@ const SingleSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mb-12">
-          <Link to="/single-final">
+          <Link to="/match/single/final">
             <Button width="160px" height="48px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               게임 시작
             </Button>
           </Link>
-          <Link to="/select">
+          <Link to="/match/select">
             <Button width="160px" height="48px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               매칭 취소하기
             </Button>
