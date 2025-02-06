@@ -30,8 +30,12 @@
 .monaco-editor.no-user-select,
 .monaco-editor.no-user-select,
 .margin-view-overlays {
-  position: relative !important; /* absolute → relative 변경 */
+  position: static !important;
   width: 100% !important;
   height: 100% !important;
   background-color: #242a32 !important;
+}
+
+.monaco-mouse-cursor-text {
+  position: inherit;
 }
