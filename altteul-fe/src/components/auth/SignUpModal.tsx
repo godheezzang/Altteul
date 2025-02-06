@@ -3,9 +3,9 @@
 
 import { useState } from "react";
 
-import Input from "@components/Common/Input/Input";
+import Input from "@components/common/Input/Input";
 import Button from "@components/Common/Button/Button";
-import Modal from "@components/Common/modal/Modal";
+import Modal from "@components/common/modal/Modal";
 import Dropdown from "@components/Common/Drpodown/Dropdown";
 
 import { registerUser } from "@utils/api/auth";
