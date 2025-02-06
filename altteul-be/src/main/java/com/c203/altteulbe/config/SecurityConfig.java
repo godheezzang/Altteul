@@ -24,6 +24,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import com.c203.altteulbe.common.security.filter.JWTFilter;
 import com.c203.altteulbe.common.security.filter.LoginFilter;
 import com.c203.altteulbe.common.security.utils.JWTUtil;
+import com.c203.altteulbe.common.security.utils.JwtAccessDeniedHandler;
+import com.c203.altteulbe.common.security.utils.JwtAuthenticationEntryPoint;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +40,8 @@ public class SecurityConfig {
 	private final JWTUtil jwtUtil;
 	private final AuthenticationSuccessHandler authenticationSuccessHandler;
 	private final DefaultOAuth2UserService defaultOAuth2UserService;
-
+	private final JwtAuthenticationEntryPoint entryPoint;
+	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws
 		Exception {
@@ -48,7 +51,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable); //csrf 안써요
-		http.formLogin(AbstractHttpConfigurer::disable); //폼 로그인 방식 안써요
+		http
+			.formLogin(AbstractHttpConfigurer::disable); //폼 로그인 방식 안써요
 		http.httpBasic(AbstractHttpConfigurer::disable); //모름
 
 		http.cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
@@ -85,10 +89,13 @@ public class SecurityConfig {
 			.requestMatchers(HttpMethod.PUT).authenticated()
 			.requestMatchers(HttpMethod.DELETE).authenticated()
 			.anyRequest().permitAll());
-		http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+		http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
+			.exceptionHandling(handler
+				-> handler.authenticationEntryPoint(entryPoint).accessDeniedHandler(jwtAccessDeniedHandler));
 		//loginfilter 쓸거임
 		http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
 			UsernamePasswordAuthenticationFilter.class);
+
 		//인가 stateless
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
