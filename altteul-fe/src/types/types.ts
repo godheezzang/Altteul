@@ -43,3 +43,20 @@ export interface CodeExecutionState {
   executeCode: () => void;
   clearOutput: () => void;
 }
+
+export interface UserInfoResponse {
+  status: number;
+  message: string;
+  data: UserInfo;
+}
+
+export interface UserInfo {
+  userId: number;
+  username: string;
+  nickname: string;
+  profileImg: string;
+  tier: string;
+  rankPercentile: number | null;
+  rank: number | null;
+  rankChange: number | null;
+}
