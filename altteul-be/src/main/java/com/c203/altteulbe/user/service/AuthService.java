@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
@@ -39,6 +40,7 @@ public class AuthService {
 						.rankingPoint(0L)
 						.provider(User.Provider.LC)
 						.userStatus(User.UserStatus.A)
+						.tier(new Tier(1L, "BRONZE", 0, 200))
 					.build();
 
 		user.hashPassword(passwordEncoder);
