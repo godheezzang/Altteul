@@ -26,7 +26,7 @@ const SmallButton = ({
   <button
     onClick={onClick}
     type={type}
-    className={`rounded-[8px] cursor-pointer font-semibold px-5 py-2 bg-${backgroundColor} text-${fontColor} text-${fontSize} font-semibold w-[${width}] h-[${height}]`}
+    className={`rounded-[0.5rem] cursor-pointer font-semibold ml-2 px-3 py-1 bg-${backgroundColor} text-${fontColor} text-${fontSize} font-semibold w-[${width}] h-[${height}]`}
   >
     {children}
   </button>

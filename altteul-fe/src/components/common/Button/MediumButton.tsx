@@ -21,7 +21,7 @@ const MediumButton = ({
   <button
     onClick={onClick}
     type={type}
-    className={`rounded-[8px] cursor-pointer font-semibold px-5 py-2 bg-${backgroundColor} text-${fontColor} text-[1.875rem] font-semibold w-[15.625rem] h-[3.75rem]`}
+    className={`rounded-[0.5rem] cursor-pointer font-semibold px-5 py-2 bg-${backgroundColor} text-${fontColor} text-[1rem] font-semibold w-[14rem] h-[3rem]`}
   >
     {children}
   </button>
