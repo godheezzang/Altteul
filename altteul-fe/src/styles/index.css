@@ -1,12 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @font-face {
   font-family: 'Pretendard Variable';
   font-weight: 45 920;
   font-style: normal;
   font-display: swap;
-  src: url('/assets/fonts/PretendardVariable.woff2') format('woff2');
+  src: url('/fonts/PretendardVariable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Firacode';
+  src: url('/fonts/FiraCode-VF.woff2') format('woff2');
 }
 
 @layer base {
@@ -14,4 +20,14 @@
     font-family: 'Pretendard Variable', sans-serif;
     @apply text-primary-white;
   }
+}
+
+/* 모나코 에디터 설정 */
+.monaco-editor,
+.monaco-editor .overflow-guard,
+.view-lines .monaco-mouse-cursor-text {
+  position: relative !important; /* absolute → relative 변경 */
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #242a32 !important;
 }
