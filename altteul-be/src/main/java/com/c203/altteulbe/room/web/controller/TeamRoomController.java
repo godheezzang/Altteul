@@ -10,6 +10,7 @@ import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.room.service.TeamRoomService;
+import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 
@@ -42,4 +43,12 @@ public class TeamRoomController {
 		return ApiResponse.success();
 	}
 
+	/*
+	 * 팀전 매칭 API
+	 */
+	@PostMapping("/matching")
+	public ApiResponseEntity<Void> startTeamMatch(@RequestBody RoomGameStartRequestDto requestDto) {
+		teamRoomService.startTeamMatch(requestDto);
+		return ApiResponse.success();
+	}
 }
