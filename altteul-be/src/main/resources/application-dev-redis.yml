@@ -14,5 +14,5 @@ spring:
           max-idle: 10
           min-idle: 2
       port: ${REDIS_BINDING_PORT}
-      host: ${REDIS_HOST}
+      host: ${LOCAL_REDIS_HOST}
       password: ${REDIS_PASSWORD}
