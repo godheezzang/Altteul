@@ -31,3 +31,15 @@ export interface GameState {
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
 }
+
+type Language = 'python' | 'java';
+
+export interface CodeExecutionState {
+  code: string;
+  language: Language;
+  output: string[];
+  setCode: (code: string) => void;
+  setLanguage: (language: Language) => void;
+  executeCode: () => void;
+  clearOutput: () => void;
+}
