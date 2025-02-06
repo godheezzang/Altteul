@@ -107,7 +107,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     try {
       setIsSubmitting(true); // 제출 중 상태 활성화
 
-      // API 호출 (mock 응답)
+      // API 호출
       const response = await registerUser(formData); // api.ts에서 정의한 함수 사용
 
       // 성공처리 - 200번대
@@ -146,61 +146,72 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h2>회원가입</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <Input
-            name="username"
-            type="text"
-            placeholder="아이디"
-            onChange={handleChange}
-            value={form.username}
-          />
-          {errors.username && <p className="error">{errors.username}</p>}
-        </div>
-        <div>
-          <Input
-            name="password"
-            type="password"
-            placeholder="비밀번호"
-            onChange={handleChange}
-            value={form.password}
-          />
-          {errors.password && <p className="error">{errors.password}</p>}
-        </div>
-        <div>
-          <Input
-            name="nickname"
-            type="text"
-            placeholder="닉네임"
-            onChange={handleChange}
-            value={form.nickname}
-          />
-          {errors.nickname && <p className="error">{errors.nickname}</p>}
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="회원가입" height="35rem">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Input
+          name="username"
+          type="text"
+          placeholder="아이디를 입력해 주세요."
+          onChange={handleChange}
+          value={form.username}
+          className="mt-2"
+        />
+        {errors.username && (
+          <p className="text-primary-orange text-sm">{errors.username}</p>
+        )}
+
+        <Input
+          name="password"
+          type="password"
+          placeholder="비밀번호를 입력해 주세요."
+          onChange={handleChange}
+          value={form.password}
+        />
+        {errors.password && (
+          <p className="text-primary-orange text-sm">{errors.password}</p>
+        )}
+
+        <Input
+          name="nickname"
+          type="text"
+          placeholder="닉네임"
+          onChange={handleChange}
+          value={form.nickname}
+        />
+        {errors.nickname && (
+          <p className="text-primary-orange text-sm">{errors.nickname}</p>
+        )}
         <div>
           <Dropdown
             options={languageOptions}
             value={form.mainLang}
             onChange={handleSelectChange}
+            className="bg-primary-white border rounded-xl"
           />
-          {errors.mainLang && <p className="error">{errors.mainLang}</p>}
         </div>
-        <div>
-          <input
-            type="file"
-            name="profileImg"
-            onChange={handleFileChange}
-            accept="image/png, image/jpg, image/jpeg"
-          />
-          {errors.profileImg && <p className="error">{errors.profileImg}</p>}
-        </div>
+        {errors.mainLang && (
+          <p className="text-primary-orange text-sm">{errors.mainLang}</p>
+        )}
+
+        <input
+          type="file"
+          name="profileImg"
+          onChange={handleFileChange}
+          accept="image/png, image/jpg, image/jpeg"
+        />
+        {errors.profileImg && (
+          <p className="text-primary-orange text-sm">{errors.profileImg}</p>
+        )}
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
-        <Button type="submit" width="100%" height="50px" fontSize="16px">
+        <Button
+          type="submit"
+          width="100%"
+          height="2.8rem"
+          className="text-primary-white bg-primary-orange"
+        >
           {isSubmitting ? "처리중..." : "가입하기"}
         </Button>
-        {apiError && <p className="error">{apiError}</p>}
+        {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
       </form>
     </Modal>
   );
