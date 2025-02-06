@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,6 +81,9 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 
 	@Column(name = "last_out_time")
 	private Timestamp lastOutTime;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+	private TodayRanking todayRanking;
 
 	@Override
 	public String getName() {

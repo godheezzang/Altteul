@@ -1,14 +1,11 @@
 package com.c203.altteulbe.ranking.persistent.entity;
 
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
-import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,7 +23,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class TodayRanking extends BaseCreatedEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ranking_id")
 	Long id;
 

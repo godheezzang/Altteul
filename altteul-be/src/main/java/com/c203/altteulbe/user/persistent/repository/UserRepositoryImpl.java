@@ -1,7 +1,6 @@
 package com.c203.altteulbe.user.persistent.repository;
 
-import static com.c203.altteulbe.game.persistent.entity.QLangLimit.*;
-import static com.c203.altteulbe.game.persistent.entity.QProblem.*;
+import static com.c203.altteulbe.ranking.persistent.entity.QTier.*;
 import static com.c203.altteulbe.ranking.persistent.entity.QTodayRanking.*;
 import static com.c203.altteulbe.user.persistent.entity.QUser.*;
 
@@ -9,9 +8,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.c203.altteulbe.common.dto.Language;
-import com.c203.altteulbe.game.persistent.entity.Problem;
-import com.c203.altteulbe.user.persistent.entity.QUser;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -63,13 +59,15 @@ public class UserRepositoryImpl implements UserRepository {
 		);
 	}
 
-	@Override
 	public Optional<User> findWithRankingByUserId(Long userId) {
 		return Optional.ofNullable(
 			jpaQueryFactory
 				.selectFrom(user)
-				.leftJoin(todayRanking).on(user.userId.eq(todayRanking.user.userId)).fetchJoin()
+				.leftJoin(user.todayRanking, todayRanking).fetchJoin()
+				.leftJoin(user.tier, tier).fetchJoin()
+				.where(user.userId.eq(userId))
 				.fetchOne()
 		);
 	}
+
 }
