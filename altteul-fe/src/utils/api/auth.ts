@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8081/api/",
+  baseURL: "http://localhost:8080/api/",
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
 });
 
 // 회원가입 API 요청
@@ -48,14 +51,14 @@ export const registerUser = async (formData: FormData) => {
 };
 
 // 로그인 API 요청
-export const loginUser = async (id: string, password: string) => {
+export const loginUser = async (username: string, password: string) => {
   try {
     console.log("로그인 요청 시작");
-    console.log("요청 데이터 : 사용자명 - ", id, "비밀번호 - ", password);
+    console.log("요청 데이터 : 사용자명 :", username, "비밀번호 :", password);
 
     const response = await api.post(
       "login",
-      { id, password },
+      { username, password },
       {
         headers: {
           "Content-Type": "application/json",
