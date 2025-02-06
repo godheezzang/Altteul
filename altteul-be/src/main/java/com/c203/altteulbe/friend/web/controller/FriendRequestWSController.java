@@ -63,11 +63,11 @@ public class FriendRequestWSController {
 	@MessageMapping("/friend/delete")
 	@PreAuthorize("isAuthenticated()")
 	public void handleFriendDelete(@Payload DeleteFriendRequestDto request,
-		@AuthenticationPrincipal Long userId) {
-		friendshipService.deleteFriendship(userId, request.getFriendId());
+		@AuthenticationPrincipal Long id) {
+		friendshipService.deleteFriendship(id, request.getFriendId());
 
 		// 친구 삭제 했을 경우 클라이언트에게 업데이트가 필요하다고 알림
-		friendWSService.sendFriendListUpdateMessage(userId);
+		friendWSService.sendFriendListUpdateMessage(id);
 		friendWSService.sendFriendListUpdateMessage(request.getFriendId());
 
 	}

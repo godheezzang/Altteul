@@ -24,8 +24,8 @@ public class ChatWSController {
 	// 채팅방에 입장하면 메세지 읽음 처리
 	@MessageMapping("/chat/room/{chatroomId}/enter")
 	public void enterChatroom(@DestinationVariable(value = "chatroomId") Long chatroomId,
-		@AuthenticationPrincipal Long userId) {
-		messageRead(chatroomId, userId);
+		@AuthenticationPrincipal Long id) {
+		messageRead(chatroomId, id);
 	}
 
 	// 채팅방에서 대화 실시간 읽음 처리
@@ -33,7 +33,7 @@ public class ChatWSController {
 	public void handleMessage(
 		@DestinationVariable(value = "chatroomId") Long chatroomId,
 		@Payload ChatMessageRequestDto requestDto,
-		@AuthenticationPrincipal Long userId) {
+		@AuthenticationPrincipal Long id) {
 		// 메세지 저장
 		ChatMessageResponseDto savedMessage = chatMessageService.saveMessage(chatroomId, requestDto);
 
@@ -42,8 +42,26 @@ public class ChatWSController {
 			WebSocketResponse.withData("새 메시지", savedMessage)
 		);
 
-		messageRead(chatroomId, userId);
+		messageRead(chatroomId, id);
 
+	}
+
+	@MessageMapping("/chat/room/{chatroomId}/chat")
+	public void handleChat(
+		@DestinationVariable(value = "chatroomId") Long chatroomId,
+		@AuthenticationPrincipal Long id) {
+		// 상대방에게 "typing..." 상태 전송
+		messagingTemplate.convertAndSend(
+			"/chat/room/" + chatroomId + "/chat",
+			WebSocketResponse.withData("chat", id)
+		);
+	}
+
+	@MessageMapping("/chat/room/{chatroomId}/leave")
+	public void leaveChat(
+		@DestinationVariable(value = "chatroomId") Long chatroomId,
+		@AuthenticationPrincipal Long id) {
+		// 채팅방 나가기 처리
 	}
 
 	// 메세지 읽음 처리

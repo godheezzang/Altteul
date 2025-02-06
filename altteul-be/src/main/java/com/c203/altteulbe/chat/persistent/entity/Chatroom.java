@@ -18,4 +18,7 @@ public class Chatroom extends BaseCreatedEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long chatroomId;
+
+	// 추가하면 좋을 필드
+	// private String lastMessage;
 }
