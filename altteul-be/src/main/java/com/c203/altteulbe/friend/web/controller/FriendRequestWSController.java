@@ -15,6 +15,7 @@ import com.c203.altteulbe.friend.web.dto.request.CreateFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.request.DeleteFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.request.ProcessFriendRequestDto;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +33,7 @@ public class FriendRequestWSController {
 	@MessageMapping("/friend/request")
 	@PreAuthorize("isAuthenticated()")
 	public void handleFriendRequest(@Payload CreateFriendRequestDto request,
-		@AuthenticationPrincipal Long fromUserid) {
+		@AuthenticationPrincipal Long fromUserid) throws JsonProcessingException {
 		Long toUserId = request.getToUserId();
 		FriendRequestResponseDto result = friendRequestService.createFriendRequest(fromUserid, toUserId);
 
@@ -45,7 +46,7 @@ public class FriendRequestWSController {
 	public void handleRequestProcess(
 		@Payload ProcessFriendRequestDto request,
 		@AuthenticationPrincipal Long fromUserid
-	) {
+	) throws JsonProcessingException {
 		Long requestId = request.getFriendRequestId();
 		RequestStatus status = request.getRequestStatus();
 		friendRequestService.processRequest(requestId, fromUserid, status);

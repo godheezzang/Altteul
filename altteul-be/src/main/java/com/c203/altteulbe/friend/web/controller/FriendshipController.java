@@ -15,6 +15,7 @@ import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.friend.service.FriendshipService;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,7 @@ public class FriendshipController {
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<FriendResponseDto>>> getFriends(
 		@AuthenticationPrincipal Long id,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
-	) {
+	) throws JsonProcessingException {
 		PageResponse<FriendResponseDto> friends = friendshipService.getFriendsList(id, pageable);
 		return ApiResponse.success(friends, HttpStatus.OK);
 	}
