@@ -26,7 +26,7 @@ const Dropdown = ({
       value={value}
       onChange={handleChange}
       style={{ width, height }}
-      className="text-gray-03 border border-gray-03 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-03"
+      className={className}
     >
       {options.map((el) => (
         <option key={el.id} value={el.value}>
