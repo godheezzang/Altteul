@@ -22,7 +22,7 @@ const CodeEditor = () => {
   ];
 
   return (
-    <div className='h-screen flex flex-col'>
+    <div className='flex flex-col border-b border-gray-04'>
       {/* 언어 선택 드롭다운 */}
       <Dropdown
         options={languageOptions}
@@ -51,13 +51,26 @@ const CodeEditor = () => {
             horizontal: 'auto',
           },
         }}
+        loading='에디터를 불러오는 중입니다.'
         onChange={(value) => setCode(value || '')}
         beforeMount={(monaco) => {
           monaco.editor.defineTheme('custom-dark', {
             base: 'vs-dark',
-            inherit: true,
+            inherit: false,
             colors: { 'editor.background': '#242A32' },
             rules: [],
+          });
+
+          // Java 언어 설정 추가
+          monaco.languages.register({ id: 'java' });
+          monaco.languages.setLanguageConfiguration('java', {
+            autoClosingPairs: [
+              { open: '{', close: '}' },
+              { open: '[', close: ']' },
+              { open: '(', close: ')' },
+              { open: '"', close: '"' },
+              { open: "'", close: "'" },
+            ],
           });
         }}
       />
