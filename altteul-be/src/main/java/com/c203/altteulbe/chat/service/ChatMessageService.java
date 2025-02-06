@@ -19,6 +19,7 @@ import com.c203.altteulbe.chat.web.dto.response.ChatMessageReadResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
 import com.c203.altteulbe.common.dto.MessageType;
 import com.c203.altteulbe.user.persistent.entity.User;
+import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatMessageService {
 	private final ChatroomRepository chatroomRepository;
-	private final UserRepository userRepository;
+	private final UserJPARepository userJPARepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final UserChatRoomRepository userChatRoomRepository;
 
@@ -65,7 +66,7 @@ public class ChatMessageService {
 	public ChatMessageResponseDto saveMessage(Long chatroomId, ChatMessageRequestDto requestDto) {
 		validateMessageContent(requestDto.getContent());
 		Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow(NotFoundChatroomException::new);
-		User sender = userRepository.findByUserId(requestDto.getSenderId())
+		User sender = userJPARepository.findByUserId(requestDto.getSenderId())
 			.orElseThrow(NotFoundUserException::new);
 
 		validateChatroomParticipant(chatroomId, sender.getUserId());

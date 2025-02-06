@@ -13,6 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRequestDto implements AbstractRequestDto {
-	String id;
+	String username;
 	String password;
 }
