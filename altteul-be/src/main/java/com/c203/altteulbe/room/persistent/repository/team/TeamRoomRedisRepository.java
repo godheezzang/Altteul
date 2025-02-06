@@ -49,6 +49,12 @@ public class TeamRoomRedisRepository {
 		return (roomIdStr != null) ? Long.parseLong(roomIdStr) : null;
 	}
 
+	// 방의 상태 조회
+	public String getRoomStatus(Long roomId) {
+		String roomStatusKey = RedisKeys.TeamRoomStatus(roomId);
+		return redisTemplate.opsForValue().get(roomStatusKey);
+	}
+
 	// 팀전 대기방 생성
 	public RoomEnterResponseDto createRedisTeamRoom(User user) {
 		Long roomId = singleRoomRedisRepository.generateUniqueRoomId();  // Redis를 통해 id 생성
