@@ -9,5 +9,5 @@ public interface ChatMessageCustomRepository {
 
 	List<ChatMessage> findUnreadMessages(Long chatroomId, Long readerId);
 
-	List<ChatMessage> findChatMessagesByChatroomId(Long chatroomId, Long lastMessageId, int limit);
+	List<ChatMessage> findChatMessagesByChatroomId(Long chatroomId, int limit);
 }

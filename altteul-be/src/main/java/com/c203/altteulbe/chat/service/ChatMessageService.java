@@ -75,13 +75,13 @@ public class ChatMessageService {
 		return ChatMessageResponseDto.from(savedMessage);
 	}
 
+	// 메세지 조회
 	@Transactional(readOnly = true)
-	public List<ChatMessageResponseDto> getChatMessages(Long chatroomId, Long lastMessageId, Long userId) {
+	public List<ChatMessageResponseDto> getChatMessages(Long chatroomId, Long userId) {
 		validateChatroomParticipant(chatroomId, userId);
 
-		// 페이지네이션을 위한 이전 메시지 조회
 		// 최대 60개 조회
-		return chatMessageRepository.findChatMessagesByChatroomId(chatroomId, lastMessageId, 60)
+		return chatMessageRepository.findChatMessagesByChatroomId(chatroomId, 60)
 			.stream()
 			.map(ChatMessageResponseDto::from)
 			.toList();
@@ -101,5 +101,4 @@ public class ChatMessageService {
 			throw new NotParticipantException();
 		}
 	}
-
 }
