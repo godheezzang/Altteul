@@ -2,8 +2,10 @@ package com.c203.altteulbe.room.persistent.repository.single;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +16,9 @@ import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class SingleRoomRedisRepository {
@@ -49,7 +53,8 @@ public class SingleRoomRedisRepository {
 
 	// 개인전 대기방 생성
 	public RoomEnterResponseDto createRedisSingleRoom(User user) {
-		Long roomId = generateUniqueRoomId();  // Redis를 통해 id 생성
+		Long roomId = generateUniqueRoomId();
+		log.info("개인전 대기방 생성 : roomId = {}", roomId);
 
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
@@ -94,6 +99,8 @@ public class SingleRoomRedisRepository {
 
 	// roomId 생성 → DB 저장 시 game_id로 저장됨
 	public Long generateUniqueRoomId() {
-		return redisTemplate.opsForValue().increment(RedisKeys.ROOM_ID_COUNTER, 1);
+		long roomId = Math.abs(UUID.randomUUID().getMostSignificantBits()) % 1_000_000_000L; // 범위 제한
+		log.info("생성된 roomId: {}", roomId);
+		return roomId;
 	}
 }
