@@ -30,6 +30,7 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
 
 		String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080/swagger-ui/index.html")
 			.queryParam("accessToken", token)
+			.queryParam("userId", userDetails.getUserId())
 			.build().toUriString();
 
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
