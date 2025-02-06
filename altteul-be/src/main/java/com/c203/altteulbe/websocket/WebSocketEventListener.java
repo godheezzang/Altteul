@@ -2,6 +2,7 @@ package com.c203.altteulbe.websocket;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ public class WebSocketEventListener {
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+		log.info(String.valueOf(accessor));
 		try {
 			Long userId = getUserIdFromSession(accessor);
 			userStatusService.setUserOnline(userId);
@@ -78,7 +80,9 @@ public class WebSocketEventListener {
 
 	private Long getUserIdFromSession(StompHeaderAccessor accessor) {
 		String token = accessor.getFirstNativeHeader("Authorization");
-		if (token == null && !token.startsWith("Bearer ")) {
+		log.info(String.valueOf(accessor));
+		log.info(token);
+		if (token == null || !token.startsWith("Bearer ")) {
 			throw new BusinessException("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
 		}
 		token = token.substring(7); // "Bearer " 제거

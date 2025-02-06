@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
 	private final UserJPARepository userJPARepository;
-	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	public void registerUser(RegisterUserRequestDto request, MultipartFile image) {
@@ -48,13 +47,13 @@ public class AuthService {
 	}
 
 	public void validateId(String username) {
-		if (userRepository.existsByUsername(username)) {
+		if (userJPARepository.existsByUsername(username)) {
 			throw new DuplicateUsernameException();
 		};
 	}
 
 	public void validateNickname(String nickname) {
-		if (userRepository.existsByNickname(nickname)) {
+		if (userJPARepository.existsByNickname(nickname)) {
 			throw new DuplicateNicknameException();
 		};
 	}

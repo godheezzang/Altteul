@@ -3,6 +3,7 @@ package com.c203.altteulbe.config;
 import java.util.Optional;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -29,11 +30,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("http://localhost:*")
+			.setAllowedOriginPatterns("*")
 			// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
 			.withSockJS();
 		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("http://localhost:*");
+			.setAllowedOriginPatterns("*");
 		// .setAllowedOrigins("http://localhost:3000", "http://localhost:80");
 
 	}
@@ -54,12 +55,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 				if (StompCommand.CONNECT == accessor.getCommand()) {
 					Optional<String> tokenOptional = Optional.ofNullable(
 						accessor.getFirstNativeHeader("Authorization"));
+					log.info("received headers: {}", accessor.getFirstNativeHeader("Authorization"));
 					String jwtToken = tokenOptional
 						.filter(token -> token.startsWith("Bearer "))
 						.map(token -> token.substring(7))
 						.filter(token -> !jwtUtil.isExpired(token))
 						.orElseThrow(() -> new RuntimeException("유효하지 않은 토큰 입니다."));
+					log.info("jwtToken: {}", jwtToken);
 					Long userId = jwtUtil.getId(jwtToken);
+					log.info("userId: {}", userId);
 					accessor.setUser(userId::toString);
 				}
 				return message;

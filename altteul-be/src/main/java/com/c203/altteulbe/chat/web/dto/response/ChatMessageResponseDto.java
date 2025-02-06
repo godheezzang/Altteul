@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class ChatMessageResponseDto {
 	private Long chatMessageId;
 	private Long senderId;
+	private String senderNickname;
 	private String messageContent;
 	private boolean checked;
 	private LocalDateTime createdAt;
@@ -25,6 +26,7 @@ public class ChatMessageResponseDto {
 		return ChatMessageResponseDto.builder()
 			.chatMessageId(chatMessage.getChatMessageId())
 			.senderId(chatMessage.getSender().getUserId())
+			.senderNickname(chatMessage.getSender().getNickname())
 			.messageContent(chatMessage.getMessageContent())
 			.checked(chatMessage.isChecked())
 			.createdAt(chatMessage.getCreatedAt())
