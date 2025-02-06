@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-	private final JPAQueryFactory jpaQueryFactory;
+	private final JPAQueryFactory queryFactory;
 
 	@Override
 	public boolean existsByUsername(String username) {
-		Integer fetchOne = jpaQueryFactory
+		Integer fetchOne = queryFactory
 			.selectOne()
 			.from(QUser.user)
 			.where(QUser.user.username.eq(username))
@@ -28,7 +28,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public boolean existsByNickname(String nickname) {
-		Integer fetchOne = jpaQueryFactory
+		Integer fetchOne = queryFactory
 			.selectOne()
 			.from(QUser.user)
 			.where(QUser.user.nickname.eq(nickname))
@@ -38,7 +38,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public Optional<User> findByUsername(String username) {
-		return Optional.ofNullable(jpaQueryFactory
+		return Optional.ofNullable(queryFactory
 			.selectFrom(QUser.user)
 			.where(QUser.user.username.eq(username))
 			.fetchOne()
@@ -48,7 +48,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public Optional<User> findByProviderAndUsername(User.Provider provider, String username) {
 		System.out.println(provider);
-		return Optional.ofNullable(jpaQueryFactory
+		return Optional.ofNullable(queryFactory
 			.selectFrom(QUser.user)
 			.where(QUser.user.username.eq(username)
 				.and(QUser.user.provider.eq(provider)))
