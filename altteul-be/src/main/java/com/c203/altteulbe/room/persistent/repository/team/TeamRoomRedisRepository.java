@@ -15,7 +15,9 @@ import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class TeamRoomRedisRepository {
@@ -57,7 +59,8 @@ public class TeamRoomRedisRepository {
 
 	// 팀전 대기방 생성
 	public RoomEnterResponseDto createRedisTeamRoom(User user) {
-		Long roomId = singleRoomRedisRepository.generateUniqueRoomId();  // Redis를 통해 id 생성
+		Long roomId = singleRoomRedisRepository.generateUniqueRoomId();
+		log.info("팀전 대기방 생성 : roomId = {}", roomId);
 
 		String roomStatusKey = RedisKeys.TeamRoomStatus(roomId);
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
