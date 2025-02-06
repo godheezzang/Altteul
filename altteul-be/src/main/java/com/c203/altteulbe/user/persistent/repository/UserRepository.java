@@ -12,4 +12,5 @@ public interface UserRepository {
 
 	Optional<User> findByUsername(String username);
 	Optional<User> findByProviderAndUsername(User.Provider provider, String username);
+	Optional<User> findWithRankingByUserId(Long userId);
 }

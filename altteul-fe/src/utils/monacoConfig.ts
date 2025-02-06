@@ -23,18 +23,44 @@ export const configureMonaco = async () => {
     },
   });
 
-  // 커스텀 자동 완성 추가
+  // Python 자동 완성 설정
   monaco.languages.registerCompletionItemProvider('python', {
-    provideCompletionItems: (model, position) => ({
-      suggestions: [
-        {
-          label: 'print',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'print("${1:message}")',
-          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        },
-      ],
-    }),
+    triggerCharacters: ['.', '('],
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      };
+
+      return {
+        suggestions: [
+          {
+            label: 'print',
+            kind: monaco.languages.CompletionItemKind.Function,
+            insertText: 'print(${1:})',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range,
+          },
+          {
+            label: 'def',
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: 'def ${1:function}(${2:}):\n\t\n\t${3:return}',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range,
+          },
+          {
+            label: 'def',
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: 'def ${1:function}(${2:}):\n\t\n\t${3:return}',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range,
+          },
+        ],
+      };
+    },
   });
 
   // Java 언어 설정
@@ -43,6 +69,39 @@ export const configureMonaco = async () => {
     comments: {
       lineComment: '//',
       blockComment: ['/*', '*/'],
+    },
+  });
+
+  // Java 자동 완성 설정
+  monaco.languages.registerCompletionItemProvider('java', {
+    triggerCharacters: ['.', '('],
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      };
+
+      return {
+        suggestions: [
+          {
+            label: 'psvm',
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            insertText: ['public static void main(String[] args) {', '\t${1:System.out.println("Hello World!");}', '}'].join('\n'),
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range,
+          },
+          {
+            label: 'System.out.println',
+            kind: monaco.languages.CompletionItemKind.Method,
+            insertText: 'System.out.println(${1:})',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range,
+          },
+        ],
+      };
     },
   });
 };
