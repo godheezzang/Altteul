@@ -6,6 +6,7 @@ type DropdownProps = {
   onChange: (selected: string) => void;
   width?: string;
   height?: string;
+  className?: string;
 };
 
 const Dropdown = ({
@@ -14,6 +15,7 @@ const Dropdown = ({
   onChange,
   width,
   height,
+  className,
 }: DropdownProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange(e.target.value);
