@@ -29,10 +29,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-			.setAllowedOrigins("http://localhost:3000", "http://localhost:80")
+			.setAllowedOriginPatterns("http://localhost:*")
+			// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
 			.withSockJS();
 		registry.addEndpoint("/ws")
-			.setAllowedOrigins("http://localhost:3000", "http://localhost:80");
+			.setAllowedOriginPatterns("http://localhost:*");
+		// .setAllowedOrigins("http://localhost:3000", "http://localhost:80");
 
 	}
 
