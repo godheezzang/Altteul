@@ -43,7 +43,7 @@ public class TeamRoomService {
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
 
-	@DistributedLock(key="#requestDto.userId")
+	//@DistributedLock(key="#requestDto.userId")
 	@Transactional
 	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
@@ -74,7 +74,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 대기방 퇴장 처리
 	 */
-	@DistributedLock(key = "#requestDto.userId")
+	//@DistributedLock(key = "#requestDto.userId")
 	@Transactional
 	public void leaveTeamRoom(RoomRequestDto requestDto) {
 		Long userId = requestDto.getUserId();
@@ -135,7 +135,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 매칭 시작
 	 */
-	@DistributedLock(key = "requestDto.roomId")
+	//@DistributedLock(key = "requestDto.roomId")
 	@Transactional
 	public void startTeamMatch(RoomGameStartRequestDto requestDto) {
 		Long roomId = requestDto.getRoomId();
