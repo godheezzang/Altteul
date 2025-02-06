@@ -75,6 +75,18 @@ public class ChatMessageService {
 		return ChatMessageResponseDto.from(savedMessage);
 	}
 
+	@Transactional(readOnly = true)
+	public List<ChatMessageResponseDto> getChatMessages(Long chatroomId, Long lastMessageId, Long userId) {
+		validateChatroomParticipant(chatroomId, userId);
+
+		// 페이지네이션을 위한 이전 메시지 조회
+		// 최대 60개 조회
+		return chatMessageRepository.findChatMessagesByChatroomId(chatroomId, lastMessageId, 60)
+			.stream()
+			.map(ChatMessageResponseDto::from)
+			.toList();
+	}
+
 	// 메세지 검증
 	private void validateMessageContent(String content) {
 		if (content == null || content.trim().isEmpty()) {
@@ -89,4 +101,5 @@ public class ChatMessageService {
 			throw new NotParticipantException();
 		}
 	}
+
 }

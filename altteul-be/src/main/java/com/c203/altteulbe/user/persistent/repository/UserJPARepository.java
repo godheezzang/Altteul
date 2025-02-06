@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.c203.altteulbe.user.persistent.entity.User;
 
-public interface UserJPARepository extends JpaRepository<User, Long> {
+public interface UserJPARepository extends JpaRepository<User, Long>, UserRepository {
 
 	Optional<User> findByUserId(Long userId);
 

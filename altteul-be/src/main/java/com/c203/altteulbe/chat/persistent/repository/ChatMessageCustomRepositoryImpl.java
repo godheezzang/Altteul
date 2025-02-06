@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.chat.persistent.entity.ChatMessage;
 import com.c203.altteulbe.chat.persistent.entity.QChatMessage;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
@@ -43,6 +44,24 @@ public class ChatMessageCustomRepositoryImpl extends QuerydslRepositorySupport i
 				.and(qChatMessage.sender.userId.ne(readerId))
 				.and(qChatMessage.checked.eq(false)))
 			.orderBy(qChatMessage.createdAt.asc()) // 오래된 순으로 정렬
+			.fetch();
+	}
+
+	// 채팅 메시지 페이지네이션 조회
+	@Override
+	public List<ChatMessage> findChatMessagesByChatroomId(Long chatroomId, Long lastMessageId, int limit) {
+		QChatMessage qChatMessage = QChatMessage.chatMessage;
+
+		BooleanExpression condition = qChatMessage.chatroom.chatroomId.eq(chatroomId);
+		if (lastMessageId != null) {
+			condition = condition.and(qChatMessage.chatMessageId.lt(lastMessageId));
+		}
+
+		return queryFactory
+			.selectFrom(qChatMessage)
+			.where(condition)
+			.orderBy(qChatMessage.createdAt.desc())
+			.limit(limit)
 			.fetch();
 	}
 }
