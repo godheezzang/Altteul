@@ -2,17 +2,18 @@ package com.c203.altteulbe.friend.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.friend.service.exception.RedisConnectionFailException;
+import com.c203.altteulbe.friend.service.exception.UserStatusUpdateFailException;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import io.lettuce.core.RedisConnectionException;
@@ -30,13 +31,13 @@ public class UserStatusService {
 		validateUserId(userId);
 		try {
 			String key = RedisKeys.getUserStatusKey(userId);
-			redisTemplate.opsForValue().set(key, "online");
+			redisTemplate.opsForValue().set(key, "online", 60, TimeUnit.SECONDS);
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
-			throw new BusinessException("Redis 연결에 실패했습니다.", HttpStatus.SERVICE_UNAVAILABLE);
+			throw new RedisConnectionFailException();
 		} catch (Exception e) {
 			log.error("사용자 온라인 상태 설정 중 오류 발생: {}", e.getMessage());
-			throw new BusinessException("사용자 상태 업데이트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new UserStatusUpdateFailException();
 		}
 
 	}
@@ -49,10 +50,10 @@ public class UserStatusService {
 			redisTemplate.delete(key);
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
-			throw new BusinessException("Redis 연결에 실패했습니다.", HttpStatus.SERVICE_UNAVAILABLE);
+			throw new RedisConnectionFailException();
 		} catch (Exception e) {
 			log.error("사용자 오프라인 상태 설정 중 오류 발생: {}", e.getMessage());
-			throw new BusinessException("사용자 상태 업데이트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new UserStatusUpdateFailException();
 		}
 	}
 
@@ -97,5 +98,4 @@ public class UserStatusService {
 			throw new NotFoundUserException();
 		}
 	}
-
 }

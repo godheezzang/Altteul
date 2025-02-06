@@ -10,5 +10,5 @@ public interface FriendshipCustomRepository {
 
 	boolean existsByUserAndFriend(Long userId, Long friendId);
 
-	void deleteFriendshipBiDirectional(Long user1, Long user2);
+	void deleteFriendRelation(Long user1, Long user2);
 }
