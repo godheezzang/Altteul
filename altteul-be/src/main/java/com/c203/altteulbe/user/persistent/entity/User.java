@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,10 +37,11 @@ import lombok.experimental.SuperBuilder;
  */
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 @AllArgsConstructor
 @Table(name = "user")
 @SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OAuth2User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,6 +81,9 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 
 	@Column(name = "last_out_time")
 	private Timestamp lastOutTime;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+	private TodayRanking todayRanking;
 
 	@Override
 	public String getName() {
