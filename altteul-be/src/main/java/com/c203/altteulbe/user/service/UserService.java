@@ -20,13 +20,17 @@ public class UserService {
 	public SearchUserResponseDto searchUser(Long userId, String nickname) {
 		User user = userRepository.findByNickname(nickname).orElseThrow(NotFoundUserException::new);
 
-	public UserProfileResponseDto getUserProfile(Long userId) {
-		return new UserProfileResponseDto();
-	}
 		if (userId.equals(user.getUserId())) {
 			throw new SelfSearchException();
 		}
 
 		return SearchUserResponseDto.from(user);
+	}
+
+	public UserProfileResponseDto getUserProfile(Long userId) {
+		User user = userRepository.findByUserId(userId)
+			.orElseThrow(NotFoundUserException::new);
+
+		return UserProfileResponseDto.from(user);
 	}
 }
