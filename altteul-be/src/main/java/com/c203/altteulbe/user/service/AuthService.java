@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.c203.altteulbe.user.persistent.entity.User;
+import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
 import com.c203.altteulbe.user.service.exception.DuplicateUsernameException;
@@ -18,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
+	private final UserJPARepository userJPARepository;
 	private final UserRepository userRepository;
-
 	private final PasswordEncoder passwordEncoder;
 
 	public void registerUser(RegisterUserRequestDto request, MultipartFile image) {
@@ -35,12 +36,13 @@ public class AuthService {
 						.nickname(request.getNickname())
 						.mainLang(request.getMainLang())
 						.profileImg("")
+						.rankingPoint(0L)
 						.provider(User.Provider.LC)
 						.userStatus(User.UserStatus.A)
 					.build();
 
 		user.hashPassword(passwordEncoder);
-		userRepository.save(user);
+		userJPARepository.save(user);
 	}
 
 	public void validateId(String username) {
