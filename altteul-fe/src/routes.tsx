@@ -1,6 +1,6 @@
-import Layout from "@components/Layout/Layout";
+import SingleIdePage from "@pages/Ide/SingleIdePage";
+import TeamIdePage from "@pages/Ide/TeamIdePage";
 import MainPage from "@pages/Main/MainPage";
-import SelectPage from "@pages/Match/SelectPage";
 import SingleFinalPage from "@pages/Match/SingleFinalPage";
 import SingleSearchPage from "@pages/Match/SingleSearchPage";
 import TeamcompositionPage from "@pages/Match/TeamcompositionPage";
@@ -36,17 +36,22 @@ const router = createBrowserRouter([
       },
       {
         path: "game",
-        children: [],
+        children: [
+          {
+            path: "team",
+            element: <TeamIdePage />,
+          },
+          {
+            path: "single",
+            element: <SingleIdePage />,
+          },
+        ],
       },
     ],
   },
   {
     path: "match",
     children: [
-      {
-        path: "select",
-        element: <SelectPage />,
-      },
       {
         path: "team",
         children: [

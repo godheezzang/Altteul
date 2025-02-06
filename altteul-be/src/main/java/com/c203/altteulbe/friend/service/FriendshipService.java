@@ -6,19 +6,19 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
-import com.c203.altteulbe.common.utils.RedisUtils;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
+import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
+import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +30,17 @@ public class FriendshipService {
 
 	private final FriendshipRepository friendshipRepository;
 	private final UserStatusService userStatusService;
-	private final UserRepository userRepository;
-	private final RedisUtils redisUtils;
+	private final UserJPARepository userJPARepository;
+	private final FriendRedisService friendRedisService;
 
 	@Transactional(readOnly = true)
-	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) {
-		userRepository.findByUserId(userId)
+	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) throws
+		JsonProcessingException {
+		userJPARepository.findByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
 		// 캐시된 친구 리스트 조회
-		List<FriendResponseDto> cachedFriendList = redisUtils.getCachedFriendList(userId);
+		List<FriendResponseDto> cachedFriendList = friendRedisService.getCachedFriendList(userId);
 		if (cachedFriendList != null && !cachedFriendList.isEmpty()) {
 			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, pageable.getPageNumber(),
 				pageable.getPageSize());
@@ -64,7 +65,7 @@ public class FriendshipService {
 			)).toList();
 
 		// 친구 리스트 캐싱
-		redisUtils.setFriendList(userId, friendList);
+		friendRedisService.setFriendList(userId, friendList);
 
 		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(friendList, pageable.getPageNumber(),
 			pageable.getPageSize());
@@ -75,16 +76,17 @@ public class FriendshipService {
 	@Transactional
 	public void deleteFriendship(Long userId, Long friendId) {
 		if (!friendshipRepository.existsByUserAndFriend(userId, friendId)) {
-			throw new BusinessException("친구 관계가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
+			throw new FriendRelationNotFoundException();
 		}
-		friendshipRepository.deleteFriendshipBiDirectional(userId, friendId);
+		friendshipRepository.deleteFriendRelation(userId, friendId);
 
 		// redis에서도 친구 관계 삭제
-		redisUtils.deleteFriendRelation(userId, friendId);
+		friendRedisService.deleteFriendRelation(userId, friendId);
 
 		// 친구 관계가 변함에 따라서 캐시 되어 있는 친구 리스트 삭제
-		redisUtils.invalidateFriendList(userId);
-		redisUtils.invalidateFriendList(friendId);
+		friendRedisService.invalidateFriendList(userId);
+		friendRedisService.invalidateFriendList(friendId);
 	}
 
 }
+

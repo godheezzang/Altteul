@@ -1,5 +1,5 @@
 // ** 회원가입 모달 컴포넌트 **
-// 추가할 것 - 아이디, 닉네임임 중복 확인
+// 추가할 것 - 아이디, 닉네임 중복 확인
 
 import { useState } from "react";
 
@@ -52,7 +52,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 입력값 변경 핸들러 (input 필드 값 바뀔 때 실행)
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -62,7 +62,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   //이미지 파일 업로드 처리
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       setForm({ ...form, profileImg: e.target.files[0] });
     }
@@ -76,7 +76,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 유효성 검사 실패 시 중단
