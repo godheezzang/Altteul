@@ -36,28 +36,12 @@ class RedisConfig {
 	/**
 	 * RedisTemplate을 활용할 경우 아래의 양식 커스텀하여 사용
 	 */
-	// /**
-	//  * KeySerializer : redis는 보통 key를 문자열로 관리함. key를 문자열로 직렬화하고 역직렬화하는 역할
-	//  * ValueSerializer : redis의 value또한 마찬가지
-	//  *
-	//  * @return
-	//  */
 	@Bean
-	public RedisTemplate<?, ?> redisTemplate() {
-		RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(redisConnectionFactory());
-		// 일반적인 key:value의 경우 시리얼라이저
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
-
-		// Hash를 사용할 경우 시리얼라이저
-		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-
-		// 모든 경우
-		redisTemplate.setDefaultSerializer(new StringRedisSerializer());
-		redisTemplate.afterPropertiesSet();
-
-		return redisTemplate;
+	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, String> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactory);
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setValueSerializer(new StringRedisSerializer());
+		return template;
 	}
 }
