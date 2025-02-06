@@ -4,10 +4,12 @@ import Modal from "@components/Common/modal/Modal";
 import Input from "@components/Common/Input/Input";
 import Button from "@components/Common/Button/Button";
 import axios from "axios";
+import useAuthStore from "@stores/authStore";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const { setToken } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,8 +18,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("handleSubmit 실행됨");
-    console.log("전송할 데이터:", form);
+    console.log("!!!!!!!전송할 데이터:", form);
 
     try {
       const response = await loginUser(form.username, form.password);
@@ -27,17 +28,17 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         throw new Error("서버 응답이 없습니다.");
       }
 
-      console.log("전체 응답:", response);
-
       // headers에서 토큰을 가져오거나, data에서 가져오기
       const token = response.headers.authorization || response.data?.token;
       if (!token) {
         throw new Error("토큰이 응답에 포함되지 않았습니다");
       }
 
-      // 토큰 저장 - 로컬에
-      localStorage.setItem("token", token);
-      console.log("토큰 저장 완료:", token);
+      // zustand에 토큰 저장
+      setToken(token);
+      console.log("zustand에 토큰 저장 완료:", token);
+
+      onClose();
     } catch (error) {
       console.error("로그인 실패:", error);
 
