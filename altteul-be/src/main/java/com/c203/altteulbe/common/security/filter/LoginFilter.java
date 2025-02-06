@@ -54,13 +54,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 				throw new RuntimeException(e);
 			}
 
-			String id = loginRequestDto.getId();
+			String username = loginRequestDto.getUsername();
 			String password = loginRequestDto.getPassword();
 
 			// 로깅 추가 (디버깅용)
-			logger.debug("Attempting authentication for ID: " + id);
+			logger.debug("Attempting authentication for ID: " + username);
 
-			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(id, password,
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
 				List.of(new SimpleGrantedAuthority("USER")));
 			return authenticationManager.authenticate(authToken);
 	}
