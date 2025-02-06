@@ -6,6 +6,6 @@ import com.c203.altteulbe.common.exception.BusinessException;
 
 public class NotEnoughUserException extends BusinessException {
 	public NotEnoughUserException() {
-		super("인원수가 부족합니다.", HttpStatus.BAD_REQUEST);
+		super("인원 수가 부족합니다.", HttpStatus.BAD_REQUEST);
 	}
 }
