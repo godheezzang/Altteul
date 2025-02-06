@@ -12,7 +12,7 @@ public class RedisKeys {
 	private static final String FRIEND_LIST_CACHE = "friendList";
 
 	// 유저 상태
-	private static final String USER_STATUS = "user_status";
+	private static final String USER_STATUS = "isOnline";
 
 	// 팀전 매칭 진행 중인 방 목록
 	public static final String TEAM_MATCHING_ROOMS = "room:team:matching_rooms";

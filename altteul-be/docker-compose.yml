@@ -38,7 +38,7 @@ services:
     container_name: altteul-judge
     restart: always
     ports:
-      - "8082:8082"
+      - "9999:8080"
     cap_drop:
       - SETPCAP
       - MKNOD
@@ -52,12 +52,11 @@ services:
       - ./resources/judge/data/backend/test_case:/test_case:ro
       - ./resources/judge/data/judge_server/log:/log
       - ./resources/judge/data/judge_server/run:/judger
-      - ./entrypoint_override.sh:/app/entrypoint_override.sh
     environment:
-      - SERVICE_URL=http://judge:8082
-      - BACKEND_URL=http://host.docker.internal:8081/api/judge/check
+      - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
+      - BACKEND_URL=http://host.docker.internal:8080/api/judge/check
       - TOKEN=${SECRET_KEY}
-    entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint_override.sh"]
+    entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint.sh"]
 
 
   #  backend:

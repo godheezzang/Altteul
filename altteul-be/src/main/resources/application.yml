@@ -14,4 +14,5 @@ spring:
         - prod-token
         - prod-redis
         - prod-oauth
+        - prod-judge
     active: ${SPRING_PROFILES_ACTIVE}

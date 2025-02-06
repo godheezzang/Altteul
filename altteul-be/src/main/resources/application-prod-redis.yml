@@ -10,5 +10,5 @@ spring:
           max-idle: 10
           min-idle: 2
       port: ${REDIS_PORT}
-      host: ${REDIS_HOST_DEPLOY}
+      host: ${PROD_REDIS_HOST}
       password: ${REDIS_PASSWORD}
