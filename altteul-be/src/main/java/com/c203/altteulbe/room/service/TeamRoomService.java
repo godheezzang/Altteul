@@ -149,12 +149,19 @@ public class TeamRoomService {
 		// matching 상태로 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId), "matching");
 
-		// matching 시작
-		findMatchingTeam(roomId);
+		// 매칭 중 상태 전송 후 TEAM_MATCHING_ROOMS에 추가
+		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "MATCHING", "대전할 상대를 찾고있어요.", BattleType.T);
+		redisTemplate.opsForZSet().add(RedisKeys.TEAM_MATCHING_ROOMS, roomId.toString(), System.currentTimeMillis());
 
+		log.info("팀전 매칭 시작 : roomId = {}", roomId);
 	}
 
-	private void findMatchingTeam(Long roomId) {
+	// 얘한테 @Transactional 붙여야 하나
+	// 매칭할 두 팀에 대한 Redis 작업
+	public void afterTeamMatch(Long room1Id, Long room2Id) {
 
+		// game_pending으로 변경 -> 스케줄러
+
+		// websocket 메시지 전송 (대전이 시작됩니다) + 상대팀 정보 전송
 	}
 }

@@ -14,6 +14,18 @@ public class RedisKeys {
 	// 유저 상태
 	private static final String USER_STATUS = "user_status";
 
+	// 팀전 매칭 진행 중인 방 목록
+	public static final String TEAM_MATCHING_ROOMS = "room:team:matching_rooms";
+
+	// 방 ID 자동 증가 카운터 (개인전 + 팀전)
+	public static final String ROOM_ID_COUNTER = "room:both:id_counter";
+
+	// 팀전 대기 중인 방 목록
+	public static final String TEAM_WAITING_ROOMS = "room:team:waiting_rooms";
+
+	// 개인전 대기 중인 방 목록
+	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
+
 	// 친구 요청 키
 	public static String geFriendRequestKey(Long userId) {
 		return FRIEND_REQUEST_CACHE + ":" + userId;
@@ -33,12 +45,6 @@ public class RedisKeys {
 	public static String getFriendListKey(Long userId) {
 		return FRIEND_LIST_CACHE + ":" + userId;
 	}
-
-	// 방 ID 자동 증가 카운터 (개인전 + 팀전)
-	public static final String ROOM_ID_COUNTER = "room:both:id_counter";
-
-	// 개인전 대기 중인 방 목록
-	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
 
 	// 개인전 방 상태
 	public static String SingleRoomStatus(Long roomId) {
@@ -60,9 +66,6 @@ public class RedisKeys {
 		return "room:single:" + roomId + ":countdown";
 	}
 
-	// 팀전 대기 중인 방 목록
-	public static final String TEAM_WAITING_ROOMS = "room:team:waiting_rooms";
-
 	// 팀전 방 상태
 	public static String TeamRoomStatus(Long roomId) {
 		return "room:team:" + roomId + ":status";
@@ -82,6 +85,5 @@ public class RedisKeys {
 	public static String TeamRoomCountdown(Long roomId) {
 		return "room:team:" + roomId + ":countdown";
 	}
-
 
 }
