@@ -54,6 +54,12 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     }
   };
 
+  // 깃허브 로그인
+  const handleGithubLogin = () => {
+    // GitHub 로그인 URL로 리다이렉트
+    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} height="35rem" title="알뜰 로그인">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -100,6 +106,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         </a>
 
         <Button
+          onClick={handleGithubLogin}
           type="button"
           width="100%"
           height="2.8rem"
