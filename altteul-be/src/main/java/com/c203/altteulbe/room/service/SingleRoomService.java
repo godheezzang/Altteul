@@ -62,14 +62,15 @@ public class SingleRoomService {
 	 * 개인전 대기방 입장 처리
 	 * 동일 유저의 중복 요청 방지 및 동시성 제어를 위해 userId를 키로 갖는 락을 생성
 	 */
-	@DistributedLock(key="#requestDto.userId")
-	@Transactional
+	//@DistributedLock(key="#requestDto.userId")
+	//@Transactional
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
 								  .orElseThrow(()->new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
 			throw new DuplicateRoomEntryException();
 		}
 
@@ -93,8 +94,8 @@ public class SingleRoomService {
 	/**
 	 * 개인전 대기방 퇴장 처리
 	 */
-	@DistributedLock(key = "#requestDto.userId")
-	@Transactional
+	//@DistributedLock(key = "#requestDto.userId")
+	//@Transactional
 	public void leaveSingleRoom(RoomRequestDto requestDto) {
 		Long userId = requestDto.getUserId();
 
@@ -125,8 +126,8 @@ public class SingleRoomService {
 
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
-
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
+			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제");
 			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
@@ -148,8 +149,8 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
-	@Transactional
-	@DistributedLock(key = "requestDto.roomId")
+	//@Transactional
+	//@DistributedLock(key = "requestDto.roomId")
 	public void startGame(RoomGameStartRequestDto requestDto) {
 		Long roomId = requestDto.getRoomId();
 		Long leaderId = requestDto.getLeaderId();
@@ -169,7 +170,7 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 처리
 	 */
-	@Transactional
+	//@Transactional
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
