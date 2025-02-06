@@ -83,7 +83,6 @@ public class SingleRoomRedisRepository {
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(users);
-
 		return RoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
 	}
 
@@ -100,7 +99,6 @@ public class SingleRoomRedisRepository {
 	// roomId 생성 → DB 저장 시 game_id로 저장됨
 	public Long generateUniqueRoomId() {
 		long roomId = Math.abs(UUID.randomUUID().getMostSignificantBits()) % 1_000_000_000L; // 범위 제한
-		log.info("생성된 roomId: {}", roomId);
 		return roomId;
 	}
 }
