@@ -2,10 +2,8 @@ package com.c203.altteulbe.user.web.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,7 +42,6 @@ public class AuthController {
 		authService.validateId(username);
 		return ApiResponse.success();
 	}
-
 
 	@GetMapping("/oauth2/authorization/github")
 	public ApiResponseEntity<Void> socialLogin() {

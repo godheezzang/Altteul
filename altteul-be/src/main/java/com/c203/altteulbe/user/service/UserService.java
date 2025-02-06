@@ -8,6 +8,8 @@ import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.service.exception.SelfSearchException;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
 
+import com.c203.altteulbe.user.web.dto.response.UserProfileResponseDto;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,6 +20,9 @@ public class UserService {
 	public SearchUserResponseDto searchUser(Long userId, String nickname) {
 		User user = userRepository.findByNickname(nickname).orElseThrow(NotFoundUserException::new);
 
+	public UserProfileResponseDto getUserProfile(Long userId) {
+		return new UserProfileResponseDto();
+	}
 		if (userId.equals(user.getUserId())) {
 			throw new SelfSearchException();
 		}
