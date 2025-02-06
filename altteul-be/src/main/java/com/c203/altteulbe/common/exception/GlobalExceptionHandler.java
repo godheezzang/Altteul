@@ -1,5 +1,7 @@
 package com.c203.altteulbe.common.exception;
 
+import java.security.SignatureException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -14,6 +16,8 @@ import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -73,6 +77,22 @@ public class GlobalExceptionHandler {
     log.error("BusinessException", e);
     return ApiResponse.error(e.getMessage(), e.getHttpStatus());
   }
+
+  @ExceptionHandler(SignatureException.class)
+  public ApiResponseEntity<ResponseBody.Failure> handleSignatureException() {
+    return ApiResponse.error("토큰이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(MalformedJwtException.class)
+  public ApiResponseEntity<ResponseBody.Failure> handleMalformedJwtException() {
+    return ApiResponse.error("올바르지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(ExpiredJwtException.class)
+  public ApiResponseEntity<ResponseBody.Failure> handleExpiredJwtException() {
+    return ApiResponse.error("토큰이 만료되었습니다. 다시 로그인해주세요.", HttpStatus.UNAUTHORIZED);
+  }
+
 
   /**
    * 나머지 예외 발생
