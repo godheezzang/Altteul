@@ -12,7 +12,7 @@ public class RedisKeys {
 	private static final String FRIEND_LIST_CACHE = "friendList";
 
 	// 유저 상태
-	private static final String USER_STATUS = "user_status";
+	private static final String USER_STATUS = "isOnline";
 
 	// 친구 요청 키
 	public static String geFriendRequestKey(Long userId) {

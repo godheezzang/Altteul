@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.user.persistent.entity.User;
+import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 @RequiredArgsConstructor
 public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
+	private final UserJPARepository userJPARepository;
 	private final UserRepository userRepository;
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -38,8 +40,9 @@ public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 					.provider(User.Provider.GH)
 					.mainLang(Language.PY)
 					.profileImg("기본 이미지 URL")
+					.rankingPoint(0L)
 					.build();
-				userRepository.save(newUser);
+				userJPARepository.save(newUser);
 				return newUser;
 			});
 	}

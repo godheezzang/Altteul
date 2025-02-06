@@ -14,14 +14,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-			.allowedOrigins(
-				"http://localhost:3000",
-				"http://localhost:5173",
-				"http://localhost:5174",
-				"http://localhost:8080",
-				"http://localhost:8081",
-				"http://localhost:8082",
-				"http://localhost:80")
+			.allowedOriginPatterns("http://localhost:*")
+			// .allowedOrigins(
+			// 	"http://localhost:3000",
+			// 	"http://localhost:5173",
+			// 	"http://localhost:5174",
+			// 	"http://localhost:8080",
+			// 	"http://localhost:8081",
+			// 	"http://localhost:8082",
+			// 	"http://localhost:80")
 			.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 			.allowedHeaders("*")
 			.exposedHeaders("Authorization")
