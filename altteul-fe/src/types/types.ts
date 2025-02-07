@@ -1,7 +1,7 @@
 export interface User {
   userId: number;
-  nickName: string;
-  profileImg: string;
+  nickname: string;
+  profileImage: string;
   tierId: number;
 }
 
@@ -59,4 +59,17 @@ export interface UserInfo {
   rankPercentile: number | null;
   rank: number | null;
   rankChange: number | null;
+}
+export interface SingleMatchData {
+  roomId: number;
+  leaderId: number;
+  users?: User[];
+  remainingUsers?: User[];
+}
+
+export interface SingleEnterApiResponse {
+  type?: string;
+  data: SingleMatchData;
+  message?: string;
+  status?: string;
 }

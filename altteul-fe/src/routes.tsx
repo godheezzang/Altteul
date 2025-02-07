@@ -1,11 +1,12 @@
 import SingleIdePage from '@pages/Ide/SingleIdePage';
 import TeamIdePage from '@pages/Ide/TeamIdePage';
 import MainPage from '@pages/Main/MainPage';
-import SingleFinalPage from '@pages/Match/SingleFinalPage';
-import SingleSearchPage from '@pages/Match/SingleSearchPage';
-import TeamcompositionPage from '@pages/Match/TeamcompositionPage';
-import TeamFinalPage from '@pages/Match/TeamFinalPage';
-import TeamSearchPage from '@pages/Match/TeamSearchPage';
+import SelectPage from "@pages/match/SelectPage";
+import SingleFinalPage from '@pages/match/SingleFinalPage';
+import SingleSearchPage from '@pages/match/SingleSearchPage';
+import TeamcompositionPage from '@pages/match/TeamcompositionPage';
+import TeamFinalPage from '@pages/match/TeamFinalPage';
+import TeamSearchPage from '@pages/match/TeamSearchPage';
 import RankPage from '@pages/Rank/RankPage';
 import UserPage from '@pages/User/UserPage';
 import App from 'App';
@@ -52,6 +53,14 @@ const router = createBrowserRouter([
   {
     path: 'match',
     children: [
+      {
+        path: "select",
+        element: <SelectPage />,
+      },
+      {
+        path: "select",
+        element: <SelectPage />,
+      },
       {
         path: 'team',
         children: [
