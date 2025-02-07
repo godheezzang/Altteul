@@ -80,7 +80,7 @@ public class TestResult extends BaseCreatedEntity {
 						.testResult(status)
 						.userOutput(testCaseResult.getOutput())
 						.executeMemory(testCaseResult.getMemory())
-						.executeTime(testCaseResult.getCpuTime())
+						.executeTime(testCaseResult.getCpu_time())
 						.testHistory(testHistory)
 						.build()
 				);

@@ -37,7 +37,7 @@ public class ItemHistory extends BaseCreatedEntity {
 	private Game game;
 
 	@Column(name = "team_room_id", columnDefinition = "INT UNSIGNED", nullable = false)
-	private Long teamRoomId;
+	private Long teamRoom;
 
 	@Column(name = "user_id", columnDefinition = "INT UNSIGNED", nullable = false)
 	private Long userId;

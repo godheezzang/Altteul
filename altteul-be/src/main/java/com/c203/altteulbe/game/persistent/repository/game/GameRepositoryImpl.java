@@ -26,14 +26,15 @@ public class GameRepositoryImpl implements GameRepository {
 		QProblem problem = QProblem.problem;
 		return queryFactory
 			.selectFrom(game)
-			.join(game.teamRooms, teamRoom)
-			.join(teamRoom.userTeamRooms, userTeamRoom)
-			.join(userTeamRoom.user, user)
-			.where(user.userId.eq(userId))
-			.leftJoin(game.singleRooms, singleRoom).fetchJoin()
-			.leftJoin(game.itemHistories, itemHistory).fetchJoin()
-			.leftJoin(game.problem, problem).fetchJoin()
-			.orderBy(game.createdAt.asc())
-			.fetch();
+			.join(game.teamRooms, teamRoom) // Game과 TeamRoom을 join
+			.join(teamRoom.userTeamRooms, userTeamRoom) // TeamRoom과 UserTeamRoom을 join
+			.join(userTeamRoom.user, user) // UserTeamRoom과 User를 join
+			.where(user.userId.eq(userId)) // 특정 userId로 필터링
+			.leftJoin(game.singleRooms, singleRoom) // SingleRoom을 left join하고 즉시 로딩
+			.leftJoin(teamRoom.itemHistories, itemHistory) // ItemHistory를 left join하고 즉시 로딩
+			.leftJoin(game.problem, problem) // Problem을 left join하고 즉시 로딩
+			.orderBy(game.createdAt.asc()) // Game의 createdAt을 기준으로 오름차순 정렬
+			.fetch(); // 결과 반환
+
 	}
 }
