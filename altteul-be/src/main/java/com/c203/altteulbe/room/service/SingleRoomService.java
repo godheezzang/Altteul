@@ -63,7 +63,6 @@ public class SingleRoomService {
 	 * 동일 유저의 중복 요청 방지 및 동시성 제어를 위해 userId를 키로 갖는 락을 생성
 	 */
 	//@DistributedLock(key="#requestDto.userId")
-	//@Transactional
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
 								  .orElseThrow(()->new NotFoundUserException());
@@ -95,7 +94,6 @@ public class SingleRoomService {
 	 * 개인전 대기방 퇴장 처리
 	 */
 	//@DistributedLock(key = "#requestDto.userId")
-	//@Transactional
 	public void leaveSingleRoom(RoomRequestDto requestDto) {
 		Long userId = requestDto.getUserId();
 
@@ -149,7 +147,6 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
-	//@Transactional
 	//@DistributedLock(key = "requestDto.roomId")
 	public void startGame(RoomGameStartRequestDto requestDto) {
 		Long roomId = requestDto.getRoomId();

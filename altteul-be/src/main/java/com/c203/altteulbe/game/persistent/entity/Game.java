@@ -34,6 +34,7 @@ public class Game extends BaseCreatedEntity {
 
 	@Id
 	@Column(name = "game_id", nullable = false, updatable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -43,7 +44,6 @@ public class Game extends BaseCreatedEntity {
 	@Enumerated(EnumType.STRING)
 	private BattleType battleType;
 
-	private LocalDateTime startedAt;
 	private LocalDateTime completedAt;
 
 	@OneToMany(mappedBy = "game")

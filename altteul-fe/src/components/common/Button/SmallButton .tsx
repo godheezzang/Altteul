@@ -1,4 +1,4 @@
-// 크기 조정 가능!, 목업에서 네브바 로그인 버튼 기준임
+// 로그인 버튼 기준
 
 import React from "react";
 
@@ -8,9 +8,7 @@ type ButtonProps = {
   children: React.ReactNode; // 필수, 버튼에 표시될 텍스트
   backgroundColor?: string;
   fontColor?: string;
-  fontSize?: string;
-  width?: string;
-  height?: string;
+  className?: string;
 };
 
 const SmallButton = ({
@@ -18,15 +16,13 @@ const SmallButton = ({
   type = "button",
   children,
   backgroundColor = "primary-orange",
-  fontColor = "gray-01",
-  width = "4.8125rem",
-  height = "2rem",
-  fontSize = "1.125rem",
+  fontColor = "primary-white",
+  className = "",
 }: ButtonProps) => (
   <button
     onClick={onClick}
     type={type}
-    className={`rounded-[0.5rem] cursor-pointer font-semibold ml-2 px-3 py-1 bg-${backgroundColor} text-${fontColor} text-${fontSize} font-semibold w-[${width}] h-[${height}]`}
+    className={`rounded-lg px-3 py-1 bg-${backgroundColor} text-${fontColor} ${className}`}
   >
     {children}
   </button>
