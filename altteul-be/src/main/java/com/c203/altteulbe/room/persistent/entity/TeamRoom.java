@@ -1,6 +1,8 @@
 package com.c203.altteulbe.room.persistent.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
@@ -17,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +38,9 @@ public class TeamRoom extends BaseCreatedEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
 	private Game game;
+
+	@OneToMany(mappedBy = "teamRoom")
+	private List<UserTeamRoom> userTeamRooms = new ArrayList<>();
 
 	@Column(columnDefinition = "TEXT")
 	private String code;
