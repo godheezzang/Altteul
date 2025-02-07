@@ -3,71 +3,73 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
 import UserProfile from "@components/Match/UserProfile";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/single_matching.svg";
 import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
 import { useTimer } from "@hooks/useTimer";
 import { User } from "types/types";
-import {
-  mockSingleEnterData,
-  mockUserInData,
-  mockUserOutData,
-} from "mocks/singleData";
+import useMatchWebSocket from "@hooks/useMatchWebSocket";
+import { useMatchStore } from "@stores/matchStore";
+import { singleOut } from "@utils/api/matchApi";
 
-//페이지 렌더링 시 소켓 구독 요청필요
 const SingleSearchPage = () => {
   const navigate = useNavigate();
+  const store = useMatchStore(); //select 페이지에서 저장한 데이터 호출
   const [fact, setFact] = useState<string>("");
   const [facts] = useState<string[]>(tmi.facts);
-  const [waitUsers, setWaitUsers] = useState(mockSingleEnterData.data.users);
+  /////////////////////////초기 값(전역 상태 값)/////////////////////////
+  const [waitUsers, setWaitUsers] = useState(store.matchData.users); //(방장 포함)대기 중인 유저 리스트
+  const [leaderId] = useState(store.matchData.leaderId);
+  const [headUser, setHeadUser] = useState<User>(
+    waitUsers.find((user) => user.userId === leaderId)
+  );
+  /////////////////////////////////////////////////////////////////////
+  const roomId = store.matchData.roomId;
+  // WebSocket 훅 사용
+  const { isConnected, error, c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
+
+  //connetTest
+  useEffect(() => {
+    console.log("연결 상태확인: ", isConnected);
+  }, [isConnected]);
+
+  // 유저 정보 업데이트
+  // useEffect(() => {
+  //   console.log("유저정보 Update");
+  //   setHeadUser(c_waitUsers.find((user) => user.userId === c_leaderId));
+  //   setWaitUsers(c_waitUsers);
+  // }, [c_waitUsers, c_leaderId]);
 
   //타이머 전 게임 시작 호출
   const userStart = () => {
     //8명 안됐는데 시작할거냐는 알림정도?(8명 되면 자동 시작)
-    if(confirm("8명 안됐는데 시작할거임?")) {
-      
+    if (confirm("8명 안됐는데 시작할거임?")) {
       //최소인원 확인
-      if(waitUsers.length >= 2) {
+      if (waitUsers.length >= 2) {
         //넘어갈 때 현재 대기중인 유저(waitUsers) 정보 넘겨야함(소켓정보 유지 필요)
         navigate("/match/single/final");
-      }else{
-        alert("개인전이긴 한데... 너 혼자 게임 못함...")
+      } else {
+        alert("개인전이긴 한데... 너 혼자 게임 못함...");
       }
-
-    }
-
-  };
-
-  //새로운 유저 입장(소켓 메세지 핸들링 부분이 될듯)
-  const waitUserChange = (type: string) => {
-    if (type == "ENTER") {
-      //유저 입장시 소켓 메세지(파라미터랑 별개임)의 users 부분 세팅
-      setWaitUsers(mockUserInData.data.users);
-    }
-
-    if (type == "LEAVE") {
-      //남은 인원들로 waitUsers 재구성
-      setWaitUsers(mockUserOutData.data.remainingUsers);
     }
   };
 
   //유저(본인) 퇴장
   const userOut = () => {
-    // 구독 취소 요청 필요
-
+    singleOut(15); //TODO: 실제 나가는 userId세팅 필요
     navigate("/match/select");
   };
 
   const { seconds } = useTimer({
     initialSeconds: 180, // 시작 시간 설정
     onComplete: () => {
-      // navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
+      navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
     },
   });
 
-  // 첫 fact 생성 후 5초 간격으로 Rotation
+  // TMI: 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
     setFact(facts[Math.floor(Math.random() * facts.length)]);
 
@@ -78,9 +80,21 @@ const SingleSearchPage = () => {
     return () => clearInterval(factRotation);
   }, [facts]);
 
+  // WebSocket 상태 모니터링
   useEffect(() => {
-    console.log(mockSingleEnterData.data);
-    console.log(mockSingleEnterData.data.users);
+    if (error) {
+      console.error("WebSocket 연결 오류:", error);
+      alert("연결에 문제가 발생했습니다. 다시 시도해주세요.");
+      navigate("/match/select");
+    }
+  }, [error, navigate]);
+
+  // 언마운트 시 방 나가기
+  useEffect(() => {
+    return () => {
+      singleOut(15);
+      console.log("방에서 나가기");
+    };
   }, []);
 
   return (
@@ -106,9 +120,9 @@ const SingleSearchPage = () => {
 
         {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
-          nickName="방장"
-          profileImage={peopleIcon}
-          tierId = {4}
+          nickName={headUser.nickname}
+          profileImage={headUser.profileImage}
+          tierId={headUser.tierId}
           className="mb-4"
         />
 
@@ -117,15 +131,8 @@ const SingleSearchPage = () => {
 
         {/* Status Message */}
         <div className="text-white text-xl mb-8 flex flex-col items-center">
-          {/* 임시로 텍스트 클릭시 새로운 유저 유입/유저 퇴장 부분(onClick) 만듬 */}
-          <div onClick={() => waitUserChange("ENTER")}>
-            같이 플레이 할 상대를 찾고 있어요. 🧐
-          </div>
-
-          <div
-            className="flex text-base"
-            onClick={() => waitUserChange("LEAVE")}
-          >
+          같이 플레이 할 상대를 찾고 있어요. 🧐
+          <div className="flex text-base">
             조금만 기다려 주세요
             <div className="ml-2">
               {/* 스피너 */}
@@ -156,14 +163,16 @@ const SingleSearchPage = () => {
 
         {/* 방장 제외 대기 유저 */}
         <div className="flex justify-center items-center gap-20">
-          {waitUsers.map((user: User) => (
-            <UserProfile
-              key={user.userId}
-              nickName={user.nickname}
-              profileImage={user.profileImage}
-              tierId={user.tierId}
-            />
-          ))}
+          {waitUsers
+            .filter((user) => user.userId !== leaderId)
+            .map((user: User) => (
+              <UserProfile
+                key={user.userId}
+                nickName={user.nickname}
+                profileImage={user.profileImage}
+                tierId={user.tierId}
+              />
+            ))}
         </div>
 
         {/* TMI */}
