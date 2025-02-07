@@ -22,7 +22,6 @@ public class TeamMatchScheduler {
 	public void processTeamMatching() {
 		Set<String> matchingRoom = redisTemplate.opsForZSet().range(RedisKeys.TEAM_MATCHING_ROOMS, 0, 0);
 		if (matchingRoom == null || matchingRoom.isEmpty()) {
-			log.info("매칭 중인 방이 없습니다.");
 			return;
 		}
 		// 매칭 시작

@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -35,17 +38,18 @@ import lombok.experimental.SuperBuilder;
  */
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 @AllArgsConstructor
 @Table(name = "user")
 @SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OAuth2User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id", nullable = false, updatable = false)
 	private Long userId;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "tier_id")
 	private Tier tier;
 
@@ -66,7 +70,7 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	@Column(name = "username", length = 50, nullable = false, unique = true)
 	private String username;
 
-	@Column(name = "password", length = 128, nullable = false)
+	@Column(name = "password", length = 128, nullable = true)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -78,6 +82,9 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 
 	@Column(name = "last_out_time")
 	private Timestamp lastOutTime;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+	private TodayRanking todayRanking;
 
 	@Override
 	public String getName() {

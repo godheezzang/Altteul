@@ -6,13 +6,9 @@ import com.c203.altteulbe.common.dto.Language;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class RegisterUserRequestDto implements AbstractRequestDto {
 

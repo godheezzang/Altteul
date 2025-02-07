@@ -29,12 +29,12 @@ const TeamcompositionPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
-          <Link to="/team-search">
+          <Link to="/match/team/search">
             <Button width="120px" height="48px" fontSize="18px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               매칭 시작
             </Button>
           </Link>
-          <Link to="/select">
+          <Link to="/match/select">
             <Button width="120px" height="48px" fontSize="18px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               나가기
             </Button>
