@@ -1,15 +1,16 @@
 import { create } from "zustand";
 
-interface AuthState {
-  token: string | null;
-  setToken: (token: string) => void;
-  clearToken: () => void;
-}
-
 const useAuthStore = create<AuthState>((set) => ({
-  token: null,
-  setToken: (token) => set({ token }),
-  clearToken: () => set({ token: null }),
+  token: localStorage.getItem("token") || "",
+  setToken: (newToken: string) => {
+    const cleanToken = newToken.replace(/^Bearer\s+/i, "");
+    localStorage.setItem("token", cleanToken); //로컬에 저장
+    set({ token: cleanToken }); // zustand에 저장
+  },
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ token: "" });
+  },
 }));
 
 export default useAuthStore;
