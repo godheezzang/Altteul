@@ -27,18 +27,24 @@ public class SingleRoomRedisRepository {
 
 	// 입장 가능한 대기방 조회
 	public Long getAvailableRoom() {
-		Set<String> roomIds = redisTemplate.opsForZSet().range(RedisKeys.SINGLE_WAITING_ROOMS, 0, 0);
+		Set<String> roomIds = redisTemplate.opsForZSet().reverseRange(RedisKeys.SINGLE_WAITING_ROOMS, 0, -1);
+
 		if (roomIds == null || roomIds.isEmpty()) {
 			return null;
 		}
+		log.info("입장 가능한 대기방 조회를 위한 waiting 상태인 개인전 방 roomIds = {}", roomIds);
 		for (String roomId : roomIds) {
+			log.info("입장 가능한 대기방 조회 : roomId = {}", roomId);
 			String roomStatusKey = RedisKeys.SingleRoomStatus(Long.parseLong(roomId));  // 방 상태
 			String roomUserKey = RedisKeys.SingleRoomUsers(Long.parseLong(roomId));     // 방에 존재하는 유저
 
 			String status = redisTemplate.opsForValue().get(roomStatusKey);
 			Long userCount = redisTemplate.opsForList().size(roomUserKey);
+			log.info("{}번 방에 대한 대한 status = {}", roomId, status);
+			log.info("{}번 방에 대한 대한 userCount = {}", roomId, userCount);
 
 			if ("waiting".equals(status) && userCount != null && userCount<8) {
+				log.info("{}번 방에 입장 가능", roomId);
 				return Long.parseLong(roomId);
 			}
 		}
@@ -99,6 +105,7 @@ public class SingleRoomRedisRepository {
 	// roomId 생성 → DB 저장 시 game_id로 저장됨
 	public Long generateUniqueRoomId() {
 		long roomId = Math.abs(UUID.randomUUID().getMostSignificantBits()) % 1_000_000_000L; // 범위 제한
+		log.info("generateUniqueRoomId 실행 : id = {}", roomId);
 		return roomId;
 	}
 }

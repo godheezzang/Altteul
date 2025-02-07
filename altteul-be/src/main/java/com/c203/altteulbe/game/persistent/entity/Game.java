@@ -42,9 +42,8 @@ public class Game extends BaseCreatedEntity {
 
 	private LocalDateTime completedAt;
 
-	public static Game create(Long gameId, Problem problem, BattleType battleType) {
+	public static Game create(Problem problem, BattleType battleType) {
 		return Game.builder()
-			.id(gameId)
 			.problem(problem)
 			.battleType(battleType)
 			.build();

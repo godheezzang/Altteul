@@ -37,27 +37,13 @@ public class TeamMatchScheduler {
 				log.info("팀 {}에 대한 매칭 상대가 없습니다.", roomId);
 				return;
 			}
-
 			// 매칭 가능한 팀 선택
-			String matchedRoomId = opponent.iterator().next();
+			String opponentRoomId = opponent.iterator().next();
 
 			// 두 팀을 매칭
-			matchRooms(roomId, Long.valueOf(matchedRoomId));
+			teamRoomService.matchRooms(roomId, Long.valueOf(opponentRoomId));
 		} catch (Exception e) {
 			throw new MatchingProcessException();
 		}
-	}
-
-	private void matchRooms(Long room1Id, Long room2Id) {
-		log.info("매칭 진행 : room1 = {}, room2 = {}", room1Id, room2Id);
-
-		// Redis에서 두 팀을 매칭 중 상태에서 제거
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, room1Id.toString());
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, room2Id.toString());
-
-		log.info("매칭 팀 탐색 완료 : room1 = {}, room2 = {}", room1Id, room2Id);
-
-		// 매칭 로직 시작
-		teamRoomService.afterTeamMatch(room1Id, room2Id);
 	}
 }

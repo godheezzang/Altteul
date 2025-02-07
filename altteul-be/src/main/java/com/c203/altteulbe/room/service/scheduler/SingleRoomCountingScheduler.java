@@ -71,6 +71,7 @@ public class SingleRoomCountingScheduler {
 			}
 
 			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING", remainingTime, BattleType.S);
+			log.info("[Scheduler] 카운팅 진행 중 : {}초", remainingTime);
 			redisTemplate.opsForValue().set(roomKey, String.valueOf(remainingTime-1));
 		}
 	}

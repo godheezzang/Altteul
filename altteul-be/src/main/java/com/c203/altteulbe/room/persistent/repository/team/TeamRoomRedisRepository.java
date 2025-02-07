@@ -27,7 +27,7 @@ public class TeamRoomRedisRepository {
 
 	// 입장 가능한 대기방 조회
 	public Long getAvailableRoom() {
-		Set<String> roomIds = redisTemplate.opsForZSet().range(RedisKeys.TEAM_WAITING_ROOMS, 0, 0);
+		Set<String> roomIds = redisTemplate.opsForZSet().reverseRange(RedisKeys.TEAM_WAITING_ROOMS, 0, -1);
 		if (roomIds == null || roomIds.isEmpty()) {
 			return null;
 		}
@@ -79,12 +79,17 @@ public class TeamRoomRedisRepository {
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 
 		// Redis에 유저 추가
-		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());                  // 유저를 대기방에 추가 (방장 위임을 위해 순서 유지)
-		redisTemplate.opsForValue().set(RedisKeys.userTeamRoom(user.getUserId()), roomId.toString());     // 유저가 속한 방 저장
+		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());              // 유저 추가 (방장 위임을 위한 유지)
+		redisTemplate.opsForValue().set(RedisKeys.userTeamRoom(user.getUserId()), roomId.toString()); // 유저가 속한 방 저장
 
-		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);               // 방장 검색
-		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);  // 현재 방에 속한 모든 유저 정보 조회
+		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);             // 방장 검색
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1); // 현재 방의 모든 유저 조회
 
+		return convertToRoomEnterResponseDto(roomId, leaderId, userIds);
+	}
+
+	// User를 RoomEnterResponseDto로 변환
+	public RoomEnterResponseDto convertToRoomEnterResponseDto(Long roomId, String leaderId, List<String> userIds) {
 		List<User> users = userJPARepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
