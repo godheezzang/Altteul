@@ -3,10 +3,10 @@
 
 import { useState } from "react";
 
-import Input from "@components/common/Input/Input";
+import Input from "@components/common/Input";
+import Modal from "@components/common/Modal";
 import Button from "@components/Common/Button/Button";
-import Modal from "@components/common/modal/Modal";
-import Dropdown from "@components/Common/Drpodown/Dropdown";
+import Dropdown from "@components/common/Dropdown";
 
 import { registerUser } from "@utils/api/auth";
 import {
@@ -32,6 +32,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [form, setForm] = useState<SignUpFormData>({
     username: "",
     password: "",
+    confirmPassword: "",
     nickname: "",
     mainLang: "PY",
     profileImg: null,
@@ -41,6 +42,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [errors, setErrors] = useState<ValidationErrors>({
     username: "",
     password: "",
+    confirmPassword: "",
     nickname: "",
     mainLang: "",
     profileImg: "",
@@ -72,6 +74,16 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const validateForm = () => {
     const validationResult = validateSignUpForm(form);
     setErrors(validationResult.errors);
+
+    // 비밀번호 확인
+    if (form.password !== form.confirmPassword) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        confirmPassword: "비밀번호가 일치하지 않습니다.",
+      }));
+      return false;
+    }
+
     return validationResult.isValid;
   };
 
@@ -119,6 +131,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         setForm({
           username: "",
           password: "",
+          confirmPassword: "",
           nickname: "",
           mainLang: "PY",
           profileImg: null,
@@ -128,6 +141,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         setErrors({
           username: "",
           password: "",
+          confirmPassword: "",
           nickname: "",
           mainLang: "",
           profileImg: "",
@@ -143,6 +157,24 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     } finally {
       setIsSubmitting(false); // 로딩 끝
     }
+  };
+
+  // 비밀번호 일치여부 확인
+  const checkPasswordMatch = () => {
+    if (
+      form.password &&
+      form.confirmPassword &&
+      form.password !== form.confirmPassword
+    ) {
+      return "비밀번호가 일치하지 않습니다.";
+    } else if (
+      form.password &&
+      form.confirmPassword &&
+      form.password === form.confirmPassword
+    ) {
+      return "비밀번호가 일치합니다.";
+    }
+    return "";
   };
 
   return (
@@ -169,6 +201,29 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         />
         {errors.password && (
           <p className="text-primary-orange text-sm">{errors.password}</p>
+        )}
+        <Input
+          name="confirmPassword"
+          type="password"
+          placeholder="비밀번호 확인"
+          onChange={handleChange}
+          value={form.confirmPassword}
+        />
+        {errors.confirmPassword && (
+          <p className="text-primary-orange text-sm">
+            {errors.confirmPassword}
+          </p>
+        )}
+        {checkPasswordMatch() && (
+          <p
+            className={`text-sm ${
+              form.password === form.confirmPassword
+                ? "text-primary-orange font-semibold"
+                : "text-gray-03 font-semibold"
+            }`}
+          >
+            {checkPasswordMatch()}
+          </p>
         )}
 
         <Input
@@ -205,9 +260,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
         <Button
           type="submit"
-          width="100%"
-          height="2.8rem"
-          className="text-primary-white bg-primary-orange"
+          className="w-full h-[2.8rem] text-primary-white bg-primary-orange"
         >
           {isSubmitting ? "처리중..." : "가입하기"}
         </Button>
