@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { loginUser } from "@utils/api/auth";
-import Modal from "@components/Common/modal/Modal";
-import Input from "@components/Common/Input/Input";
+import Modal from "@components/common/modal/Modal";
+import Input from "@components/common/Input/Input";
 import Button from "@components/Common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
@@ -18,8 +18,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("!!!!!!!전송할 데이터:", form);
-
     try {
       const response = await loginUser(form.username, form.password);
       console.log("로그인 성공:", response);
@@ -34,9 +32,10 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         throw new Error("토큰이 응답에 포함되지 않았습니다");
       }
 
-      // zustand에 토큰 저장
-      setToken(token);
-      console.log("zustand에 토큰 저장 완료:", token);
+      //토큰 저장
+      const cleanToken = token.replace(/^Bearer\s+/i, ""); // "Bearer " 제거
+      setToken(cleanToken);
+      console.log("로컬&zustand에 토큰 저장 완료:", cleanToken);
 
       onClose();
     } catch (error) {
@@ -80,16 +79,15 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         />
         {error && <p>{error}</p>}
 
-        <Button
-          type="submit"
-          className="h-[2.8rem] w-full bg-primary-orange text-primary-white hover:brightness-90"
-        >
+        <Button type="submit" className="h-[2.8rem] w-full hover:brightness-90">
           로그인
         </Button>
 
         <Button
           type="button"
-          className="h-[2.8rem] w-full bg-gray-01 hover:brightness-90"
+          backgroundColor="gray-01"
+          fontColor="gray-04"
+          className="h-[2.8rem] w-full hover:brightness-90"
         >
           회원가입
         </Button>
@@ -104,7 +102,8 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         <Button
           onClick={handleGithubLogin}
           type="button"
-          className="h-[2.8rem] w-full bg-primary-black text-primary-white mt-8 hover:brightness-110"
+          backgroundColor="primary-black"
+          className="h-[2.8rem] w-full mt-8 hover:brightness-110"
           img="src/assets/icon/github_logo.svg"
         >
           github로 간편하게 시작하기
