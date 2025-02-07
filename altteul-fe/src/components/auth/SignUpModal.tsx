@@ -260,7 +260,12 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
         <Button
           type="submit"
-          className="w-full h-[2.8rem] text-primary-white bg-primary-orange"
+          className={`w-full h-[2.8rem] text-primary-white ${
+            form.password !== form.confirmPassword || isSubmitting
+              ? "bg-gray-03 cursor-not-allowed"
+              : "bg-primary-orange"
+          }`}
+          disabled={form.password !== form.confirmPassword || isSubmitting}
         >
           {isSubmitting ? "처리중..." : "가입하기"}
         </Button>
