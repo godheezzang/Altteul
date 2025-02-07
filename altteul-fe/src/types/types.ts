@@ -73,3 +73,47 @@ export interface SingleEnterApiResponse {
   message?: string;
   status?: string;
 }
+
+export interface UserGameRecordResponse {
+  status: number;
+  message: string;
+  data: UserGameRecord;
+  isLast: boolean;
+  totalPages: number;
+  currentPage: number;
+  totalElements: number;
+}
+
+export interface UserGameRecord {
+  problem: Problem;
+  gameType: 'S' | 'T';
+  startedAt: string;
+  totalHeadCount: number;
+  items: Item[] | null;
+  myTeam: TeamInfo;
+  opponents: TeamInfo[];
+}
+
+export interface Item {
+  itemId: number;
+  itemTitle: string;
+}
+
+export interface TeamInfo {
+  gameResult: number;
+  lang: 'JV' | 'PY';
+  totalHeadCount: number;
+  executeTime: number | null;
+  executeMemory: number | null;
+  bonusPoint: string | null;
+  duration: string | null;
+  code: string | null;
+  members: MemberInfo[];
+}
+
+export interface MemberInfo {
+  userId: number;
+  nickname: string;
+  profileImage: string;
+  rank: number;
+}
