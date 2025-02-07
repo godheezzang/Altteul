@@ -82,18 +82,14 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
         <Button
           type="submit"
-          width="100%"
-          height="2.8rem"
-          className="bg-primary-orange text-primary-white hover:brightness-90"
+          className="h-[2.8rem] w-full bg-primary-orange text-primary-white hover:brightness-90"
         >
           로그인
         </Button>
 
         <Button
           type="button"
-          width="100%"
-          height="2.8rem"
-          className="bg-gray-01 hover:brightness-90"
+          className="h-[2.8rem] w-full bg-gray-01 hover:brightness-90"
         >
           회원가입
         </Button>
@@ -108,9 +104,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         <Button
           onClick={handleGithubLogin}
           type="button"
-          width="100%"
-          height="2.8rem"
-          className="bg-primary-black text-primary-white mt-8 hover:brightness-110"
+          className="h-[2.8rem] w-full bg-primary-black text-primary-white mt-8 hover:brightness-110"
           img="src/assets/icon/github_logo.svg"
         >
           github로 간편하게 시작하기
