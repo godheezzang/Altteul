@@ -1,20 +1,24 @@
 import { useNavigate, Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
 import { useTimer } from "@hooks/useTimer";
-import UserProfile from "@components/Match/UserProfile";
 import backgroundImage from "@assets/background/single_matching.svg";
-import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
-import { userData } from "mocks/userData";
-import tierIcon from "@assets/icon/Badge_09.svg";
+import { useMatchStore } from "@stores/matchStore";
+import { useState } from "react";
+import UserProfile from "@components/match/UserProfile";
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
+  const store = useMatchStore();  //select 페이지에서 저장한 데이터 호출
+  const [waitUsers] = useState(store.matchData.users); //(방장 포함)대기 중인 유저 리스트
+  const leaderId = store.matchData.leaderId;
+  const headUser = waitUsers.find((user) => user.userId === store.matchData.leaderId)
 
   const { seconds } = useTimer({
     initialSeconds: 10,
     onComplete: () => {
+      //TODO: single IDE 페이지로 이동
       // navigate('/single-final');
     },
   });
@@ -28,7 +32,8 @@ const SingleFinalPage = () => {
       </Link>
 
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
-        <UserProfile nickName="방장" profileImg={peopleIcon} tier={tierIcon} className="mb-4" />
+        {/* 방장 */}
+        <UserProfile nickName={headUser.nickname} profileImage={headUser.profileImage} tierId={headUser.tierId} className="mb-4" />
 
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
@@ -37,8 +42,9 @@ const SingleFinalPage = () => {
         <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
 
         <div className="flex justify-center items-center gap-20">
-          {userData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
+          {/* 방장을 제외한 유저 */}
+          {(waitUsers.filter((user) => user.userId !== leaderId)).map((user: User) => (
+            <UserProfile key={user.userId} nickName={user.nickname} profileImage={user.profileImage} tierId={user.tierId} />
           ))}
         </div>
       </div>

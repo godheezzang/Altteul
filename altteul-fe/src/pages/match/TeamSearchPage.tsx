@@ -25,11 +25,12 @@ const TeamSearchPage = () => {
 
   return (
     <div className="w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
+      
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
       {/* 컨텐츠 */}
-      <div className="min-h-screen w-full z-10 flex flex-col items-center justify-center">
+      <div className="relative min-h-screen w-full flex flex-col items-center justify-center">
         {/* Status Message */}
         <div className="text-white text-3xl mb-8 flex flex-col items-center">
           대전 할 상대를 찾고 있어요. 🧐
@@ -51,12 +52,12 @@ const TeamSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
-          <Link to="/team-final">
+          <Link to="/match/team/final">
             <Button width="160px" height="48px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               (매칭 완료)
             </Button>
           </Link>
-          <Link to="/team-composition">
+          <Link to="/match/team/composition">
             <Button width="160px" height="48px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               매칭 취소하기
             </Button>

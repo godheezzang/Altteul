@@ -60,7 +60,7 @@ public class SingleRoom extends BaseCreatedEntity {
 	@Enumerated(EnumType.STRING)
 	private Language lang;
 
-	private boolean activatation;    // DB 오타
+	private boolean activation;
 	private LocalDateTime finishTime;
 
 	public static SingleRoom create(Game game, User user, int order) {
@@ -68,7 +68,7 @@ public class SingleRoom extends BaseCreatedEntity {
 						 .game(game)
 						 .user(user)
 						 .matchingOrder(order)
-						 .activatation(true)
+						 .activation(true)
 						 .build();
 	}
 }

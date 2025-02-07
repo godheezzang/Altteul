@@ -1,7 +1,7 @@
 export interface User {
   userId: number;
-  nickName: string;
-  profileImg: string;
+  nickname: string;
+  profileImage: string;
   tierId: number;
 }
 
@@ -42,4 +42,34 @@ export interface CodeExecutionState {
   setLanguage: (language: Language) => void;
   executeCode: () => void;
   clearOutput: () => void;
+}
+
+export interface UserInfoResponse {
+  status: number;
+  message: string;
+  data: UserInfo;
+}
+
+export interface UserInfo {
+  userId: number;
+  username: string;
+  nickname: string;
+  profileImg: string;
+  tier: string;
+  rankPercentile: number | null;
+  rank: number | null;
+  rankChange: number | null;
+}
+export interface SingleMatchData {
+  roomId: number;
+  leaderId: number;
+  users?: User[];
+  remainingUsers?: User[];
+}
+
+export interface SingleEnterApiResponse {
+  type?: string;
+  data: SingleMatchData;
+  message?: string;
+  status?: string;
 }
