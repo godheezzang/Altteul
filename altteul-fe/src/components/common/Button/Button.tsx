@@ -6,31 +6,29 @@ type ButtonProps = {
   onClick?: () => void; // 버튼 클릭 시 동작
   type?: "button" | "submit";
   children: React.ReactNode; // 필수, 버튼에 표시될 텍스트
-  backgroundColor?: string;
-  fontColor?: string;
   width: string; // 필수
   height: string; // 필수
-  fontSize?: string;
+  className?: string; // 추가적인 클래스 이름
+  img?: string;
 };
 
 const Button = ({
   onClick,
   type = "button", // 기본값 = button
   children,
-  backgroundColor = "primary-orange",
-  fontColor = "gray-01",
   width,
   height,
-  fontSize = "22px", // 목업에서 일단 22px라서 22px로 해둠
+  className = "bg-primary-orange",
+  img,
 }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
       type={type}
-      className={`rounded-lg cursor-pointer font-medium px-5 py-2 
-        bg-${backgroundColor} text-${fontColor} 
-        w-${width} h-${height} text-[${fontSize} font-sans]`}
+      className={`rounded-lg cursor-pointer font-medium px-5 py-2 ${className}`}
+      style={{ width, height }} // 동적 width, height 적용
     >
+      {img && <img src={img} alt="button icon" className="h-5 w-12 inline" />}
       {children}
     </button>
   );
