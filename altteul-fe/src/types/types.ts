@@ -31,6 +31,35 @@ export interface GameState {
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
 }
+
+type Language = 'python' | 'java';
+
+export interface CodeExecutionState {
+  code: string;
+  language: Language;
+  output: string[];
+  setCode: (code: string) => void;
+  setLanguage: (language: Language) => void;
+  executeCode: () => void;
+  clearOutput: () => void;
+}
+
+export interface UserInfoResponse {
+  status: number;
+  message: string;
+  data: UserInfo;
+}
+
+export interface UserInfo {
+  userId: number;
+  username: string;
+  nickname: string;
+  profileImg: string;
+  tier: string;
+  rankPercentile: number | null;
+  rank: number | null;
+  rankChange: number | null;
+}
 export interface SingleMatchData {
   roomId: number;
   leaderId: number;

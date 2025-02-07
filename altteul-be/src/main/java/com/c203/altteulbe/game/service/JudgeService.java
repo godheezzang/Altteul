@@ -123,30 +123,20 @@ public class JudgeService {
 		testHistoryRepository.save(testHistory);
 	}
 
-	public void executeCode(SubmitCodeRequestDto request) {
+	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request) {
 		// 저지에게 코드 제출
 		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX);
 
 		if (judgeResponse == null) throw new NullPointerException();
 
 		// request.problemId의 테스트케이스 1,2번 output 정보가 필요함
+		judgeWebsocketService.sendExecutionResult(CodeExecutionResponseDto.from(judgeResponse),
+			request.getGameId(),
+			request.getTeamId());
 
-		CodeExecutionResponseDto.from(judgeResponse);
 
-		// 채점 결과 메세지 전송
-		judgeWebsocketService.sendExecutionResult(CodeExecutionResponseDto.from(judgeResponse), request.getGameId(), request.getTeamId());
-	}
-
-	// 컴파일 에러 처리
-	private void handleExecutionError(JudgeResponse response) {
-		if (response.getErr() != null) {
-			if (response.getErr().equals("CompileError")) {
-				throw new JudgeCompileException(response.getData().toString());
-			} else if (response.getErr().equals("400")) {
-				throw new RuntimeException(response.getData().toString());
-			}
-			throw new JudgeServerException();
-		}
+		// 없어도 되는데 걍 확인용으로 만듬
+		return CodeExecutionResponseDto.from(judgeResponse);
 	}
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { configureMonaco } from '@utils/monacoConfig';
 import Dropdown from '@components/Common/Drpodown/Dropdown';
@@ -8,12 +8,17 @@ const DEFAULT_CODE = {
   java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello World!");\n  }\n}',
 };
 
-const CodeEditor = () => {
-  const [language, setLanguage] = useState<'python' | 'java'>('python');
-  const [code, setCode] = useState(DEFAULT_CODE[language]);
+interface CodeEditorProps {
+  code: string;
+  setCode: (code: string) => void;
+  language: 'python' | 'java';
+  setLanguage: (lang: 'python' | 'java') => void;
+}
 
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, language, setLanguage }) => {
   useEffect(() => {
     configureMonaco();
+    setCode(DEFAULT_CODE[language]);
   }, []);
 
   const languageOptions = [
@@ -22,18 +27,16 @@ const CodeEditor = () => {
   ];
 
   return (
-    <div className='h-screen flex flex-col'>
+    <div className='flex flex-col border-b border-gray-04'>
       {/* 언어 선택 드롭다운 */}
       <Dropdown
         options={languageOptions}
         value={language}
         onChange={(newLang) => {
-          setLanguage(newLang as 'python' | 'java');
-          setCode(DEFAULT_CODE[newLang as keyof typeof DEFAULT_CODE]);
+          setLanguage(newLang as typeof language);
         }}
         width='10rem'
         height='3.7rem'
-        className='p-4'
       />
 
       <Editor
@@ -51,13 +54,26 @@ const CodeEditor = () => {
             horizontal: 'auto',
           },
         }}
+        loading='에디터를 불러오는 중입니다.'
         onChange={(value) => setCode(value || '')}
         beforeMount={(monaco) => {
           monaco.editor.defineTheme('custom-dark', {
             base: 'vs-dark',
-            inherit: true,
+            inherit: false,
             colors: { 'editor.background': '#242A32' },
             rules: [],
+          });
+
+          // Java 언어 설정 추가
+          monaco.languages.register({ id: 'java' });
+          monaco.languages.setLanguageConfiguration('java', {
+            autoClosingPairs: [
+              { open: '{', close: '}' },
+              { open: '[', close: ']' },
+              { open: '(', close: ')' },
+              { open: '"', close: '"' },
+              { open: "'", close: "'" },
+            ],
           });
         }}
       />

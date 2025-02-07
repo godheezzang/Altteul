@@ -1,5 +1,6 @@
 package com.c203.altteulbe.game.web.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.game.service.JudgeService;
 import com.c203.altteulbe.game.web.dto.judge.request.GetHeartbeatRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
+import com.c203.altteulbe.game.web.dto.judge.response.CodeExecutionResponseDto;
 import com.c203.altteulbe.game.web.dto.judge.response.GetHeartbeatResponse;
 import com.c203.altteulbe.game.web.dto.judge.response.JudgeResponse;
 import com.c203.altteulbe.game.web.dto.judge.response.PingResponse;
@@ -42,7 +44,13 @@ public class JudgeController {
 	}
 
 	@PostMapping("/judge/submit")
-	public ApiResponseEntity<ResponseBody.Success<JudgeResponse>> submitCode(@RequestBody SubmitCodeRequestDto request, @AuthenticationPrincipal Long id) {
+	public ApiResponseEntity<ResponseBody.Success<JudgeResponse>> submitCode(@RequestBody SubmitCodeRequestDto request) {
 		return ApiResponse.success(judgeService.submitToJudge(request, "problem_"));
+	}
+
+	@PostMapping("/judge/execution")
+	@PreAuthorize("isAuthenticated()")
+	public ApiResponseEntity<ResponseBody.Success<CodeExecutionResponseDto>> executeCode(@RequestBody SubmitCodeRequestDto request) {
+		return ApiResponse.success(judgeService.executeCode(request));
 	}
 }
