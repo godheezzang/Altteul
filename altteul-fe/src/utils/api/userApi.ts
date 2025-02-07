@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserInfoResponse } from 'types/types';
+import { UserGameRecordResponse, UserInfoResponse } from 'types/types';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -17,6 +17,19 @@ export const getMyUserInfo = async (token: string) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const getUserRecord = async (userId: string, lang: string, type: string) => {
+  const response = await axios.get<UserGameRecordResponse>(`${BASE_URL}/api/game/history/${userId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: {
+      lang,
+      type,
     },
   });
   return response.data;
