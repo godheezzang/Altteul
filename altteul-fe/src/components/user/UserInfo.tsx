@@ -3,14 +3,18 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserInfo as UserInfoType } from 'types/types';
 import people from '@assets/icon/People.svg';
-import bronze from '@assets/icon/grade/bronze.svg';
-import silver from '@assets/icon/grade/silver.svg';
-import gold from '@assets/icon/grade/gold.svg';
+import bronze from '@assets/icon/badge/Badge_01.svg';
+import silver from '@assets/icon/badge/Badge_04.svg';
+import gold from '@assets/icon/badge/Badge_01.svg';
+import platinum from '@assets/icon/badge/Badge_07.svg';
+import dia from '@assets/icon/badge/Badge_08.svg';
 
 const tierIcons = {
   bronze: bronze,
   silver: silver,
   gold: gold,
+  platinum: platinum,
+  dia: dia,
 } as const;
 
 const UserInfo = () => {
@@ -20,10 +24,7 @@ const UserInfo = () => {
 
   const token = localStorage.getItem('token');
   // userId 로컬 스토리지에 저장된거 가져오기
-  // const loggedInUserId = localStorage.getItem('userId');
-
-  // 로컬스토리지에 저장되는게 완료되면 아래 코드 삭제
-  const loggedInUserId = '15';
+  const loggedInUserId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -35,7 +36,8 @@ const UserInfo = () => {
           const response = await getMyUserInfo(token);
           data = response.data;
         } else {
-          const response = await getUserInfo(userId!);
+          const response = await getUserInfo(userId);
+
           data = response.data;
         }
         setUserInfo(data);
@@ -65,8 +67,6 @@ const UserInfo = () => {
         <p>유저 정보가 없습니다.</p>
       </div>
     );
-
-  console.log(userInfo);
 
   return (
     <div>
@@ -99,8 +99,9 @@ const UserInfo = () => {
               // 전체 유저 인원 수를 가져와야 하나 아님 뭐라고 표시해야할지 모르겠음!
               // TODO: 표시 문구 수정 필요
               <>
-                <p>꼴등</p>
-                <span className='text-gray-03'>(-)</span>
+                <p>
+                  꼴찌 수정하세요 ~ <span className='text-gray-03'>(-)</span>
+                </p>
               </>
             )}
           </div>
