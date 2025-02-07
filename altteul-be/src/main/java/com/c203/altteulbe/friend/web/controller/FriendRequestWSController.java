@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.c203.altteulbe.common.dto.RequestStatus;
 import com.c203.altteulbe.friend.service.FriendRequestService;
@@ -18,10 +17,11 @@ import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@Slf4j
 public class FriendRequestWSController {
 	private final FriendRequestService friendRequestService;
 
@@ -34,10 +34,12 @@ public class FriendRequestWSController {
 	@PreAuthorize("isAuthenticated()")
 	public void handleFriendRequest(@Payload CreateFriendRequestDto request,
 		@AuthenticationPrincipal Long fromUserid) throws JsonProcessingException {
+		log.info("Received friend request from {} to {}", fromUserid, request.getToUserId());
 		Long toUserId = request.getToUserId();
 		FriendRequestResponseDto result = friendRequestService.createFriendRequest(fromUserid, toUserId);
 
 		friendWSService.sendRequestMessage(request.getToUserId(), result);
+		log.info("Sending notification to user {}", request.getToUserId());
 	}
 
 	// 친구 요청 처리

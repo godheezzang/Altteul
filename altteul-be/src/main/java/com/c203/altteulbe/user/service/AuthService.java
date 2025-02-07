@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
 import com.c203.altteulbe.user.service.exception.DuplicateUsernameException;
 import com.c203.altteulbe.user.web.dto.request.RegisterUserRequestDto;
@@ -31,16 +30,16 @@ public class AuthService {
 		validateNickname(request.getNickname());
 
 		User user = User.builder()
-						.username(request.getUsername())
-						.password(request.getPassword())
-						.nickname(request.getNickname())
-						.mainLang(request.getMainLang())
-						.profileImg("")
-						.rankingPoint(0L)
-						.provider(User.Provider.LC)
-						.userStatus(User.UserStatus.A)
-						.tier(new Tier(1L, "BRONZE", 0, 200))
-					.build();
+			.username(request.getUsername())
+			.password(request.getPassword())
+			.nickname(request.getNickname())
+			.mainLang(request.getMainLang())
+			.profileImg("")
+			.rankingPoint(0L)
+			.provider(User.Provider.LC)
+			.userStatus(User.UserStatus.A)
+			.tier(new Tier(1L, "BRONZE", 0, 200))
+			.build();
 
 		user.hashPassword(passwordEncoder);
 		userJPARepository.save(user);
@@ -49,12 +48,14 @@ public class AuthService {
 	public void validateId(String username) {
 		if (userJPARepository.existsByUsername(username)) {
 			throw new DuplicateUsernameException();
-		};
+		}
+		;
 	}
 
 	public void validateNickname(String nickname) {
 		if (userJPARepository.existsByNickname(nickname)) {
 			throw new DuplicateNicknameException();
-		};
+		}
+		;
 	}
 }

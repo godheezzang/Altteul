@@ -32,6 +32,7 @@ public class UserStatusService {
 		try {
 			String key = RedisKeys.getUserStatusKey(userId);
 			redisTemplate.opsForValue().set(key, "online", 60, TimeUnit.SECONDS);
+			log.info("isOnline: {}", redisTemplate.hasKey(key));
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
 			throw new RedisConnectionFailException();
