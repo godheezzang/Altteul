@@ -31,3 +31,16 @@ export interface GameState {
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
 }
+export interface SingleMatchData {
+  roomId: number;
+  leaderId: number;
+  users?: User[];
+  remainingUsers?: User[];
+}
+
+export interface SingleEnterApiResponse {
+  type?: string;
+  data: SingleMatchData;
+  message?: string;
+  status?: string;
+}
