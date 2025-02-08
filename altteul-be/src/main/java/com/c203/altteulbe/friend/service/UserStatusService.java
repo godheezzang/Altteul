@@ -2,7 +2,6 @@ package com.c203.altteulbe.friend.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,7 +30,8 @@ public class UserStatusService {
 		validateUserId(userId);
 		try {
 			String key = RedisKeys.getUserStatusKey(userId);
-			redisTemplate.opsForValue().set(key, "online", 60, TimeUnit.SECONDS);
+			redisTemplate.opsForValue().set(key, "online");
+			log.info("isOnline: {}", redisTemplate.hasKey(key));
 		} catch (RedisConnectionException e) {
 			log.error("Redis 연결 실패: {}", e.getMessage());
 			throw new RedisConnectionFailException();
@@ -78,8 +78,7 @@ public class UserStatusService {
 		List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>)connection -> {
 			StringRedisConnection stringConn = (StringRedisConnection)connection;
 			userIds.forEach(id ->
-				// exists 명령은 Long 타입의 값을 반환
-				// 각 키에 대해 Long 타입의 1 또는 0 값을 반환
+				// exists 명령은 boolean 타입의 값을 반환
 				stringConn.exists(RedisKeys.getUserStatusKey(id))); // redis에 해당 키가 있는지 확인 (존재하면 온라인)
 			return null;
 		});
@@ -88,8 +87,7 @@ public class UserStatusService {
 			.range(0, userIds.size())
 			.boxed()
 			.collect(Collectors.toMap(
-				userIds::get, // // userId를 키로 사용
-				i -> ((Long)results.get(i)) > 0 // Redis 결과를 Long으로 캐스팅 후 존재 여부로 처리
+				userIds::get, i -> Boolean.TRUE.equals(results.get(i))
 			));
 	}
 

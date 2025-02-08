@@ -27,7 +27,7 @@ const FriendModal = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-primary-black bg-opacity-50">
       <div className="bg-[#FFEBE0] border-2 border-orange-500 rounded-lg w-[90vw] max-w-md h-[90vh] max-h-[80vh] p-4 shadow-lg relative">
         <button
           onClick={onClose}

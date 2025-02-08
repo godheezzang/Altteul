@@ -15,12 +15,14 @@ public class SearchUserResponseDto {
 	private Long userId;
 	private String nickname;
 	private String profileImg;
+	private Boolean isOnline;
 
-	public static SearchUserResponseDto from(User user) {
+	public static SearchUserResponseDto from(User user, Boolean isOnline) {
 		return SearchUserResponseDto.builder()
 			.userId(user.getUserId())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
+			.isOnline(isOnline)
 			.build();
 	}
 }

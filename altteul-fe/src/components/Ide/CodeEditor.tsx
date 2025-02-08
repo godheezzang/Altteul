@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { configureMonaco } from '@utils/monacoConfig';
-import Dropdown from '@components/Common/Drpodown/Dropdown';
+import Dropdown from '@components/common/Dropdown';
 
 const DEFAULT_CODE = {
   python: 'print("Hello World!")',
@@ -32,7 +32,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, language, setLan
       <Dropdown
         options={languageOptions}
         value={language}
-        onChange={(newLang) => {
+        onChange={(newLang: string) => {
           setLanguage(newLang as typeof language);
         }}
         width='10rem'

@@ -10,6 +10,7 @@ type ButtonProps = {
   fontColor?: string;
   className?: string;
   img?: string;
+  disabled?: boolean;
 };
 
 const Button = ({
@@ -20,11 +21,13 @@ const Button = ({
   fontColor = "primary-white",
   className = "",
   img,
+  disabled = false,
 }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
       type={type}
+      disabled={disabled}
       className={`rounded-lg cursor-pointer px-4 py-1 ${className} bg-${backgroundColor} text-${fontColor}`}
     >
       {img && <img src={img} alt="button icon" className="h-5 w-12 inline" />}

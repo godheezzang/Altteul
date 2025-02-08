@@ -1,6 +1,7 @@
 export interface ValidationErrors {
   username: string;
   password: string;
+  confirmPassword: string;
   nickname: string;
   mainLang: string;
   profileImg: string;
@@ -9,6 +10,7 @@ export interface ValidationErrors {
 export interface SignUpFormData {
   username: string;
   password: string;
+  confirmPassword: string;
   nickname: string;
   mainLang: string;
   profileImg: File | null;
@@ -21,6 +23,7 @@ export const validateSignUpForm = (
   let errors: ValidationErrors = {
     username: "",
     password: "",
+    confirmPassword: "",
     nickname: "",
     mainLang: "",
     profileImg: "",

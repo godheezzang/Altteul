@@ -20,7 +20,6 @@ import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
 import com.c203.altteulbe.common.dto.MessageType;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ public class ChatMessageService {
 	private final UserJPARepository userJPARepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final UserChatRoomRepository userChatRoomRepository;
-
 
 	// 메세지 읽음으로 처리하기
 	@Transactional
@@ -76,6 +74,18 @@ public class ChatMessageService {
 
 		return ChatMessageResponseDto.from(savedMessage);
 	}
+
+	// // 메세지 조회
+	// @Transactional(readOnly = true)
+	// public List<ChatMessageResponseDto> getChatMessages(Long chatroomId, Long userId) {
+	// 	validateChatroomParticipant(chatroomId, userId);
+	//
+	// 	// 최대 60개 조회
+	// 	return chatMessageRepository.findChatMessagesByChatroomId(chatroomId, 60)
+	// 		.stream()
+	// 		.map(ChatMessageResponseDto::from)
+	// 		.toList();
+	// }
 
 	// 메세지 검증
 	private void validateMessageContent(String content) {

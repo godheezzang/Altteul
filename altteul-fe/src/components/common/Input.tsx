@@ -14,7 +14,7 @@ type InputProps = {
 };
 
 const Input = ({
-  type,
+  type = "text",
   placeholder,
   value,
   onChange,
