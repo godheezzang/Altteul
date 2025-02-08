@@ -185,9 +185,8 @@ public class TeamRoomService {
 		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId2);
 
 		// 해당 메시지를 전송받으면 "/sub/team/room/{matchId}"를 구독시켜야 함
-		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
-		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
 		String matchId = generateMatchId(roomId1, roomId2);
+		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", matchId, BattleType.T);
 		log.info("matchId = {}", matchId);
 
 		// 각 팀의 유저 정보를 가져오는 메소드 호출
