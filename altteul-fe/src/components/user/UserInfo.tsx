@@ -68,7 +68,7 @@ const UserInfo = () => {
         <img src={userInfo.profileImg.length === 0 ? people : userInfo.profileImg} alt='Profile' className='w-24 h-24 rounded-full border-2 border-gray-03' />
         {/* TODO: 유저 티어별로 이미지 설정해서 이미지 넣기 */}
         <div className='absolute -bottom-2 -right-2 rounded-full'>
-          <img src={tierIcons[userInfo.tier.toLowerCase() as keyof typeof tierIcons]} alt={`${userInfo.tier} tier`} className='w-12 aspect-square' />
+          <img src={tierIcons[userInfo.tierName.toLowerCase() as keyof typeof tierIcons]} alt={`${userInfo.tierName} tier`} className='w-12 aspect-square' />
         </div>
       </div>
 
@@ -79,26 +79,13 @@ const UserInfo = () => {
         </div>
 
         <div className='text-center'>
-          <div>{userInfo.rankPercentile !== null ? <span className='font-md'>상위 {userInfo.rankPercentile}%</span> : <p>하위 0%</p>}</div>
           <div>
-            {userInfo.rank !== null ? (
-              <>
-                <p className='font-medium'>현재 등수 {userInfo.rank}위</p>
-                {userInfo.rankChange > 0 && <span className='text-primary-orange ml-1'>(▲{userInfo.rankChange})</span>}
-                {userInfo.rankChange === 0 && <span className='text-gray-03 ml-1'>(-)</span>}
-                {userInfo.rankChange < 0 && <span className='text-gray-03 ml-1'>(▼{Math.abs(userInfo.rankChange)})</span>}
-              </>
-            ) : (
-              // 이거 등수 없다 = 꼴등이다 아닌가?
-              // 전체 유저 인원 수를 가져와야 하나 아님 뭐라고 표시해야할지 모르겠음!
-              // TODO: 표시 문구 수정 필요
-              <>
-                <p>
-                  꼴찌 수정하세요 ~ <span className='text-gray-03'>(-)</span>
-                </p>
-              </>
-            )}
+            <span className='font-md'>상위 {userInfo.rankPercentile}%</span>
           </div>
+          <p className='font-medium'>현재 등수 {userInfo.rank}위</p>
+          {userInfo.rankChange > 0 && <span className='text-primary-orange ml-1'>(▲{userInfo.rankChange})</span>}
+          {userInfo.rankChange === 0 && <span className='text-gray-03 ml-1'>(-)</span>}
+          {userInfo.rankChange < 0 && <span className='text-gray-03 ml-1'>(▼{Math.abs(userInfo.rankChange)})</span>}
         </div>
       </div>
     </div>
