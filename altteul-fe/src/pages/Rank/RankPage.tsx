@@ -103,7 +103,7 @@ const RankingPage = () => {
         <div className="shadow-lg">
           {/* grid grid-cols-5 */}
           <div className="grid grid-cols-5 rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
-            <div>순위</div>
+            <div className="grid justify-items-start ml-5">순위</div>
             <div>플레이어</div>
             <div>순위 변동</div>
             <div>랭킹 점수</div>

@@ -38,7 +38,7 @@ const RankingRow = ({ data }) => {
     // 한 행
     <div className="grid grid-cols-5 py-4 px-6 bg-primary-black/30 text-primary-white text-center">
       {/* 순위 */}
-      <div>{rank}</div>
+      <div className="grid justify-items-start ml-5 text-center">{rank}</div>
       {/* 뱃지&닉네임 */}
       <div className="flex">
         <img src={badge} alt="뱃지" className="w-6 h-6" />
