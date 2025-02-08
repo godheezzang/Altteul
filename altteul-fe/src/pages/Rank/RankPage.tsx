@@ -4,7 +4,6 @@ import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/common/Input/SearchInput";
 import Dropdown from "@components/Common/Drpodown/Dropdown";
 import RankingRow from "@components/common/ranking/RankingRow";
-import { Bronze } from "@assets/icon/badge/Badge_01.svg";
 import { rankMockData } from "mocks/rankData";
 
 // 메인 랭킹 페이지 컴포넌트
@@ -12,7 +11,7 @@ const RankingPage = () => {
   const [searchNickname, setSearchNickname] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [rankings, setRankings] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [ref, inView] = useInView();
 
   const languageOptions = [
@@ -22,9 +21,13 @@ const RankingPage = () => {
   ];
 
   //TODO: 랭킹 목록 불러오기
-  const fetchRankings = useCallback(async () => {
-    setRankings(rankMockData.data.content);
+  const rankListUpdate = async () => {
+    //0부터 가져오면서 page는 계속 증가형태
+    const data = [...rankMockData.data.content.slice(0, page+10)]
+    setRankings(data);
 
+    //TODO: API 호출로 랭킹 목록 업데이트
+    //TODO: 닉네임과 언어선택 값 가지고 검색 해서 랭킹 목록 뽑아야 함
     // try {
     //   // API 호출 로직 구현
     //   const response = await fetch(
@@ -35,28 +38,28 @@ const RankingPage = () => {
     // } catch (error) {
     //   console.error("랭킹 데이터 로드 실패:", error);
     // }
-  }, [page, searchNickname, selectedLanguage]);
+  };
 
   useEffect(() => {
     if (inView) {
-      setPage((prev) => prev + 1);
+      setPage((prev) => prev + 10);
+      rankListUpdate();
     }
   }, [inView]);
 
   useEffect(() => {
-    fetchRankings();
+    
   }, [page]);
 
   //TODO: 닉네임 검색 부분
   const handleSearch = () => {
     setRankings([]);
     setPage(1);
-    fetchRankings();
+    rankListUpdate();
   };
 
   //TODO: 언어 변경 -> 검색 부분
   useEffect(() => {
-    //언어를 통한 재 검색
   }, [selectedLanguage]);
 
   return (
@@ -72,7 +75,7 @@ const RankingPage = () => {
       />
 
       {/* 배경 오버레이 */}
-      <div className="fixed inset-0 bg-black/30 min-h-screen"></div>
+      <div className="fixed inset-0 bg-black/30 min-h-screen mt-10"></div>
 
       <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
         <div className="flex justify-between items-center mb-2 mt-12">
@@ -99,8 +102,7 @@ const RankingPage = () => {
             />
           </div>
         </div>
-
-        <div className="shadow-lg">
+        <div className="">
           {/* grid grid-cols-5 */}
           <div className="grid grid-cols-5 rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
             <div className="grid justify-items-start ml-5">순위</div>
@@ -115,8 +117,8 @@ const RankingPage = () => {
               data={ranking}
             />
           ))}
-          <div ref={ref} className="h-10" /> {/* Intersection Observer 타겟 */}
         </div>
+        <div ref={ref} className="h-10" /> {/* Intersection Observer 타겟 */}
       </div>
     </div>
   );
