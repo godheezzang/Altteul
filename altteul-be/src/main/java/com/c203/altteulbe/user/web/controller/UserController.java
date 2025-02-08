@@ -14,11 +14,6 @@ import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.user.service.UserService;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
-
-import com.c203.altteulbe.common.response.ApiResponse;
-import com.c203.altteulbe.common.response.ApiResponseEntity;
-import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.user.service.UserService;
 import com.c203.altteulbe.user.web.dto.response.UserProfileResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -30,15 +25,9 @@ public class UserController {
 
 	private final UserService userService;
 
-	@GetMapping("/me")
-	public  ApiResponseEntity<ResponseBody.Success<UserProfileResponseDto>> getMyProfile(@AuthenticationPrincipal Long userId) {
-		userService.getUserProfile(userId);
-		return ApiResponse.success(userService.getUserProfile(userId));
-	}
-
 	@GetMapping("/{userId}")
-	public ApiResponseEntity<ResponseBody.Success<UserProfileResponseDto>> getUserProfile(@PathVariable("userId") Long userId) {
-		return ApiResponse.success(userService.getUserProfile(userId));
+	public ApiResponseEntity<ResponseBody.Success<UserProfileResponseDto>> getUserProfile(@PathVariable("userId") Long userId, @AuthenticationPrincipal Long currentUserId) {
+		return ApiResponse.success(userService.getUserProfile(userId, currentUserId));
 	}
 
 	@GetMapping("/search")
