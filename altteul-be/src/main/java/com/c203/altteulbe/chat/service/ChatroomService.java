@@ -11,8 +11,6 @@ import com.c203.altteulbe.chat.persistent.entity.UserChatRoom;
 import com.c203.altteulbe.chat.persistent.repository.ChatroomRepository;
 import com.c203.altteulbe.chat.persistent.repository.UserChatRoomRepository;
 import com.c203.altteulbe.chat.service.exception.NotFoundChatroomException;
-import com.c203.altteulbe.chat.web.dto.request.ChatMessageRequestDto;
-import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatroomDetailResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatroomListResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -20,9 +18,11 @@ import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatroomService {
 	private final ChatroomRepository chatroomRepository;
 	private final UserJPARepository userJPARepository;
@@ -40,11 +40,12 @@ public class ChatroomService {
 	// 채팅방 생성 혹은 조회
 	@Transactional
 	public ChatroomDetailResponseDto createOrGetChatroom(Long userId, Long friendId) {
+
 		// 이미 존재하는 1:1 채팅방 확인
 		Optional<ChatroomDetailResponseDto> existingChatroom =
 			chatroomRepository.findExistingChatroom(userId, friendId);
-
 		if (existingChatroom.isPresent()) {
+			log.info("이미 방이 존재");
 			return existingChatroom.get();
 		}
 
@@ -55,12 +56,12 @@ public class ChatroomService {
 			.orElseThrow(NotFoundUserException::new);
 
 		// 새 채팅방 생성
+		log.info("방 새로 생성");
 		Chatroom newChatroom = chatroomRepository.save(new Chatroom());
 
 		// 사용자와 친구를 채팅방에 추가
 		createUserChatRoom(newChatroom, user);
 		createUserChatRoom(newChatroom, friend);
-
 		return getChatroom(newChatroom.getChatroomId(), userId);
 	}
 
