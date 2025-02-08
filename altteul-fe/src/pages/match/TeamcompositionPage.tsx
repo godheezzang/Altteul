@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import UserProfile from "@components/Match/UserProfile";
-import Button from "@components/Common/Button/Button";
+import UserProfile from "@components/match/UserProfile";
+import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
 import logo from "@assets/icon/Altteul.svg";

@@ -3,6 +3,7 @@ package com.c203.altteulbe.chat.web.controller;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -24,8 +25,8 @@ public class ChatWSController {
 	// 채팅방에 입장하면 메세지 읽음 처리
 	@MessageMapping("/chat/room/{chatroomId}/enter")
 	public void enterChatroom(@DestinationVariable(value = "chatroomId") Long chatroomId,
-		@AuthenticationPrincipal Long userId) {
-		messageRead(chatroomId, userId);
+		@AuthenticationPrincipal Long id) {
+		messageRead(chatroomId, id);
 	}
 
 	// 채팅방에서 대화 실시간 읽음 처리
@@ -33,17 +34,14 @@ public class ChatWSController {
 	public void handleMessage(
 		@DestinationVariable(value = "chatroomId") Long chatroomId,
 		@Payload ChatMessageRequestDto requestDto,
-		@AuthenticationPrincipal Long userId) {
+		@AuthenticationPrincipal Long id) {
 		// 메세지 저장
 		ChatMessageResponseDto savedMessage = chatMessageService.saveMessage(chatroomId, requestDto);
-
 		messagingTemplate.convertAndSend(
 			"/chat/room" + chatroomId,
 			WebSocketResponse.withData("새 메시지", savedMessage)
 		);
-
-		messageRead(chatroomId, userId);
-
+		messageRead(chatroomId, id);
 	}
 
 	// 메세지 읽음 처리
@@ -54,4 +52,6 @@ public class ChatWSController {
 				WebSocketResponse.withData("읽은 채팅 메세지", response));
 		}
 	}
+
 }
+

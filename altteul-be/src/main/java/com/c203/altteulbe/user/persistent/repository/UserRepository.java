@@ -2,11 +2,9 @@ package com.c203.altteulbe.user.persistent.repository;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Repository;
-
 import com.c203.altteulbe.user.persistent.entity.User;
 
-@Repository
+
 public interface UserRepository {
 	boolean existsByUsername(String username);
 
