@@ -73,3 +73,14 @@ export interface SingleEnterApiResponse {
   message?: string;
   status?: string;
 }
+
+export interface RankingResponse{
+  userId?: number,
+  rank: number,
+  nickname: string,
+  mainLang: string,
+  rankPoint: number,
+  tierId: number,
+  rankChange: number,
+  averagePassRate: number,
+}
