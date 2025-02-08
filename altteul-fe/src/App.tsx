@@ -1,6 +1,8 @@
 import GameGnb from "@components/Nav/GameGnb";
 import MainGnb from "@components/Nav/MainGnb";
 import { Outlet, useLocation } from "react-router-dom";
+import ModalManager from "@components/common/ModalManager";
+import useModalStore from "@stores/modalStore";
 
 const App = () => {
   const location = useLocation();
@@ -12,6 +14,7 @@ const App = () => {
       <main className="bg-primary-black mt-[3.5rem] h-[calc(100vh+3.5rem)]">
         <Outlet />
       </main>
+      <ModalManager />
     </div>
   );
 };

@@ -5,11 +5,19 @@ import Input from "@components/common/Input";
 import Button from "@components/Common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
+import useModalStore from "@stores/modalStore";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const { setToken, setUserId } = useAuthStore();
+
+  const { openModal } = useModalStore();
+
+  const handleSignUpClick = () => {
+    onClose();
+    openModal("signup");
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -97,6 +105,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           backgroundColor="gray-01"
           fontColor="gray-04"
           className="h-[2.8rem] w-full hover:brightness-90"
+          onClick={handleSignUpClick}
         >
           회원가입
         </Button>
