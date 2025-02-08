@@ -15,10 +15,12 @@ spring:
     password: ${MYSQL_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
     show-sql: true
     properties:
+      javax.persistence.sql-load-script-source: data.sql
       hibernate:
         format_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
+

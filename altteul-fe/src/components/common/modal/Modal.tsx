@@ -1,38 +1,40 @@
-// 모달의 기본 컴포넌트
-
 import React from "react";
-import "./Modal.css";
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode; // 내용
-  width?: string; // 기본: 560px - 회원가입 목업 기준
-  height?: string; // 기본:600px - 회원가입 목업 기준
+  width?: string;
+  height?: string;
   className?: string;
 };
 
 const Modal = ({
-  isOpen, // 모달이 열렸는지
+  isOpen,
   onClose,
   title,
-  children, // 모달 내부에 표시할 내용
-  width = "560px",
-  height = "600px",
+  children,
+  width = "28rem",
+  height = "34.5rem",
   className = "",
 }: ModalProps) => {
-  if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음음
+  if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음
 
   return (
-    <div className="modal-overlay" onMouseDown={onClose}>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-55 flex justify-center items-center z-50"
+      onMouseDown={onClose}
+    >
       <div
-        className={`modal-content ${className}`.trim()}
-        onMouseDown={(e) => e.stopPropagation()} // 내부 클릭시 닫히지 않도록
+        className={`flex flex-col items-center bg-primary-white text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
+        onMouseDown={(e) => e.stopPropagation()}
         style={{ width, height }}
       >
-        {title && <h2 className="modal-title">{title}</h2>}
-        <div className="modal-body">{children}</div>
+        {title && (
+          <h2 className="text-xxl font-bold text-center mt-4">{title}</h2>
+        )}
+        <div className="mt-5 flex flex-col items-center gap-5">{children}</div>
       </div>
     </div>
   );

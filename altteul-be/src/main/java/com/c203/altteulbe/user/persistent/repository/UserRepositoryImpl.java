@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.c203.altteulbe.user.persistent.entity.QUser;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -14,33 +13,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-	private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
 	public boolean existsByUsername(String username) {
-		Integer fetchOne = queryFactory
+		Integer fetchOne = jpaQueryFactory
 			.selectOne()
-			.from(QUser.user)
-			.where(QUser.user.username.eq(username))
+			.from(user)
+			.where(user.username.eq(username))
 			.fetchFirst();
 		return fetchOne != null;
 	}
 
 	@Override
 	public boolean existsByNickname(String nickname) {
-		Integer fetchOne = queryFactory
+		Integer fetchOne = jpaQueryFactory
 			.selectOne()
-			.from(QUser.user)
-			.where(QUser.user.nickname.eq(nickname))
+			.from(user)
+			.where(user.nickname.eq(nickname))
 			.fetchFirst();
 		return fetchOne != null;
 	}
 
 	@Override
 	public Optional<User> findByUsername(String username) {
-		return Optional.ofNullable(queryFactory
-			.selectFrom(QUser.user)
-			.where(QUser.user.username.eq(username))
+		return Optional.ofNullable(jpaQueryFactory
+			.selectFrom(user)
+			.where(user.username.eq(username))
 			.fetchOne()
 		);
 	}
@@ -48,11 +47,22 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public Optional<User> findByProviderAndUsername(User.Provider provider, String username) {
 		System.out.println(provider);
-		return Optional.ofNullable(queryFactory
-			.selectFrom(QUser.user)
-			.where(QUser.user.username.eq(username)
-				.and(QUser.user.provider.eq(provider)))
+		return Optional.ofNullable(jpaQueryFactory
+			.selectFrom(user)
+			.where(user.username.eq(username)
+				.and(user.provider.eq(provider)))
 			.fetchOne()
+		);
+	}
+
+	public Optional<User> findWithRankingByUserId(Long userId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.selectFrom(user)
+				.leftJoin(user.todayRanking, todayRanking).fetchJoin()
+				.leftJoin(user.tier, tier).fetchJoin()
+				.where(user.userId.eq(userId))
+				.fetchOne()
 		);
 	}
 }
