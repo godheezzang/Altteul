@@ -40,11 +40,11 @@ public class ApiResponse<F> {
 	public static ApiResponseEntity<ResponseBody.Failure> error(
 		final String message, final HttpStatus status) {
 		return new ApiResponseEntity<>(
-			new ResponseBody.Failure(String.valueOf(status.value()), message), status);
+			new ResponseBody.Failure(status.value(), message), status);
 	}
 
 	public static ApiResponseEntity<ResponseBody.Failure> error(
-		final String code, final String message, final HttpStatus status) {
+		final int code, final String message, final HttpStatus status) {
 		return new ApiResponseEntity<>(new ResponseBody.Failure(code, message), status);
 	}
 
@@ -52,7 +52,7 @@ public class ApiResponse<F> {
 		BindingResult bindingResult, final HttpStatus status) {
 		return new ApiResponseEntity<>(
 			new ResponseBody.Failure(
-				String.valueOf(status.value()), createErrorMessage(bindingResult)),
+				status.value(), createErrorMessage(bindingResult)),
 			status);
 	}
 

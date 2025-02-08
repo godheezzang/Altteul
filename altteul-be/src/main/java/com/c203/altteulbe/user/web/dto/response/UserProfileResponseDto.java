@@ -26,8 +26,15 @@ public class UserProfileResponseDto implements AbstractDto {
 
 	public static UserProfileResponseDto from(User user, Long totalCount, Long currentUserId) {
 		Long rank;
-		if (user.getTodayRanking() == null) rank = totalCount;
-		else rank = user.getTodayRanking().getId();
+		Long rankChange;
+		if (user.getTodayRanking() == null) {
+			rank = totalCount;
+			rankChange = 0L;
+		}
+		else {
+			rank = user.getTodayRanking().getId();
+			rankChange = user.getTodayRanking().getRankingChange();
+		}
 
 		return UserProfileResponseDto.builder()
 			.userId(user.getUserId())
@@ -36,9 +43,9 @@ public class UserProfileResponseDto implements AbstractDto {
 			.profileImg(user.getProfileImg())
 			.tierId(user.getTier().getId())
 			.tierName(user.getTier().getTierName())
-			.rankPercentile((user.getTodayRanking().getId()/totalCount)*100)
+			.rankPercentile((rank/totalCount)*100)
 			.rank(rank)
-			.rankChange(user.getTodayRanking().getRankingChange())
+			.rankChange(rankChange)
 			.isOwner(user.getUserId().equals(currentUserId))
 			.build();
 	}
