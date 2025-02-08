@@ -40,7 +40,7 @@ public class FriendshipService {
 
 		// 캐시된 친구 리스트 조회
 		List<FriendResponseDto> cachedFriendList = friendRedisService.getCachedFriendList(userId);
-		if (cachedFriendList != null && !cachedFriendList.isEmpty()) {
+		if (!cachedFriendList.isEmpty()) {
 			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, pageable.getPageNumber(),
 				pageable.getPageSize());
 			return new PageResponse<>("friends", paginateResult);
@@ -78,14 +78,9 @@ public class FriendshipService {
 			throw new FriendRelationNotFoundException();
 		}
 		friendshipRepository.deleteFriendRelation(userId, friendId);
-
 		// redis에서도 친구 관계 삭제
-		friendRedisService.deleteFriendRelation(userId, friendId);
-
-		// 친구 관계가 변함에 따라서 캐시 되어 있는 친구 리스트 삭제
-		friendRedisService.invalidateFriendList(userId);
-		friendRedisService.invalidateFriendList(friendId);
+		// Redis 캐시 업데이트를 하나의 트랜잭션으로 처리
+		friendRedisService.invalidateCaches(userId, friendId);
 	}
-
 }
 

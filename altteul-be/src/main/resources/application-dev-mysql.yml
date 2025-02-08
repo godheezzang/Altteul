@@ -16,7 +16,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     properties:
       javax.persistence.sql-load-script-source: data.sql
       hibernate:

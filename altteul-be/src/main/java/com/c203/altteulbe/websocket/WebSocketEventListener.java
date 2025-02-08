@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
@@ -28,15 +27,23 @@ public class WebSocketEventListener {
 	private final SingleRoomRedisRepository singleRoomRedisRepository;
 	private final SingleRoomService singleRoomService;
 	private final RedisTemplate<String, String> redisTemplate;
-	private final JWTUtil jwtUtil;
-
-	private final String ONLINE = "online";
-	private final String OFFLINE = "offline";
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectEvent event) {
-		log.info(event.getMessage().toString());
-		log.info("연결 완료");
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+		Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+		if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
+			try {
+				Long userId = (Long)sessionAttributes.get("userId");
+				userStatusService.setUserOnline(userId);
+				log.info("유저가 연결 되었습니다 - userId: {}", userId);
+			} catch (Exception e) {
+				log.error("WebSocket 연결 처리 실패: {}", e.getMessage());
+			}
+		} else {
+			log.info("WebSocket 연결 처리 실패: session attributes에서 userId를 찾을 수 없습니다.");
+			throw new NotFoundUserException();
+		}
 	}
 
 	@EventListener

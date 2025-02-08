@@ -1,6 +1,4 @@
 spring:
-  redis:
-    enable-transaction-support: true
   config:
     activate:
       on-profile: dev-redis
