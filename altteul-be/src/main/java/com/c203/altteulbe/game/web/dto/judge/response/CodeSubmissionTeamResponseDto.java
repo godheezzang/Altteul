@@ -36,7 +36,7 @@ public class CodeSubmissionTeamResponseDto {
 					.testCaseId((long)(i + 1))
 					.testCaseNumber(i + 1)
 					.status(isPassed ? "P" : "F")
-					.executionTime(String.valueOf(testCaseResult.getCpuTime()))
+					.executionTime(String.valueOf(testCaseResult.getCpu_time()))
 					.executionMemory(String.valueOf(testCaseResult.getMemory()))
 					.build());
 			}

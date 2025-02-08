@@ -1,9 +1,14 @@
 package com.c203.altteulbe.game.persistent.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
+import com.c203.altteulbe.room.persistent.entity.SingleRoom;
+import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,6 +47,15 @@ public class Game extends BaseCreatedEntity {
 	private BattleType battleType;
 
 	private LocalDateTime completedAt;
+
+	@OneToMany(mappedBy = "game")
+	private List<ItemHistory> itemHistories = new ArrayList<>();
+
+	@OneToMany(mappedBy = "game")
+	private List<TeamRoom> teamRooms = new ArrayList<>();
+
+	@OneToMany(mappedBy = "game")
+	private List<SingleRoom> singleRooms = new ArrayList<>();
 
 	public static Game create(Long gameId, Problem problem, BattleType battleType) {
 		return Game.builder()
