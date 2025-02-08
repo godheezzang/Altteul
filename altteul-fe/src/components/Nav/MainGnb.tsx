@@ -10,6 +10,10 @@ const MainGnb = () => {
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
 
+  // TODO: userId 로컬스토리지에 저장되는 로직 완성 시 사용할 것
+  // const userId = localStorage.getItem('userId');
+  const userId = 17;
+
   // 게임 시작 버튼 클릭 시 유저 있냐없냐에 따라 다르게
   const handleGameStart = () => {
     if (token) {
@@ -60,8 +64,7 @@ const MainGnb = () => {
             {/* 로그인 상태에 따라 렌더링 변경 */}
             {token ? (
               <>
-                {/* TODO: mypage path 수정 */}
-                <button onClick={() => navigate(`/user/mypage`)} className='py-2 text-primary-white hover:text-gray-03 transition-colors'>
+                <button onClick={() => navigate(`/users/${userId}`)} className='py-2 text-primary-white hover:text-gray-03 transition-colors'>
                   대전 기록
                 </button>
                 <button onClick={handleLogout} className='ml-2 px-3 py-1 bg-primary-orange text-primary-white rounded-lg hover:bg-secondary-orange hover:text-gray-01 transition-colors'>
