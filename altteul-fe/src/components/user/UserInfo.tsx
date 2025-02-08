@@ -1,4 +1,4 @@
-import { getMyUserInfo, getUserInfo } from '@utils/api/userApi';
+import { getUserInfo } from '@utils/api/userApi';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserInfo as UserInfoType } from 'types/types';
@@ -30,16 +30,10 @@ const UserInfo = () => {
     const fetchUserInfo = async () => {
       try {
         setIsLoading(true);
-        let data;
 
-        if (userId === loggedInUserId && token) {
-          const response = await getMyUserInfo(token);
-          data = response.data;
-        } else {
-          const response = await getUserInfo(userId);
+        const response = await getUserInfo(token);
+        const data = response.data;
 
-          data = response.data;
-        }
         setUserInfo(data);
       } catch (error) {
         console.error(error);
