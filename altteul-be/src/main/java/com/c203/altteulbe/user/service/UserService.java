@@ -28,14 +28,12 @@ public class UserService {
 		return SearchUserResponseDto.from(user, isOnline);
 	}
 
-	public UserProfileResponseDto getUserProfile(Long userId) {
+	public UserProfileResponseDto getUserProfile(Long userId, Long currentUserId) {
 		User user = userJPARepository.findWithRankingByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
+
 		Long totalCount = userJPARepository.count();
-		if (user.getTodayRanking() == null)
-			return UserProfileResponseDto.from(user);
-		else
-			return UserProfileResponseDto.from(user, totalCount);
+		return UserProfileResponseDto.from(user, totalCount, currentUserId);
 	}
 }

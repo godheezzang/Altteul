@@ -17,31 +17,48 @@ public class UserProfileResponseDto implements AbstractDto {
 	String username;
 	String nickname;
 	String profileImg;
-	String tier;
+	String tierName;
+	Long tierId;
 	Long rankPercentile;
 	Long rank;
 	Long rankChange;
+	Boolean isOwner;
 
-	public static UserProfileResponseDto from(User user, Long totalCount) {
+	public static UserProfileResponseDto from(User user, Long totalCount, Long currentUserId) {
+		Long rank;
+		Long rankChange;
+		if (user.getTodayRanking() == null) {
+			rank = totalCount;
+			rankChange = 0L;
+		}
+		else {
+			rank = user.getTodayRanking().getId();
+			rankChange = user.getTodayRanking().getRankingChange();
+		}
+
 		return UserProfileResponseDto.builder()
 			.userId(user.getUserId())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
-			.tier(user.getTier().getTierName())
-			.rankPercentile((user.getTodayRanking().getId()/totalCount)*100)
-			.rank(user.getTodayRanking().getId())
-			.rankChange(user.getTodayRanking().getRankingChange())
+			.tierId(user.getTier().getId())
+			.tierName(user.getTier().getTierName())
+			.rankPercentile((rank/totalCount)*100)
+			.rank(rank)
+			.rankChange(rankChange)
+			.isOwner(user.getUserId().equals(currentUserId))
 			.build();
 	}
 
-	public static UserProfileResponseDto from(User user) {
+	public static UserProfileResponseDto from(User user, Long currentUserId) {
 		return UserProfileResponseDto.builder()
 			.userId(user.getUserId())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
-			.tier(user.getTier().getTierName())
+			.tierId(user.getTier().getId())
+			.tierName(user.getTier().getTierName())
+			.isOwner(user.getUserId().equals(currentUserId))
 			.build();
 	}
 }
