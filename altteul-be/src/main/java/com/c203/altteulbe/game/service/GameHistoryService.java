@@ -6,8 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.c203.altteulbe.common.response.PageResponse;
+import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.web.dto.response.GameRecordResponseDto;
@@ -21,12 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GameService {
+public class GameHistoryService {
 
 	private final GameRepository gameRepository;
 
-	public List<GameRecordResponseDto> getGameRecord(Long userId) {
-		List<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId);
+	public PageResponse<GameRecordResponseDto> getGameRecord(Long userId, Pageable pageable) {
+		Page<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId,
+			PageRequest.of(pageable.getPageNumber(),
+				pageable.getPageSize())
+		);
 
 		List<GameRecordResponseDto> gameRecordResponseDtos = new ArrayList<>();
  		for (Game game: games) {
@@ -59,7 +67,10 @@ public class GameService {
 
 			gameRecordResponseDtos.add(GameRecordResponseDto.from(game, problemInfo, items, myTeam, opponents));
 		}
-		return gameRecordResponseDtos;
+
+		Page<GameRecordResponseDto> paginateResult = PaginateUtil.paginate(gameRecordResponseDtos,
+			pageable.getPageNumber(), pageable.getPageSize());
+		return new PageResponse<>("games", paginateResult);
 	}
 
 	private static List<TeamInfo> extractTeamInfos(Game game) {

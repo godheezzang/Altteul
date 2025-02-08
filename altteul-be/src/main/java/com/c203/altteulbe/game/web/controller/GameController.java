@@ -1,7 +1,7 @@
 package com.c203.altteulbe.game.web.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
+import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
-import com.c203.altteulbe.game.service.GameService;
-import com.c203.altteulbe.game.web.dto.judge.response.PingResponse;
+import com.c203.altteulbe.game.service.GameHistoryService;
 import com.c203.altteulbe.game.web.dto.response.GameRecordResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api")
 public class GameController {
 
-	private final GameService gameService;
+	private final GameHistoryService gameHistoryService;
 
 	@GetMapping("/user/game/history/{userId}")
-	public ApiResponseEntity<ResponseBody.Success<List<GameRecordResponseDto>>> getGameRecord(@PathVariable Long userId) {
-		return ApiResponse.success(gameService.getGameRecord(userId));
-	}
+	public ApiResponseEntity<ResponseBody.Success<PageResponse<GameRecordResponseDto>>> getGameRecord(@PathVariable Long userId,
+		@PageableDefault(page = 0, size = 10) Pageable pageable) {
 
+		return ApiResponse.success(gameHistoryService.getGameRecord(userId, pageable));
+	}
 }
