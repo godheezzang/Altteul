@@ -7,18 +7,14 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   define: {
     global: {}
+  },
+  server: {
+    watch: {
+      usePolling: true,
+      interval: 100
+    },
+    host: true,
+    strictPort: true,
+    port: 5173
   }
-  // resolve: {
-  //   alias: [
-  //     { find: "@", replacement: "src" },
-  //     { find: "@assets", replacement: "/src/assets" },
-  //     { find: "@components", replacement: "/src/components" },
-  //     { find: "@hooks", replacement: "/src/hooks" },
-  //     { find: "@pages", replacement: "/src/pages" },
-  //     { find: "@router", replacement: "/src/router" },
-  //     { find: "@store", replacement: "/src/store" },
-  //     { find: "@utils", replacement: "/src/utils" },
-  //     { find: "@styles", replacement: "/src/styles" },
-  //   ],
-  // },
 });

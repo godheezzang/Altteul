@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
 import { useTimer } from "@hooks/useTimer";
-import UserProfile from "@components/Match/UserProfile";
+import UserProfile from "@components/match/UserProfile";
 import backgroundImage from "@assets/background/team_matching.svg";
 import tierIcon from "@assets/icon/Badge_09.svg";
 import logo from "@assets/icon/Altteul.svg";

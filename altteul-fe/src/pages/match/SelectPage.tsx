@@ -1,6 +1,6 @@
 import backgroundImage from "@assets/background/matching_select.svg";
 import userIcon from "@assets/icon/User.svg";
-import peopleIcon from "@assets/icon/people.svg";
+import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { Link, useNavigate } from "react-router-dom";
 import "@styles/base/colors.css";

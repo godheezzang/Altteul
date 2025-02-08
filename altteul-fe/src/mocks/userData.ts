@@ -1,4 +1,4 @@
-import peopleIcon from "@assets/icon/people.svg";
+import peopleIcon from "@assets/icon/People.svg";
 
 // TODO: api path 기록
 export const userData = [
