@@ -193,7 +193,7 @@ public class TeamRoomService {
 		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2));
 
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
-		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING", teamMatchDto, BattleType.T);
+		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
 		startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId, teamMatchDto);
 	}
 
