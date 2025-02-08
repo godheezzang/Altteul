@@ -25,7 +25,7 @@ const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userId"); // 이게 맞아?
+    localStorage.removeItem("userId");
     set({ token: "", userId: "" });
   },
 }));
