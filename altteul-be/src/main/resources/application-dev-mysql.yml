@@ -16,11 +16,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     properties:
       javax.persistence.sql-load-script-source: data.sql
       hibernate:
         format_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
+    defer-datasource-initialization: true
 

@@ -27,4 +27,9 @@ public class UserChatRoom extends BaseCreatedEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
+
+	// 추가하면 좋을 필드
+	// 나갔는지 확인
+	// private Boolean isLeft;
+	
 }
