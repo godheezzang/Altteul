@@ -1,9 +1,125 @@
-const RankPage = () => {
+import React, { useState, useEffect, useCallback } from "react";
+import { useInView } from "react-intersection-observer";
+import rank_page_bg from "@assets/background/rank_page_bg.svg";
+import SearchInput from "@components/common/Input/SearchInput";
+import Dropdown from "@components/Common/Drpodown/Dropdown";
+import RankingRow from "@components/common/ranking/RankingRow";
+import { Bronze } from "@assets/icon/badge/Badge_01.svg";
+import { rankMockData } from "mocks/rankData";
+
+// 메인 랭킹 페이지 컴포넌트
+const RankingPage = () => {
+  const [searchNickname, setSearchNickname] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [rankings, setRankings] = useState([]);
+  const [page, setPage] = useState(1);
+  const [ref, inView] = useInView();
+
+  const languageOptions = [
+    { id: 0, value: "", label: "전체" },
+    { id: 1, value: "PY", label: "Python" },
+    { id: 2, value: "JV", label: "Java" },
+  ];
+
+  //TODO: 랭킹 목록 불러오기
+  const fetchRankings = useCallback(async () => {
+    setRankings(rankMockData.data.content);
+
+    // try {
+    //   // API 호출 로직 구현
+    //   const response = await fetch(
+    //     `/api/rankings?page=${page}&nickname=${searchNickname}&language=${selectedLanguage}`
+    //   );
+    //   const data = await response.json();
+    //   setRankings((prev) => [...prev, ...data]);
+    // } catch (error) {
+    //   console.error("랭킹 데이터 로드 실패:", error);
+    // }
+  }, [page, searchNickname, selectedLanguage]);
+
+  useEffect(() => {
+    if (inView) {
+      setPage((prev) => prev + 1);
+    }
+  }, [inView]);
+
+  useEffect(() => {
+    fetchRankings();
+  }, [page]);
+
+  //TODO: 닉네임 검색 부분
+  const handleSearch = () => {
+    setRankings([]);
+    setPage(1);
+    fetchRankings();
+  };
+
+  //TODO: 언어 변경 -> 검색 부분
+  useEffect(() => {
+    //언어를 통한 재 검색
+  }, [selectedLanguage]);
+
   return (
-    <>
-      <h1>RankPage</h1>
-    </>
+    <div className="relative min-h-screen">
+      <div
+        className="fixed inset-0 w-full h-full z-0"
+        style={{
+          backgroundImage: `url(${rank_page_bg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      />
+
+      {/* 배경 오버레이 */}
+      <div className="fixed inset-0 bg-black/30 min-h-screen"></div>
+
+      <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
+        <div className="flex justify-between items-center mb-2 mt-12">
+          <div className="flex gap-3">
+            <img src="/src/assets/icon/badge/Badge_08.svg" alt="" />
+            <img src="/src/assets/icon/badge/Badge_07.svg" alt="" />
+            <img src="/src/assets/icon/badge/Badge_05.svg" alt="" />
+            <img src="/src/assets/icon/badge/Badge_04.svg" alt="" />
+            <img src="/src/assets/icon/badge/Badge_01.svg" alt="" />
+          </div>
+          <div className="flex gap-3">
+            <Dropdown
+              options={languageOptions}
+              value={selectedLanguage}
+              onChange={setSelectedLanguage}
+              width="6.5vw"
+            />
+            <SearchInput
+              value={searchNickname}
+              onChange={(e) => setSearchNickname(e.target.value)}
+              placeholder="닉네임 검색"
+              onSearch={handleSearch}
+              width="12vw"
+            />
+          </div>
+        </div>
+
+        <div className="shadow-lg">
+          {/* grid grid-cols-5 */}
+          <div className="grid grid-cols-5 rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
+            <div>순위</div>
+            <div>플레이어</div>
+            <div>순위 변동</div>
+            <div>랭킹 점수</div>
+            <div>선호 언어</div>
+          </div>
+          {rankings.map((ranking) => (
+            <RankingRow
+              key={`${ranking.userId}-${ranking.rank}`}
+              data={ranking}
+            />
+          ))}
+          <div ref={ref} className="h-10" /> {/* Intersection Observer 타겟 */}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default RankPage;
+export default RankingPage;
