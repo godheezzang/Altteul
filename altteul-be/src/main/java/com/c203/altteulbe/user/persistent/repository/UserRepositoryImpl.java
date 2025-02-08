@@ -1,5 +1,9 @@
 package com.c203.altteulbe.user.persistent.repository;
 
+import static com.c203.altteulbe.ranking.persistent.entity.QTier.*;
+import static com.c203.altteulbe.ranking.persistent.entity.QTodayRanking.*;
+import static com.c203.altteulbe.user.persistent.entity.QUser.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -13,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-	private final JPAQueryFactory jpaQueryFactory;
+	private final JPAQueryFactory queryFactory;
 
 	@Override
 	public boolean existsByUsername(String username) {
-		Integer fetchOne = jpaQueryFactory
+		Integer fetchOne = queryFactory
 			.selectOne()
 			.from(user)
 			.where(user.username.eq(username))
@@ -27,7 +31,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public boolean existsByNickname(String nickname) {
-		Integer fetchOne = jpaQueryFactory
+		Integer fetchOne = queryFactory
 			.selectOne()
 			.from(user)
 			.where(user.nickname.eq(nickname))
@@ -37,7 +41,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public Optional<User> findByUsername(String username) {
-		return Optional.ofNullable(jpaQueryFactory
+		return Optional.ofNullable(queryFactory
 			.selectFrom(user)
 			.where(user.username.eq(username))
 			.fetchOne()
@@ -46,8 +50,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public Optional<User> findByProviderAndUsername(User.Provider provider, String username) {
-		System.out.println(provider);
-		return Optional.ofNullable(jpaQueryFactory
+		return Optional.ofNullable(queryFactory
 			.selectFrom(user)
 			.where(user.username.eq(username)
 				.and(user.provider.eq(provider)))
@@ -57,7 +60,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	public Optional<User> findWithRankingByUserId(Long userId) {
 		return Optional.ofNullable(
-			jpaQueryFactory
+			queryFactory
 				.selectFrom(user)
 				.leftJoin(user.todayRanking, todayRanking).fetchJoin()
 				.leftJoin(user.tier, tier).fetchJoin()
@@ -65,4 +68,5 @@ public class UserRepositoryImpl implements UserRepository {
 				.fetchOne()
 		);
 	}
+
 }

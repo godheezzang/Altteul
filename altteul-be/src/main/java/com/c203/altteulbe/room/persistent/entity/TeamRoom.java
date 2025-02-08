@@ -8,6 +8,7 @@ import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,6 +42,9 @@ public class TeamRoom extends BaseCreatedEntity {
 
 	@OneToMany(mappedBy = "teamRoom")
 	private List<UserTeamRoom> userTeamRooms = new ArrayList<>();
+
+	@OneToMany(mappedBy = "teamRoom")
+	private List<ItemHistory> itemHistories = new ArrayList<>();
 
 	@Column(columnDefinition = "TEXT")
 	private String code;
