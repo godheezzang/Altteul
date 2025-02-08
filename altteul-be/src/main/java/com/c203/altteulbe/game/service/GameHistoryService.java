@@ -1,24 +1,22 @@
 package com.c203.altteulbe.game.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
-import com.c203.altteulbe.game.web.dto.response.GameRecordResponseDto;
-import com.c203.altteulbe.game.web.dto.response.ItemInfo;
-import com.c203.altteulbe.game.web.dto.response.ProblemInfo;
-import com.c203.altteulbe.game.web.dto.response.TeamInfo;
+import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
+import com.c203.altteulbe.game.web.dto.record.response.ItemInfo;
+import com.c203.altteulbe.game.web.dto.record.response.ProblemInfo;
+import com.c203.altteulbe.game.web.dto.record.response.TeamInfo;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
@@ -50,7 +48,6 @@ public class GameHistoryService {
 				.build();
 
 			List<TeamInfo> teamInfos = extractTeamInfos(game);
-
 			List<TeamInfo> opponents = new ArrayList<>();
 
 			TeamInfo myTeam = teamInfos.stream()
@@ -63,9 +60,10 @@ public class GameHistoryService {
 				teamInfos.stream()
 				.filter(teamInfo -> teamInfo.getMembers().stream()
 					.anyMatch(member -> !member.getUserId().equals(userId))) // `anyMatch()`로 검사
-				.findFirst()
+				.findAny()
 				.orElse(null)
 			);
+
 			List<ItemInfo> items;
 			if (myTeam != null) items = ItemInfo.from(game, myTeam.getTeamId());
 			else throw new NullPointerException();
@@ -79,19 +77,16 @@ public class GameHistoryService {
 	}
 
 	private static List<TeamInfo> extractTeamInfos(Game game) {
-		// 팀방 정보 변환
-		List<TeamInfo> teamRoomInfos = game.getTeamRooms().stream()
-			.map(TeamInfo::fromTeamRoom)
-			.toList();
-
-		// 개인방 정보 변환 (TeamInfo 형식으로 변환)
-		List<TeamInfo> singleRoomInfos = game.getSingleRooms().stream()
-			.map(TeamInfo::fromSingleRoom)
-			.toList();
-
-		// 두 리스트 합치기 + createdAt 기준 정렬
-		return Stream.concat(teamRoomInfos.stream(), singleRoomInfos.stream())
-			.sorted(Comparator.comparing(TeamInfo::getCreatedAt))
-			.collect(Collectors.toList());
+		if (game.getBattleType() == BattleType.S) {
+			// 개인방 정보 변환 (TeamInfo 형식으로 변환)
+			return game.getSingleRooms().stream()
+				.map(TeamInfo::fromSingleRoom)
+				.toList();
+		} else {
+			// 팀방 정보 변환
+			return game.getTeamRooms().stream()
+				.map(TeamInfo::fromTeamRoom)
+				.toList();
+		}
 	}
 }

@@ -11,6 +11,7 @@ import static com.c203.altteulbe.user.persistent.entity.QUser.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,6 +62,36 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			.fetch();
 
 		return PageableExecutionUtils.getPage(games, pageable, countQuery::fetchOne);
+
+	}
+
+	@Override
+	public Optional<Game> findWithAllMemberByGameId(Long gameId) {
+		return Optional.ofNullable(queryFactory
+			.selectFrom(game)
+			.where(game.id.eq(gameId))
+			.leftJoin(game.teamRooms, teamRoom)
+			.leftJoin(teamRoom.userTeamRooms, userTeamRoom)
+			.leftJoin(userTeamRoom.user, user)
+			.leftJoin(game.singleRooms, singleRoom)
+			.leftJoin(user.tier, tier)
+			.fetchOne()
+		);
+	}
+
+	@Override
+	public Optional<Game> findWithRoomByGameId(Long gameId) {
+		return Optional.ofNullable(queryFactory
+			.selectFrom(game)
+			.where(game.id.eq(gameId))
+			.leftJoin(game.teamRooms, teamRoom)
+			.leftJoin(game.singleRooms, singleRoom)
+			.fetchOne()
+		);
+	}
+
+	@Override
+	public void saveTestResult() {
 
 	}
 }
