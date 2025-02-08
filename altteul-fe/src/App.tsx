@@ -11,7 +11,7 @@ const App = () => {
   return (
     <div className="min-h-screen">
       {isGamePage ? <GameGnb /> : <MainGnb />}
-      <main className="bg-primary-black mt-[3.5rem] h-[calc(100vh+3.5rem)]">
+      <main className="bg-primary-black mt-[3.5rem] min-h-[calc(100vh+3.5rem)]">
         <Outlet />
       </main>
       <ModalManager />
