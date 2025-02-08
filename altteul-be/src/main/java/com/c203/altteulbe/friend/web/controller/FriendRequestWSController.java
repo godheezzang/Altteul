@@ -6,7 +6,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import com.c203.altteulbe.common.dto.RequestStatus;
-import com.c203.altteulbe.friend.service.FriendRedisService;
 import com.c203.altteulbe.friend.service.FriendRequestService;
 import com.c203.altteulbe.friend.service.FriendWSService;
 import com.c203.altteulbe.friend.service.FriendshipService;
@@ -28,7 +27,6 @@ public class FriendRequestWSController {
 	private final FriendshipService friendshipService;
 
 	private final FriendWSService friendWSService;
-	private final FriendRedisService friendRedisService;
 
 	// 친구 신청
 	@MessageMapping("/friend/request")

@@ -20,7 +20,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import com.c203.altteulbe.common.security.utils.JWTUtil;
-import com.c203.altteulbe.friend.service.UserStatusService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	private final JWTUtil jwtUtil;
-	private final UserStatusService userStatusService;
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
