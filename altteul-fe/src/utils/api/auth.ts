@@ -99,3 +99,14 @@ export const loginUser = async (username: string, password: string) => {
     throw error;
   }
 };
+
+// 아이디 중복확인 요청
+export const checkUsername = async (username: string) => {
+  try {
+    const response = await api.get(`id-check?username=${username}`);
+    return response.data;
+  } catch (error) {
+    console.error("아이디 중복 확인 실패:", error);
+    throw new Error("아이디 중복 확인에 실패했습니다.");
+  }
+};
