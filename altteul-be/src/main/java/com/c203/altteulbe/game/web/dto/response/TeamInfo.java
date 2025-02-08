@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
-import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
@@ -83,6 +82,7 @@ public class TeamInfo {
 		private String nickname;
 		private String profileImage;
 		private Long rank;
+		private Long tierId;
 
 		public static TeamMember fromUserTeamRoom(UserTeamRoom userTeamRoom) {
 			return TeamMember.builder()
@@ -90,6 +90,7 @@ public class TeamInfo {
 				.nickname(userTeamRoom.getUser().getNickname())
 				.profileImage(userTeamRoom.getUser().getProfileImg())
 				.rank(userTeamRoom.getUser().getTodayRanking().getId())
+				.tierId(userTeamRoom.getUser().getTier().getId())
 				.build();
 		}
 
@@ -99,6 +100,7 @@ public class TeamInfo {
 				.nickname(user.getNickname())
 				.profileImage(user.getProfileImg())
 				.rank(user.getTodayRanking().getId())
+				.tierId(user.getTier().getId())
 				.build();
 		}
 	}

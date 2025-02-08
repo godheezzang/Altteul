@@ -2,6 +2,8 @@ package com.c203.altteulbe.game.persistent.repository.game;
 
 import static com.c203.altteulbe.game.persistent.entity.QGame.*;
 import static com.c203.altteulbe.game.persistent.entity.item.QItemHistory.*;
+import static com.c203.altteulbe.ranking.persistent.entity.QTier.*;
+import static com.c203.altteulbe.ranking.persistent.entity.QTodayRanking.*;
 import static com.c203.altteulbe.room.persistent.entity.QSingleRoom.*;
 import static com.c203.altteulbe.room.persistent.entity.QTeamRoom.*;
 import static com.c203.altteulbe.room.persistent.entity.QUserTeamRoom.*;
@@ -42,6 +44,8 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			.leftJoin(game.singleRooms, singleRoom) // SingleRoom을 left join하고 즉시 로딩
 			.leftJoin(teamRoom.itemHistories, itemHistory) // ItemHistory를 left join하고 즉시 로딩
 			.leftJoin(game.problem, problem) // Problem을 left join하고 즉시 로딩
+			.leftJoin(user.tier, tier)
+			.leftJoin(user.todayRanking, todayRanking)
 			.orderBy(game.createdAt.asc()); // Game의 createdAt을 기준으로 오름차순 정렬
 
 		JPAQuery<Long> countQuery = queryFactory
