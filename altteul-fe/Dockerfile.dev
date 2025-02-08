@@ -3,13 +3,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install yarn
-RUN corepack enable && corepack prepare yarn@stable --activate
+# Install yarn and initialize yarn
+RUN corepack enable && corepack prepare yarn@4.6.0 --activate
+COPY .yarnrc.yml ./
 
 # Copy package files
 COPY package.json yarn.lock ./
 
-# Install dependencies
+# Install dependencies with Yarn
 RUN yarn install
 
 # Copy source code
