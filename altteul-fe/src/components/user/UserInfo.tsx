@@ -31,7 +31,7 @@ const UserInfo = () => {
       try {
         setIsLoading(true);
 
-        const response = await getUserInfo(token);
+        const response = await getUserInfo(userId, token);
         const data = response.data;
 
         setUserInfo(data);
@@ -58,7 +58,7 @@ const UserInfo = () => {
   if (!userInfo)
     return (
       <div>
-        <p>유저 정보가 없습니다.</p>
+        <p>유저 정보를 불러올 수 없습니다.</p>
       </div>
     );
 
