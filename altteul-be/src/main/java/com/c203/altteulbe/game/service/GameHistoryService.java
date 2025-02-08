@@ -19,6 +19,8 @@ import com.c203.altteulbe.game.web.dto.response.GameRecordResponseDto;
 import com.c203.altteulbe.game.web.dto.response.ItemInfo;
 import com.c203.altteulbe.game.web.dto.response.ProblemInfo;
 import com.c203.altteulbe.game.web.dto.response.TeamInfo;
+import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GameHistoryService {
 
 	private final GameRepository gameRepository;
-
+	private final UserJPARepository userJPARepository;
 	public PageResponse<GameRecordResponseDto> getGameRecord(Long userId, Pageable pageable) {
+		if (!userJPARepository.existsById(userId)) {
+			throw new NotFoundUserException();
+		}
 		Page<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId,
 			PageRequest.of(pageable.getPageNumber(),
 				pageable.getPageSize())
