@@ -1,6 +1,8 @@
 package com.c203.altteulbe.game.persistent.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
@@ -22,6 +24,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -48,6 +51,7 @@ public class Game extends BaseCreatedEntity {
 	private LocalDateTime completedAt;
 
 	@OneToMany(mappedBy = "game")
+	@Builder.Default
 	private List<ItemHistory> itemHistories = new ArrayList<>();
 
 	@OneToMany(mappedBy = "game")
