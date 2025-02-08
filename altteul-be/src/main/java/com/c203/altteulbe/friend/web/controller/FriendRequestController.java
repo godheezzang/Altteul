@@ -18,11 +18,13 @@ import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @PreAuthorize("isAuthenticated()")
+@Slf4j
 public class FriendRequestController {
 	private final FriendRequestService friendRequestService;
 
@@ -32,6 +34,7 @@ public class FriendRequestController {
 		@AuthenticationPrincipal Long id,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
 	) throws JsonProcessingException {
+		log.info("친구 요청 리스트 조회 시작");
 		PageResponse<FriendRequestResponseDto> friendRequest = friendRequestService.getPendingRequestsFromRedis(id,
 			pageable);
 		return ApiResponse.success(friendRequest, HttpStatus.OK);

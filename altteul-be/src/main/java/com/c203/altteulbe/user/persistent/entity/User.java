@@ -24,6 +24,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -48,7 +49,7 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	@Column(name = "user_id", nullable = false, updatable = false)
 	private Long userId;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "tier_id")
 	private Tier tier;
 
@@ -69,7 +70,7 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	@Column(name = "username", length = 50, nullable = false, unique = true)
 	private String username;
 
-	@Column(name = "password", length = 128, nullable = false)
+	@Column(name = "password", length = 128, nullable = true)
 	private String password;
 
 	@Enumerated(EnumType.STRING)

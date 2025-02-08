@@ -2,9 +2,9 @@ package com.c203.altteulbe.user.service;
 
 import org.springframework.stereotype.Service;
 
+import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.service.exception.SelfSearchException;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 	private final UserJPARepository userJPARepository;
-	private final UserRepository userRepository;
+	private final UserStatusService userStatusService;
 
 	public SearchUserResponseDto searchUser(Long userId, String nickname) {
 		User user = userJPARepository.findByNickname(nickname).orElseThrow(NotFoundUserException::new);
@@ -24,17 +24,16 @@ public class UserService {
 		if (userId.equals(user.getUserId())) {
 			throw new SelfSearchException();
 		}
-
-		return SearchUserResponseDto.from(user);
+		Boolean isOnline = userStatusService.isUserOnline(userId);
+		return SearchUserResponseDto.from(user, isOnline);
 	}
 
-	public UserProfileResponseDto getUserProfile(Long userId) {
-		User user = userRepository.findWithRankingByUserId(userId)
+	public UserProfileResponseDto getUserProfile(Long userId, Long currentUserId) {
+		User user = userJPARepository.findWithRankingByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
 
 		Long totalCount = userJPARepository.count();
-		if (user.getTodayRanking() == null) return UserProfileResponseDto.from(user);
-		else return UserProfileResponseDto.from(user, totalCount);
+		return UserProfileResponseDto.from(user, totalCount, currentUserId);
 	}
 }

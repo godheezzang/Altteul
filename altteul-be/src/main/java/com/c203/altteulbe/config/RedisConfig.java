@@ -10,8 +10,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Configuration
 @EnableRedisRepositories
 class RedisConfig {
@@ -37,8 +35,8 @@ class RedisConfig {
 	 * RedisTemplate을 활용할 경우 아래의 양식 커스텀하여 사용
 	 */
 	@Bean
-	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<String, String> template = new RedisTemplate<>();
+	public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<?, ?> template = new RedisTemplate<>();
 		template.setConnectionFactory(redisConnectionFactory);
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setValueSerializer(new StringRedisSerializer());

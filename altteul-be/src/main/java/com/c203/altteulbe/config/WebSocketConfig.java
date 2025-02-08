@@ -1,20 +1,26 @@
 package com.c203.altteulbe.config;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.converter.DefaultContentTypeResolver;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import com.c203.altteulbe.common.security.utils.JWTUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +35,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("http://localhost:*")
+			.setAllowedOriginPatterns("*")
 			// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
 			.withSockJS();
 		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("http://localhost:*");
+			.setAllowedOriginPatterns("*");
 		// .setAllowedOrigins("http://localhost:3000", "http://localhost:80");
 
 	}
@@ -42,6 +48,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		registry.enableSimpleBroker("/sub");
 		registry.setApplicationDestinationPrefixes("/pub");
+		registry.setPreservePublishOrder(true); // configureMessageConverters를 사용하기 위해 추가
 	}
 
 	// websocket 연결 전에 jwt 토큰으로 인증 처리
@@ -54,16 +61,36 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 				if (StompCommand.CONNECT == accessor.getCommand()) {
 					Optional<String> tokenOptional = Optional.ofNullable(
 						accessor.getFirstNativeHeader("Authorization"));
+					log.info("received headers: {}", accessor.getFirstNativeHeader("Authorization"));
 					String jwtToken = tokenOptional
 						.filter(token -> token.startsWith("Bearer "))
 						.map(token -> token.substring(7))
 						.filter(token -> !jwtUtil.isExpired(token))
 						.orElseThrow(() -> new RuntimeException("유효하지 않은 토큰 입니다."));
+					log.info("jwtToken: {}", jwtToken);
 					Long userId = jwtUtil.getId(jwtToken);
-					accessor.setUser(userId::toString);
+					log.info("userId: {}", userId);
+					accessor.getSessionAttributes().put("userId", userId);
+					log.info("accessor: {}", accessor);
+				} else if (StompCommand.SEND == accessor.getCommand()) {
+					log.info("Send command - accessor: {}", accessor);
 				}
 				return message;
 			}
 		});
+	}
+
+	// Payload를 json(dto객체)로 입력했을 경우를 위한 로직
+	@Override
+	public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+		DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
+		resolver.setDefaultMimeType(MimeTypeUtils.APPLICATION_JSON);
+
+		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+		converter.setObjectMapper(new ObjectMapper());
+		converter.setContentTypeResolver(resolver);
+
+		messageConverters.add(converter);
+		return false;
 	}
 }

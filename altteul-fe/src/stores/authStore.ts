@@ -1,18 +1,16 @@
-import { User } from "types/types";
 import { create } from "zustand";
 
-// 임시로 만든 로그인 전역 상태 관리
-
-interface AuthState {
-  user: User | null;
-  login: (userData: User) => void;
-  logout: () => void;
-}
-
 const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  login: (userData) => set({ user: userData }),
-  logout: () => set({ user: null }),
+  token: localStorage.getItem("token") || "",
+  setToken: (newToken: string) => {
+    const cleanToken = newToken.replace(/^Bearer\s+/i, "");
+    localStorage.setItem("token", cleanToken); //로컬에 저장
+    set({ token: cleanToken }); // zustand에 저장
+  },
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ token: "" });
+  },
 }));
 
 export default useAuthStore;

@@ -10,15 +10,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestCaseResult {
-	private int cpuTime;
-	private int realTime;
+	private int cpu_time;
+	private int real_time;
 	private int memory;
 	private int signal;
-	private int exitCode;
+	private int exit_code;
 	private int error;
 	private int result;
-	private String testCase;
-	private String outputMd5;
+	private String test_case;
+	private String output_md5;
 	private String output;
 
 	// 결과 해석을 위한 enum

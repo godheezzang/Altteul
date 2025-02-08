@@ -1,5 +1,6 @@
 package com.c203.altteulbe.friend.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,14 +52,15 @@ public class FriendRequestService {
 		});
 		// 캐시된 친구 요청 목록 페이지네이션
 		List<FriendRequestResponseDto> cachedRequest = friendRedisService.getCachedFriendRequests(userId);
-		if (cachedRequest != null) {
-
+		log.info("캐시된 친구 요청 목록: {}", Arrays.toString(cachedRequest.toArray()));
+		if (!cachedRequest.isEmpty()) {
 			Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(cachedRequest,
 				pageable.getPageNumber(), pageable.getPageSize());
 			return new PageResponse<>("friendRequests", paginateResult);
 		}
 		// 캐시된 친구 요청 목록이 없을 경우 db에서 가져오기
 		List<FriendRequestResponseDto> allRequest = getPendingFriendRequestsFromDB(userId);
+		log.info("DB에서 가져온 친구 요청 목록: {}", Arrays.toString(allRequest.toArray()));
 		// db에서 가져온 친구 요청 목록 캐싱
 		friendRedisService.cacheFriendRequests(userId, allRequest);
 		Page<FriendRequestResponseDto> paginateResult = PaginateUtil.paginate(allRequest,
@@ -82,10 +84,7 @@ public class FriendRequestService {
 		User fromUser = userJPARepository.findById(fromUserId).orElseThrow(NotFoundUserException::new);
 		User toUser = userJPARepository.findById(toUserId).orElseThrow(NotFoundUserException::new);
 		validateFriendRequest(fromUser, toUser);
-		FriendRequest friendRequest = FriendRequest.builder()
-			.from(fromUser)
-			.to(toUser)
-			.build();
+		FriendRequest friendRequest = new FriendRequest(fromUser, toUser);
 		// 친구 요청이 새로 생겼으니 이미 있던 친구 요청 목록 캐시 삭제
 		friendRedisService.invalidateFriendRequests(toUser.getUserId());
 		return FriendRequestResponseDto.from(friendRequestRepository.save(friendRequest));
@@ -117,9 +116,6 @@ public class FriendRequestService {
 		request.updateStatus(status);
 		friendRequestRepository.save(request);
 
-		// 친구 요청 상태가 업데이트 됐으니 이미 있던 친구 요청 목록 캐시 삭제
-		friendRedisService.invalidateFriendRequests(userId);
-
 		// 수락된 경우 친구 관계 생성
 		if (status == RequestStatus.A) {
 
@@ -137,18 +133,12 @@ public class FriendRequestService {
 			friendshipRepository.saveAll(
 				List.of(friendshipFromTo, friendshipToFrom)
 			);
-
-			// 친구 관계 캐시에 넣기
-			friendRedisService.setFriendRelation(
-				request.getFrom().getUserId(),
-				request.getTo().getUserId()
-			);
-
-			// 친구 관계가 새롭게 갱신되어서 이전에 캐싱된 친구 리스트 삭제
-			friendRedisService.invalidateFriendList(request.getFrom().getUserId());
-			friendRedisService.invalidateFriendList(request.getTo().getUserId());
-
 		}
+		// Redis 캐시 업데이트를 별도 서비스로 위임
+		friendRedisService.invalidateCaches(
+			userId, // 로그인한 유저 id
+			request.getTo().getUserId() // 친구 유저 id
+		);
 	}
 
 	// 친구 요청 검증
@@ -164,13 +154,13 @@ public class FriendRequestService {
 
 		// redis에 없는 경우 db 확인
 		if (friendshipRepository.existsByUserAndFriend(fromUser.getUserId(), toUser.getUserId())) {
-			// db에 있다면 redis에 캐싱
-			friendRedisService.setFriendRelation(fromUser.getUserId(), toUser.getUserId());
 			throw new AlreadyFriendException();
 		}
 
 		if (friendRequestRepository.existsByFromUserIdAndToUserIdAndRequestStatus(
-			fromUser.getUserId(), toUser.getUserId(), RequestStatus.P)) {
+			fromUser.getUserId(), toUser.getUserId(), RequestStatus.P) ||
+			friendRequestRepository.existsByFromUserIdAndToUserIdAndRequestStatus(
+				toUser.getUserId(), fromUser.getUserId(), RequestStatus.P)) {
 			throw new ExistingPendingFriendRequestException();
 		}
 
@@ -182,7 +172,6 @@ public class FriendRequestService {
 			throw new SuspendedUserException();
 		}
 	}
-
 }
 
 

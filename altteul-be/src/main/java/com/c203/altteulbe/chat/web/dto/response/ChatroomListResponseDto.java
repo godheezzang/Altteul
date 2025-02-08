@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatroomResponseDto {
+public class ChatroomListResponseDto {
 	private Long friendId;
 
 	private String nickname;
