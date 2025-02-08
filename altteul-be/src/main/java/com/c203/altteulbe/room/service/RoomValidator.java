@@ -23,13 +23,19 @@ public class RoomValidator {
 		return Boolean.TRUE.equals(redisTemplate.hasKey(roomKey));
 	}
 
-	// 방 상태 검증
+	// 방 상태 검증 (대기 여부)
 	public boolean isRoomWaiting(Long roomId, BattleType type) {
 		String roomStatus = switch (type) {
 			case S -> redisTemplate.opsForValue().get(RedisKeys.SingleRoomStatus(roomId));
 			case T -> redisTemplate.opsForValue().get(RedisKeys.TeamRoomStatus(roomId));
 		};
 		return "waiting".equals(roomStatus);
+	}
+
+	// 방 상태 검증 (매칭 중 여부)
+	public boolean isRoomMatching(Long roomId) {
+		String roomStatus = redisTemplate.opsForValue().get(RedisKeys.TeamRoomStatus(roomId));
+		return "matching".equals(roomStatus);
 	}
 
 	// 방장 검증

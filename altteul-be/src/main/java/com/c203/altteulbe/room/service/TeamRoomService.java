@@ -3,6 +3,9 @@ package com.c203.altteulbe.room.service;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,8 +15,22 @@ import org.springframework.transaction.annotation.Transactional;
 //import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.entity.Problem;
+import com.c203.altteulbe.game.persistent.entity.Testcase;
+import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
+import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
+import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
+import com.c203.altteulbe.game.service.exception.GameCannotStartException;
 import com.c203.altteulbe.game.service.exception.NotEnoughUserException;
+import com.c203.altteulbe.game.service.exception.ProblemNotFoundException;
+import com.c203.altteulbe.game.web.dto.response.GameStartForProblemDto;
+import com.c203.altteulbe.game.web.dto.response.GameStartForTestcaseDto;
+import com.c203.altteulbe.room.persistent.entity.TeamRoom;
+import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
+import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
+import com.c203.altteulbe.room.persistent.repository.team.UserTeamRoomRepository;
 import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.CannotMatchingException;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
@@ -24,6 +41,7 @@ import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamMatchResponseDto;
+import com.c203.altteulbe.room.web.dto.response.TeamRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -43,16 +61,23 @@ public class TeamRoomService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final UserJPARepository userJPARepository;
 	private final TeamRoomRedisRepository teamRoomRedisRepository;
+	private final TeamRoomRepository teamRoomRepository;
+	private final UserTeamRoomRepository userTeamRoomRepository;
+	private final ProblemRepository problemRepository;
+	private final TestcaseRepository testcaseRepository;
+	private final GameJPARepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
 
 	//@DistributedLock(key="#requestDto.userId")
-	//@Transactional
 	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
 			.orElseThrow(()->new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
+		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+			throw new DuplicateRoomEntryException();
+		}
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
 			throw new DuplicateRoomEntryException();
 		}
@@ -78,7 +103,6 @@ public class TeamRoomService {
 	 * 팀전 대기방 퇴장 처리
 	 */
 	//@DistributedLock(key = "#requestDto.userId")
-	//@Transactional
 	public void leaveTeamRoom(RoomRequestDto requestDto) {
 		Long userId = requestDto.getUserId();
 
@@ -128,18 +152,10 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.T);
 	}
 
-	// userId 리스트로 User 엔티티 조회
-	private List<User> getUserByIds(List<String> userIds) {
-		return userJPARepository.findByUserIdIn(
-			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
-		);
-	}
-
 	/**
 	 * 팀전 매칭 시작
 	 */
 	//@DistributedLock(key = "requestDto.roomId")
-	//@Transactional
 	public void startTeamMatch(RoomGameStartRequestDto requestDto) {
 		Long roomId = requestDto.getRoomId();
 		Long leaderId = requestDto.getLeaderId();
@@ -152,66 +168,179 @@ public class TeamRoomService {
 		// matching 상태로 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId), "matching");
 
-		// 매칭 중 상태 전송 후 TEAM_MATCHING_ROOMS에 추가
+		// 매칭 중 상태 전송 후 TEAM_MATCHING_ROOMS에 추가 → 스케줄러가 인식 가능
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "MATCHING", "대전할 상대를 찾고있어요.", BattleType.T);
 		redisTemplate.opsForZSet().add(RedisKeys.TEAM_MATCHING_ROOMS, roomId.toString(), System.currentTimeMillis());
 
 		log.info("팀전 매칭 시작 : roomId = {}", roomId);
 	}
 
-	public void matchRooms(Long roomId, Long opponentRoomId) {
+	/*
+	 * 스케줄러가 매칭할 팀을 찾은 후 실행되는 작업
+	 */
+	public void afterTeamMatch(String roomId1, String roomId2) {
+
 		// Redis에서 두 팀을 매칭 중 상태에서 제거
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId.toString());
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, opponentRoomId.toString());
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId1);
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId2);
 
-		log.info("매칭 팀 탐색 완료 : room1 = {}, room2 = {}", roomId, opponentRoomId);
+		// 해당 메시지를 전송받으면 "/sub/team/room/{matchId}"를 구독시켜야 함
+		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
+		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
+		String matchId = generateMatchId(roomId1, roomId2);
+		log.info("matchId = {}", matchId);
 
-		// 매칭 로직 시작
-		afterTeamMatch(roomId, opponentRoomId);
+		// 각 팀의 유저 정보를 가져오는 메소드 호출
+		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2));
+
+		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
+		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING", teamMatchDto, BattleType.T);
+		startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId, teamMatchDto);
 	}
 
-	// 매칭할 두 팀에 대한 Redis 작업
-	public void afterTeamMatch(Long roomId1, Long roomId2) {
+
+	/*
+	 * 두 팀에 대한 카운팅 시작
+	 */
+	private void startCountingTeam(Long roomId1, Long roomId2, String matchId, TeamMatchResponseDto teamMatchDto) {
+		if (!validator.isRoomMatching(roomId1)) throw new GameCannotStartException();
+		if (!validator.isRoomMatching(roomId2)) throw new GameCannotStartException();
+		if (!validator.isEnoughUsers(roomId1, BattleType.T)) throw new NotEnoughUserException();
+		if (!validator.isEnoughUsers(roomId2, BattleType.T)) throw new NotEnoughUserException();
+
+		// Redis에서 두 팀을 대기 중 상태에서 제거
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_WAITING_ROOMS, roomId1.toString());
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_WAITING_ROOMS, roomId2.toString());
+
+		// 두 팀의 상태를 counting으로 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "counting");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "counting");
 
-		// TEAM_WAITING_ROOMS에서도 해당 방들 삭제해야 함
-		// 개인전에서도 게임 시작되면 SINGE_WAITING_ROOMS에서 삭제되는지 확인할 것
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_WAITING_ROOMS, roomId1);
-		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_WAITING_ROOMS, roomId2);
-
-		// 해당 메시지를 전송받으면 "/sub/team/room/{matchId}"를 구독시켜야 함, 기존 구독 해제
-		roomWebSocketService.sendWebSocketMessage(roomId1.toString(), "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
-		roomWebSocketService.sendWebSocketMessage(roomId2.toString(), "MATCHED", "매칭이 완료되었습니다.", BattleType.T);
-		String matchId = generateMatchId(String.valueOf(roomId1), String.valueOf(roomId2));
-
-		// 각 팀의 유저 정보 조회
-		String roomUsersKey1 = RedisKeys.TeamRoomUsers(roomId1);
-		String leaderId1 = redisTemplate.opsForList().index(roomUsersKey1, 0);
-		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey1, 0, -1);
-		RoomEnterResponseDto responseDto1 = teamRoomRedisRepository.convertToRoomEnterResponseDto(roomId1, leaderId1, userIds1);
-
-		String roomUsersKey2 = RedisKeys.TeamRoomUsers(roomId2);
-		String leaderId2 = redisTemplate.opsForList().index(roomUsersKey2, 0);
-		List<String> userIds2 = redisTemplate.opsForList().range(roomUsersKey2, 0, -1);
-		RoomEnterResponseDto responseDto2 = teamRoomRedisRepository.convertToRoomEnterResponseDto(roomId2, leaderId2, userIds2);
-		TeamMatchResponseDto teamMatchDto = TeamMatchResponseDto.toDto(responseDto1, responseDto2);
-
-		// 상대팀 정보 websocket으로 전송
-		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING", teamMatchDto, BattleType.T);
-		log.info("teamMatchDto.team1={}, teamMatchDto.team2={}",teamMatchDto.getTeam1(), teamMatchDto.getTeam2());
-
-		// 5초 카운트
-		// redis에 counting
-
-		// websocket 메시지 전송 (대전이 시작됩니다) + 상대팀 정보 전송
+		// 카운트다운 시작 → Scheduler가 인식
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomCountdown(matchId), "5");
 	}
 
-	// 매칭되는 순간부터 두 팀을 함께 관리하기 위한 pk 생성 메소드
+	/**
+	 * 팀전 게임 시작 처리
+	 */
+	@Transactional
+	public void startGameAfterCountDown(String matchId, Long roomId1, Long roomId2) {
+		// 최소 인원 수 검증
+		if (!validator.isEnoughUsers(roomId1, BattleType.T)) {
+			roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.T);
+			return;
+		}
+		if (!validator.isEnoughUsers(roomId1, BattleType.T)) {
+			roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.T);
+			return;
+		}
+
+		// 문제 및 테스트케이스 조회
+		List<Long> problemIds = problemRepository.findAllProblemIds();
+		if (problemIds.isEmpty()) {
+			throw new ProblemNotFoundException();
+		}
+		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
+		Problem problemEntity = problemRepository.findById(randomProblemId)
+												 .orElseThrow(ProblemNotFoundException::new);
+
+		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+
+		// DB에 Game 저장
+		Game game = Game.create(problemEntity, BattleType.T);
+		gameRepository.save(game);
+
+		// DB에 TeamRoom 저장
+		TeamRoom teamRoom1 = TeamRoom.create(game);
+		teamRoomRepository.save(teamRoom1);
+		saveUserTeamRooms(roomId1, teamRoom1);
+
+		TeamRoom teamRoom2 = TeamRoom.create(game);
+		teamRoomRepository.save(teamRoom2);
+		saveUserTeamRooms(roomId2, teamRoom2);
+
+		// websocket으로 전송할 데이터 준비
+		RoomEnterResponseDto team1Dto = getRoomEnterResponseDto(roomId1);
+		RoomEnterResponseDto team2Dto = getRoomEnterResponseDto(roomId2);
+
+		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
+		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
+														.map(GameStartForTestcaseDto::from)
+														.collect(Collectors.toList());
+
+		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(game.getId(), team1Dto,
+																					 team2Dto, problem, testcases);
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
+
+		roomWebSocketService.sendWebSocketMessage(matchId, "GAME_START", responseDto, BattleType.T);
+		log.info("각 팀에게 게임 시작 메시지 전송 완료");
+	}
+
+	/**
+	 * Redis에서 유저 ID를 조회하고, DB에 UserTeamRoom을 저장하는 메소드
+	 */
+	@Transactional
+	private void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
+		// Redis에서 유저 ID 조회
+		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+
+		List<Long> userIdList = userIds1.stream().map(Long::parseLong).collect(Collectors.toList());
+		List<User> usersFromDb = userJPARepository.findByUserIdIn(userIdList);
+
+		// 조회된 User들을 Map으로 변환 (ID → User)
+		Map<Long, User> userMap = usersFromDb.stream()
+			.collect(Collectors.toMap(User::getUserId, user -> user));
+
+		// userIds1의 순서대로 User 리스트 정렬
+		List<User> users = userIdList.stream()
+			.map(userMap::get)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+
+		// DB에 UserTeamRoom 저장
+		for (int i = 0; i < users.size(); i++) {
+			User user = users.get(i);
+			UserTeamRoom userTeamRoom = UserTeamRoom.create(teamRoom, user, i);
+			userTeamRoomRepository.save(userTeamRoom);
+		}
+	}
+
+	/**
+	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
+	 */
+	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2) {
+		RoomEnterResponseDto responseDto1 = getRoomEnterResponseDto(roomId1);
+		RoomEnterResponseDto responseDto2 = getRoomEnterResponseDto(roomId2);
+		return TeamMatchResponseDto.toDto(responseDto1, responseDto2);
+	}
+
+
+	/**
+	 * 특정 팀의 유저 정보를 조회하여 RoomEnterResponseDto로 변환하는 메소드
+	 */
+	private RoomEnterResponseDto getRoomEnterResponseDto(Long roomId) {
+		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+		return teamRoomRedisRepository.convertToRoomEnterResponseDto(roomId, leaderId, userIds);
+	}
+
+	/**
+	 * 매칭되는 순간부터 두 팀을 함께 관리하기 위한 pk 생성 메소드
+	 */
 	public String generateMatchId(String team1Id, String team2Id) {
 		List<String> teamIds = Arrays.asList(team1Id, team2Id);
 		Collections.sort(teamIds);
-		return teamIds.get(0) + "_" + teamIds.get(1);
+		return teamIds.get(0) + "-" + teamIds.get(1);
 	}
 
+
+	// userId 리스트로 User 엔티티 조회
+	private List<User> getUserByIds(List<String> userIds) {
+		return userJPARepository.findByUserIdIn(
+			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
+		);
+	}
 }

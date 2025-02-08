@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
@@ -69,6 +68,10 @@ public class SingleRoomService {
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+			throw new DuplicateRoomEntryException();
+		}
+		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
 			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
 			throw new DuplicateRoomEntryException();
 		}
@@ -158,6 +161,7 @@ public class SingleRoomService {
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) throw new NotEnoughUserException();
 
 		// 방 상태 변경 (waiting → counting)
+		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString());
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
@@ -167,7 +171,7 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 처리
 	 */
-	//@Transactional
+	@Transactional
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
