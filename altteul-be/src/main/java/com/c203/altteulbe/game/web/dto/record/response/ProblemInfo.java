@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class ProblemInfo {
 	Long problemId;
 	String problemTitle;
-	String problemContent;
+	String description;
 }
