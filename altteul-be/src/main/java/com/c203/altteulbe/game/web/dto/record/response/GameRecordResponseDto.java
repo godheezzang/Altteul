@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.response;
+package com.c203.altteulbe.game.web.dto.record.response;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class GameRecordResponseDto {
-	private ProblemInfo problem;
 	private BattleType gameType;
 	private String startedAt;
 	private int totalHeadCount;
 	private List<ItemInfo> items;
+	private ProblemInfo problem;
 	private TeamInfo myTeam;
 	private List<TeamInfo> opponents;
 
@@ -30,7 +30,6 @@ public class GameRecordResponseDto {
 					.totalHeadCount(opponents.size()+1)
 					.startedAt(String.valueOf(game.getCreatedAt()))
 					.problem(problem)
-					.items(items)
 					.myTeam(myTeam)
 					.opponents(opponents)
 					.build();
@@ -42,6 +41,7 @@ public class GameRecordResponseDto {
 					.startedAt(String.valueOf(game.getCreatedAt()))
 					.problem(problem)
 					.myTeam(myTeam)
+					.items(items)
 					.opponents(opponents)
 					.build();
 		}

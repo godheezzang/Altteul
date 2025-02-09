@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { loginUser } from "@utils/api/auth";
 import Modal from "@components/common/Modal";
 import Input from "@components/common/Input";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
 import useModalStore from "@stores/modalStore";
@@ -33,18 +33,18 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
     try {
       const response = await loginUser(form.username, form.password);
-      console.log("로그인 성공:", response);
 
       if (!response) {
         throw new Error("서버 응답이 없습니다.");
       }
 
-      const token = response.headers.authorization || response.data?.token;
+      const token =
+        response.headers?.authorization || response.headers?.["authorization"];
       if (!token) {
         throw new Error("토큰이 응답에 포함되지 않았습니다");
       }
 
-      const userId = response.headers.userid;
+      const userId = response.headers?.userid || response.headers?.["userid"];
       if (!userId) {
         throw new Error("userId가 응답에 포함되지 않았습니다.");
       }
@@ -52,7 +52,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       const cleanToken = token.replace(/^Bearer\s+/i, "");
       setToken(cleanToken);
       setUserId(userId.toString());
-      console.log("로컬&zustand에 토큰, userId 저장 완료:", cleanToken, userId);
 
       onClose();
     } catch (error) {
@@ -72,7 +71,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
   // 깃허브 로그인
   const handleGithubLogin = () => {
-    // GitHub 로그인 URL로 리다이렉트
     window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
 

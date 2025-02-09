@@ -16,8 +16,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
+@ToString
 @Table(name = "item_history")
 @Getter
 @Setter

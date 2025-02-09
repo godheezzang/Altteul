@@ -1,6 +1,7 @@
 package com.c203.altteulbe.user.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -13,6 +14,7 @@ import com.c203.altteulbe.user.web.dto.response.UserProfileResponseDto;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 	private final UserJPARepository userJPARepository;

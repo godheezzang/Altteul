@@ -7,14 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.c203.altteulbe.common.dto.BattleResult;
+import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
+import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
-import com.c203.altteulbe.game.service.exception.JudgeCompileException;
-import com.c203.altteulbe.game.service.exception.JudgeServerException;
 import com.c203.altteulbe.game.web.dto.judge.request.JudgeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDto;
@@ -24,6 +26,12 @@ import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmissionOpponentResp
 import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmissionTeamResponseDto;
 import com.c203.altteulbe.game.web.dto.judge.response.JudgeResponse;
 import com.c203.altteulbe.game.web.dto.judge.response.PingResponse;
+import com.c203.altteulbe.game.web.dto.judge.response.TestCaseResponseDto;
+import com.c203.altteulbe.room.persistent.entity.Room;
+import com.c203.altteulbe.room.persistent.entity.SingleRoom;
+import com.c203.altteulbe.room.persistent.entity.TeamRoom;
+import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
+import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +44,9 @@ public class JudgeService {
 	private final JudgeWebsocketService judgeWebsocketService;
 	private final ProblemRepository problemRepository;
 	private final TestHistoryRepository testHistoryRepository;
+	private final GameRepository gameRepository;
+	private final SingleRoomRepository singleRoomRepository;
+	private final TeamRoomRepository teamRoomRepository;
 
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
@@ -109,17 +120,51 @@ public class JudgeService {
 		// 결과를 내역 db에 저장, 게임 db에 저장
 		// 1. 내역 Entity 생성, 레포지토리 쿼리문 생성, 언어별 제한 테이블 추가
 
+		int maxMemory = -1;
+		int maxExecutionTime = -1;
+		if (judgeResponse.isNotCompileError()) {
+			for (TestCaseResponseDto testCase:teamResponseDto.getTestCases()) {
+				maxMemory = Math.max(maxMemory, Integer.parseInt(testCase.getExecutionMemory()));
+				maxExecutionTime = Math.max(maxExecutionTime, Integer.parseInt(testCase.getExecutionTime()));
+			}
+		}
+
 		TestHistory testHistory = TestHistory.from(
 			teamResponseDto,
 			request.getGameId(),
 			request.getProblemId(),
 			id,
+			String.valueOf(maxExecutionTime),
+			String.valueOf(maxMemory),
 			request.getCode(),
 			request.getLang()
 		);
+		Game game = gameRepository.findWithRoomByGameId(request.getGameId())
+			.orElseThrow(() -> new BusinessException("게임 찾을 수 없음", HttpStatus.NOT_FOUND));
+		//팀방, 개인방인 경우를 분리해서 로직 진행
+		if (game.getBattleType() == BattleType.S) {
+			List<SingleRoom> rooms = game.getSingleRooms();
+			//내 팀이 어디지?
+			SingleRoom myRoom = rooms.stream()
+				.filter(room -> room.getId().equals(request.getTeamId()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("해당 팀의 방을 찾을 수 없습니다."));
+			// 내 팀의 최고 점수 업데이트
+			updateRoomSubmission(myRoom, testHistory, request.getCode(), maxExecutionTime, maxMemory, rooms);
+			singleRoomRepository.save(myRoom);
+		} else {
+			List<TeamRoom> rooms = game.getTeamRooms();
+			//내 팀이 어디지?
+			TeamRoom myRoom = rooms.stream()
+				.filter(room -> room.getId().equals(request.getTeamId()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("해당 팀의 방을 찾을 수 없습니다."));
+			// 내 팀의 최고 점수 업데이트
+			updateRoomSubmission(myRoom, testHistory, request.getCode(), maxExecutionTime, maxMemory, rooms);
+			teamRoomRepository.save(myRoom);
+		}
 
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
-
 		testHistoryRepository.save(testHistory);
 	}
 
@@ -134,9 +179,27 @@ public class JudgeService {
 			request.getGameId(),
 			request.getTeamId());
 
-
 		// 없어도 되는데 걍 확인용으로 만듬
 		return CodeExecutionResponseDto.from(judgeResponse);
+	}
+
+	// 함수 추출
+	private void updateRoomSubmission(Room myRoom, TestHistory testHistory, String code, int maxExecutionTime, int maxMemory, List<? extends Room> rooms) {
+		myRoom.updateSubmissionRecord(
+			testHistory.getSuccessCount(),
+			String.valueOf(maxExecutionTime),
+			String.valueOf(maxMemory),
+			code
+		);
+
+		// 다 맞춰서 게임 종료할 경우 로직
+		if (testHistory.getFailCount() == 0) {
+			// 순위 갱신: finishTime 이 있는 방들만 정렬
+			int finishedTeamCount = (int) rooms.stream()
+				.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
+				.count();
+			myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+		}
 	}
 }
 

@@ -2,10 +2,7 @@ package com.c203.altteulbe.user.web.dto.response;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.user.persistent.entity.User;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
