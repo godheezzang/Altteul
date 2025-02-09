@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,9 +38,9 @@ public class AuthController {
 		return ApiResponse.success();
 	}
 
-	@PostMapping("/api/id-check")
-	public ApiResponseEntity<Void> validateId(ValidateIdRequestDto request) {
-		authService.validateId(request.getUsername());
+	@GetMapping("/api/id-check")
+	public ApiResponseEntity<Void> validateId(@RequestParam String username) {
+		authService.validateId(username);
 		return ApiResponse.success();
 	}
 

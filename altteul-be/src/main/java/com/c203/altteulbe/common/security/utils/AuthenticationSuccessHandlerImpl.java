@@ -28,8 +28,9 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
 		User userDetails = (User) authentication.getPrincipal();
 		String token = jwtUtil.createJwt(userDetails.getUserId(), 60*60*10000L);
 
-		String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080/swagger-ui/index.html")
+		String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
 			.queryParam("accessToken", token)
+			.queryParam("userId", userDetails.getUserId())
 			.build().toUriString();
 
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);

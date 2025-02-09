@@ -1,14 +1,14 @@
 // ** 회원가입 모달 컴포넌트 **
-// 추가할 것 - 아이디, 닉네임임 중복 확인
+// 추가할 것 - 아이디, 닉네임 중복 확인
 
 import { useState } from "react";
 
-import Input from "@components/common/Input/Input";
-import Button from "@components/common/Button/Button";
-import Modal from "@components/common/modal/Modal";
-import Dropdown from "@components/common/Drpodown/Dropdown";
+import Input from "@components/common/Input";
+import Modal from "@components/common/Modal";
+import Button from "@components/Common/Button/Button";
+import Dropdown from "@components/common/Dropdown";
 
-import { registerUser } from "@utils/api/auth";
+import { checkUsername, registerUser } from "@utils/api/auth";
 import {
   validateSignUpForm,
   SignUpFormData,
@@ -32,6 +32,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [form, setForm] = useState<SignUpFormData>({
     username: "",
     password: "",
+    confirmPassword: "",
     nickname: "",
     mainLang: "PY",
     profileImg: null,
@@ -41,6 +42,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [errors, setErrors] = useState<ValidationErrors>({
     username: "",
     password: "",
+    confirmPassword: "",
     nickname: "",
     mainLang: "",
     profileImg: "",
@@ -51,8 +53,12 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   // 로딩 상태 관리 - 추후 로딩 스피너 사용
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 아이디 중복 확인 - 추후 수정
+  // const [isUsernameTaken, setIsUsernameTaken] = useState(false);
+  // const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+
   // 입력값 변경 핸들러 (input 필드 값 바뀔 때 실행)
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -62,7 +68,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   //이미지 파일 업로드 처리
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       setForm({ ...form, profileImg: e.target.files[0] });
     }
@@ -72,11 +78,49 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const validateForm = () => {
     const validationResult = validateSignUpForm(form);
     setErrors(validationResult.errors);
+
+    // 비밀번호 확인
+    if (form.password !== form.confirmPassword) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        confirmPassword: "비밀번호가 일치하지 않습니다.",
+      }));
+      return false;
+    }
+
     return validationResult.isValid;
   };
 
+  // 아이디 중복 확인 핸들러
+  // const handleCheckUsername = async () => {
+  //   setIsCheckingUsername(true);
+  //   setIsUsernameTaken(false);
+
+  //   try {
+  //     const response = await checkUsername(form.username);
+  //     if (response.isTaken) {
+  //       setIsUsernameTaken(true);
+  //       setErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         username: "이미 사용 중인 아이디입니다.",
+  //       }));
+  //     } else {
+  //       setIsUsernameTaken(false);
+  //       setErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         username: "",
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     console.error("아이디 중복 확인 실패:", error);
+  //     setApiError("아이디 중복 확인에 실패했습니다.");
+  //   } finally {
+  //     setIsCheckingUsername(false);
+  //   }
+  // };
+
   // 폼 제출 핸들러
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 유효성 검사 실패 시 중단
@@ -107,7 +151,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     try {
       setIsSubmitting(true); // 제출 중 상태 활성화
 
-      // API 호출 (mock 응답)
+      // API 호출
       const response = await registerUser(formData); // api.ts에서 정의한 함수 사용
 
       // 성공처리 - 200번대
@@ -119,6 +163,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         setForm({
           username: "",
           password: "",
+          confirmPassword: "",
           nickname: "",
           mainLang: "PY",
           profileImg: null,
@@ -128,6 +173,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         setErrors({
           username: "",
           password: "",
+          confirmPassword: "",
           nickname: "",
           mainLang: "",
           profileImg: "",
@@ -145,48 +191,106 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     }
   };
 
+  // 비밀번호 일치여부 확인
+  const checkPasswordMatch = () => {
+    if (
+      form.password &&
+      form.confirmPassword &&
+      form.password !== form.confirmPassword
+    ) {
+      return "비밀번호가 일치하지 않습니다.";
+    } else if (
+      form.password &&
+      form.confirmPassword &&
+      form.password === form.confirmPassword
+    ) {
+      return "비밀번호가 일치합니다.";
+    }
+    return "";
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h2>회원가입</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <Input
-            name="username"
-            type="text"
-            placeholder="아이디"
-            onChange={handleChange}
-            value={form.username}
-          />
-          {errors.username && <p className="error">{errors.username}</p>}
-        </div>
-        <div>
-          <Input
-            name="password"
-            type="password"
-            placeholder="비밀번호"
-            onChange={handleChange}
-            value={form.password}
-          />
-          {errors.password && <p className="error">{errors.password}</p>}
-        </div>
-        <div>
-          <Input
-            name="nickname"
-            type="text"
-            placeholder="닉네임"
-            onChange={handleChange}
-            value={form.nickname}
-          />
-          {errors.nickname && <p className="error">{errors.nickname}</p>}
-        </div>
-        <div>
-          <Dropdown
-            options={languageOptions}
-            value={form.mainLang}
-            onChange={handleSelectChange}
-          />
-          {errors.mainLang && <p className="error">{errors.mainLang}</p>}
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="회원가입" height="35rem">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Input
+          name="username"
+          type="text"
+          placeholder="아이디를 입력해 주세요."
+          onChange={handleChange}
+          value={form.username}
+          className="mt-2"
+        />
+        {errors.username && (
+          <p className="text-primary-orange text-sm">{errors.username}</p>
+        )}
+        {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
+        <Button children="중복확인(현재기능x)" />
+        {/*         
+        <Button
+          className={`w-full h-[2.8rem] ${
+            isCheckingUsername
+              ? "bg-gray-03 cursor-not-allowed"
+              : "bg-primary-orange"
+          }`}
+          onClick={handleCheckUsername}
+          disabled={isCheckingUsername}
+        >
+          {isCheckingUsername ? "확인중..." : "아이디 중복 확인"}
+        </Button> */}
+
+        <Input
+          name="password"
+          type="password"
+          placeholder="비밀번호를 입력해 주세요."
+          onChange={handleChange}
+          value={form.password}
+        />
+        {errors.password && (
+          <p className="text-primary-orange text-sm">{errors.password}</p>
+        )}
+        <Input
+          name="confirmPassword"
+          type="password"
+          placeholder="비밀번호 확인"
+          onChange={handleChange}
+          value={form.confirmPassword}
+        />
+        {errors.confirmPassword && (
+          <p className="text-primary-orange text-sm">
+            {errors.confirmPassword}
+          </p>
+        )}
+        {checkPasswordMatch() && (
+          <p
+            className={`text-sm ${
+              form.password === form.confirmPassword
+                ? "text-primary-orange font-semibold"
+                : "text-gray-03 font-semibold"
+            }`}
+          >
+            {checkPasswordMatch()}
+          </p>
+        )}
+
+        <Input
+          name="nickname"
+          type="text"
+          placeholder="닉네임을 입력해 주세요"
+          onChange={handleChange}
+          value={form.nickname}
+        />
+        {errors.nickname && (
+          <p className="text-primary-orange text-sm">{errors.nickname}</p>
+        )}
+        <Dropdown
+          options={languageOptions}
+          value={form.mainLang}
+          onChange={handleSelectChange}
+          className="bg-primary-white border rounded-xl"
+        />
+        {errors.mainLang && (
+          <p className="text-primary-orange text-sm">{errors.mainLang}</p>
+        )}
         <div>
           <input
             type="file"
@@ -200,7 +304,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         <Button type="submit" width="100%" height="50px" fontSize="16px">
           {isSubmitting ? "처리중..." : "가입하기"}
         </Button>
-        {apiError && <p className="error">{apiError}</p>}
       </form>
     </Modal>
   );

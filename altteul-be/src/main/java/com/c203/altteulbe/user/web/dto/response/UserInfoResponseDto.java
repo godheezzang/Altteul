@@ -2,9 +2,7 @@ package com.c203.altteulbe.user.web.dto.response;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import com.c203.altteulbe.user.persistent.entity.User;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +16,7 @@ public class UserInfoResponseDto {
 	private Long userId;
 	private String nickname;
 	private String profileImg;
+	private Long tierId;
 
 	// User Entity → UserInfoResponseDto
 	public static UserInfoResponseDto fromEntity(User user) {
@@ -25,6 +24,7 @@ public class UserInfoResponseDto {
 								  .userId(user.getUserId())
 								  .nickname(user.getNickname())
 								  .profileImg(user.getProfileImg())
+								  .tierId(user.getTier().getId())
 								  .build();
 	}
 

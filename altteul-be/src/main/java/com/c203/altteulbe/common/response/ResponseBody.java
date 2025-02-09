@@ -10,7 +10,7 @@ public class ResponseBody {
 	@AllArgsConstructor
 	public static class Failure implements Serializable {
 
-		private String status;
+		private int status;
 		private String message;
 	}
 
@@ -19,6 +19,6 @@ public class ResponseBody {
 	public static class Success<D> implements Serializable {
 		private D data;
 		private String message;
-		private String status;
+		private int status;
 	}
 }

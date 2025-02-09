@@ -3,6 +3,7 @@ package com.c203.altteulbe.room.persistent.entity;
 import org.springframework.data.domain.Persistable;
 
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import jakarta.persistence.EmbeddedId;
@@ -15,7 +16,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder(toBuilder = true)
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,5 +42,14 @@ public class UserTeamRoom extends BaseCreatedEntity implements Persistable<UserT
 	@Override
 	public boolean isNew() {
 		return super.getCreatedAt() == null;
+	}
+
+	public static UserTeamRoom create(TeamRoom teamRoom, User user, int teamOrder) {
+		return UserTeamRoom.builder()
+			.id(new UserTeamRoomId(teamRoom.getId(), user.getUserId()))
+			.teamRoom(teamRoom)
+			.user(user)
+			.teamOrder(teamOrder)
+			.build();
 	}
 }
