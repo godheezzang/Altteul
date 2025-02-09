@@ -11,8 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,7 +36,7 @@ public class TeamRoom extends Room {
 	private List<ItemHistory> itemHistories = new ArrayList<>();
 
 	public static TeamRoom create(Game game) {
-		return (TeamRoom) TeamRoom.builder()
+		return TeamRoom.builder()
 			.game(game)
 			.activation(true)
 			.build();

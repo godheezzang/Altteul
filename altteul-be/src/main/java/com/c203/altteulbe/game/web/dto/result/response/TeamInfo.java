@@ -35,7 +35,6 @@ public class TeamInfo {
 	private LocalDateTime createdAt;
 	private List<TeamMember> members;
 
-	// ✅ TeamRoom 변환 메서드
 	public static TeamInfo fromTeamRoom(TeamRoom room, int totalCount) {
 		String duration;
 		if (room.getFinishTime() == null) {

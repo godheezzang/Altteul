@@ -29,8 +29,7 @@ public class GameResultService {
 		Game game = gameRepository.findWithAllMemberByGameId(gameId)
 			.orElseThrow(()->new BusinessException("게임없음", HttpStatus.NOT_FOUND));
 		List<TeamInfo> teamInfos = extractTeamInfos(game);
-		System.out.println(game.getBattleType());
-		System.out.println(game.getSingleRooms());
+
 		TeamInfo myTeam = teamInfos.stream()
 			.filter(teamInfo -> teamInfo.getMembers().stream()
 				.anyMatch(member -> member.getUserId().equals(userId))) // `anyMatch()`로 검사

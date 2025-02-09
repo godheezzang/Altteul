@@ -17,9 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@ToString
 @Getter
 @Builder
 @NoArgsConstructor
@@ -37,7 +35,6 @@ public class TeamInfo {
 	private LocalDateTime createdAt;
 	private List<TeamMember> members;
 
-	// ✅ TeamRoom 변환 메서드
 	public static TeamInfo fromTeamRoom(TeamRoom room) {
 		String duration;
 		if (room.getFinishTime() == null) {
@@ -63,7 +60,6 @@ public class TeamInfo {
 			.build();
 	}
 
-	// ✅ TeamRoom 변환 메서드
 	public static TeamInfo fromSingleRoom(SingleRoom room) {
 		String duration;
 		if (room.getFinishTime() == null) {
@@ -89,7 +85,6 @@ public class TeamInfo {
 			.build();
 	}
 
-	@ToString
 	@Getter
 	@Builder
 	@NoArgsConstructor

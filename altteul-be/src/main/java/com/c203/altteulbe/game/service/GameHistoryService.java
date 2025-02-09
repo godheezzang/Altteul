@@ -47,7 +47,6 @@ public class GameHistoryService {
 
 		List<GameRecordResponseDto> gameRecordResponseDtos = new ArrayList<>();
  		for (Game game: pagedGames) {
-			System.out.println("game.getBattleType() : " + game.getBattleType());
 			ProblemInfo problemInfo = ProblemInfo.builder()
 				.problemId(game.getProblem().getId())
 				.problemContent(game.getProblem().getDescription())
@@ -62,7 +61,6 @@ public class GameHistoryService {
 				.findFirst()
 				.orElse(null);
 
-			System.out.println(teamInfos.toString());
 			// 모든 해당 팀을 리스트로 변환 후 추가
 			List<TeamInfo> opponents = new ArrayList<>(teamInfos.stream()
 				.filter(teamInfo -> teamInfo.getMembers().stream()
