@@ -3,7 +3,7 @@ import { useInView } from "react-intersection-observer";
 import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/common/SearchInput";
 import Dropdown from "@components/common/Dropdown";
-import Rankingitem from "@components/common/ranking/RankingItem";
+import RankingItem from "@components/ranking/RankingItem";
 import { rankMockData } from "mocks/rankData";
 
 // 메인 랭킹 페이지 컴포넌트
@@ -112,7 +112,7 @@ const RankingPage = () => {
             <div>선호 언어</div>
           </div>
           {rankings.map((ranking) => (
-            <Rankingitem
+            <RankingItem
               key={`${ranking.userId}-${ranking.rank}`}
               data={ranking}
             />
