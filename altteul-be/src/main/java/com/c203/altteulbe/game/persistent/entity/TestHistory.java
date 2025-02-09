@@ -89,4 +89,8 @@ public class TestHistory extends BaseCreatedEntity {
 			.result(Status.valueOf(teamResponseDto.getStatus()))
 			.build();
 	}
+
+	public void updateTestResults(List<TestResult> testResults) {
+		this.testResults = testResults;
+	}
 }

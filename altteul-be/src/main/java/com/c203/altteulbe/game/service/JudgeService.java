@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.c203.altteulbe.common.dto.BattleResult;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JudgeService {
 	private final RestTemplate restTemplate;
@@ -159,12 +161,13 @@ public class JudgeService {
 				.filter(room -> room.getId().equals(request.getTeamId()))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("해당 팀의 방을 찾을 수 없습니다."));
-			// 내 팀의 최고 점수 업데이트
+			// 내 팀의 최고 점수 업데이트 (기존 점수보다 높을 시 업데이트)
 			updateRoomSubmission(myRoom, testHistory, request.getCode(), maxExecutionTime, maxMemory, rooms);
 			teamRoomRepository.save(myRoom);
 		}
 
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
+		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);
 	}
 
