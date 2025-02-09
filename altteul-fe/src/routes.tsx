@@ -94,11 +94,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // 깃허브 로그인
-  {
-    path: "auth/github/callback",
-    element: <GithubCallback />,
-  },
 ]);
 
 export default router;

@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { loginUser } from "@utils/api/auth";
 import Modal from "@components/common/Modal";
 import Input from "@components/common/Input";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
 import useModalStore from "@stores/modalStore";
-import { Token } from "./../../../node_modules/sucrase/dist/esm/parser/tokenizer/index";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -77,16 +76,8 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
   // 깃허브 로그인
   const handleGithubLogin = () => {
-    const redirectUri = encodeURIComponent(
-      "http://localhost:5173/auth/github/callback"
-    );
-    const githubAuthUrl = `http://localhost:8080/oauth2/authorization/github?redirect_uri=${redirectUri}`;
-    // window.location.href = "http://localhost:8080/oauth2/authorization/github";
-
-    console.log("리다이렉트 URI:", redirectUri);
-    console.log("인증 URL:", githubAuthUrl);
-
-    window.location.href = githubAuthUrl;
+    console.log("GitHub 로그인 시도");
+    window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
 
   return (
