@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
@@ -26,8 +28,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
 public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport implements ChatroomCustomRepository {
+	private static final Logger log = LoggerFactory.getLogger(ChatroomCustomRepositoryImpl.class);
 	private final JPAQueryFactory queryFactory;
 	private final UserStatusService userStatusService;
+
+	private static final QChatMessage Q_CHATMESSAGE = QChatMessage.chatMessage;
+	private static final QChatroom Q_CHATROOM = QChatroom.chatroom;
+	private static final QUserChatRoom Q_USER_CHATROOM = QUserChatRoom.userChatRoom;
+	private static final QUser Q_USER = QUser.user;
 
 	public ChatroomCustomRepositoryImpl(JPAQueryFactory queryFactory, UserStatusService userStatusService) {
 		super(Chatroom.class);
@@ -38,52 +46,48 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 	// 유저의 모든 채팅방 조회
 	@Override
 	public List<ChatroomListResponseDto> findAllChatroomsByUserId(Long userId) {
-		QChatMessage qChatMessage = QChatMessage.chatMessage;
-		QChatroom qChatroom = QChatroom.chatroom;
-		QUserChatRoom qUserChatRoom = QUserChatRoom.userChatRoom;
-		QUser qUser = QUser.user;
 
 		List<ChatroomListResponseDto> chatrooms = queryFactory
 			.select(Projections.constructor(ChatroomListResponseDto.class,
-				qUser.userId,
-				qUser.nickname,
-				qUser.profileImg,
+				Q_USER.userId,
+				Q_USER.nickname,
+				Q_USER.profileImg,
 				Expressions.constant(false), // 유저의 온라인 상태
-				qChatMessage.messageContent,
+				Q_CHATMESSAGE.messageContent,
 				Expressions.cases()          // 내가 읽었는지 확인하는 로직
 					.when(
 						JPAExpressions
 							.selectOne()
-							.from(qChatMessage)
-							.where(qChatMessage.chatroom.eq(qChatroom)
-								.and(qChatMessage.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
-								.and(qChatMessage.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
+							.from(Q_CHATMESSAGE)
+							.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
+								.and(Q_CHATMESSAGE.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
+								.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
 							.exists()
 					)
 					.then(false)
 					.otherwise(true),
 				Expressions.cases() // 메세지 보낸 시간
-					.when(qChatMessage.createdAt.isNotNull())
-					.then(qChatMessage.createdAt)
-					.otherwise(qChatroom.createdAt)))
-			.from(qChatroom)
-			.join(qUserChatRoom).on(qUserChatRoom.chatroom.eq(qChatroom))
-			.join(qUser).on(qUserChatRoom.user.eq(qUser))
-			.leftJoin(qChatMessage).on(
-				qChatMessage.chatroom.eq(qChatroom)
-					.and(qChatMessage.chatMessageId.eq(
+					.when(Q_CHATMESSAGE.createdAt.isNotNull())
+					.then(Q_CHATMESSAGE.createdAt)
+					.otherwise(Q_CHATROOM.createdAt)))
+			.from(Q_CHATROOM)
+			.join(Q_USER_CHATROOM).on(Q_USER_CHATROOM.chatroom.eq(Q_CHATROOM))
+			.join(Q_USER).on(Q_USER_CHATROOM.user.eq(Q_USER))
+			.leftJoin(Q_CHATMESSAGE).on(
+				Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
+					.and(Q_CHATMESSAGE.chatMessageId.eq(
 						JPAExpressions
-							.select(qChatMessage.chatMessageId.max()) // 제일 최신 메세지 선택
-							.from(qChatMessage)
-							.where(qChatMessage.chatroom.eq(qChatroom))
+							.select(Q_CHATMESSAGE.chatMessageId.max()) // 제일 최신 메세지 선택
+							.from(Q_CHATMESSAGE)
+							.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM))
 					))
 			)
-			.where(qUserChatRoom.user.userId.ne(userId)) // 상대방이 보낸 메세지(자신 X)
+			.where(Q_USER_CHATROOM.user.userId.ne(userId)) // 상대방이 보낸 메세지(자신 X)
 			.orderBy( // 최신 순으로 정렬
 				Expressions.cases()
-					.when(qChatMessage.createdAt.isNotNull())
-					.then(qChatMessage.createdAt)
-					.otherwise(qChatroom.createdAt).desc()
+					.when(Q_CHATMESSAGE.createdAt.isNotNull())
+					.then(Q_CHATMESSAGE.createdAt)
+					.otherwise(Q_CHATROOM.createdAt).desc()
 			)
 			.fetch();
 		// 채팅방의 친구 id 리스트
@@ -107,38 +111,39 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 	// 단일 채팅방 상세 정보
 	@Override
 	public Optional<ChatroomDetailResponseDto> findChatroomById(Long chatroomId, Long userId) {
-		QChatMessage qChatMessage = QChatMessage.chatMessage;
-		QChatroom qChatroom = QChatroom.chatroom;
-		QUserChatRoom qUserChatRoom = QUserChatRoom.userChatRoom;
-		QUser qUser = QUser.user;
+
+		if (chatroomId == null) {
+			log.info("방 Id 없음");
+			return Optional.empty();
+		}
 
 		// 채팅방 기본 정보 조회
 		Tuple chatroomInfo = queryFactory
 			.select(
-				qUser.userId,
-				qUser.nickname,
-				qUser.profileImg,
-				qChatroom.createdAt
+				Q_USER.userId,
+				Q_USER.nickname,
+				Q_USER.profileImg,
+				Q_CHATROOM.createdAt
 			)
-			.from(qChatroom)
-			.join(qUserChatRoom).on(qUserChatRoom.chatroom.eq(qChatroom))
-			.join(qUser).on(qUserChatRoom.user.eq(qUser))
-			.where(
-				qChatroom.chatroomId.eq(chatroomId)
-					.and(qUserChatRoom.user.userId.ne(userId))
-			)
-			.fetchOne();
+			.distinct()
+			.from(Q_CHATROOM)
+			.join(Q_USER_CHATROOM).on(Q_USER_CHATROOM.chatroom.eq(Q_CHATROOM))
+			.join(Q_USER).on(Q_USER_CHATROOM.user.eq(Q_USER))
+			.where(Q_CHATROOM.chatroomId.eq(chatroomId)
+				.and(Q_USER_CHATROOM.user.userId.ne(userId)))
+			.fetchFirst();
 
 		if (chatroomInfo == null) {
+			log.info("방 정보 없음");
 			return Optional.empty();
 		}
 
 		// 최근 60개 메시지 조회
 		List<ChatMessage> recentMessages = queryFactory
-			.selectFrom(qChatMessage)
-			.join(qChatMessage.sender).fetchJoin()  // N+1 문제 방지
-			.where(qChatMessage.chatroom.chatroomId.eq(chatroomId))
-			.orderBy(qChatMessage.createdAt.desc())
+			.selectFrom(Q_CHATMESSAGE)
+			.join(Q_CHATMESSAGE.sender).fetchJoin()  // N+1 문제 방지
+			.where(Q_CHATMESSAGE.chatroom.chatroomId.eq(chatroomId))
+			.orderBy(Q_CHATMESSAGE.createdAt.desc())
 			.limit(60)
 			.fetch();
 
@@ -147,34 +152,42 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.map(ChatMessageResponseDto::from)
 			.toList();
 
-		Boolean isOnline = userStatusService.isUserOnline(chatroomInfo.get(qUser.userId));
+		Boolean isOnline = userStatusService.isUserOnline(chatroomInfo.get(Q_USER.userId));
 
 		return Optional.of(ChatroomDetailResponseDto.builder()
-			.friendId(chatroomInfo.get(qUser.userId))
-			.nickname(chatroomInfo.get(qUser.nickname))
-			.profileImg(chatroomInfo.get(qUser.profileImg))
+			.friendId(chatroomInfo.get(Q_USER.userId))
+			.nickname(chatroomInfo.get(Q_USER.nickname))
+			.profileImg(chatroomInfo.get(Q_USER.profileImg))
 			.isOnline(isOnline)
 			.messages(messagesDtos)
-			.createdAt(chatroomInfo.get(qChatroom.createdAt))
+			.createdAt(chatroomInfo.get(Q_CHATROOM.createdAt))
 			.build());
 	}
 
 	@Override
 	public Optional<ChatroomDetailResponseDto> findExistingChatroom(Long userId, Long friendId) {
-		QChatroom qChatroom = QChatroom.chatroom;
-		QUserChatRoom qUserChatRoom = QUserChatRoom.userChatRoom;
-
+		log.info("유저 {}, 친구 {}", userId, friendId);
 		Long chatroomId = queryFactory
-			.select(qChatroom.chatroomId)
-			.from(qChatroom)
-			.join(qUserChatRoom).on(qUserChatRoom.chatroom.eq(qChatroom))
-			.where(qUserChatRoom.user.userId.in(userId, friendId))
-			.groupBy(qChatroom.chatroomId)
-			.having(qUserChatRoom.count().eq(2L))
+			.select(Q_CHATROOM.chatroomId)
+			.from(Q_CHATROOM)
+			.where(
+				JPAExpressions
+					.selectFrom(Q_USER_CHATROOM)
+					.where(
+						Q_USER_CHATROOM.chatroom.eq(Q_CHATROOM)
+							.and(Q_USER_CHATROOM.user.userId.eq(userId))
+					).exists()
+					.and(
+						JPAExpressions
+							.selectFrom(Q_USER_CHATROOM)
+							.where(
+								Q_USER_CHATROOM.chatroom.eq(Q_CHATROOM)
+									.and(Q_USER_CHATROOM.user.userId.eq(friendId))
+							).exists()
+					)
+			)
 			.fetchFirst();
-
+		log.info("방 번호 {}", chatroomId);
 		return findChatroomById(chatroomId, userId);
 	}
-
-
 }

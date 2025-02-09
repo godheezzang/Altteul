@@ -21,6 +21,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import com.c203.altteulbe.common.security.utils.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,8 +88,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
 		resolver.setDefaultMimeType(MimeTypeUtils.APPLICATION_JSON);
 
+		ObjectMapper objectMapper = new ObjectMapper();
+		// Java 8 시간 타입을 처리하기 위한 모듈 등록
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-		converter.setObjectMapper(new ObjectMapper());
+		converter.setObjectMapper(objectMapper);
 		converter.setContentTypeResolver(resolver);
 
 		messageConverters.add(converter);

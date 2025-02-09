@@ -8,6 +8,4 @@ public interface ChatMessageCustomRepository {
 	void updateMessageAsRead(List<Long> messageIds);
 
 	List<ChatMessage> findUnreadMessages(Long chatroomId, Long readerId);
-
-	List<ChatMessage> findChatMessagesByChatroomId(Long chatroomId, int limit);
 }

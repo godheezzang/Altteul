@@ -2,7 +2,6 @@ package com.c203.altteulbe.chat.web.dto.request;
 
 import com.c203.altteulbe.chat.persistent.entity.ChatMessage;
 import com.c203.altteulbe.chat.persistent.entity.Chatroom;
-import com.c203.altteulbe.common.dto.MessageType;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -15,9 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ChatMessageRequestDto {
-	private MessageType type;
+
 	private Long chatroomId;
+
 	private Long senderId;
+
 	private String content;
 
 	// Dto -> Entity
