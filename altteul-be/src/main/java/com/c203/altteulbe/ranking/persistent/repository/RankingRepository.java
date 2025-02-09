@@ -1,7 +1,8 @@
 package com.c203.altteulbe.ranking.persistent.repository;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface RankingRepository {
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
+
+public interface RankingRepository extends RankingCustomRepository, JpaRepository<TodayRanking, Long> {
 }

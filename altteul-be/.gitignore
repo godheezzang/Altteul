@@ -41,5 +41,6 @@ out/
 
 data/*
 
+src/main/resources/data.sql
 
 

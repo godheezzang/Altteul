@@ -76,14 +76,14 @@ public class TestHistory extends BaseCreatedEntity {
 		C
 	}
 
-	public static TestHistory from(CodeSubmissionTeamResponseDto teamResponseDto, Long gameId, Long problemId, Long userId, String code, String lang) {
+	public static TestHistory from(CodeSubmissionTeamResponseDto teamResponseDto, Long gameId, Long problemId, Long userId, String maxExecuteTime, String maxMemory,  String code, String lang) {
 		return TestHistory.builder()
 			.game(Game.builder().id(gameId).build())
 			.user(User.builder().userId(userId).build())
 			.problem(Problem.builder().id(problemId).build())
 			.code(code)
-			.executeTime(null)
-			.executeMemory(null)
+			.executeTime(maxExecuteTime)
+			.executeMemory(maxMemory)
 			.successCount(teamResponseDto.getPassCount())
 			.failCount(teamResponseDto.getTotalCount()-teamResponseDto.getPassCount())
 			.result(Status.valueOf(teamResponseDto.getStatus()))
