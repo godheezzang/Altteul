@@ -26,12 +26,17 @@ public class ChatWSController {
 	private final ChatMessageService chatMessageService;
 	private final ObjectMapper objectMapper;
 
-	// 채팅방에 입장하면 메세지 읽음 처리
-	@MessageMapping("/chat/room/{chatroomId}/enter")
-	public void enterChatroom(@DestinationVariable(value = "chatroomId") Long chatroomId,
+	// 메세지 읽음 처리
+	@MessageMapping("/chat/room/{chatroomId}/read")
+	public void messageRead(@DestinationVariable(value = "chatroomId") Long chatroomId,
 		SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
 		Long id = Long.parseLong(headerAccessor.getSessionAttributes().get("userId").toString());
-		messageRead(chatroomId, id);
+		ChatMessageReadResponseDto response = chatMessageService.markMessageAsRead(chatroomId, id);
+		log.info(objectMapper.writeValueAsString(response));
+		if (response != null) {
+			messagingTemplate.convertAndSend("/sub/chat/room/" + chatroomId + "/read",
+				WebSocketResponse.withData("읽은 채팅 메세지", response));
+		}
 	}
 
 	// 채팅방에서 대화 실시간 읽음 처리
@@ -50,17 +55,6 @@ public class ChatWSController {
 			WebSocketResponse.withData("새 메시지", savedMessage)
 		);
 		log.info("메시지 전송 완료: {}", chatroomId);
-		messageRead(chatroomId, id);
-	}
-
-	// 메세지 읽음 처리
-	private void messageRead(Long chatroomId, Long userId) throws JsonProcessingException {
-		ChatMessageReadResponseDto response = chatMessageService.markMessageAsRead(chatroomId, userId);
-		log.info(objectMapper.writeValueAsString(response));
-		if (response != null) {
-			messagingTemplate.convertAndSend("/sub/chat/room/" + chatroomId + "/read",
-				WebSocketResponse.withData("읽은 채팅 메세지", response));
-		}
 	}
 }
 
