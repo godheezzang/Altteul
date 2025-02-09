@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
+import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
@@ -36,15 +37,6 @@ public class TeamInfo {
 	private List<TeamMember> members;
 
 	public static TeamInfo fromTeamRoom(TeamRoom room) {
-		String duration;
-		if (room.getFinishTime() == null && room.isActivation()) {
-			duration = "진행중";
-		} else if (room.getFinishTime() == null && !room.isActivation()) {
-			duration = "종료";
-		} else {
-			duration = fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
-		}
-
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult())
@@ -53,7 +45,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.bonusPoint(room.getRewardPoint())
-			.duration(duration)
+			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
 			.members(room.getUserTeamRooms().stream()
@@ -63,14 +55,6 @@ public class TeamInfo {
 	}
 
 	public static TeamInfo fromSingleRoom(SingleRoom room) {
-		String duration;
-		if (room.getFinishTime() == null && room.isActivation()) {
-			duration = "진행중";
-		} else if (room.getFinishTime() == null && !room.isActivation()) {
-			duration = "종료";
-		} else {
-			duration = fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
-		}
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult())
@@ -79,7 +63,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.bonusPoint(room.getRewardPoint())
-			.duration(duration)
+			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
 			.members(Collections.singletonList( // 개인방 유저 1명만
@@ -128,5 +112,15 @@ public class TeamInfo {
 
 		// 출력
 		return minutes + "분 " + seconds + "초";
+	}
+
+	private static String getDuration(Room room) {
+		if (room.getFinishTime() == null && room.isActivation()) {
+			return fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), LocalDateTime.now()));
+		} else if (room.getFinishTime() == null) {
+			return "END";
+		} else {
+			return fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
+		}
 	}
 }

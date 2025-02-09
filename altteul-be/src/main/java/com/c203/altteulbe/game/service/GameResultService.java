@@ -3,17 +3,16 @@ package com.c203.altteulbe.game.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.service.exception.GameNotFoundException;
+import com.c203.altteulbe.game.service.exception.GameNotParticipatedException;
 import com.c203.altteulbe.game.web.dto.result.response.GameResultResponseDto;
 import com.c203.altteulbe.game.web.dto.result.response.TeamInfo;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +23,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GameResultService {
 	private final GameRepository gameRepository;
-	private final UserJPARepository userJPARepository;
+
+
+
 	public GameResultResponseDto getGameResult(Long gameId, Long userId) {
 		Game game = gameRepository.findWithAllMemberByGameId(gameId)
-			.orElseThrow(()->new BusinessException("게임없음", HttpStatus.NOT_FOUND));
+			.orElseThrow(GameNotFoundException::new);
+
 		List<TeamInfo> teamInfos = extractTeamInfos(game);
 
 		TeamInfo myTeam = teamInfos.stream()
 			.filter(teamInfo -> teamInfo.getMembers().stream()
 				.anyMatch(member -> member.getUserId().equals(userId))) // `anyMatch()`로 검사
 			.findFirst()
-			.orElse(null);
+			.orElseThrow(GameNotParticipatedException::new);
+
 
 		// 모든 해당 팀을 리스트로 변환 후 추가
 		List<TeamInfo> opponents = new ArrayList<>(teamInfos.stream()
