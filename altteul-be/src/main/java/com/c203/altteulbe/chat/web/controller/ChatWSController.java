@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.c203.altteulbe.chat.service.ChatMessageService;
+import com.c203.altteulbe.chat.service.exception.UnauthorizedMessageSenderException;
 import com.c203.altteulbe.chat.web.dto.request.ChatMessageRequestDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageReadResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
@@ -39,13 +40,18 @@ public class ChatWSController {
 		}
 	}
 
-	// 채팅방에서 대화 실시간 읽음 처리
+	// 채팅방에서 대화
 	@MessageMapping("/chat/room/{chatroomId}/message")
 	public void handleMessage(
 		@DestinationVariable(value = "chatroomId") Long chatroomId,
 		@Payload ChatMessageRequestDto requestDto,
 		SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
 		Long id = Long.parseLong(headerAccessor.getSessionAttributes().get("userId").toString());
+
+		// 메시지 발신자 검증
+		if (!id.equals(requestDto.getSenderId())) {
+			throw new UnauthorizedMessageSenderException();
+		}
 		log.info("메시지 수신: {}", objectMapper.writeValueAsString(requestDto));
 		// 메세지 저장
 		ChatMessageResponseDto savedMessage = chatMessageService.saveMessage(chatroomId, requestDto);
