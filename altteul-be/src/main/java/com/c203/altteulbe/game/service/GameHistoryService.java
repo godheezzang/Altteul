@@ -50,7 +50,7 @@ public class GameHistoryService {
  		for (Game game: pagedGames) {
 			ProblemInfo problemInfo = ProblemInfo.builder()
 				.problemId(game.getProblem().getId())
-				.problemContent(game.getProblem().getDescription())
+				.description(game.getProblem().getDescription())
 				.problemTitle(game.getProblem().getProblemTitle())
 				.build();
 
