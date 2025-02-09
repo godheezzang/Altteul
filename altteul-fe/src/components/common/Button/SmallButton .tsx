@@ -9,6 +9,7 @@ type ButtonProps = {
   backgroundColor?: string;
   fontColor?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 const SmallButton = ({
@@ -18,6 +19,7 @@ const SmallButton = ({
   backgroundColor = "primary-orange",
   fontColor = "primary-white",
   className = "",
+  disabled = false,
 }: ButtonProps) => (
   <button
     onClick={onClick}
