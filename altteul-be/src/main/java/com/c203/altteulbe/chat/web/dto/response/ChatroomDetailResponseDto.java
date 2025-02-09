@@ -13,10 +13,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatroomDetailResponseDto {
+
 	private Long friendId;            // 친구 ID
+
 	private String nickname;          // 친구 닉네임
+
 	private String profileImg;        // 친구 프로필 이미지
-	private boolean isOnline;         // 친구 온라인 상태
+
+	private Boolean isOnline;         // 친구 온라인 상태
+
 	private List<ChatMessageResponseDto> messages;  // 최근 60개 메시지
+
 	private LocalDateTime createdAt;  // 채팅방
 }

@@ -14,11 +14,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatMessageResponseDto {
+
 	private Long chatMessageId;
+
 	private Long senderId;
+
 	private String senderNickname;
+
 	private String messageContent;
+
 	private boolean checked;
+
 	private LocalDateTime createdAt;
 
 	// Entity -> Dto
