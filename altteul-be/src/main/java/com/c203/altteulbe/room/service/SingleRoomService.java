@@ -1,16 +1,14 @@
 package com.c203.altteulbe.room.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
@@ -33,6 +31,7 @@ import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
 import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
 import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
+import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
@@ -69,6 +68,10 @@ public class SingleRoomService {
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+			throw new DuplicateRoomEntryException();
+		}
+		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
 			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
 			throw new DuplicateRoomEntryException();
 		}
@@ -158,6 +161,7 @@ public class SingleRoomService {
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) throw new NotEnoughUserException();
 
 		// 방 상태 변경 (waiting → counting)
+		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString());
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
@@ -167,11 +171,11 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 처리
 	 */
-	//@Transactional
+	@Transactional
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId),"COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
 			return;
 		}
 
@@ -182,26 +186,29 @@ public class SingleRoomService {
 		}
 		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
 		Problem problemEntity = problemRepository.findById(randomProblemId)
-												 .orElseThrow(()->new ProblemNotFoundException());
+			.orElseThrow(ProblemNotFoundException::new);
 
 		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
 
 		// DB에 Game 저장
-		Game game = Game.create(roomId, problemEntity, BattleType.S);
+		Game game = Game.create(problemEntity, BattleType.S);
 		gameRepository.save(game);
 
+		// Redis에서 현재 방의 유저 목록 가져오기
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 
 		Long leaderId = Long.parseLong(userIds.get(0));
 
-		// [1] DB에 SingleRoom 저장 : 입장 순서 유지를 위해 userId List를 User List로 변환 후 Map으로 저장
+		// User 엔티티 조회 및 Map으로 변환
 		Map<Long, User> userMap = getUserByIds(userIds).stream()
-									.collect(Collectors.toMap(User::getUserId, user -> user));
+			.collect(Collectors.toMap(User::getUserId, user -> user));
 
-		// [2] DB에 SingleRoom 저장 : SingleRoom 생성 후 DB에 저장
+		// SingleRoom 객체 생성 후 저장
 		List<SingleRoom> singleRooms = new ArrayList<>();
-		for (int i=0; i<userIds.size(); i++) {
+		Map<Long, Long> userRoomIdMap = new HashMap<>(); // userId → singleRoomId 매핑
+
+		for (int i = 0; i < userIds.size(); i++) {
 			Long userId = Long.parseLong(userIds.get(i));
 			User user = userMap.get(userId);
 
@@ -212,16 +219,22 @@ public class SingleRoomService {
 		}
 		singleRoomRepository.saveAll(singleRooms);
 
+		// SingleRoom의 PK 매핑
+		for (SingleRoom singleRoom : singleRooms) {
+			userRoomIdMap.put(singleRoom.getUser().getUserId(), singleRoom.getId());
+		}
+
 		// 방 상태를 gaming으로 변경
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "gaming");
 
 		// WebSocket으로 게임 시작 데이터 전송
-		List<User> userEntities = getUserByIds(userIds);
-		List<UserInfoResponseDto> users = UserInfoResponseDto.fromEntities(userEntities);
+		List<SingleRoomGameStartForUserInfoResponseDto> users = userMap.values().stream()
+			.map(user -> SingleRoomGameStartForUserInfoResponseDto.fromEntity(user, userRoomIdMap.get(user.getUserId()))) // SingleRoom의 pk를 roomId로 설정
+			.collect(Collectors.toList());
 
 		List<GameStartForTestcaseDto> testcase = testcaseEntities.stream()
-													.map(GameStartForTestcaseDto::from)
-													.collect(Collectors.toList());
+			.map(GameStartForTestcaseDto::from)
+			.collect(Collectors.toList());
 
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 
@@ -231,6 +244,7 @@ public class SingleRoomService {
 
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
+
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {

@@ -82,7 +82,7 @@ public class RedisKeys {
 	}
 
 	// 팀전 방 카운팅 관리
-	public static String TeamRoomCountdown(Long roomId) {
+	public static String TeamRoomCountdown(String roomId) {
 		return "room:team:" + roomId + ":countdown";
 	}
 
