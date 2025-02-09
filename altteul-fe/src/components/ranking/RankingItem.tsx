@@ -2,7 +2,7 @@ import rank_up from "@assets/icon/rank_up.svg";
 import rank_down from "@assets/icon/rank_down.svg";
 import {RankingResponse} from "types/types"
 // 랭킹 행 컴포넌트
-const Rankingitem = ({ data }: { data: RankingResponse }) => {
+const RankingItem = ({ data }: { data: RankingResponse }) => {
   const { nickname, mainLang, rank, rankPoint, tierId, rankChange } = data;
 
   const formatNumber = (num: number) => {
@@ -70,4 +70,4 @@ const Rankingitem = ({ data }: { data: RankingResponse }) => {
   );
 };
 
-export default Rankingitem;
+export default RankingItem;
