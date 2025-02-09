@@ -21,8 +21,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -49,6 +51,7 @@ public class Game extends BaseCreatedEntity {
 	private LocalDateTime completedAt;
 
 	@OneToMany(mappedBy = "game")
+	@Builder.Default
 	private List<ItemHistory> itemHistories = new ArrayList<>();
 
 	@OneToMany(mappedBy = "game")
@@ -57,9 +60,8 @@ public class Game extends BaseCreatedEntity {
 	@OneToMany(mappedBy = "game")
 	private List<SingleRoom> singleRooms = new ArrayList<>();
 
-	public static Game create(Long gameId, Problem problem, BattleType battleType) {
+	public static Game create(Problem problem, BattleType battleType) {
 		return Game.builder()
-			.id(gameId)
 			.problem(problem)
 			.battleType(battleType)
 			.build();
