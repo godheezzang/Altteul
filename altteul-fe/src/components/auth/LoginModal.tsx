@@ -6,6 +6,7 @@ import Button from "@components/Common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
 import useModalStore from "@stores/modalStore";
+import { Token } from "./../../../node_modules/sucrase/dist/esm/parser/tokenizer/index";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -33,18 +34,22 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
     try {
       const response = await loginUser(form.username, form.password);
-      console.log("로그인 성공:", response);
+      console.log("전체 응답 구조:", response);
+      console.log("헤더 구조:", response.headers);
+      console.log("헤더 타입:", typeof response.headers);
+      console.log("모든 헤더 키:", Object.keys(response.headers));
 
       if (!response) {
         throw new Error("서버 응답이 없습니다.");
       }
 
-      const token = response.headers.authorization || response.data?.token;
+      const token =
+        response.headers?.authorization || response.headers?.["authorization"];
       if (!token) {
         throw new Error("토큰이 응답에 포함되지 않았습니다");
       }
 
-      const userId = response.headers.userid;
+      const userId = response.headers?.userid || response.headers?.["userid"];
       if (!userId) {
         throw new Error("userId가 응답에 포함되지 않았습니다.");
       }
@@ -72,8 +77,16 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
   // 깃허브 로그인
   const handleGithubLogin = () => {
-    // GitHub 로그인 URL로 리다이렉트
-    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+    const redirectUri = encodeURIComponent(
+      "http://localhost:5173/auth/github/callback"
+    );
+    const githubAuthUrl = `http://localhost:8080/oauth2/authorization/github?redirect_uri=${redirectUri}`;
+    // window.location.href = "http://localhost:8080/oauth2/authorization/github";
+
+    console.log("리다이렉트 URI:", redirectUri);
+    console.log("인증 URL:", githubAuthUrl);
+
+    window.location.href = githubAuthUrl;
   };
 
   return (
