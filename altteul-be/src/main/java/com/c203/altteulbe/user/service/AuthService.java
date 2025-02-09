@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
+import com.c203.altteulbe.ranking.persistent.repository.RankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
@@ -21,6 +23,7 @@ public class AuthService {
 
 	private final UserJPARepository userJPARepository;
 	private final PasswordEncoder passwordEncoder;
+	private final RankingRepository rankingRepository;
 
 	public void registerUser(RegisterUserRequestDto request, MultipartFile image) {
 
@@ -41,8 +44,17 @@ public class AuthService {
 			.tier(new Tier(1L, "BRONZE", 0, 200))
 			.build();
 
+		TodayRanking todayRanking = TodayRanking.builder()
+			.user(user)
+			.tier(user.getTier())
+			.rankingPoint(user.getRankingPoint())
+			.rankingChange(0L)
+			.id(rankingRepository.count()+1)
+			.build();
+
 		user.hashPassword(passwordEncoder);
 		userJPARepository.save(user);
+		rankingRepository.save(todayRanking);
 	}
 
 	public void validateId(String username) {

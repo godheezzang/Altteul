@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.web.dto.response;
+package com.c203.altteulbe.game.web.dto.record.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
