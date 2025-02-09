@@ -27,14 +27,14 @@ const Modal = ({
       onMouseDown={onClose}
     >
       <div
-        className={`flex flex-col items-center bg-primary-white text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
+        className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
         onMouseDown={(e) => e.stopPropagation()}
         style={{ width, height }}
       >
         {title && (
           <h2 className="text-xxl font-bold text-center mt-4">{title}</h2>
         )}
-        <div className="mt-5 flex flex-col items-center gap-5">{children}</div>
+        <div className="flex flex-col items-center gap-5">{children}</div>
       </div>
     </div>
   );
