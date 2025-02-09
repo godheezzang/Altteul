@@ -34,6 +34,7 @@ public class EditorController {
 		// 접속한 사용자에게 현재 문서 상태 전송
 		messagingTemplate.convertAndSend("/sub/editor/" + editorId + "init" + id,
 			WebSocketResponse.withData("INIT", editor));
+		log.info("editor {} 접속 - 초기 세팅 완료: ", editorId);
 	}
 
 	// 커서 정보 등 전달
@@ -48,6 +49,7 @@ public class EditorController {
 
 		messagingTemplate.convertAndSend("/sub/editor/" + editorId + "awareness",
 			WebSocketResponse.withData("AWARENESS", response));
+		log.info("awareness 정보 전달 완료");
 
 	}
 
@@ -63,6 +65,7 @@ public class EditorController {
 
 		messagingTemplate.convertAndSend("/sub/editor/" + editorId,
 			WebSocketResponse.withData("UPDATE", response));
+		log.info("editor 상태 업데이트 완료");
 	}
 
 	// editor 저장
@@ -70,5 +73,6 @@ public class EditorController {
 	public void handleSave(@DestinationVariable("editorId") String editorId,
 		@Payload byte[] state) {
 		editorService.saveState(editorId, state);
+		log.info("editor 상태 저장 완료");
 	}
 }
