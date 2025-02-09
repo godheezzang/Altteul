@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
-import backgroundImage from "@assets/background/single_matching.svg";
+import backgroundImage from "@assets/background/single_matching_bg.svg";
 import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";

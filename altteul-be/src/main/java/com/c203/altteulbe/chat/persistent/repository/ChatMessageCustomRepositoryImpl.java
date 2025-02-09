@@ -45,17 +45,4 @@ public class ChatMessageCustomRepositoryImpl extends QuerydslRepositorySupport i
 			.orderBy(qChatMessage.createdAt.asc()) // 오래된 순으로 정렬
 			.fetch();
 	}
-
-	// 채팅 메시지 조회
-	@Override
-	public List<ChatMessage> findChatMessagesByChatroomId(Long chatroomId, int limit) {
-		QChatMessage qChatMessage = QChatMessage.chatMessage;
-
-		return queryFactory
-			.selectFrom(qChatMessage)
-			.where(qChatMessage.chatroom.chatroomId.eq(chatroomId))
-			.orderBy(qChatMessage.createdAt.desc())
-			.limit(limit)
-			.fetch();
-	}
 }
