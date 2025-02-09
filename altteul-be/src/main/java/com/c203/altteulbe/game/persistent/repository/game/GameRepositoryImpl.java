@@ -9,18 +9,17 @@ import static com.c203.altteulbe.room.persistent.entity.QTeamRoom.*;
 import static com.c203.altteulbe.room.persistent.entity.QUserTeamRoom.*;
 import static com.c203.altteulbe.user.persistent.entity.QUser.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.QProblem;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -34,49 +33,80 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 	}
 
 	@Override
-	public Page<Game> findWithItemAndProblemAndAllMemberByUserId(Long userId, Pageable pageable) {
+	public List<Game> findWithItemAndProblemAndAllMemberByUserId(Long userId) {
 		QProblem problem = QProblem.problem;
-		JPAQuery<Game> query = queryFactory
+		JPAQuery<Game> teamRoomQuery = queryFactory
 			.selectFrom(game)
-			.join(game.teamRooms, teamRoom) // Game과 TeamRoom을 join
-			.join(teamRoom.userTeamRooms, userTeamRoom) // TeamRoom과 UserTeamRoom을 join
-			.join(userTeamRoom.user, user) // UserTeamRoom과 User를 join
-			.where(user.userId.eq(userId)) // 특정 userId로 필터링
-			.leftJoin(game.singleRooms, singleRoom) // SingleRoom을 left join하고 즉시 로딩
-			.leftJoin(teamRoom.itemHistories, itemHistory) // ItemHistory를 left join하고 즉시 로딩
-			.leftJoin(game.problem, problem) // Problem을 left join하고 즉시 로딩
+			.leftJoin(game.teamRooms, teamRoom)
+			.leftJoin(game.itemHistories, itemHistory).distinct()
+			.leftJoin(teamRoom.userTeamRooms, userTeamRoom)
+			.leftJoin(userTeamRoom.user, user)
+			.leftJoin(game.problem, problem)
 			.leftJoin(user.tier, tier)
 			.leftJoin(user.todayRanking, todayRanking)
-			.orderBy(game.createdAt.asc()); // Game의 createdAt을 기준으로 오름차순 정렬
+			.where(game.in(  // `game`을 기준으로 `userId`에 해당하는 `teamRoom`을 찾음
+				JPAExpressions
+					.select(teamRoom.game)  // teamRoom과 관련된 game을 가져옴
+					.from(userTeamRoom)
+					.join(userTeamRoom.teamRoom, teamRoom)  // `userTeamRoom`을 통해 `teamRoom`을 가져옴
+					.where(userTeamRoom.user.userId.eq(userId))
+			));
 
-		JPAQuery<Long> countQuery = queryFactory
-			.select(user.count())
-			.from(user)
-			.leftJoin(userTeamRoom).on(userTeamRoom.user.eq(user))
-			.leftJoin(singleRoom).on(singleRoom.user.eq(user))
-			.where(user.userId.eq(userId));
 
 
-		List<Game> games = Objects.requireNonNull(getQuerydsl())
-			.applyPagination(pageable, query)
-			.fetch();
+		JPAQuery<Game> singleRoomQuery = queryFactory
+			.selectFrom(game)
+			.leftJoin(game.singleRooms, singleRoom).fetchJoin()
+			.leftJoin(game.problem, problem)
+			.leftJoin(singleRoom.user, user)
+			.leftJoin(user.tier, tier)
+			.leftJoin(user.todayRanking, todayRanking)
+			.where(game.in(
+				JPAExpressions
+					.select(singleRoom.game)
+					.from(singleRoom)
+					.where(singleRoom.user.userId.eq(userId))
+			));
 
-		return PageableExecutionUtils.getPage(games, pageable, countQuery::fetchOne);
+		List<Game> teamRoomGames = teamRoomQuery.fetch();
+		List<Game> singleRoomGames = singleRoomQuery.fetch();
 
+		List<Game> result = new ArrayList<>();
+		result.addAll(teamRoomGames);
+		result.addAll(singleRoomGames);
+
+		return result;
 	}
 
 	@Override
 	public Optional<Game> findWithAllMemberByGameId(Long gameId) {
-		return Optional.ofNullable(queryFactory
-			.selectFrom(game)
+		BattleType gameType = queryFactory
+			.select(game.battleType)
+			.from(game)
 			.where(game.id.eq(gameId))
-			.leftJoin(game.teamRooms, teamRoom)
-			.leftJoin(teamRoom.userTeamRooms, userTeamRoom)
-			.leftJoin(userTeamRoom.user, user)
-			.leftJoin(game.singleRooms, singleRoom)
-			.leftJoin(user.tier, tier)
-			.fetchOne()
-		);
+			.fetchOne();
+
+		if (BattleType.S.equals(gameType)) {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.singleRooms, singleRoom).fetchJoin()
+				.leftJoin(user.tier, tier).fetchJoin()
+				.leftJoin(singleRoom.user, user).fetchJoin()
+				.where(game.id.eq(gameId))
+				.fetchOne()
+			);
+		} else {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
+				.leftJoin(teamRoom.userTeamRooms, userTeamRoom).fetchJoin()
+				.leftJoin(userTeamRoom.user, user).fetchJoin()
+				.leftJoin(user.tier, tier).fetchJoin()
+				.where(game.id.eq(gameId))
+				.fetchOne()
+			);
+		}
+
 	}
 
 	@Override

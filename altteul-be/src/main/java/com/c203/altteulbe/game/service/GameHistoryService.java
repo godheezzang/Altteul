@@ -1,12 +1,13 @@
 package com.c203.altteulbe.game.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.response.PageResponse;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class GameHistoryService {
 
@@ -34,13 +36,18 @@ public class GameHistoryService {
 		if (!userJPARepository.existsById(userId)) {
 			throw new NotFoundUserException();
 		}
-		Page<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId,
-			PageRequest.of(pageable.getPageNumber(),
-				pageable.getPageSize())
-		);
+		List<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId);
+
+		List<Game> pagedGames = games.stream()
+			.sorted(Comparator.comparing(Game::getCreatedAt).reversed()) // 최신순 정렬
+			.skip(pageable.getOffset()) // Offset 만큼 건너뛰기
+			.limit(pageable.getPageSize()) // 한 페이지에 필요한 개수만큼 가져오기
+			.toList();
+
 
 		List<GameRecordResponseDto> gameRecordResponseDtos = new ArrayList<>();
- 		for (Game game: games) {
+ 		for (Game game: pagedGames) {
+			System.out.println("game.getBattleType() : " + game.getBattleType());
 			ProblemInfo problemInfo = ProblemInfo.builder()
 				.problemId(game.getProblem().getId())
 				.problemContent(game.getProblem().getDescription())
@@ -48,7 +55,6 @@ public class GameHistoryService {
 				.build();
 
 			List<TeamInfo> teamInfos = extractTeamInfos(game);
-			List<TeamInfo> opponents = new ArrayList<>();
 
 			TeamInfo myTeam = teamInfos.stream()
 				.filter(teamInfo -> teamInfo.getMembers().stream()
@@ -56,18 +62,18 @@ public class GameHistoryService {
 				.findFirst()
 				.orElse(null);
 
-			opponents.add(
-				teamInfos.stream()
+			System.out.println(teamInfos.toString());
+			// 모든 해당 팀을 리스트로 변환 후 추가
+			List<TeamInfo> opponents = new ArrayList<>(teamInfos.stream()
 				.filter(teamInfo -> teamInfo.getMembers().stream()
-					.anyMatch(member -> !member.getUserId().equals(userId))) // `anyMatch()`로 검사
-				.findAny()
-				.orElse(null)
-			);
+					.noneMatch(member -> member.getUserId().equals(userId))) // 조건 만족하는 모든 팀 필터링
+				.toList());
+
 
 			List<ItemInfo> items;
 			if (myTeam != null) items = ItemInfo.from(game, myTeam.getTeamId());
 			else throw new NullPointerException();
-
+			System.out.println(items);
 			gameRecordResponseDtos.add(GameRecordResponseDto.from(game, problemInfo, items, myTeam, opponents));
 		}
 
