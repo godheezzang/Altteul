@@ -37,8 +37,10 @@ public class TeamInfo {
 
 	public static TeamInfo fromTeamRoom(TeamRoom room) {
 		String duration;
-		if (room.getFinishTime() == null) {
+		if (room.getFinishTime() == null && room.isActivation()) {
 			duration = "진행중";
+		} else if (room.getFinishTime() == null && !room.isActivation()) {
+			duration = "종료";
 		} else {
 			duration = fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
 		}
@@ -62,8 +64,10 @@ public class TeamInfo {
 
 	public static TeamInfo fromSingleRoom(SingleRoom room) {
 		String duration;
-		if (room.getFinishTime() == null) {
+		if (room.getFinishTime() == null && room.isActivation()) {
 			duration = "진행중";
+		} else if (room.getFinishTime() == null && !room.isActivation()) {
+			duration = "종료";
 		} else {
 			duration = fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
 		}
