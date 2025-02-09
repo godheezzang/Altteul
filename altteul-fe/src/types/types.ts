@@ -76,6 +76,16 @@ export interface SingleEnterApiResponse {
   status?: string;
 }
 
+export interface RankingResponse{
+  userId?: number,
+  rank: number,
+  nickname: string,
+  mainLang: string,
+  rankPoint: number,
+  tierId: number,
+  rankChange: number,
+  averagePassRate: number,
+}
 export interface UserGameRecordResponse {
   status: number;
   message: string;

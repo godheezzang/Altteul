@@ -1,4 +1,4 @@
-import backgroundImage from "@assets/background/matching_select.svg";
+import backgroundImage from "@assets/background/matching_select_bg.svg";
 import userIcon from "@assets/icon/User.svg";
 import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";

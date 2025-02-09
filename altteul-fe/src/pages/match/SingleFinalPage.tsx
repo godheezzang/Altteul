@@ -1,7 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
 import { useTimer } from "@hooks/useTimer";
-import backgroundImage from "@assets/background/single_matching.svg";
+import backgroundImage from "@assets/background/single_matching_bg.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
 import { useMatchStore } from "@stores/matchStore";
