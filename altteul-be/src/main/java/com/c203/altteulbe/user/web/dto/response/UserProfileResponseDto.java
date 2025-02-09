@@ -25,6 +25,8 @@ public class UserProfileResponseDto implements AbstractDto {
 	Boolean isOwner;
 
 	public static UserProfileResponseDto from(User user, Long totalCount, Long currentUserId) {
+		System.out.println(totalCount);
+		System.out.println(user.getTodayRanking().getId());
 		return UserProfileResponseDto.builder()
 			.userId(user.getUserId())
 			.username(user.getUsername())
@@ -32,7 +34,7 @@ public class UserProfileResponseDto implements AbstractDto {
 			.profileImg(user.getProfileImg())
 			.tierId(user.getTier().getId())
 			.tierName(user.getTier().getTierName())
-			.rankPercentile((user.getTodayRanking().getId()/totalCount)*100)
+			.rankPercentile((long)((double) user.getTodayRanking().getId() / totalCount * 100))
 			.rank(user.getTodayRanking().getId())
 			.rankChange(user.getTodayRanking().getRankingChange())
 			.isOwner(user.getUserId().equals(currentUserId))

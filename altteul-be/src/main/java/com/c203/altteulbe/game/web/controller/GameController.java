@@ -29,14 +29,14 @@ public class GameController {
 	private final GameResultService gameResultService;
 	private final GameHistoryService gameHistoryService;
 
-	@GetMapping("/user/game/history/{userId}")
+	@GetMapping("/game/history/{userId}")
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<GameRecordResponseDto>>> getGameRecord(@PathVariable Long userId,
 		@PageableDefault(page = 0, size = 10) Pageable pageable) {
 
 		return ApiResponse.success(gameHistoryService.getGameRecord(userId, pageable));
 	}
 
-	@GetMapping("/user/game/{gameId}/result")
+	@GetMapping("/game/{gameId}/result")
 	public ApiResponseEntity<ResponseBody.Success<GameResultResponseDto>> getGameResult(@PathVariable Long gameId, @AuthenticationPrincipal Long userId) {
 		return ApiResponse.success(gameResultService.getGameResult(gameId, userId));
 	}
