@@ -32,10 +32,10 @@ public class RoomValidator {
 		return "waiting".equals(roomStatus);
 	}
 
-	// 방 상태 검증 (매칭 중 여부)
-	public boolean isRoomMatching(Long roomId) {
+	// 방 상태 검증 (매칭 완료 여부)
+	public boolean isRoomMatched(Long roomId) {
 		String roomStatus = redisTemplate.opsForValue().get(RedisKeys.TeamRoomStatus(roomId));
-		return "matching".equals(roomStatus);
+		return "matched".equals(roomStatus);
 	}
 
 	// 방장 검증
