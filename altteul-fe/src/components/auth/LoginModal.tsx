@@ -33,10 +33,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
     try {
       const response = await loginUser(form.username, form.password);
-      console.log("전체 응답 구조:", response);
-      console.log("헤더 구조:", response.headers);
-      console.log("헤더 타입:", typeof response.headers);
-      console.log("모든 헤더 키:", Object.keys(response.headers));
 
       if (!response) {
         throw new Error("서버 응답이 없습니다.");
@@ -56,7 +52,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       const cleanToken = token.replace(/^Bearer\s+/i, "");
       setToken(cleanToken);
       setUserId(userId.toString());
-      console.log("로컬&zustand에 토큰, userId 저장 완료:", cleanToken, userId);
 
       onClose();
     } catch (error) {
@@ -76,7 +71,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
   // 깃허브 로그인
   const handleGithubLogin = () => {
-    console.log("GitHub 로그인 시도");
     window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
 
