@@ -29,14 +29,15 @@ public class TeamInfo {
 	private int totalHeadCount;
 	private String executeTime;
 	private String executeMemory;
-	private Integer bonusPoint;
+	private Integer point;
+	private int passRate;
 	private String duration;
 	private String code;
 	private LocalDateTime createdAt;
 	private List<TeamMember> members;
 
 	// ✅ TeamRoom 변환 메서드
-	public static TeamInfo fromTeamRoom(TeamRoom room) {
+	public static TeamInfo fromTeamRoom(TeamRoom room, int totalCount) {
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult())
@@ -44,7 +45,8 @@ public class TeamInfo {
 			.totalHeadCount(room.getUserTeamRooms().size())
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
-			.bonusPoint(room.getRewardPoint())
+			.point(room.getRewardPoint())
+			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
 			.duration(fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime())))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
@@ -54,8 +56,8 @@ public class TeamInfo {
 			.build();
 	}
 
-	// ✅ TeamRoom 변환 메서드
-	public static TeamInfo fromSingleRoom(SingleRoom room) {
+	// TeamRoom 변환 메서드
+	public static TeamInfo fromSingleRoom(SingleRoom room, int totalCount) {
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult())
@@ -63,7 +65,8 @@ public class TeamInfo {
 			.totalHeadCount(1)
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
-			.bonusPoint(room.getRewardPoint())
+			.point(room.getRewardPoint())
+			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
 			.duration(fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime())))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
@@ -81,7 +84,6 @@ public class TeamInfo {
 		private Long userId;
 		private String nickname;
 		private String profileImage;
-		private Long rank;
 		private Long tierId;
 
 		public static TeamMember fromUserTeamRoom(UserTeamRoom userTeamRoom) {
@@ -89,7 +91,6 @@ public class TeamInfo {
 				.userId(userTeamRoom.getUser().getUserId())
 				.nickname(userTeamRoom.getUser().getNickname())
 				.profileImage(userTeamRoom.getUser().getProfileImg())
-				.rank(userTeamRoom.getUser().getTodayRanking().getId())
 				.tierId(userTeamRoom.getUser().getTier().getId())
 				.build();
 		}
@@ -99,7 +100,6 @@ public class TeamInfo {
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.profileImage(user.getProfileImg())
-				.rank(user.getTodayRanking().getId())
 				.tierId(user.getTier().getId())
 				.build();
 		}

@@ -26,7 +26,6 @@ public class GameResultService {
 	public GameResultResponseDto getGameResult(Long gameId, Long userId) {
 		Game game = gameRepository.findWithAllMemberByGameId(gameId)
 			.orElseThrow(()->new BusinessException("게임없음", HttpStatus.NOT_FOUND));
-
 		List<TeamInfo> teamInfos = extractTeamInfos(game);
 
 		List<TeamInfo> opponents = new ArrayList<>();
@@ -51,12 +50,12 @@ public class GameResultService {
 		if (game.getBattleType() == BattleType.S) {
 			// 개인방 정보 변환 (TeamInfo 형식으로 변환)
 			return game.getSingleRooms().stream()
-				.map(TeamInfo::fromSingleRoom)
+				.map(room -> TeamInfo.fromSingleRoom(room, game.getProblem().getTotalCount())) // 추가 인자 전달
 				.toList();
 		} else {
 			// 팀방 정보 변환
 			return game.getTeamRooms().stream()
-				.map(TeamInfo::fromTeamRoom)
+				.map(room -> TeamInfo.fromTeamRoom(room, game.getProblem().getTotalCount()))
 				.toList();
 		}
 	}
