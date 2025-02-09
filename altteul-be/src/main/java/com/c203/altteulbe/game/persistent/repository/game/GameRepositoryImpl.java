@@ -58,9 +58,9 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			.selectFrom(game)
 			.leftJoin(game.singleRooms, singleRoom).fetchJoin()
 			.leftJoin(game.problem, problem)
-			.leftJoin(singleRoom.user, user)
-			.leftJoin(user.tier, tier)
-			.leftJoin(user.todayRanking, todayRanking)
+			.leftJoin(singleRoom.user, user).fetchJoin()
+			.leftJoin(user.tier, tier).fetchJoin()
+			.leftJoin(user.todayRanking, todayRanking).fetchJoin()
 			.where(game.in(
 				JPAExpressions
 					.select(singleRoom.game)
@@ -99,7 +99,7 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			return Optional.ofNullable(queryFactory
 				.selectFrom(game)
 				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
-				.leftJoin(teamRoom.userTeamRooms, userTeamRoom).fetchJoin()
+				.leftJoin(teamRoom.userTeamRooms, userTeamRoom)
 				.leftJoin(userTeamRoom.user, user).fetchJoin()
 				.leftJoin(user.tier, tier).fetchJoin()
 				.where(game.id.eq(gameId))
