@@ -71,7 +71,6 @@ public class GameHistoryService {
 			List<ItemInfo> items;
 			if (myTeam != null) items = ItemInfo.from(game, myTeam.getTeamId());
 			else throw new NullPointerException();
-			System.out.println(items);
 			gameRecordResponseDtos.add(GameRecordResponseDto.from(game, problemInfo, items, myTeam, opponents));
 		}
 

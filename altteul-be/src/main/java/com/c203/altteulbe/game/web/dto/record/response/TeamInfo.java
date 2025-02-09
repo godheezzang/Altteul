@@ -71,7 +71,6 @@ public class TeamInfo {
 		} else {
 			duration = fromDurationToMinuteAndSecond(Duration.between(room.getCreatedAt(), room.getFinishTime()));
 		}
-		System.out.println(TeamMember.fromUser(room.getUser()).userId);
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult())

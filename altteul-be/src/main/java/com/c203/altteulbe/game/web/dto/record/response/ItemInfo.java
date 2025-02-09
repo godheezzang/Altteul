@@ -19,8 +19,6 @@ public class ItemInfo {
 	private Long itemId;
 	private String itemName;
 	public static List<ItemInfo> from(Game game, Long teamId) {
-		System.out.println("game.getItemHistories() : " + game.getItemHistories());
-		System.out.println(teamId);
 		return game.getItemHistories().stream()
 			.filter(itemHistory -> itemHistory.getTeamRoom().equals(teamId)) // myTeam의 teamId로 필터링
 			.map(ItemInfo::from) // ItemHistory를 ItemInfo로 변환 (가정)
