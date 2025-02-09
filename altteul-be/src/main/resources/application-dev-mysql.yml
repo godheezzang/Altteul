@@ -13,12 +13,14 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     show-sql: false
     properties:
-      javax.persistence.sql-load-script-source: data.sql
       hibernate:
         format_sql: true
       default_batch_fetch_size: 100
