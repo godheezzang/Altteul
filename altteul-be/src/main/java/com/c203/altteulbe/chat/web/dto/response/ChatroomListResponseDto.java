@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatroomListResponseDto {
+
 	private Long friendId;
 
 	private String nickname;
@@ -25,5 +26,4 @@ public class ChatroomListResponseDto {
 	private Boolean isMessageRead;
 
 	private LocalDateTime createdAt;
-
 }

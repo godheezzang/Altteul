@@ -17,7 +17,6 @@ import com.c203.altteulbe.chat.service.exception.NotParticipantException;
 import com.c203.altteulbe.chat.web.dto.request.ChatMessageRequestDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageReadResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
-import com.c203.altteulbe.common.dto.MessageType;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -35,22 +34,16 @@ public class ChatMessageService {
 	// 메세지 읽음으로 처리하기
 	@Transactional
 	public ChatMessageReadResponseDto markMessageAsRead(Long chatroomId, Long userId) {
-
 		List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessages(chatroomId, userId);
-
 		if (unreadMessages.isEmpty()) {
 			return null;
 		}
-
 		List<Long> messageIds = unreadMessages.stream()
 			.map(ChatMessage::getChatMessageId)
 			.toList();
 		Long senderId = unreadMessages.get(0).getSender().getUserId();
-
 		chatMessageRepository.updateMessageAsRead(messageIds);
-
 		return ChatMessageReadResponseDto.builder()
-			.type(MessageType.READ)
 			.chatroomId(chatroomId)
 			.readerId(userId)
 			.senderId(senderId)
@@ -66,26 +59,11 @@ public class ChatMessageService {
 		Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow(NotFoundChatroomException::new);
 		User sender = userJPARepository.findByUserId(requestDto.getSenderId())
 			.orElseThrow(NotFoundUserException::new);
-
 		validateChatroomParticipant(chatroomId, sender.getUserId());
 		ChatMessage chatMessage = ChatMessageRequestDto.to(requestDto, chatroom, sender);
-
 		ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
-
 		return ChatMessageResponseDto.from(savedMessage);
 	}
-
-	// // 메세지 조회
-	// @Transactional(readOnly = true)
-	// public List<ChatMessageResponseDto> getChatMessages(Long chatroomId, Long userId) {
-	// 	validateChatroomParticipant(chatroomId, userId);
-	//
-	// 	// 최대 60개 조회
-	// 	return chatMessageRepository.findChatMessagesByChatroomId(chatroomId, 60)
-	// 		.stream()
-	// 		.map(ChatMessageResponseDto::from)
-	// 		.toList();
-	// }
 
 	// 메세지 검증
 	private void validateMessageContent(String content) {

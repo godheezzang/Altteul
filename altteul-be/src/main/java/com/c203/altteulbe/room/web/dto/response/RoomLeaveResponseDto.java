@@ -16,17 +16,17 @@ import lombok.NoArgsConstructor;
 public class RoomLeaveResponseDto {
 	private Long roomId;
 	private Long leaderId;
-	private UserInfoResponseDto leftUser;             // 떠난 유저
-	private List<UserInfoResponseDto> remainingUsers; // 남은 유저
+	private UserInfoResponseDto leftUser;      // 떠난 유저
+	private List<UserInfoResponseDto> users;   // 남은 유저
 
 	public static RoomLeaveResponseDto toResponse(Long roomId, Long leaderId,
 														UserInfoResponseDto leftUser,
-														List<UserInfoResponseDto> remainingUsers) {
+														List<UserInfoResponseDto> users) {
 		return RoomLeaveResponseDto.builder()
 										 .roomId(roomId)
 										 .leaderId(leaderId)
 										 .leftUser(leftUser)
-										 .remainingUsers(remainingUsers)
+										 .users(users)
 										 .build();
 	}
 

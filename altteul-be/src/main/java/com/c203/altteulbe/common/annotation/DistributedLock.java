@@ -20,14 +20,14 @@ public @interface DistributedLock {
 	TimeUnit timeUnit() default TimeUnit.SECONDS;
 
 	/**
-	 * 락을 기다리는 시간 (default - 5s)
+	 * 락을 기다리는 시간 (default - 2s)
 	 * 락 획득을 위해 waitTime 만큼 대기
 	 */
-	long waitTime() default 5L;
+	long waitTime() default 2L;
 
 	/**
-	 * 락 임대 시간 (default - 3s)
+	 * 락 임대 시간 (default - -1s)
 	 * 락을 획득한 이후 leaseTime 이 지나면 락을 해제
 	 */
-	long leaseTime() default 3L;
+	long leaseTime() default -1;
 }

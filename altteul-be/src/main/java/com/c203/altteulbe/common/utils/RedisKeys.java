@@ -17,9 +17,6 @@ public class RedisKeys {
 	// 팀전 매칭 진행 중인 방 목록
 	public static final String TEAM_MATCHING_ROOMS = "room:team:matching_rooms";
 
-	// 방 ID 자동 증가 카운터 (개인전 + 팀전)
-	public static final String ROOM_ID_COUNTER = "room:both:id_counter";
-
 	// 팀전 대기 중인 방 목록
 	public static final String TEAM_WAITING_ROOMS = "room:team:waiting_rooms";
 
@@ -82,7 +79,7 @@ public class RedisKeys {
 	}
 
 	// 팀전 방 카운팅 관리
-	public static String TeamRoomCountdown(Long roomId) {
+	public static String TeamRoomCountdown(String roomId) {
 		return "room:team:" + roomId + ":countdown";
 	}
 
