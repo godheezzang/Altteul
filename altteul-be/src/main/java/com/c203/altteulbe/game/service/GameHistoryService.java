@@ -14,6 +14,7 @@ import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.service.exception.GameNotParticipatedException;
 import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
 import com.c203.altteulbe.game.web.dto.record.response.ItemInfo;
 import com.c203.altteulbe.game.web.dto.record.response.ProblemInfo;
@@ -59,7 +60,7 @@ public class GameHistoryService {
 				.filter(teamInfo -> teamInfo.getMembers().stream()
 					.anyMatch(member -> member.getUserId().equals(userId))) // `anyMatch()`로 검사
 				.findFirst()
-				.orElse(null);
+				.orElseThrow(GameNotParticipatedException::new);
 
 			// 모든 해당 팀을 리스트로 변환 후 추가
 			List<TeamInfo> opponents = new ArrayList<>(teamInfos.stream()
