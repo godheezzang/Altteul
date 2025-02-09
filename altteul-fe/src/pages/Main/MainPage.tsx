@@ -25,6 +25,17 @@ const MainPage = () => {
   return (
     <>
       <h1 className="text-primary-white">main</h1>
+      <button
+        onClick={() => setIsLoginModalOpen(true)}
+        className="text-primary-white"
+      >
+        로그인
+      </button>
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </>
   );
 };

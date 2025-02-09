@@ -2,6 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api/",
+  withCredentials: true,
 });
 
 // 회원가입 API 요청
@@ -50,9 +51,6 @@ export const registerUser = async (formData: FormData) => {
 // 로그인 API 요청
 export const loginUser = async (username: string, password: string) => {
   try {
-    console.log("로그인 요청 시작");
-    console.log("요청 데이터 : 사용자명 :", username, "비밀번호 :", password);
-
     const response = await api.post(
       "login",
       { username, password },
@@ -62,19 +60,13 @@ export const loginUser = async (username: string, password: string) => {
         },
       }
     );
-
-    console.log("응답 데이터:", response);
-    console.log("응답 상태:", response.status);
+    console.log("서버 응답 전체:", response);
     console.log("응답 헤더:", response.headers);
-    console.log("응답 본문:", response.data);
 
     if (response.status >= 200 && response.status < 300) {
       console.log("로그인 성공");
 
-      return {
-        headers: response.headers,
-        data: response.data,
-      };
+      return response;
     } else {
       throw new Error(response.data.message || "잘못된 응답");
     }
