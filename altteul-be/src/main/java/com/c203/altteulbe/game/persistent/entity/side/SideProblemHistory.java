@@ -40,7 +40,7 @@ public class SideProblemHistory extends BaseCreatedEntity {
 	private Game gameId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_room_id", nullable = false)
+	@JoinColumn(name = "team_room_id")
 	private TeamRoom teamRoomId;
 
 	@ManyToOne(fetch = FetchType.LAZY)

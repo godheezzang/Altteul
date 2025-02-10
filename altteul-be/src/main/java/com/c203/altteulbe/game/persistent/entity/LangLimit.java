@@ -2,6 +2,7 @@ package com.c203.altteulbe.game.persistent.entity;
 
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

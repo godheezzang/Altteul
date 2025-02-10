@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.c203.altteulbe.common.dto.Language;
-import com.c203.altteulbe.game.persistent.entity.Problem;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 
 public interface ProblemRepositoryCustom {
 	List<Long> findAllProblemIds();
