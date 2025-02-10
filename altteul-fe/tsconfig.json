@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "ESNext",
     "outDir": "./dist",
     "target": "ESNext",
     "esModuleInterop": true,
@@ -28,6 +28,9 @@
     "allowJs": true,
     "checkJs": true,
 
+    // monaco editor 설정
+    "types": ["monaco-editor"],
+
     "jsx": "react-jsx",
     "baseUrl": "./src",
     "paths": {
@@ -36,10 +39,10 @@
       "@hooks/*": ["hooks/*"],
       "@pages/*": ["pages/*"],
       "@router/*": ["router/*"],
-      "@store/*": ["store/*"],
+      "@stores/*": ["stores/*"],
       "@utils/*": ["utils/*"],
-      "@styles/*": ["styles/*"],
-      "@types/*": ["types/*"]
+      "@styles/*": ["styles/*"]
+      // "@types/*": ["types/*"]
     }
   },
   "include": ["src/**/*"],

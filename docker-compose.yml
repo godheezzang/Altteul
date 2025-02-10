@@ -1,42 +1,42 @@
 services:
   frontend:
-    image: node:20-alpine
     container_name: altteul-ie-frontend
+    build:
+      context: ./altteul-fe
+      dockerfile: Dockerfile.prod
     working_dir: /app
     ports:
-      - "80:5173"
+      - "80:80"
     volumes:
       - ./altteul-fe:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    command: sh -c "yarn install && yarn dev"
     depends_on:
       - backend
 
   backend:
-    env_file:
-    - ./altteul-be/.env
-    image: gradle:8.6.0-jdk17
     container_name: altteul-ie-backend
+    restart: always
+    build:
+      context: ./altteul-be
+      dockerfile: dockerfile.be
     working_dir: /app
     ports:
-      - "8090:8081"
+      - "9000:8080"
     volumes:
-      - ./altteul-be:/app
       - gradle_cache:/home/gradle/.gradle
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://altteul-ie-mysql:3306/altteul
-      - SPRING_DATA_MONGODB_URI=mongodb://altteul-ie-mongodb:27017/altteul
-      - SPRING_REDIS_HOST=redis
-    command: ./gradlew bootRun
+    command: java -jar app.jar
     networks: #사용할 네트워크 지정
       - altteul-ie-network
     depends_on:
       - mysql
       - mongodb
       - redis
+    env_file:
+      - ./altteul-be/.env
 
   mysql:
     env_file:
@@ -53,8 +53,7 @@ services:
     ports:
       - "13306:3306"
     volumes: #볼륨 지정
-      - ./altteul-be/${MYSQL_INIT_VOLUME}:/docker-entrypoint-initdb.d
-      - ./altteul-be/${MYSQL_VOLUME}:/var/lib/mysql
+      - ./${MYSQL_VOLUME}:/var/lib/mysql
     networks: #사용할 네트워크 지정
       - altteul-ie-network
 
@@ -78,10 +77,34 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
     volumes: # 마운트할 볼륨 설정
       - ${REDIS_DATA_PATH}:/data
-      - ./altteul-be/${REDIS_DEFAULT_CONFIG_FILE}:/usr/local/etc/redis/redis.conf
+      - ./${REDIS_DEFAULT_CONFIG_FILE}:/usr/local/etc/redis/redis.conf
     restart: always
     networks: #사용할 네트워크 지정
       - altteul-ie-network
+
+  judge:
+    image: registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1
+    container_name: altteul-ie-judge
+    restart: always
+    ports:
+      - "9999:8080"
+    cap_drop:
+      - SETPCAP
+      - MKNOD
+      - NET_BIND_SERVICE
+      - SYS_CHROOT
+      - SETFCAP
+      - FSETID
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ./resources/judge/data/judge_server/log:/log
+      - ./resources/judge/data/judge_server/run:/judger
+    environment:
+      - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
+      - BACKEND_URL=${PROD_SERVER_URL}/api/judge/check
+      - TOKEN=${SECRET_KEY}
 
 volumes:
   mysql_dev_data:

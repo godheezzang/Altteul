@@ -1,36 +1,22 @@
-# Build Stage
-FROM gradle:8.6.0-jdk17 AS build
+# 그레들 버전, JDK 버전에 따라 다르게 수정
+FROM gradle:8.1.0-jdk17-alpine AS builder
+WORKDIR /build
 
+# 그레들 파일이 변경되었을 때만 새롭게 의존 패키지 다운로드 받게 함.
+COPY build.gradle settings.gradle /build/
+RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
+
+# 빌더 이미지에서 애플리케이션 빌드
+COPY . /build
+RUN gradle build -x test --parallel
+
+# APP
+FROM openjdk:17-slim
 WORKDIR /app
 
-# 프로젝트 파일 복사
-COPY --chown=gradle:gradle . .
+# 빌더 이미지에서 jar 파일만 복사
+COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
 
-# Gradle 빌드 수행
-RUN gradle clean build -x test --no-daemon
-
-# Run Stage
-FROM eclipse-temurin:17-jre-jammy
-
-WORKDIR /app
-
-# 비특권 사용자 추가
-RUN addgroup --system --gid 1001 appuser && \
-    adduser --system --uid 1001 --group appuser
-
-# 빌드된 JAR 복사
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# 사용자 변경
-USER appuser
-
-# 포트 설정
 EXPOSE 8080
 
-# JVM 설정 최적화
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "-jar", "app.jar" \
-]
+ENTRYPOINT ["java", "-jar", "-Djava.security.egd=file:/dev/./urandom", "-Dsun.net.inetaddr.ttl=0", "app.jar"]

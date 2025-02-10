@@ -1,6 +1,7 @@
 package com.c203.altteulbe.common.response;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -15,18 +16,24 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PageResponse<T> {
-	private final Map<String, Object> responseData = new HashMap<>();
+	private final Map<String, List<T>> data = new HashMap<>();
+	private int currentPage;
+	private int totalPages;
+	private long totalElements;
+	private boolean isLast;
 
 	public PageResponse(String key, Page<T> page) {
-		responseData.put(key, page.getContent());
-		responseData.put("currentPage", page.getNumber());
-		responseData.put("totalPages", page.getTotalPages());
-		responseData.put("totalElements", page.getTotalElements());
-		responseData.put("isLast", page.isLast());
+		this.data.put(key, page.getContent());
+		this.currentPage = page.getNumber();
+		this.totalPages = page.getTotalPages();
+		this.totalElements = page.getTotalElements();
+		this.isLast = page.isLast();
+
 	}
 
 	@JsonAnyGetter
-	public Map<String, Object> getResponseData() {
-		return responseData;
+	public Map<String, List<T>> getData() {
+		return data;
 	}
+
 }

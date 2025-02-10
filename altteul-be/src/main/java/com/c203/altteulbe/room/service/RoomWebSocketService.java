@@ -1,10 +1,14 @@
 package com.c203.altteulbe.room.service;
 
+import java.util.Map;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.websocket.dto.response.WebSocketResponse;
 import com.c203.altteulbe.websocket.exception.WebSocketMessageException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,25 +18,43 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RoomWebSocketService {
 	private final SimpMessagingTemplate messagingTemplate;
+	private final ObjectMapper objectMapper;
 
-	// WebSocket 메시지 브로드캐스트
-	public <T> void sendWebSocketMessage(String roomId, String eventType, T responseDto) {
+	public <T> void sendWebSocketMessage(String roomId, String eventType, T responseDto, BattleType type) {
+		String destination = getWebSocketDestination(roomId, type);
+		sendMessage(destination, eventType, responseDto);
+	}
+
+	public void sendWebSocketMessage(String roomId, String eventType, String message, BattleType type) {
+		String destination = getWebSocketDestination(roomId, type);
+		sendMessage(destination, eventType, message);
+	}
+
+	public void sendWebSocketMessage(String destination, String eventType, String message) {
+		sendMessage(destination, eventType, message);
+	}
+
+	public void sendWebSocketMessage(String destination, String eventType, Map<String, String> payload) {
 		try {
-			messagingTemplate.convertAndSend("/sub/single/room/" + roomId,
-				WebSocketResponse.withData(eventType, responseDto));
+			String jsonPayload = objectMapper.writeValueAsString(payload);   // Map -> JSON 문자열 변환
+			sendMessage(destination, eventType, jsonPayload);
 		} catch (Exception e) {
-			log.error("WebSocket 메시지 전송 실패 (eventType: {}, roomId: {}): {}", eventType, roomId, e.getMessage());
+			log.error("WebSocket 메시지 변환 실패 (eventType: {}, destination: {}): {}", eventType, destination, e.getMessage());
 			throw new WebSocketMessageException();
 		}
 	}
 
-	public void sendWebSocketMessage(String roomId, String eventType, String message) {
+	private <T> void sendMessage(String destination, String eventType, T payload) {
 		try {
-			messagingTemplate.convertAndSend("/sub/single/room/" + roomId,
-				WebSocketResponse.withMessage(eventType, message));
+			messagingTemplate.convertAndSend(destination, WebSocketResponse.withData(eventType, payload));
 		} catch (Exception e) {
-			log.error("WebSocket 메시지 전송 실패 (eventType: {}, roomId: {}): {}", eventType, roomId, e.getMessage());
+			log.error("WebSocket 메시지 전송 실패 (eventType: {}, destination: {}): {}", eventType, destination, e.getMessage());
 			throw new WebSocketMessageException();
 		}
+	}
+
+	private String getWebSocketDestination(String roomId, BattleType type) {
+		return (type == BattleType.S) ? "/sub/single/room/" + roomId : "/sub/team/room/" + roomId;
 	}
 }
+
