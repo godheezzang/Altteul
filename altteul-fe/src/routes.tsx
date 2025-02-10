@@ -11,7 +11,6 @@ import RankPage from "@pages/Rank/RankPage";
 import UserPage from "@pages/User/UserPage";
 import App from "App";
 import { createBrowserRouter } from "react-router-dom";
-import GithubCallback from "@pages/Auth/GithubCallback";
 
 const router = createBrowserRouter([
   {
