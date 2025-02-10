@@ -14,7 +14,8 @@ export const singleEnter = async (userId:number) => {
   
   try{
     const res = await single.post("enter", {"userId":userId})
-    if(res.data.status === "200 OK") {
+    console.log(res.data)
+    if(res.data.status === 200) {
       //응답값에서 data부분 return
       return res.data
     }
