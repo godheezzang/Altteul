@@ -1,22 +1,16 @@
 package com.c203.altteulbe.ranking.service;
 
-import java.util.Objects;
-
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.c203.altteulbe.game.persistent.entity.PointHistory;
 import com.c203.altteulbe.game.persistent.repository.history.TierHistoryRepository;
 import com.c203.altteulbe.game.service.PointHistorySavedEvent;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TierHistory;
-import com.c203.altteulbe.ranking.persistent.repository.TierRepository;
+import com.c203.altteulbe.ranking.persistent.repository.tier.TierRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 

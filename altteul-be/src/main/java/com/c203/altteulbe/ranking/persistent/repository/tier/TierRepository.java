@@ -1,4 +1,4 @@
-package com.c203.altteulbe.ranking.persistent.repository;
+package com.c203.altteulbe.ranking.persistent.repository.tier;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

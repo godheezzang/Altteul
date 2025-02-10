@@ -38,11 +38,22 @@ public class RankingHistory extends BaseCreatedEntity {
 	private Tier tier;
 
 	@Column(columnDefinition = "INT UNSIGNED")
-	private int rankingPoint;
+	private Long rankingPoint;
 
 	@Column(columnDefinition = "INT UNSIGNED")
 	private int ranking;
 
 	@Column(columnDefinition = "INT UNSIGNED")
 	private int rankingChange;   // 전날 랭킹과 당일 랭킹의 차이
+
+	public static RankingHistory create(User user, Tier tier, Long rankingPoint,
+									    int ranking, int rankingChange) {
+		return RankingHistory.builder()
+							 .user(user)
+							 .tier(tier)
+							 .rankingPoint(rankingPoint)
+							 .ranking(ranking)
+							 .rankingChange(rankingChange)
+							 .build();
+	}
 }
