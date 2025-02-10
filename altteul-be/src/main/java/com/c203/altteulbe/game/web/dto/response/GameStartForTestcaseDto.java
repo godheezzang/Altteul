@@ -1,6 +1,6 @@
 package com.c203.altteulbe.game.web.dto.response;
 
-import com.c203.altteulbe.game.persistent.entity.Testcase;
+import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

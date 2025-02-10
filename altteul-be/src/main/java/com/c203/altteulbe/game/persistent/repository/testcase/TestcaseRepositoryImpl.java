@@ -1,13 +1,12 @@
 package com.c203.altteulbe.game.persistent.repository.testcase;
 
-import static com.c203.altteulbe.game.persistent.entity.QTestcase.*;
+import static com.c203.altteulbe.game.persistent.entity.problem.QTestcase.*;
 
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.c203.altteulbe.game.persistent.entity.QTestcase;
-import com.c203.altteulbe.game.persistent.entity.Testcase;
+import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
