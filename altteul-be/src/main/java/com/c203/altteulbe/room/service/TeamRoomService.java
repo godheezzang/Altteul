@@ -22,7 +22,7 @@ import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
-import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
 import com.c203.altteulbe.game.service.exception.GameCannotStartException;
@@ -82,7 +82,7 @@ public class TeamRoomService {
 	private final UserTeamRoomRepository userTeamRoomRepository;
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
-	private final GameJPARepository gameRepository;
+	private final GameRepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
 
