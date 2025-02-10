@@ -126,5 +126,15 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
 		return passwordEncoder.matches(plainPassword, this.password);
 	}
+
+	// rankingPoint 업데이트
+	public void updateRankingPoint(Long newPoint) {
+		this.rankingPoint = newPoint;
+	}
+
+	// Tier 업데이트
+	public void updateTier(Tier newTier) {
+		this.tier = tier;
+	}
 }
 
