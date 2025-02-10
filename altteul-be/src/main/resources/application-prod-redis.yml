@@ -4,6 +4,8 @@ spring:
       on-profile: prod-redis
   data:
     redis:
+      repositories:
+        enabled: false
       lettuce:
         pool:
           max-active: 10

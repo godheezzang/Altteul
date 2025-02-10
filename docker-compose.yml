@@ -16,26 +16,26 @@ services:
 
   backend:
     container_name: altteul-ie-backend
-    env_file:
-      - ./altteul-be/.env
+    restart: always
+    build:
+      context: ./altteul-be
+      dockerfile: dockerfile.be
     working_dir: /app
     ports:
-      - "8080:8080"
+      - "9000:8080"
     volumes:
-      - ./altteul-be:/app
       - gradle_cache:/home/gradle/.gradle
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://altteul-ie-mysql:3306/altteul
-      - SPRING_DATA_MONGODB_URI=mongodb://altteul-ie-mongodb:27017/altteul
-      - SPRING_REDIS_HOST=redis
-    command: ./gradlew bootRun
+    command: java -jar app.jar
     networks: #사용할 네트워크 지정
       - altteul-ie-network
     depends_on:
       - mysql
       - mongodb
       - redis
+    env_file:
+      - ./altteul-be/.env
 
   mysql:
     env_file:
@@ -52,8 +52,7 @@ services:
     ports:
       - "13306:3306"
     volumes: #볼륨 지정
-      - ./altteul-be/${MYSQL_INIT_VOLUME}:/docker-entrypoint-initdb.d
-      - ./altteul-be/${MYSQL_VOLUME}:/var/lib/mysql
+      - ./${MYSQL_VOLUME}:/var/lib/mysql
     networks: #사용할 네트워크 지정
       - altteul-ie-network
 
@@ -77,14 +76,14 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
     volumes: # 마운트할 볼륨 설정
       - ${REDIS_DATA_PATH}:/data
-      - ./altteul-be/${REDIS_DEFAULT_CONFIG_FILE}:/usr/local/etc/redis/redis.conf
+      - ./${REDIS_DEFAULT_CONFIG_FILE}:/usr/local/etc/redis/redis.conf
     restart: always
     networks: #사용할 네트워크 지정
       - altteul-ie-network
 
   judge:
     image: registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1
-    container_name: altteul-judge
+    container_name: altteul-ie-judge
     restart: always
     ports:
       - "9999:8080"
@@ -98,9 +97,9 @@ services:
     tmpfs:
       - /tmp
     volumes:
-      - ./altteul-be/resources/judge/data/backend/test_case:/test_case:ro
-      - ./altteul-be/resources/judge/data/judge_server/log:/log
-      - ./altteul-be/resources/judge/data/judge_server/run:/judger
+      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ./resources/judge/data/judge_server/log:/log
+      - ./resources/judge/data/judge_server/run:/judger
     environment:
       - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
       - BACKEND_URL=${PROD_SERVER_URL}/api/judge/check

@@ -3,7 +3,7 @@ server:
     encoding:
       charset: utf-8
       force: true
-  port: ${SERVER_PORT}
+  port: ${PROD_SERVER_PORT}
 spring:
   config:
     activate:
