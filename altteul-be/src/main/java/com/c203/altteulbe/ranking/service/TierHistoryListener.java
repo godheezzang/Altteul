@@ -4,9 +4,12 @@ import java.util.Objects;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.c203.altteulbe.game.persistent.entity.PointHistory;
 import com.c203.altteulbe.game.persistent.repository.history.TierHistoryRepository;
@@ -34,15 +37,12 @@ public class TierHistoryListener {
 	private final TierRepository tierRepository;
 
 	/*
-	 * [AFTER_COMMIT 옵션]
-	 * @EventListener는 기본적으로 동기적으로 실행되므로 savePointHistory()와 같은 트랜잭션 내에서 실행됨
-     * 따라서 트랜잭션이 완료되지 않으면 PointHistory가 아직 DB에 반영되지 않았을 수 있기 때문에
-     * 트랜잭션 commit 이후 이벤트가 실행되도록 해야 함
+	 * 이벤트 리스너 실행 중 에러가 발생하더라도 PointHistory의 트랜잭션에
+	 * 영향을 주지 않기 위해 REQUIRES_NEW 옵션 지정
 	 */
 	@EventListener
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void handlePointHistorySaved(PointHistorySavedEvent event) {
-		log.info("이벤트 실행");
 		PointHistory pointHistory = event.getPointHistory();
 		User user = pointHistory.getUser();
 
@@ -58,7 +58,6 @@ public class TierHistoryListener {
 		Tier newTier = calculateTier(newPoint);
 
 		if (prevTier.getTierName().equals(newTier.getTierName())) {
-			log.info("return");
 			return;
 		}
 
@@ -66,15 +65,12 @@ public class TierHistoryListener {
 		TierHistory tierHistory = TierHistory.create(user, prevPoint, newPoint, newTier);
 		tierHistoryRepository.save(tierHistory);
 		user.updateTier(newTier);
-		log.info("티어 업데이트 완료");
+		log.info("Tier 변동 이벤트 발생");
 	}
 
-	// 변동된 포인트에 속하는 티어 찾기
+
 	public Tier calculateTier(Long newPoint) {
 		Tier tier = tierRepository.findTierByPoint(newPoint);
-		if (tier != null) {
-			return tier;
-		}
-		return tierRepository.getHighestTier();
+		return (tier != null) ? tier : tierRepository.getHighestTier();
 	}
 }
