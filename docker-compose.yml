@@ -23,7 +23,7 @@ services:
       dockerfile: dockerfile.be
     working_dir: /app
     ports:
-      - "9000:8080"
+      - "5000:8080"
     volumes:
       - gradle_cache:/home/gradle/.gradle
     environment:
