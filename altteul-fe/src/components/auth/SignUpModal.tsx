@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import Input from "@components/common/Input";
 import Modal from "@components/common/Modal";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import Dropdown from "@components/common/Dropdown";
 
 import { checkUsername, registerUser } from "@utils/api/auth";
@@ -181,11 +181,15 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       } else {
         setApiError(response.message || "잘못된 응답입니다.");
       }
-    } catch (error) {
-      console.error("회원가입 중 오류 발생 : ", error);
-      setApiError(
-        error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요."
-      );
+    } catch (error: unknown) {
+
+      if (error instanceof Error) {
+        console.error("회원가입 중 오류 발생 : ", error);
+        setApiError(
+          error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요."
+        );
+      }
+
     } finally {
       setIsSubmitting(false); // 로딩 끝
     }
@@ -309,9 +313,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
         <Button
           type="submit"
-          width="100%"
-          height="50px"
-          fontSize="16px"
           className="h-[3rem]"
         >
           {isSubmitting ? "처리중..." : "가입하기"}
