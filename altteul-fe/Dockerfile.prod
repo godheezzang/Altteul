@@ -6,18 +6,14 @@ WORKDIR /app
 # Install yarn
 RUN corepack enable && corepack prepare yarn@stable --activate
 
-# Copy package files and lockfile
-COPY package.json yarn.lock ./
+# Copy all source files first
+COPY . .
 
 # Install dependencies without immutable flag
 RUN yarn install
 
-# Copy source code
-COPY . .
-
 # Enable linker and build
 RUN yarn config set nodeLinker node-modules && \
-    yarn install && \
     yarn build
 
 # Production stage
