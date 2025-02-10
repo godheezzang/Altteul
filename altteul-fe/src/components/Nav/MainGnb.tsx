@@ -1,40 +1,38 @@
-import { useNavigate } from "react-router-dom";
-import useAuthStore from "@stores/authStore";
-import useModalStore from "@stores/modalStore";
-import React from "react";
-import logo from "@assets/icon/Altteul.svg";
-import LoginModal from "@components/Auth/LoginModal";
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '@stores/authStore';
+import useModalStore from '@stores/modalStore';
+import React from 'react';
+import logo from '@assets/icon/Altteul.svg';
+import LoginModal from '@components/Auth/LoginModal';
 
 const MainGnb = () => {
   const navigate = useNavigate();
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
 
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem('userId');
 
   // 게임 시작 버튼 클릭 시 유저 있냐없냐에 따라 다르게
   const handleGameStart = () => {
     if (token) {
-      navigate("/match/select");
+      navigate('/match/select');
     } else {
       // 아직 로그인 모달 안된거같아서 임시로 만듬
-      openModal("login");
+      openModal('login');
     }
   };
 
-  const scrollToGameGuide = () => {
-    navigate("/");
-    // 아직 게임 방법 컴포넌트 제작 안해서 임시로 로직만 짜둠
-    setTimeout(() => {
-      document
-        .getElementById("game-guide")
-        ?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
+  // const scrollToGameGuide = () => {
+  //   navigate('/');
+  //   // 아직 게임 방법 컴포넌트 제작 안해서 임시로 로직만 짜둠
+  //   setTimeout(() => {
+  //     document.getElementById('game-guide')?.scrollIntoView({ behavior: 'smooth' });
+  //   }, 100);
+  // };
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate('/');
   };
 
   return (
@@ -43,7 +41,7 @@ const MainGnb = () => {
         <div className="flex items-center justify-between h-[3.5rem]">
           {/* 좌측 영역 */}
           <div className="flex items-center mr-auto">
-            <button onClick={() => navigate("/")} className="flex items-center">
+            <button onClick={() => navigate('/')} className="flex items-center">
               <img src={logo} alt="홈으로" className="w-5/6" />
             </button>
             <div className="flex space-x-2">
@@ -58,14 +56,14 @@ const MainGnb = () => {
 
           {/* 우측 영역 */}
           <div className="flex items-center space-x-4 ml-auto">
-            <button
+            {/* <button
               onClick={scrollToGameGuide}
               className="py-2 text-primary-white hover:text-gray-03 transition-colors"
             >
               게임 방법
-            </button>
+            </button> */}
             <button
-              onClick={() => navigate("/rank")}
+              onClick={() => navigate('/rank')}
               className="py-2 text-primary-white hover:text-gray-03 transition-colors"
             >
               랭킹
@@ -88,7 +86,7 @@ const MainGnb = () => {
               </>
             ) : (
               <button
-                onClick={() => openModal("login")}
+                onClick={() => openModal('login')}
                 className="ml-2 px-3 py-1 bg-primary-orange text-primary-white rounded-lg hover:bg-secondary-orange hover:text-gray-01 transition-colors"
               >
                 로그인
@@ -97,7 +95,7 @@ const MainGnb = () => {
           </div>
         </div>
       </nav>
-      <LoginModal isOpen={isOpen("login")} onClose={() => closeModal()} />
+      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
     </>
   );
 };
