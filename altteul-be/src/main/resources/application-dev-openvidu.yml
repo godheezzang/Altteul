@@ -1,0 +1,7 @@
+spring:
+  config:
+    activate:
+      on-profile: dev-openvidu
+openvidu:
+  url: ${LOCAL_IP}
+  secret: ${OPENVIDU_SECRET}
