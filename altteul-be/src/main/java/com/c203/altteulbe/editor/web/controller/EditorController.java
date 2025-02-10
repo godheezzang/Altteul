@@ -26,103 +26,67 @@ public class EditorController {
 	private final SimpMessagingTemplate messagingTemplate;
 
 	// 커서 정보 등 전달
-	@MessageMapping("/editor/{editorId}/awareness")
-	public void handleAwareness(@DestinationVariable("editorId") String editorId,
+	@MessageMapping("/editor/{roomId}/awareness")
+	public void handleAwareness(@DestinationVariable("roomId") Long roomId,
 		@Payload AwarenessRequestDto awarenessRequestDto) {
-		try {
-			String[] parts = editorId.split(":");
-			if (parts.length != 2) {
-				throw new IllegalArgumentException("Invalid editorId format: " + editorId);
-			}
-			long teamRoomId;
-			try {
-				teamRoomId = Long.parseLong(parts[1]);
-			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Invalid teamRoomId in editorId: " + editorId, e);
-			}
-			BattleType type = BattleType.valueOf(parts[0].toUpperCase());
+		BattleType type = awarenessRequestDto.getType();
 
-			// 개인전일때
-			if (type == BattleType.S) {
-				AwarenessResponseDto response = AwarenessResponseDto.builder()
-					.editorId(editorId)
-					.awareness(awarenessRequestDto.getAwareness())
-					.build();
+		// 개인전일때
+		if (type == BattleType.S) {
+			AwarenessResponseDto response = AwarenessResponseDto.builder()
+				.roomId(roomId)
+				.awareness(awarenessRequestDto.getAwareness())
+				.build();
 
-				messagingTemplate.convertAndSend("/sub/editor/" + editorId + "awareness",
-					WebSocketResponse.withData("AWARENESS", response));
-				// 팀전일때
-			} else {
-				// 상대팀 에디터 아이디 얻기
-				String enemyTeamEditorId = editorService.getEnemyTeamEditorId(teamRoomId);
-				if (enemyTeamEditorId == null) {
-					throw new EnemyTeamEditorIdNotFoundException();
-				}
-				AwarenessResponseDto response = AwarenessResponseDto.builder()
-					.editorId(editorId)
-					.awareness(awarenessRequestDto.getAwareness())
-					.build();
-
-				// 정보를 나 and 상대팀에게 둘 다 보내기
-				messagingTemplate.convertAndSend("/sub/editor/" + editorId + "awareness",
-					WebSocketResponse.withData("AWARENESS", response));
-				messagingTemplate.convertAndSend("/sub/editor/" + enemyTeamEditorId + "awareness",
-					WebSocketResponse.withData("AWARENESS", response));
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + roomId + "awareness/",
+				WebSocketResponse.withData("AWARENESS", response));
+			// 팀전일때
+		} else {
+			// 상대팀 에디터 아이디 얻기
+			String enemyTeamEditorId = editorService.getEnemyTeamEditorId(roomId);
+			if (enemyTeamEditorId == null) {
+				throw new EnemyTeamEditorIdNotFoundException();
 			}
-			log.info("awareness 정보 전달 완료");
-		} catch (NumberFormatException e) {
-			log.error("Invalid number format in editorId: {}", editorId, e);
-		} catch (IllegalArgumentException e) {
-			log.error("Invalid editorId format: {}", editorId, e);
-		} catch (Exception e) {
-			log.error("handling awareness error for editorId: {}", editorId, e);
+			AwarenessResponseDto response = AwarenessResponseDto.builder()
+				.roomId(roomId)
+				.awareness(awarenessRequestDto.getAwareness())
+				.build();
+
+			// 정보를 나 and 상대팀에게 둘 다 보내기
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + roomId + "awareness/",
+				WebSocketResponse.withData("AWARENESS", response));
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + enemyTeamEditorId + "awareness/",
+				WebSocketResponse.withData("AWARENESS", response));
 		}
+		log.info("awareness 정보 전달 완료");
 	}
 
 	// editor 상태 정보 전달
-	@MessageMapping("/editor/{editorId}/update")
-	public void handleUpdate(@DestinationVariable("editorId") String editorId,
+	@MessageMapping("/editor/{roomId}/update")
+	public void handleUpdate(@DestinationVariable("roomId") Long roomId,
 		@Payload EditorRequestDto editorRequestDto) {
-		try {
-			String[] parts = editorId.split(":");
-			if (parts.length != 2) {
-				throw new IllegalArgumentException("Invalid editorId format: " + editorId);
+		BattleType type = editorRequestDto.getType();
+		if (type == BattleType.S) {
+			EditorResponseDto response = EditorResponseDto.builder()
+				.roomId(roomId)
+				.content(editorRequestDto.getContent())
+				.build();
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + roomId,
+				WebSocketResponse.withData("UPDATE", response));
+		} else {
+			String enemyTeamEditorId = editorService.getEnemyTeamEditorId(roomId);
+			if (enemyTeamEditorId == null) {
+				throw new EnemyTeamEditorIdNotFoundException();
 			}
-			long teamRoomId;
-			try {
-				teamRoomId = Long.parseLong(parts[1]);
-			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Invalid teamRoomId in editorId: " + editorId, e);
-			}
-			BattleType type = BattleType.valueOf(parts[0].toUpperCase());
-			if (type == BattleType.S) {
-				EditorResponseDto response = EditorResponseDto.builder()
-					.editorId(editorId)
-					.content(editorRequestDto.getContent())
-					.build();
-				messagingTemplate.convertAndSend("/sub/editor/" + editorId,
-					WebSocketResponse.withData("UPDATE", response));
-			} else {
-				String enemyTeamEditorId = editorService.getEnemyTeamEditorId(teamRoomId);
-				if (enemyTeamEditorId == null) {
-					throw new EnemyTeamEditorIdNotFoundException();
-				}
-				EditorResponseDto response = EditorResponseDto.builder()
-					.editorId(editorId)
-					.content(editorRequestDto.getContent())
-					.build();
-				messagingTemplate.convertAndSend("/sub/editor/" + editorId,
-					WebSocketResponse.withData("UPDATE", response));
-				messagingTemplate.convertAndSend("/sub/editor/" + enemyTeamEditorId,
-					WebSocketResponse.withData("UPDATE", response));
-			}
-			log.info("editor 상태 업데이트 완료");
-		} catch (NumberFormatException e) {
-			log.error("Invalid number format in editorId: {}", editorId, e);
-		} catch (IllegalArgumentException e) {
-			log.error("Invalid editorId format: {}", editorId, e);
-		} catch (Exception e) {
-			log.error("handling update error for editorId: {}", editorId, e);
+			EditorResponseDto response = EditorResponseDto.builder()
+				.roomId(roomId)
+				.content(editorRequestDto.getContent())
+				.build();
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + roomId,
+				WebSocketResponse.withData("UPDATE", response));
+			messagingTemplate.convertAndSend("/sub/editor/" + type + "/" + enemyTeamEditorId,
+				WebSocketResponse.withData("UPDATE", response));
 		}
+		log.info("editor 상태 업데이트 완료");
 	}
 }

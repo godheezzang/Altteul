@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EditorResponseDto {
 
-	private String editorId;
+	private Long roomId;
 
 	private String content;
 }
