@@ -12,7 +12,7 @@ import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
-import com.c203.altteulbe.game.persistent.entity.Problem;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;

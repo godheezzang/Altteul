@@ -11,22 +11,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 //import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.common.response.ApiResponse;
-import com.c203.altteulbe.common.response.ApiResponseEntity;
-import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.persistent.entity.FriendId;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.game.persistent.entity.Game;
-import com.c203.altteulbe.game.persistent.entity.Problem;
-import com.c203.altteulbe.game.persistent.entity.Testcase;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
+import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
 import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
