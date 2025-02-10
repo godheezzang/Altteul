@@ -1,2 +1,5 @@
 node_modules
 .idea
+./resources/redis/data
+./resources/mysql/data
+./resources/judge/data

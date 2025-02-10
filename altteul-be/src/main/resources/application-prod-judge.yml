@@ -4,5 +4,5 @@ spring:
       on-profile: prod-judge
 judge:
   server:
-    url: {PROD_JUDGE_SERVER_URL}
+    url: ${PROD_JUDGE_SERVER_URL}
     key: ${JUDGE_KEY}
