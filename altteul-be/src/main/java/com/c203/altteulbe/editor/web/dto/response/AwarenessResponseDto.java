@@ -13,5 +13,5 @@ public class AwarenessResponseDto {
 
 	private String editorId;
 
-	private byte[] awareness;
+	private String awareness;
 }

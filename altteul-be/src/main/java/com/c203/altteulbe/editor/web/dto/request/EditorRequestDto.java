@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EditorRequestDto {
 
-	private String editorId;
-
-	private byte[] content;
+	private String content;
 }

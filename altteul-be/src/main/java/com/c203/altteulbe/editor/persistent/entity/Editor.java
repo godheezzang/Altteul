@@ -12,18 +12,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder(toBuilder = true)
 @Entity
 public class Editor extends BaseCreatedAndUpdatedEntity {
 	@Id
 	private String editorId;
 
-	@Column(columnDefinition = "LONGBLOB") // 이진 데이터 저장
-	private byte[] content;
+	@Column(columnDefinition = "TEXT")
+	private String content = "";
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -44,6 +45,7 @@ public class Editor extends BaseCreatedAndUpdatedEntity {
 			this.teamRoomId = roomId;
 			this.singleRoomId = null;
 		}
+		this.content = "";
 		this.type = type;
 		this.editorId = type.name().toLowerCase() + ":" + roomId; // s:1 -> 개인전 1번 방
 	}
@@ -53,8 +55,8 @@ public class Editor extends BaseCreatedAndUpdatedEntity {
 	}
 
 	// content 작성 내용 반영을 위한 로직
-	public void updateContent(byte[] content) {
-		this.content = content;
+	public void updateContent(String encodedState) {
+		this.content = encodedState;
 	}
 }
 

@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AwarenessRequestDto {
 
-	private String editorId;
-
-	private byte[] awareness;
+	private String awareness;
 }

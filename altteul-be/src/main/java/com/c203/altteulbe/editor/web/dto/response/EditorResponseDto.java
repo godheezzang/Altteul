@@ -13,5 +13,5 @@ public class EditorResponseDto {
 
 	private String editorId;
 
-	private byte[] content;
+	private String content;
 }
