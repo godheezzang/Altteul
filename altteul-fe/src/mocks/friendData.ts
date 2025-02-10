@@ -3,7 +3,7 @@ export const mockChatRooms = [
   {
     friendId: 1,
     nickname: "친구1",
-    profileImg: "이미지Byte",
+    profileImg: "/src/assets/icon/People.svg",
     isOnline: true,
     recentMessage: "안녕! 오랜만이야",
     isMessageRead: false,
@@ -12,7 +12,7 @@ export const mockChatRooms = [
   {
     friendId: 2,
     nickname: "친구2",
-    profileImg: "이미지Byte",
+    profileImg: "/src/assets/icon/People.svg",
     isOnline: false,
     recentMessage: "오늘 저녁 뭐 먹어?",
     isMessageRead: true,
@@ -21,7 +21,7 @@ export const mockChatRooms = [
   {
     friendId: 3,
     nickname: "친구3",
-    profileImg: "이미지Byte",
+    profileImg: "/src/assets/icon/People.svg",
     isOnline: true,
     recentMessage: "새로운 프로젝트 시작했어!",
     isMessageRead: false,
@@ -33,7 +33,7 @@ export const mockChatRooms = [
 export const mockChatWithFriend = {
   friendId: 1,
   nickname: "친구1",
-  profileImg: "이미지Byte",
+  profileImg: "/src/assets/icon/People.svg",
   isOnline: true,
   messages: [
     {
