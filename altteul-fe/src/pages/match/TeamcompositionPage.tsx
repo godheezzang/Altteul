@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/team_matching_bg.svg";
-import tierIcon from "@assets/icon/Badge_09.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
 import { TeamData } from "mocks/userData";
@@ -23,19 +22,19 @@ const TeamcompositionPage = () => {
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
           {TeamData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
+            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
           ))}
         </div>
 
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
           <Link to="/match/team/search">
-            <Button width="120px" height="48px" fontSize="18px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
+            <Button className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               매칭 시작
             </Button>
           </Link>
           <Link to="/match/select">
-            <Button width="120px" height="48px" fontSize="18px" className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
+            <Button className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
               나가기
             </Button>
           </Link>

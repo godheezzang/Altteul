@@ -28,7 +28,7 @@ export const registerUser = async (formData: FormData) => {
     } else {
       throw new Error(response.data.message || "잘못된 응답");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("회원가입 API 요청 실패 : ", error);
 
     if (axios.isAxiosError(error)) {
@@ -44,7 +44,7 @@ export const registerUser = async (formData: FormData) => {
     } else {
       console.log("알 수 없는 에러 : ", error);
     }
-    throw new Error(error.message || "회원가입 요청실패");
+    
   }
 };
 
