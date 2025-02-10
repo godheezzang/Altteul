@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FriendModal from "@components/friend/FriendModal";
 import SmallButton from "@components/common/Button/SmallButton ";
-import { mockFriends } from "mocks/friendData";
+import { mockChatRooms } from "mocks/friendData"; // mockChatRooms import
 
 type FriendListModalProps = {
   isOpen: boolean;
@@ -9,10 +9,13 @@ type FriendListModalProps = {
 };
 
 type Friend = {
-  userId: number;
+  friendId: number;
   nickname: string;
   profileImg: string;
   isOnline: boolean;
+  recentMessage: string;
+  isMessageRead: boolean;
+  createdAt: string;
 };
 
 const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
@@ -20,14 +23,21 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
   const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 에러 상태
+  const [invitingFriends, setInvitingFriends] = useState<Set<number>>(
+    new Set()
+  ); // 초대중인 친구 추적
 
-  // 친구목록 목데이터 사용중
+  // mockChatRooms 데이터를 사용
   const fetchFriends = () => {
     setIsLoading(true);
     try {
-      // API 대신 mockFriends 사용
-      setFriends(mockFriends);
+      if (!mockChatRooms) {
+        throw new Error("mockChatRooms 데이터가 존재하지 않습니다.");
+      }
+      setFriends(mockChatRooms);
+      setError(null); // 성공 시 에러 상태 초기화
     } catch (err) {
+      console.error("Error fetching friends:", err);
       setError("목 데이터를 가져오는 데 실패했습니다.");
     } finally {
       setIsLoading(false);
@@ -43,12 +53,29 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
     friend.nickname.includes(searchQuery)
   );
 
+  // 친구 초대
+  const handleInvite = (friendId: number, nickname: string) => {
+    setInvitingFriends((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(friendId)) {
+        newSet.delete(friendId); // 이미 초대 중이면 제거
+        console.log(`${nickname} 게임 초대 취소`);
+      } else {
+        newSet.add(friendId); // 초대 중이 아니면 추가
+        console.log(`${nickname} 게임 초대`);
+      }
+      return newSet;
+    });
+    console.log(`${nickname} 게임 초대`);
+  };
+
   return (
     <FriendModal
       isOpen={isOpen}
       onClose={onClose}
       showSearch
       onSearch={setSearchQuery}
+      showNavigation={true}
     >
       <div className="flex flex-col gap-4">
         {isLoading ? (
@@ -58,14 +85,14 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
         ) : filteredFriends.length > 0 ? (
           filteredFriends.map((friend) => (
             <div
-              key={friend.userId}
+              key={friend.friendId}
               className="flex items-center justify-between bg-primary-white p-3 rounded-lg shadow-md"
             >
               <div className="flex items-center gap-3">
                 {/* 프로필 이미지와 접속 상태 표시 */}
                 <div className="relative">
                   <img
-                    src={friend.profileImg || peopleIcon}
+                    src={friend.profileImg}
                     alt="친구 프로필"
                     className="w-10 h-10 rounded-full"
                   />
@@ -77,32 +104,21 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
                 </div>
 
                 <div>
-                  {/* 유저 이름과 매칭 대기 여부 표시 */}
+                  {/* 유저 이름과 최근 메시지 */}
                   <p className="font-semibold text-primary-black">
                     {friend.nickname}
-                  </p>
-                  <p className="text-lang-PY" style={{ color: "#6164FF" }}>
-                    매칭 대기 중
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-2">
                 <SmallButton
-                  onClick={() => console.log(`${friend.nickname} 게임 초대`)}
-                  width="3.5rem"
-                  height="1.8125rem"
-                  fontSize="0.75rem"
+                  onClick={() => handleInvite(friend.friendId, friend.nickname)}
+                  disabled={invitingFriends.has(friend.friendId)}
                 >
-                  게임 초대
-                </SmallButton>
-                <SmallButton
-                  onClick={() => console.log(`${friend.nickname} 차단`)}
-                  width="3.5rem"
-                  height="1.8125rem"
-                  fontSize="0.75rem"
-                >
-                  차단
+                  {invitingFriends.has(friend.friendId)
+                    ? "초대중..."
+                    : "게임 초대"}
                 </SmallButton>
               </div>
             </div>
