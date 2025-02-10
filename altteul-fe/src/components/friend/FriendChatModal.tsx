@@ -59,14 +59,14 @@ const FriendChatModal = ({
                 }`}
               />
             </div>
-            <span className="font-semibold text-lg text-primary-black">
+            <span className="font-semibold text-lg text-primary-white">
               {mockChatWithFriend.nickname}
             </span>
           </div>
         </div>
 
         {/* 채팅 메시지 영역 */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-orange scrollbar-track-primary-white hover:scrollbar-thumb-primary-orange/80">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-white scrollbar-track-gray-03 hover:scrollbar-thumb-primary-orange/80">
           <div className="p-4 space-y-4">
             {chatHistory.map((msg) => (
               <div
@@ -96,7 +96,7 @@ const FriendChatModal = ({
         </div>
 
         {/* 메시지 입력 영역 */}
-        <div className="border-t border-primary-orange p-4 ">
+        <div className="border-t border-primary-orange p-3 ">
           <div className="relative">
             <input
               type="text"
@@ -116,7 +116,7 @@ const FriendChatModal = ({
               <img
                 src="src/assets/icon/Send.svg"
                 alt="send message"
-                className="w-6 h-6"
+                className="w-7 h-7"
               />
             </button>
           </div>

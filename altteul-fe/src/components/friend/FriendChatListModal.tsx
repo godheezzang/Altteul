@@ -19,7 +19,7 @@ const FriendChatListModal = ({ isOpen, onClose }: FriendChatListModalProps) => {
             {/* 프로필 이미지 */}
             <div className="relative">
               <img
-                src={chat.profileImg} // 실제 이미지 URL 적용 필요
+                src={chat.profileImg}
                 alt={`${chat.nickname} 프로필`}
                 className="w-12 h-12 rounded-full"
               />
@@ -31,10 +31,12 @@ const FriendChatListModal = ({ isOpen, onClose }: FriendChatListModalProps) => {
 
             {/* 닉네임 & 최근 메시지 */}
             <div className="flex-1">
-              <p className="font-medium text-primary-black">{chat.nickname}</p>
+              <p className="font-medium text-primary-white">{chat.nickname}</p>
               <p
                 className={`text-sm ${
-                  chat.isMessageRead ? "text-gray-03" : "text-primary-orange"
+                  chat.isMessageRead
+                    ? "text-gray-01"
+                    : "text-primary-orange font-bold"
                 }`}
               >
                 {chat.recentMessage}
@@ -42,7 +44,7 @@ const FriendChatListModal = ({ isOpen, onClose }: FriendChatListModalProps) => {
             </div>
 
             {/* 최근 메시지 시간 */}
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-02">
               {new Date(chat.createdAt).toLocaleTimeString("ko-KR", {
                 hour: "2-digit",
                 minute: "2-digit",

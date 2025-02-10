@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import FriendModal from "@components/friend/FriendModal";
 import SmallButton from "@components/common/Button/SmallButton ";
-import { mockChatRooms } from "mocks/friendData"; // mockChatRooms import
+import { mockChatRooms } from "mocks/friendData";
+import useModalStore from "@stores/modalStore";
 
 type FriendListModalProps = {
   isOpen: boolean;
@@ -86,7 +87,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
           filteredFriends.map((friend) => (
             <div
               key={friend.friendId}
-              className="flex items-center justify-between bg-primary-white p-3 rounded-lg shadow-md"
+              className="flex items-center justify-between bg-gray-04 p-3 rounded-lg shadow-md"
             >
               <div className="flex items-center gap-3">
                 {/* 프로필 이미지와 접속 상태 표시 */}
@@ -105,7 +106,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
 
                 <div>
                   {/* 유저 이름과 최근 메시지 */}
-                  <p className="font-semibold text-primary-black">
+                  <p className="font-semibold text-primary-white">
                     {friend.nickname}
                   </p>
                 </div>

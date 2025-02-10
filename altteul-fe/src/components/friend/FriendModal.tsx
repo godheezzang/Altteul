@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import FriendInput from "@components/friend/FriendInput";
+import { useUserSearch } from "contexts/UserSearchContext";
 
 type FriendModalProps = {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
   showSearch?: boolean;
-  onSearch?: (query: string) => void; // 검색 시 호출할 함수
   showNavigation?: boolean;
   onNavigate?: (tab: "friends" | "chat" | "notifications") => void;
+  unreadChats?: number;
+  pendingFriends?: number;
+  notifications?: number;
 };
 
 const FriendModal = ({
@@ -16,27 +19,39 @@ const FriendModal = ({
   onClose,
   children,
   showSearch = true,
-  onSearch,
   showNavigation = false,
   onNavigate,
+
 }: FriendModalProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+
+  const { searchQuery, handleSearch, searchResults } = useUserSearch();
+
+  const handleOnSearch = () => {
+    handleSearch(searchQuery)
+  }
 
   if (!isOpen) return null;
 
-  const handleSearchClick = () => {
-    if (onSearch) {
-      onSearch(searchQuery);
-    }
-  };
+ 
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-primary-black bg-opacity-50">
-      <div className="bg-[#FFEBE0] border-2 border-orange-500 rounded-lg w-[90vw] max-w-md h-[90vh] max-h-[80vh] p-4 shadow-lg relative flex flex-col">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-primary-black bg-opacity-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-gray-06 border-2 border-primary-orange rounded-lg w-[90vw] max-w-md h-[90vh] max-h-[80vh] p-4 shadow-lg relative flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-orange-500 font-bold"
+          className="absolute top-2 right-2 text-primary-orange hover:opacity-80"
         >
-          닫기
+          <img
+            src="/src/assets/icon/exit_line.svg"
+            alt="닫기"
+            className="w-6 h-6"
+          />
         </button>
 
         {/* 검색창 */}
@@ -44,10 +59,31 @@ const FriendModal = ({
           <div className="relative mt-10">
             <FriendInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="검색하는 곳"
-              onSearch={handleSearchClick}
+              onChange={(e) => handleSearch(e.target.value)}
+              onSearch={handleOnSearch}
+              placeholder="닉네임을 입력하세요."
             />
+
+            {/* 검색결과 */}
+            {searchResults.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-gray-06 border border-primary-orange rounded-md max-h-60 overflow-y-auto">
+                {searchResults.map((user) => (
+                  <div
+                    key={user.friendId}
+                    className="p-2 hover:bg-gray-04 cursor-pointer text-primary-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={user.profileImg}
+                        alt="프로필"
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <span>{user.nickname}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -59,26 +95,35 @@ const FriendModal = ({
           <div className="mt-4 flex justify-around border-t border-orange-300 pt-3">
             <button
               onClick={() => onNavigate?.("friends")}
-              className="flex flex-col items-center px-4 py-2 text-orange-500 hover:bg-orange-100 rounded-lg"
+              className="relative flex flex-col items-center p-1 hover:scale-110 rounded-lg"
             >
-              <span className="text-lg">👥</span>
-              <span className="text-sm">친구목록</span>
+              <img
+                src="/src/assets/icon/Friend_list.svg"
+                alt="친구목록"
+                className="w-10 h-10"
+              />
             </button>
 
             <button
               onClick={() => onNavigate?.("chat")}
-              className="flex flex-col items-center px-4 py-2 text-orange-500 hover:bg-orange-100 rounded-lg"
+              className="relative flex flex-col items-center px-4 py-2 hover:scale-110 rounded-lg"
             >
-              <span className="text-lg">💬</span>
-              <span className="text-sm">채팅목록</span>
+              <img
+                src="/src/assets/icon/Chat_bubble.svg"
+                alt="채팅목록"
+                className="w-9 h-9"
+              />
             </button>
 
             <button
               onClick={() => onNavigate?.("notifications")}
-              className="flex flex-col items-center px-4 py-2 text-orange-500 hover:bg-orange-100 rounded-lg"
+              className="relative flex flex-col items-center px-4 py-2 hover:scale-110 rounded-lg"
             >
-              <span className="text-lg">🔔</span>
-              <span className="text-sm">알림목록</span>
+              <img
+                src="/src/assets/icon/Notifications.svg"
+                alt="알림목록"
+                className="w-9 h-9"
+              />
             </button>
           </div>
         )}
