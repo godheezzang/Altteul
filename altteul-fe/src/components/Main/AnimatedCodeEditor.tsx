@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import MonacoEditor from "@monaco-editor/react";
+import React, { useEffect, useState, useRef } from 'react';
+import MonacoEditor from '@monaco-editor/react';
 
 const codeSnippet = `import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,24 +42,24 @@ public class Solution {
 }`;
 
 const AnimatedCodeEditor = (): JSX.Element => {
-  const [typedCode, setTypedCode] = useState<string>("");
+  const [typedCode, setTypedCode] = useState<string>('');
   const indexRef = useRef<number>(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (indexRef.current < codeSnippet.length) {
-        setTypedCode((prev) => prev + codeSnippet[indexRef.current]);
+        setTypedCode(prev => prev + codeSnippet[indexRef.current]);
         indexRef.current += 1;
       } else {
         clearInterval(interval);
       }
-    }, 40);
+    }, 30);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-[calc(100vh-3.5rem)]">
       <div className="absolute inset-0 z-20 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black" />
       <MonacoEditor
         height="100%"
@@ -70,8 +70,8 @@ const AnimatedCodeEditor = (): JSX.Element => {
           readOnly: true,
           minimap: { enabled: false },
           fontSize: 16,
-          wordWrap: "on",
-          scrollbar: { vertical: "hidden", horizontal: "hidden" },
+          wordWrap: 'on',
+          scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
           scrollBeyondLastLine: false,
           automaticLayout: true,
         }}
