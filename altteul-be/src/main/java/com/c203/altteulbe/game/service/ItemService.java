@@ -32,21 +32,23 @@ public class ItemService {
 	public void useItem(UseItemRequestDto message, Long id) {
 		// 실제 획득한 아이템이고 사용 가능한지 점검
 		boolean availability = itemHistoryRepository.existsUnusedItemByGameIdAndTeamIdAndItemId(message.getGameId(), message.getTeamId(), message.getItemId());
+
+		Item item = itemRepository.findById(message.getItemId())
+			.orElseThrow(() -> new BusinessException("아이템을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
 		if (availability) {
 			// 상대방에게 아이템 사용 전달
 
 			itemWebsocketService.hitItemByOther(
 				UseItemResponseDto.builder()
-					.itemId(message.getItemId())
+					.itemId(item.getId())
+					.itemName(item.getItemName())
 					.build()
 				, message.getGameId(), message.getTeamId());
 
 			// 내역 저장
 			Game game = gameRepository.findById(message.getGameId())
 				.orElseThrow(GameNotFoundException::new);
-
-			Item item = itemRepository.findById(message.getItemId())
-				.orElseThrow(() -> new BusinessException("아이템을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
 			itemHistoryRepository.save(
 				ItemHistory.builder()

@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UseItemResponseDto {
 	Long itemId;
+	String itemName;
 }
