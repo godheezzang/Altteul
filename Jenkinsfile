@@ -8,7 +8,9 @@ pipeline {
 
     stages {
 
-        stage('Load Environment Variables') {
+    when {
+        branch 'master'
+    }        stage('Load Environment Variables') {
             steps {
                 script {
                     sh '''
