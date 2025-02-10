@@ -1,25 +1,32 @@
-import AnimatedCodeEditor from "@components/Main/AnimatedCodeEditor";
-import useAuthStore from "@stores/authStore";
-import { useEffect, useState } from "react";
-import throttle from "lodash/throttle";
+import AnimatedCodeEditor from '@components/Main/AnimatedCodeEditor';
+import useAuthStore from '@stores/authStore';
+import { useEffect, useState } from 'react';
+import throttle from 'lodash/throttle';
+// import GameGuide from '@components/Main/GameGuide';
+import SmallButton from '@components/common/Button/SmallButton ';
+import { useNavigate } from 'react-router-dom';
+import LoginModal from '@components/Auth/LoginModal';
+import useModalStore from '@stores/modalStore';
 
 const MainPage = () => {
-  const { setToken, setUserId } = useAuthStore();
+  const { setToken, setUserId, token } = useAuthStore();
   const [showGameMethod, setShowGameMethod] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
+  const navigate = useNavigate();
+  const { openModal, closeModal, isOpen } = useModalStore();
 
   // URL 파라미터 처리
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("accessToken");
-    const userId = params.get("userId");
+    const token = params.get('accessToken');
+    const userId = params.get('userId');
 
     if (token && userId) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', userId);
       setToken(token);
       setUserId(userId);
-      window.history.replaceState({}, document.title, "/");
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 
@@ -28,9 +35,6 @@ const MainPage = () => {
     const handleScroll = throttle(() => {
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY;
-
-      console.log("scrollTop:", scrollTop);
-      console.log("windowHeight * 0.7:", windowHeight * 0.7);
 
       if (scrollTop > windowHeight * 0.7) {
         // 스크롤이 아래로 내려가면 "게임 방법" 표시
@@ -48,34 +52,51 @@ const MainPage = () => {
       setLastScrollTop(scrollTop);
     }, 200);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollTop]);
+
+  const handleGameStart = () => {
+    if (token) {
+      navigate('/match/select');
+    } else {
+      openModal('login');
+    }
+  };
 
   return (
     <div>
       {/* 첫 번째 섹션 */}
-      <section className="h-screen relative">
+      <section className="h-[calc(100vh-3.5rem)] relative">
         <AnimatedCodeEditor />
-        <div className="absolute top-0 bottom-0 right-4 flex flex-col justify-center text-primary-white text-4xl font-bold z-20">
-          <p className="px-4 py-2">알뜰?</p>
-          <p className="px-4 py-2">알고리즘 한 판</p>
-          <p className="px-4 py-2">뜰래?</p>
+        <div className="absolute top-0 bottom-0 right-20 flex flex-col items-end justify-center text-primary-white  z-20 tracking-tight">
+          <div className="text-5xl font-semibold text-right">
+            <p className="text-primary-orange">알뜰?</p>
+            <p className="text-gray-02">
+              <span className="text-primary-white">알</span>고리즘 한 판
+            </p>
+            <p className="text-gray-02">
+              <span className="text-primary-white">뜰</span>래?
+            </p>
+          </div>
+
+          <div className="text-lg font-medium text-right text-gray-01 mt-6 mb-6">
+            <p>개인 배틀부터 팀과 같이 푸는 협동 배틀까지,</p>
+            <p>랜덤 매칭으로 다양한 알고리즘 문제를 풀어보세요.</p>
+          </div>
+          <SmallButton onClick={handleGameStart}>게임 시작</SmallButton>
         </div>
       </section>
 
       {/* 두 번째 섹션 */}
-      <section
-        className={`min-h-[50rem] p-8 transition-opacity duration-500 ${
-          showGameMethod
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+      {/* <section
+        className={`min-h-[57rem] p-8 transition-opacity duration-500 mt-4 ${
+          showGameMethod ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <h2 className="text-3xl font-bold mb-4 text-primary-white">
-          게임 방법
-        </h2>
-      </section>
+        <GameGuide />
+      </section> */}
+      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
     </div>
   );
 };
