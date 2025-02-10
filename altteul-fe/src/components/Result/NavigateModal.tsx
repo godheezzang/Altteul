@@ -1,7 +1,7 @@
 // src/components/common/Modal/GameNavigateModal.tsx
 import React from "react";
 import Modal from "@components/common/Modal";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import useModalStore from "@stores/modalStore";
 import { useNavigate } from "react-router-dom";
 import { GAME_TYPES, COMMON_MODAL_TYPES, GameType } from "types/modalTypes";

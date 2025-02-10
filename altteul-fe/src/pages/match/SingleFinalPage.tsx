@@ -33,7 +33,7 @@ const SingleFinalPage = () => {
 
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 방장 */}
-        <UserProfile nickName={headUser.nickname} profileImage={headUser.profileImage} tierId={headUser.tierId} className="mb-4" />
+        <UserProfile nickName={headUser.nickName} profileImage={headUser.profileImage} tierId={headUser.tierId} className="mb-4" />
 
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
@@ -44,7 +44,7 @@ const SingleFinalPage = () => {
         <div className="flex justify-center items-center gap-20">
           {/* 방장을 제외한 유저 */}
           {(waitUsers.filter((user) => user.userId !== leaderId)).map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickname} profileImage={user.profileImage} tierId={user.tierId} />
+            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
           ))}
         </div>
       </div>

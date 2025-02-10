@@ -44,19 +44,19 @@ export const TeamData = [
   {
     userId: 1,
     nickName: "알리언",
-    profileImg: peopleIcon,
+    profileImage: peopleIcon,
     tierId: 3,
   },
   {
     userId: 2,
     nickName: "샤샤샤",
-    profileImg: peopleIcon,
+    profileImage: peopleIcon,
     tierId: 3,
   },
   {
     userId: 3,
     nickName: "오리진",
-    profileImg: peopleIcon,
+    profileImage: peopleIcon,
     tierId: 3,
   },
 ];

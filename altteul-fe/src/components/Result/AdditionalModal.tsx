@@ -1,7 +1,7 @@
 // src/components/common/Modal/AdditionalModal.tsx
 import React from "react";
 import Modal from "@components/common/Modal";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import useModalStore from "@stores/modalStore";
 import { MODAL_TYPES, GAME_TYPES, COMMON_MODAL_TYPES, GameType, CommonModalType } from "types/modalTypes";
 
