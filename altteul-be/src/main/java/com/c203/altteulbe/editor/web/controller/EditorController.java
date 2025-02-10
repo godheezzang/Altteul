@@ -3,7 +3,6 @@ package com.c203.altteulbe.editor.web.controller;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -13,7 +12,6 @@ import com.c203.altteulbe.editor.web.dto.request.AwarenessRequestDto;
 import com.c203.altteulbe.editor.web.dto.request.EditorRequestDto;
 import com.c203.altteulbe.editor.web.dto.response.AwarenessResponseDto;
 import com.c203.altteulbe.editor.web.dto.response.EditorResponseDto;
-import com.c203.altteulbe.room.service.TeamRoomService;
 import com.c203.altteulbe.websocket.dto.response.WebSocketResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -25,34 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EditorController {
 	private final EditorService editorService;
 	private final SimpMessagingTemplate messagingTemplate;
-	private final TeamRoomService teamRoomService;
-
-	// editor 참가(접속)
-	@MessageMapping("/editor/{editorId}/join")
-	public void handleJoin(@DestinationVariable("editorId") String editorId,
-		SimpMessageHeaderAccessor accessor) {
-		long id = Long.parseLong(accessor.getSessionAttributes().get("userId").toString());
-		String[] parts = editorId.split(":");
-		BattleType type = BattleType.valueOf(parts[0].toUpperCase());
-		Long teamRoomId = Long.parseLong(parts[1]);
-
-		if (type == BattleType.S) {
-			EditorResponseDto editor = editorService.getEditor(editorId);
-			// 접속한 사용자에게 현재 문서 상태 전송
-			messagingTemplate.convertAndSend("/sub/editor/" + editorId + "init",
-				WebSocketResponse.withData("INIT", editor));
-		} else {
-			String enemyTeamEditorId = editorService.getEnemyTeamEditorId(teamRoomId);
-
-			EditorResponseDto response = editorService.getEditor(editorId);
-
-			messagingTemplate.convertAndSend("/sub/editor/" + editorId + "init",
-				WebSocketResponse.withData("INIT", response));
-			messagingTemplate.convertAndSend("/sub/editor/" + enemyTeamEditorId + "init",
-				WebSocketResponse.withData("INIT", response));
-		}
-		log.info("editor {} 접속 - 초기 세팅 완료: ", editorId);
-	}
 
 	// 커서 정보 등 전달
 	@MessageMapping("/editor/{editorId}/awareness")
@@ -62,6 +32,7 @@ public class EditorController {
 		BattleType type = BattleType.valueOf(parts[0].toUpperCase());
 		Long teamRoomId = Long.parseLong(parts[1]);
 
+		// 개인전일때
 		if (type == BattleType.S) {
 			AwarenessResponseDto response = AwarenessResponseDto.builder()
 				.editorId(editorId)
@@ -70,7 +41,9 @@ public class EditorController {
 
 			messagingTemplate.convertAndSend("/sub/editor/" + editorId + "awareness",
 				WebSocketResponse.withData("AWARENESS", response));
+			// 팀전일때
 		} else {
+			// 상대팀 에디터 아이디 얻기
 			String enemyTeamEditorId = editorService.getEnemyTeamEditorId(teamRoomId);
 
 			AwarenessResponseDto response = AwarenessResponseDto.builder()
@@ -78,6 +51,7 @@ public class EditorController {
 				.awareness(awarenessRequestDto.getAwareness())
 				.build();
 
+			// 정보를 나 and 상대팀에게 둘 다 보내기
 			messagingTemplate.convertAndSend("/sub/editor/" + editorId + "awareness",
 				WebSocketResponse.withData("AWARENESS", response));
 			messagingTemplate.convertAndSend("/sub/editor/" + enemyTeamEditorId + "awareness",
@@ -113,7 +87,7 @@ public class EditorController {
 				.content(editorRequestDto.getContent())
 				.build();
 
-			// 자신의 토픽으로만 전송
+			//
 			messagingTemplate.convertAndSend("/sub/editor/" + editorId,
 				WebSocketResponse.withData("UPDATE", response));
 			messagingTemplate.convertAndSend("/sub/editor/" + enemyTeamEditorId,
@@ -121,13 +95,4 @@ public class EditorController {
 		}
 		log.info("editor 상태 업데이트 완료");
 	}
-
-	// editor 저장
-	@MessageMapping("/editor/{editorId}/save")
-	public void handleSave(@DestinationVariable("editorId") String editorId,
-		@Payload byte[] state) {
-		editorService.saveState(editorId, state);
-		log.info("editor 상태 저장 완료");
-	}
-
 }

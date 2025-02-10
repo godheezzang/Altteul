@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
-import com.c203.altteulbe.editor.persistent.entity.Editor;
-import com.c203.altteulbe.editor.persistent.repository.EditorRepository;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.Testcase;
@@ -71,7 +69,6 @@ public class TeamRoomService {
 	private final GameJPARepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
-	private final EditorRepository editorRepository;
 
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
@@ -273,19 +270,6 @@ public class TeamRoomService {
 		TeamRoom teamRoom2 = TeamRoom.create(game);
 		teamRoomRepository.save(teamRoom2);
 		saveUserTeamRooms(roomId2, teamRoom2);
-
-		// Editor 생성
-		Editor editor1 = Editor.builder()
-			.type(BattleType.T)
-			.roomId(teamRoom1.getId())
-			.build();
-		editorRepository.save(editor1);
-
-		Editor editor2 = Editor.builder()
-			.type(BattleType.T)
-			.roomId(teamRoom2.getId())
-			.build();
-		editorRepository.save(editor2);
 
 		// websocket으로 전송할 데이터 준비
 		RoomEnterResponseDto team1Dto = getRoomEnterResponseDto(roomId1);

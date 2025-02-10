@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
-import com.c203.altteulbe.editor.persistent.entity.Editor;
-import com.c203.altteulbe.editor.persistent.repository.EditorRepository;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.Testcase;
@@ -60,7 +58,6 @@ public class SingleRoomService {
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
 	private final GameJPARepository gameRepository;
-	private final EditorRepository editorRepository;
 
 	/*
 	 * 개인전 대기방 입장 처리
@@ -228,15 +225,6 @@ public class SingleRoomService {
 			}
 		}
 		singleRoomRepository.saveAll(singleRooms);
-
-		// Editor 생성
-		for (SingleRoom singleRoom : singleRooms) {
-			Editor editor = Editor.builder()
-				.type(BattleType.S)
-				.roomId(singleRoom.getId())
-				.build();
-			editorRepository.save(editor);
-		}
 
 		// SingleRoom의 PK 매핑
 		for (SingleRoom singleRoom : singleRooms) {
