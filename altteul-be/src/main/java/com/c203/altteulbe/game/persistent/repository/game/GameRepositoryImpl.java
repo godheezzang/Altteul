@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.game.persistent.entity.Game;
-import com.c203.altteulbe.game.persistent.entity.QProblem;
+import com.c203.altteulbe.game.persistent.entity.problem.QProblem;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -118,10 +118,5 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			.leftJoin(game.singleRooms, singleRoom)
 			.fetchOne()
 		);
-	}
-
-	@Override
-	public void saveTestResult() {
-
 	}
 }
