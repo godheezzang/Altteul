@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeamMatchCancelRequestDto {
-	private Long userId;
+public class InviteTeamRequestDto {
+	private Long inviterId;
+	private Long inviteeId;
 	private Long roomId;
 }
