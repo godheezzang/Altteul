@@ -18,17 +18,16 @@ public class EditorService {
 	private final GameJPARepository gameJPARepository;
 	private final TeamRoomRepository teamRoomRepository;
 
-	public String getEnemyTeamEditorId(Long roomId) {
+	public Long getEnemyRoomId(Long roomId) {
 		// roomId로 해당 게임의 양 팀 조회
 		TeamRoom teamRoom = teamRoomRepository.findById(roomId).orElseThrow(RoomNotFoundException::new);
 		Long gameId = teamRoom.getGame().getId();
 		Game game = gameJPARepository.getReferenceById(gameId);
-		Long enemyTeamRoomId = game.getTeamRooms()
+		return game.getTeamRooms()
 			.stream()
 			.map(TeamRoom::getId)
 			.filter(id -> !id.equals(roomId))
 			.findFirst()
 			.orElseThrow(RoomNotFoundException::new);
-		return "t:" + enemyTeamRoomId;
 	}
 }
