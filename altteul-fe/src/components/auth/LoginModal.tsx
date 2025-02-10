@@ -11,20 +11,21 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const { setToken, setUserId } = useAuthStore();
-
-  const { openModal } = useModalStore();
+  const { openModal, closeModal } = useModalStore();
 
   const handleSignUpClick = () => {
-    onClose();
+    closeModal();
     openModal("signup");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
     if (!form.username.trim() || !form.password.trim()) {
       setError("아이디와 비밀번호를 모두 입력해주세요.");
@@ -53,7 +54,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       setToken(cleanToken);
       setUserId(userId.toString());
 
-      onClose();
+      closeModal();
     } catch (error) {
       console.error("로그인 실패:", error);
 
@@ -75,14 +76,20 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} height="35rem" title="알뜰 로그인">
+    <Modal
+      isOpen={isOpen}
+      onClose={closeModal}
+      height="35rem"
+      title="알뜰 로그인"
+      className="bg-primary-white"
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <Input
           type="text"
           name="username"
           placeholder="아이디를 입력해 주세요"
           value={form.username}
-          className="mt-2"
+          className="mt-2 w-[22rem] mt-9"
           onChange={handleChange}
         />
         <Input
@@ -102,7 +109,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           type="button"
           backgroundColor="gray-01"
           fontColor="gray-04"
-          className="h-[2.8rem] w-full hover:brightness-90"
+          className="h-[2.8rem] w-full hover:brightness-90 bg-gray-01 text-gray-04"
           onClick={handleSignUpClick}
         >
           회원가입
