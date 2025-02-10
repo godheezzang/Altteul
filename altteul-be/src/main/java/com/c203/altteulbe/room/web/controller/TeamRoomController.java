@@ -9,9 +9,11 @@ import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.room.service.TeamRoomService;
+import com.c203.altteulbe.room.web.dto.request.InviteTeamRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
-import com.c203.altteulbe.room.web.dto.request.TeamMatchCancelRequestDto;
+import com.c203.altteulbe.room.web.dto.request.InviteTeamAnswerRequestDto;
+import com.c203.altteulbe.room.web.dto.request.UserAndRoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import lombok.RequiredArgsConstructor;
 
@@ -55,8 +57,26 @@ public class TeamRoomController {
 	 * 팀전 매칭 취소 API
 	 */
 	@PostMapping("/matching/cancel")
-	public ApiResponseEntity<Void> cancelTeamMatch(@RequestBody TeamMatchCancelRequestDto requestDto) {
+	public ApiResponseEntity<Void> cancelTeamMatch(@RequestBody UserAndRoomRequestDto requestDto) {
 		teamRoomService.cancelTeamMatch(requestDto);
+		return ApiResponse.success();
+	}
+
+	/*
+	 * 팀전 초대 API
+	 */
+	@PostMapping("/invite")
+	public ApiResponseEntity<Void> inviteFriendToTeam(@RequestBody InviteTeamRequestDto requestDto) {
+		teamRoomService.inviteFriendToTeam(requestDto);
+		return ApiResponse.success();
+	}
+
+	/*
+	 * 팀전 초대 수락 및 거절 API
+	 */
+	@PostMapping("/invite/reaction")
+	public ApiResponseEntity<Void> handleInviteReaction(@RequestBody InviteTeamAnswerRequestDto requestDto) {
+		teamRoomService.handleInviteReaction(requestDto);
 		return ApiResponse.success();
 	}
 }
