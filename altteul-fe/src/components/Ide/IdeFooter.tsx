@@ -12,8 +12,8 @@ const IdeFooter: React.FC<IdeFooterProps> = ({ onExecute }) => {
 
   return (
     <div className='flex justify-end items-center p-2 bg-primary-black border-t border-gray-04'>
-      <SmallButton onClick={onExecute} children='코드 실행' backgroundColor='gray-04' fontSize='md' />
-      <SmallButton onClick={handleSubmitCode} children='코드 제출' fontSize='md' type='submit' />
+      <SmallButton onClick={onExecute} children='코드 실행' backgroundColor='gray-04'/>
+      <SmallButton onClick={handleSubmitCode} children='코드 제출' type='submit' />
     </div>
   );
 };

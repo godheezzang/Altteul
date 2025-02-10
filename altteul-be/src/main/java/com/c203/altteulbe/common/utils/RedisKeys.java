@@ -91,4 +91,8 @@ public class RedisKeys {
 		return "room:team:" + roomId + ":countdown";
 	}
 
+	// 초대 정보 저장
+	public static String inviteInfo(String roomId, String friendId) {
+		return "invite:room:" + roomId + ":user:" + friendId;
+	}
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import Input from "@components/common/Input";
 import Modal from "@components/common/Modal";
-import Button from "@components/Common/Button/Button";
+import Button from "@components/common/Button/Button";
 import Dropdown from "@components/common/Dropdown";
 
 import { checkUsername, registerUser } from "@utils/api/auth";
@@ -181,11 +181,15 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       } else {
         setApiError(response.message || "잘못된 응답입니다.");
       }
-    } catch (error) {
-      console.error("회원가입 중 오류 발생 : ", error);
-      setApiError(
-        error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요."
-      );
+    } catch (error: unknown) {
+
+      if (error instanceof Error) {
+        console.error("회원가입 중 오류 발생 : ", error);
+        setApiError(
+          error.message || "서버와 연결 할 수 없습니다. 다시 시도하세요."
+        );
+      }
+
     } finally {
       setIsSubmitting(false); // 로딩 끝
     }
@@ -210,21 +214,27 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="회원가입" height="35rem">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="알뜰 회원가입"
+      height="auto"
+      className="bg-primary-white"
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-6">
         <Input
           name="username"
           type="text"
           placeholder="아이디를 입력해 주세요."
           onChange={handleChange}
           value={form.username}
-          className="mt-2"
+          className="w-[22rem] "
         />
         {errors.username && (
           <p className="text-primary-orange text-sm">{errors.username}</p>
         )}
         {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
-        <Button children="중복확인(현재기능x)" />
+        <Button children="중복확인(현재기능x)" className="h-[3rem]" />
         {/*         
         <Button
           className={`w-full h-[2.8rem] ${
@@ -301,7 +311,10 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           {errors.profileImg && <p className="error">{errors.profileImg}</p>}
         </div>
         {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
-        <Button type="submit" width="100%" height="50px" fontSize="16px">
+        <Button
+          type="submit"
+          className="h-[3rem]"
+        >
           {isSubmitting ? "처리중..." : "가입하기"}
         </Button>
       </form>

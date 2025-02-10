@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "@components/common/Modal";
-import SmallButton from "@components/Common/Button/Button";
+import SmallButton from "@components/common/Button/Button";
 import useModalStore from "@stores/modalStore";
 import { MODAL_TYPES, GAME_TYPES, COMMON_MODAL_TYPES } from "types/modalTypes";
 type ResultDetailModalProps = {

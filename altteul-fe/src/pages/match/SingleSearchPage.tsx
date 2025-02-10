@@ -5,7 +5,6 @@ import { formatTime } from "@utils/formatTime";
 import UserProfile from "@components/match/UserProfile";
 import Button from "@components/common/Button/Button";
 import backgroundImage from "@assets/background/single_matching_bg.svg";
-import peopleIcon from "@assets/icon/people.svg";
 import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
 import { useTimer } from "@hooks/useTimer";
@@ -120,7 +119,7 @@ const SingleSearchPage = () => {
 
         {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
-          nickName={headUser.nickname}
+          nickName={headUser.nickName}
           profileImage={headUser.profileImage}
           tierId={headUser.tierId}
           className="mb-4"
@@ -144,16 +143,12 @@ const SingleSearchPage = () => {
         {/* 버튼 */}
         <div className="flex gap-6 mb-12">
           <Button
-            width="160px"
-            height="48px"
             className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
             onClick={() => userStart()}
           >
             게임 시작
           </Button>
           <Button
-            width="160px"
-            height="48px"
             className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
             onClick={() => userOut()}
           >
@@ -168,7 +163,7 @@ const SingleSearchPage = () => {
             .map((user: User) => (
               <UserProfile
                 key={user.userId}
-                nickName={user.nickname}
+                nickName={user.nickName}
                 profileImage={user.profileImage}
                 tierId={user.tierId}
               />

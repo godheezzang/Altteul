@@ -2,18 +2,27 @@ package com.c203.altteulbe.room.service;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.common.response.ApiResponse;
+import com.c203.altteulbe.common.response.ApiResponseEntity;
+import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.common.utils.RedisKeys;
+import com.c203.altteulbe.friend.persistent.entity.FriendId;
+import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
+import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.Problem;
 import com.c203.altteulbe.game.persistent.entity.Testcase;
@@ -30,15 +39,24 @@ import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 import com.c203.altteulbe.room.persistent.repository.team.UserTeamRoomRepository;
+import com.c203.altteulbe.room.service.exception.AlreadyExpiredInviteException;
+import com.c203.altteulbe.room.service.exception.AlreadyInviteException;
 import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.CannotMatchCancelException;
 import com.c203.altteulbe.room.service.exception.CannotMatchingException;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
 import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
+import com.c203.altteulbe.room.service.exception.OnlyFriendCanInviteException;
+import com.c203.altteulbe.room.service.exception.OnlyOnlineFriendCanInviteException;
+import com.c203.altteulbe.room.service.exception.OnlyWaitingRoomCanInviteException;
+import com.c203.altteulbe.room.service.exception.RoomFullException;
+import com.c203.altteulbe.room.service.exception.RoomNotInWaitingStateException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
+import com.c203.altteulbe.room.web.dto.request.InviteTeamAnswerRequestDto;
+import com.c203.altteulbe.room.web.dto.request.InviteTeamRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
-import com.c203.altteulbe.room.web.dto.request.TeamMatchCancelRequestDto;
+import com.c203.altteulbe.room.web.dto.request.UserAndRoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamMatchResponseDto;
@@ -61,6 +79,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TeamRoomService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final UserJPARepository userJPARepository;
+	private final UserStatusService userStatusService;
+	private final FriendshipRepository friendshipRepository;
 	private final TeamRoomRedisRepository teamRoomRedisRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final UserTeamRoomRepository userTeamRoomRepository;
@@ -322,7 +342,7 @@ public class TeamRoomService {
 	/**
 	 * 매칭 취소 처리
 	 */
-	public void cancelTeamMatch(TeamMatchCancelRequestDto requestDto) {
+	public void cancelTeamMatch(UserAndRoomRequestDto requestDto) {
 		Long userId = requestDto.getUserId();
 		Long roomId = requestDto.getRoomId();
 
@@ -360,6 +380,122 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId, "MATCH_CANCEL_SUCCESS", responseDto, BattleType.T);
 	}
 
+	/*
+	 * 팀 초대 처리
+	 */
+	public void inviteFriendToTeam(InviteTeamRequestDto requestDto) {
+		Long roomId = requestDto.getRoomId();
+		Long userId = requestDto.getInviterId();
+		Long friendId = requestDto.getInviteeId();
+
+		userJPARepository.findByUserId(userId).orElseThrow(()->new NotFoundUserException());
+		userJPARepository.findById(friendId).orElseThrow(()->new NotFoundUserException());
+
+		// 친구 관계 확인
+		if (!friendshipRepository.existsById(new FriendId(userId, friendId))) {
+			throw new OnlyFriendCanInviteException();
+		}
+
+		// 초대받은 친구가 온라인 상태인지 확인
+		if (!userStatusService.isUserOnline(friendId)) {
+			throw new OnlyOnlineFriendCanInviteException();
+		}
+
+		// 요청을 보낸 유저가 방에 존재하는지 확인
+		String userRoomKey = RedisKeys.userTeamRoom(userId);
+		String userRoomId = redisTemplate.opsForValue().get(userRoomKey);
+		if (!roomId.toString().equals(userRoomId)) {
+			throw new UserNotInRoomException();
+		}
+
+		// 초대받은 유저가 이미 다른 방에 있는지 확인 (우선 다른 방에 있는 경우에는 초대할 수 없도록 하였음)
+		String friendRoomKey = RedisKeys.userTeamRoom(friendId);
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(friendRoomKey))) {
+			throw new DuplicateRoomEntryException();
+		}
+
+		// 방의 상태가 대기 중인지 확인
+		if (!validator.isRoomWaiting(roomId, BattleType.T)) {
+			throw new OnlyWaitingRoomCanInviteException();
+		}
+
+		// 수용 가능 여부 확인
+		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+		Long userCount = redisTemplate.opsForList().size(roomUsersKey);
+
+		if (userCount >= BattleType.T.getMaxUsers()) {
+			throw new RoomFullException();
+		}
+
+		// 중복 초대 여부 확인
+		String inviteKey = RedisKeys.inviteInfo(String.valueOf(roomId), String.valueOf(friendId));
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(inviteKey))) {
+			throw new AlreadyInviteException();
+		}
+
+		// 초대 정보를 redis에 저장 (TTL 적용 - 10분)
+		redisTemplate.opsForValue().set(inviteKey, "pending", 10, TimeUnit.MINUTES);
+
+		// 초대한 유저에게 초대 성공 메시지 전송
+		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + userId, "INVITE_REQUEST_SUCCESS", "초대를 완료했습니다.");
+
+		// 초대 받은 유저에게 초대 관련 정보 전송
+		Map<String, String> payload = new HashMap<>();
+		payload.put("roomId", String.valueOf(roomId));
+		payload.put("inviterId", String.valueOf(userId));
+
+		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
+	}
+
+	/*
+	 * 팀 초대 수락 및 거절 처리
+	 */
+	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto) {
+		Long friendId = requestDto.getInviteeId();   // 요청한 유저의 ID
+		Long userId = requestDto.getInviterId();
+		Long roomId = requestDto.getRoomId();
+		boolean accepted = requestDto.isAccepted();
+
+		String inviteKey = RedisKeys.inviteInfo(String.valueOf(roomId), String.valueOf(friendId));
+
+		// 초대 만료 여부 확인
+		if (!Boolean.TRUE.equals(redisTemplate.hasKey(inviteKey))) {
+			throw new AlreadyExpiredInviteException();
+		}
+		// 초대 정보 삭제
+		redisTemplate.delete(inviteKey);
+
+		// 수락한 경우
+		if (accepted) {
+			// 방의 상태가 대기 중인지 확인
+			if (!validator.isRoomWaiting(roomId, BattleType.T)) {
+				throw new RoomNotInWaitingStateException();
+			}
+
+			// 수용 가능 여부 확인
+			String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+			Long userCount = redisTemplate.opsForList().size(roomUsersKey);
+
+			if (userCount >= BattleType.T.getMaxUsers()) {
+				throw new RoomFullException();
+			}
+
+			User user = userJPARepository.findByUserId(friendId).orElseThrow(() -> new NotFoundUserException());
+			RoomEnterResponseDto responseDto = teamRoomRedisRepository.insertUserToExistingRoom(roomId, user);
+
+			// 초대한 유저에게 수락 사실 전송, 초대받은 유저에게 수락 정상 처리 사실 전송
+			roomWebSocketService.sendWebSocketMessage("/sub/invite/" + userId, "INVITE_ACCEPTED", "초대를 수락했습니다.");
+			roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_ACCEPTED", "초대 수락 요청이 정상 처리되었습니다.");
+
+			// 방에 있는 모든 유저들에게 websocket으로 유저 정보 전송 (+ 초대된 유저 정보 포함)
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "ENTER", responseDto, BattleType.T);
+		} else {
+			// 거절한 경우
+			roomWebSocketService.sendWebSocketMessage("/sub/invite/" + userId, "INVITE_REJECTED", "초대를 거절했습니다.");
+			roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REJECTED", "초대 거절 요청이 정상 처리되었습니다.");
+		}
+	}
+
 	/**
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
 	 */
@@ -394,4 +530,6 @@ public class TeamRoomService {
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 	}
+
+
 }

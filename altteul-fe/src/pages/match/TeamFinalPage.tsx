@@ -4,7 +4,6 @@ import { formatTime } from "@utils/formatTime";
 import { useTimer } from "@hooks/useTimer";
 import UserProfile from "@components/match/UserProfile";
 import backgroundImage from "@assets/background/team_matching_bg.svg";
-import tierIcon from "@assets/icon/Badge_09.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
 import { TeamData } from "mocks/userData";
@@ -65,7 +64,7 @@ const TeamFinalPage = () => {
           {/* 아군 유저 */}
           <div className="flex gap-20 animate-slide-left">
             {TeamData.map((user: User) => (
-              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
+              <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
             ))}
           </div>
 
@@ -75,7 +74,7 @@ const TeamFinalPage = () => {
           {/* 상대 유저 */}
           <div className="flex animate-slide-right gap-20">
             {TeamData.map((user: User) => (
-              <UserProfile key={user.userId} nickName={user.nickName} profileImg={user.profileImg} tier={tierIcon} />
+              <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
             ))}
           </div>
         </div>

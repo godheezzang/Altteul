@@ -2,6 +2,7 @@ package com.c203.altteulbe.config;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -73,7 +74,7 @@ public class SecurityConfig {
 				configuration.setAllowCredentials(true);
 				configuration.setAllowedHeaders(Collections.singletonList("*"));
 				configuration.setMaxAge(3600L);
-				configuration.setExposedHeaders(Collections.singletonList("*"));
+				configuration.setExposedHeaders(List.of("Authorization", "userid"));
 
 				return configuration;
 			}

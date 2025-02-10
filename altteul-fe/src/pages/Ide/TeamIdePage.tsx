@@ -1,9 +1,10 @@
+// pages/TeamIdePage.tsx
+import { IdeLayout } from "@components/Ide/IdeLayout";
+import { useIde } from "@hooks/useIde";
+
 const TeamIdePage = () => {
-  return (
-    <>
-      <h1>TeamidePage</h1>
-    </>
-  );
+	const ideProps = useIde(true);
+	return <IdeLayout {...ideProps} />;
 };
 
 export default TeamIdePage;
