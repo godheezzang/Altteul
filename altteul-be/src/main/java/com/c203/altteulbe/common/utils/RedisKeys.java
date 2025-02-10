@@ -23,14 +23,6 @@ public class RedisKeys {
 	// 개인전 대기 중인 방 목록
 	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
 
-	// editor 상태
-	public static final String EDITOR = "editor";
-
-	// editor 상태 키
-	public static String getEditorKey(String editorId) {
-		return EDITOR + ":" + editorId;
-	}
-
 	// 친구 요청 키
 	public static String geFriendRequestKey(Long userId) {
 		return FRIEND_REQUEST_CACHE + ":" + userId;
