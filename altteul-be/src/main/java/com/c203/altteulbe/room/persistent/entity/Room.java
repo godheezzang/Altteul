@@ -54,9 +54,11 @@ public class Room extends BaseCreatedEntity {
 	}
 
 	public void updateSubmissionRecord(int solvedTestcaseCount, String lastExecuteTime, String lastExecuteMemory, String code) {
-		this.solvedTestcaseCount = solvedTestcaseCount;
-		this.lastExecuteTime = lastExecuteTime;
-		this.lastExecuteMemory = lastExecuteMemory;
-		this.code = code;
+		if (solvedTestcaseCount > this.solvedTestcaseCount) {
+			this.solvedTestcaseCount = solvedTestcaseCount;
+			this.lastExecuteTime = lastExecuteTime;
+			this.lastExecuteMemory = lastExecuteMemory;
+			this.code = code;
+		}
 	}
 }
