@@ -47,7 +47,13 @@ const FriendChatModal = ({ isOpen, onClose, friendId = 1 }: FriendChatModalProps
   };
 
   return (
-    <FriendModal isOpen={isOpen} onClose={onClose} showSearch={false}>
+    <FriendModal
+      isOpen={isOpen}
+      onClose={onClose}
+      showSearch={false}
+      showBackButton={true}
+      onBack={onClose}
+    >
       <div className="flex flex-col h-full">
         {/* 채팅방 헤더 */}
         <ChatHeader
