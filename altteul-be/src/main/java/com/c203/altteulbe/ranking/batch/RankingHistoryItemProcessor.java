@@ -5,39 +5,43 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import com.c203.altteulbe.ranking.persistent.entity.RankingHistory;
+import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.ranking_history.RankingHistoryRepository;
+import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
-public class RankingHistoryItemProcessor implements ItemProcessor<User, RankingHistory> {
+@Slf4j
+public class RankingHistoryItemProcessor implements ItemProcessor<User, RankingComposite> {
 
 	private final RankingHistoryRepository rankingHistoryRepository;
 	private final UserRepository userRepository;
+	private final TodayRankingRepository todayRankingRepository;
 
-	// UserRepository, UserJPARepository, UserRepositoryImpl 구조로 인한 bean 주입 문제가 발생하여 @Qualifier 사용
 	public RankingHistoryItemProcessor(
-										RankingHistoryRepository rankingHistoryRepository,
-										@Qualifier("userRepositoryImpl") UserRepository userRepository) {
+		RankingHistoryRepository rankingHistoryRepository,
+		TodayRankingRepository todayRankingRepository,
+		@Qualifier("userRepositoryImpl") UserRepository userRepository) {
 		this.rankingHistoryRepository = rankingHistoryRepository;
 		this.userRepository = userRepository;
+		this.todayRankingRepository = todayRankingRepository;
 	}
 
 	@Override
-	public RankingHistory process(User user) {
+	public RankingComposite process(User user) {
+
+		// TodayRanking에서 전날 데이터 삭제
+		todayRankingRepository.deleteByUserId(user.getUserId());
 
 		// 전날 랭킹 정보 조회
 		RankingHistory yesterdayRanking = rankingHistoryRepository.findLatestByUser(user.getUserId());
 
-		// 전날 데이터가 없는 경우 (첫 랭킹 기록)
-		if (yesterdayRanking == null) {
-			int totalUsers = (int) userRepository.countUsers();
-			return RankingHistory.create(user, user.getTier(),
-										 user.getRankingPoint(), totalUsers, 0);
-		}
-
-		// 현재 유저의 랭킹 찾기
 		List<User> rankedUsers = userRepository.findAllOrderedByRankingPointTierUsername();
+
+		// 랭킹 계산
 		int currentRanking = 1;
 		for (User rankedUser : rankedUsers) {
 			if (rankedUser.getUserId().equals(user.getUserId())) {
@@ -46,11 +50,32 @@ public class RankingHistoryItemProcessor implements ItemProcessor<User, RankingH
 			currentRanking++;
 		}
 
-		// 랭킹 변화 계산
-		int rankingChange = yesterdayRanking.getRanking() - currentRanking;
+		// 변동된 순위
+		int rankingChange;
 
-		return RankingHistory.create(user, user.getTier(),
-									 user.getRankingPoint(), currentRanking, rankingChange);
+		// 처음 가입한 유저의 경우 이전 랭킹이 없으므로 계산된 랭킹 그대로 저장
+		if (yesterdayRanking == null) {
+			rankingChange = currentRanking;
+		} else {
+			// 이전 랭킹 기록이 있는 유저의 경우 (어제 랭킹 - 현재 랭킹)
+			rankingChange = yesterdayRanking.getRanking()-currentRanking;
+		}
 
+		RankingHistory rankingHistory = RankingHistory.create(
+															user,
+															user.getTier(),
+															user.getRankingPoint(),
+															currentRanking,
+															rankingChange
+														);
+		TodayRanking todayRanking = TodayRanking.create(
+														user,
+														user.getTier(),
+														user.getRankingPoint(),
+														(long) rankingChange,
+														currentRanking
+													);
+		return new RankingComposite(rankingHistory, todayRanking);
 	}
 }
+
