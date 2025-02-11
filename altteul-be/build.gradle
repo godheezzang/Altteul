@@ -58,6 +58,8 @@ dependencies {
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    implementation 'io.openvidu:openvidu-java-client:2.23.0'
 }
 
 tasks.named('test') {

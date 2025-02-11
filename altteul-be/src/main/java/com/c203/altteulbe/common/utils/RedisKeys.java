@@ -23,6 +23,22 @@ public class RedisKeys {
 	// 개인전 대기 중인 방 목록
 	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
 
+	// 음성 채팅 세션
+	public static final String VOICE_SESSION = "voice:session";
+
+	// 팀 보이스 참가자
+	public static final String VOICE_PARTICIPANTS = "voice:participants";
+
+	// 팀 보이스 참가자 키
+	public static String getVoiceParticipantsKey(Long teamId) {
+		return VOICE_PARTICIPANTS + ":" + teamId;
+	}
+
+	// 음성 채팅 세선 키
+	public static String getVoiceSessionKey(Long teamId) {
+		return VOICE_SESSION + ":" + teamId;
+	}
+
 	// 친구 요청 키
 	public static String geFriendRequestKey(Long userId) {
 		return FRIEND_REQUEST_CACHE + ":" + userId;
