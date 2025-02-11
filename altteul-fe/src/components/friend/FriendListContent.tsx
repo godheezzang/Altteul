@@ -1,7 +1,7 @@
 // components/friend/FriendListContent.tsx
-import React, { useEffect, useState } from "react";
-import FriendListItem from "./FriendListItem";
-import { mockChatRooms } from "mocks/friendData";
+import React, { useEffect, useState } from 'react';
+import FriendListItem from './FriendListItem';
+import { mockChatRooms } from 'mocks/friendData';
 
 type FriendListContentProps = {
   searchQuery: string;
@@ -20,26 +20,26 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
 
   useEffect(() => {
     fetchFriends();
-  }, []);
+  }, []); // 실제 API시 수정
 
   const fetchFriends = () => {
     setIsLoading(true);
     try {
       if (!mockChatRooms) {
-        throw new Error("mockChatRooms 데이터가 존재하지 않습니다.");
+        throw new Error('mockChatRooms 데이터가 존재하지 않습니다.');
       }
       setFriends(mockChatRooms);
       setError(null);
     } catch (err) {
-      console.error("Error fetching friends:", err);
-      setError("목 데이터를 가져오는 데 실패했습니다.");
+      console.error('Error fetching friends:', err);
+      setError('목 데이터를 가져오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInvite = (friendId: number, nickname: string) => {
-    setInvitingFriends((prev) => {
+    setInvitingFriends(prev => {
       const newSet = new Set(prev);
       if (newSet.has(friendId)) {
         newSet.delete(friendId);
@@ -59,10 +59,13 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : filteredFriends.length > 0 ? (
-        filteredFriends.map((friend) => (
+        filteredFriends.map(friend => (
           <FriendListItem
             key={friend.friendId}
-            {...friend}
+            friendId={friend.friendId}
+            nickname={friend.nickname}
+            profileImg={friend.profileImg}
+            isOnline={friend.isOnline}
             onInvite={handleInvite}
             isInviting={invitingFriends.has(friend.friendId)}
           />
