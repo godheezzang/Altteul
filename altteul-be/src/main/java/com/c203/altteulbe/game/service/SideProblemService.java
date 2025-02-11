@@ -22,6 +22,8 @@ import com.c203.altteulbe.game.persistent.repository.item.ItemRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryJPARepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
+import com.c203.altteulbe.game.service.exception.ItemNotFoundException;
+import com.c203.altteulbe.game.service.exception.SideProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
@@ -57,7 +59,7 @@ public class SideProblemService {
 	public void submit(SubmitSideProblemRequestDto message, Long id) {
 		// 제출된 결과 확인
 		SideProblem sideProblem = sideProblemRepository.findById(message.getSideProblemId())
-			.orElseThrow(() -> new BusinessException("사이드 문제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+			.orElseThrow(SideProblemNotFoundException::new);
 
 		SideProblemHistory.ProblemResult result = message.getAnswer().equals(sideProblem.getAnswer()) ? SideProblemHistory.ProblemResult.P: SideProblemHistory.ProblemResult.F;
 
@@ -85,7 +87,7 @@ public class SideProblemService {
 				long totalCount = itemRepository.count();
 				long randomId = random.nextLong(totalCount) + 1;
 				Item item = itemRepository.findById(randomId)
-					.orElseThrow(() -> new BusinessException("아이템을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+					.orElseThrow(ItemNotFoundException::new);
 
 				// 결과 브로드 캐스트
 				sideProblemWebsocketService.sendSubmissionResult(
