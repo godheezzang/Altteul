@@ -28,6 +28,7 @@ public class S3TestController {
 		return ResponseEntity.ok(fileUrl);
 	}
 
+
 	@DeleteMapping("/delete")
 	public ResponseEntity<String> deleteFile(@RequestParam("key") String objectKey) {
 		s3Service.deleteFile(objectKey);
