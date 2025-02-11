@@ -77,6 +77,7 @@ const SingleSearchPage = () => {
     console.log("연결 상태확인: ", isConnected);
   }, [isConnected]);
 
+  // 유저 정보 업데이트
   useEffect(() => {
     if (c_waitUsers && c_leaderId) {
       console.log("유저정보 Update");
@@ -87,6 +88,7 @@ const SingleSearchPage = () => {
     }
   }, [c_waitUsers, c_leaderId]);
 
+  //타이머 전 게임 시작 호출
   const userStart = () => {
     if (confirm("아직 8명 안됐는데 시작할거임?")) {
       if (waitUsers.length >= 2) {
@@ -104,13 +106,14 @@ const SingleSearchPage = () => {
     }
   };
 
+  //유저(본인) 퇴장
   const userOut = () => {
     socketStore.resetConnection();
     singleOut(currentUserId);
     navigate("/match/select");
   };
 
-  // TMI Rotation
+  // TMI: 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
     setFact(facts[Math.floor(Math.random() * facts.length)]);
     const factRotation = setInterval(() => {
@@ -119,7 +122,7 @@ const SingleSearchPage = () => {
     return () => clearInterval(factRotation);
   }, [facts]);
 
-  // Error handling
+  // WebSocket 상태 모니터링
   useEffect(() => {
     if (error) {
       console.error("WebSocket 연결 오류:", error);
@@ -134,9 +137,10 @@ const SingleSearchPage = () => {
       className="relative min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      {/* JSX는 이전과 동일 */}
+      {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
+      {/* 로고 링크 */}
       <Link
         to="/"
         className="z-20 absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
@@ -144,9 +148,12 @@ const SingleSearchPage = () => {
         <img src={logo} alt="홈으로" className="w-full h-full" />
       </Link>
 
+      {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
+        {/* Timer */}
         <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
 
+        {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
           nickname={headUser.nickname}
           profileImg={headUser.profileImg}
@@ -154,18 +161,22 @@ const SingleSearchPage = () => {
           className="mb-4"
         />
 
+        {/* 방장 이름 */}
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
+        {/* Status Message */}
         <div className="text-white text-xl mb-8 flex flex-col items-center">
           같이 플레이 할 상대를 찾고 있어요. 🧐
           <div className="flex text-base">
             조금만 기다려 주세요
             <div className="ml-2">
+              {/* TODO: 스피너 제대로 된걸로 수정 */}
               <div className="animate-bounce">...</div>
             </div>
           </div>
         </div>
 
+        {/* 버튼 */}
         <div className="flex gap-6 mb-12">
           {isLeader && (
             <Button
@@ -183,6 +194,7 @@ const SingleSearchPage = () => {
           </Button>
         </div>
 
+        {/* 방장 제외 대기 유저 */}
         <div className="flex justify-center items-center gap-20">
           {waitUsers
             .filter((user) => user.userId !== leaderId)
@@ -196,6 +208,7 @@ const SingleSearchPage = () => {
             ))}
         </div>
 
+        {/* TMI */}
         <div className="absolute bottom-8 text-gray-300 text-sm">{fact}</div>
       </div>
     </div>
