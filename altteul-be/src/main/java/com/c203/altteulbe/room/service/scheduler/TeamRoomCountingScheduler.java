@@ -1,6 +1,7 @@
 package com.c203.altteulbe.room.service.scheduler;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -60,13 +61,13 @@ public class TeamRoomCountingScheduler {
 			// 인원 검증 : 방을 이전 상태로 되돌릴 것이라고 가정하고 구현했기 때문에 관련 redis key는 카운팅만 제거
 			if (!teamRoomValidator.isEnoughUsers(roomId1, BattleType.T)) {
 				log.info("[TeamScheduler] 카운팅 중 최소 인원 미달 : roomId1 : {}", roomId1);
-				roomWebSocketService.sendWebSocketMessage(String.valueOf(matchId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.T);
+				roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(matchId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.T);
 				redisTemplate.delete(roomKey);
 				continue;
 			}
 			if (!teamRoomValidator.isEnoughUsers(roomId2, BattleType.T)) {
 				log.info("[TeamScheduler] 카운팅 중 최소 인원 미달 : roomId2 : {}", roomId2);
-				roomWebSocketService.sendWebSocketMessage(String.valueOf(matchId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.T);
+				roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(matchId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.T);
 				redisTemplate.delete(roomKey);
 				continue;
 			}
@@ -93,7 +94,9 @@ public class TeamRoomCountingScheduler {
 				continue;
 			}
 
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(matchId), "COUNTING", remainingTime, BattleType.T);
+			Map<String, String> timePayload = Map.of("time", String.valueOf(remainingTime));
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(matchId), "COUNTING", timePayload, BattleType.T);
+
 			log.info("[TeamScheduler] 카운팅 진행 중 : {}초", remainingTime);
 			redisTemplate.opsForValue().set(roomKey, String.valueOf(remainingTime-1));
 		}
