@@ -193,8 +193,7 @@ public class SingleRoomService {
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			Map<String, String> notePayload = Map.of("note", "최소 인원 수가 미달되었습니다.");
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL", notePayload, BattleType.S);
+			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
 			return;
 		}
 
