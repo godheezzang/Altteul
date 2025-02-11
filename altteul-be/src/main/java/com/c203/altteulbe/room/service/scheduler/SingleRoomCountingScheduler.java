@@ -1,6 +1,7 @@
 package com.c203.altteulbe.room.service.scheduler;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -53,7 +54,7 @@ public class SingleRoomCountingScheduler {
 			// 인원 검증 : 방을 이전 상태로 되돌릴 것이라고 가정하고 구현했기 때문에 관련 redis key는 카운팅만 제거
 			if (!singleRoomValidator.isEnoughUsers(roomId, BattleType.S)) {
 				log.info("[SingleScheduler] 카운팅 중 최소 인원 미달 : roomId : {}", roomId);
-				roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.S);
+				roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId),"COUNTING_CANCEL", "인원 수가 부족합니다.", BattleType.S);
 				redisTemplate.delete(roomKey);
 				continue;
 			}
@@ -74,7 +75,9 @@ public class SingleRoomCountingScheduler {
 				continue;
 			}
 
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING", remainingTime, BattleType.S);
+			Map<String, String> timePayload = Map.of("time", String.valueOf(remainingTime));
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING", timePayload, BattleType.S);
+
 			log.info("[SingleScheduler] 카운팅 진행 중 : {}초", remainingTime);
 			redisTemplate.opsForValue().set(roomKey, String.valueOf(remainingTime-1));
 		}
