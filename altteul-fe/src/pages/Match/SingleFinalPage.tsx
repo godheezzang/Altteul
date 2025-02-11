@@ -9,6 +9,7 @@ import { useMatchStore } from '@stores/matchStore';
 import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
+import { useSocketStore } from '@stores/socketStore';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -18,10 +19,8 @@ const SingleFinalPage = () => {
   const roomId = store.matchData.roomId;
   const gameId = store.matchData.gameId;
   const [headUser, setHeadUser] = useState<User>(waitUsers.find(user => user.userId === leaderId));
-  const setGameInfo = useGameStore(state => state.setGameInfo);
-  const setUsers = useGameStore(state => state.setUsers);
-  const setProblem = useGameStore(state => state.setProblem);
-  const setTestcases = useGameStore(state => state.setTestcases);
+  const { resetGameInfo, setGameInfo, setUsers, setProblem, setTestcases } =
+    useGameStore.getState();
   const { c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
   const problem = store.matchData.problem;
   const testcases = store.matchData.testcases;
@@ -64,10 +63,30 @@ const SingleFinalPage = () => {
       setUsers([headUser, ...waitUsers]);
       setProblem(problem);
       setTestcases(testcases);
+      useSocketStore.getState().setKeepConnection(true);
+      console.log('keepConnection true 완료');
 
-      navigate(`/game/single/${gameId}/${roomId}`);
+      setTimeout(() => {
+        console.log('페이지 이동');
+        navigate(`/game/single/${gameId}/${roomId}`);
+      }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
-  }, [isTimeUp, roomId, gameId, leaderId, waitUsers, navigate]);
+  }, [
+    isTimeUp,
+    roomId,
+    gameId,
+    leaderId,
+    waitUsers,
+    headUser,
+    problem,
+    setGameInfo,
+    setProblem,
+    setTestcases,
+    setUsers,
+    store,
+    testcases,
+    navigate,
+  ]);
 
   return (
     <div
