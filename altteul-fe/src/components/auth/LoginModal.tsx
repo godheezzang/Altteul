@@ -6,6 +6,7 @@ import Button from "@components/Common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
 import useModalStore from "@stores/modalStore";
+import gitHubLogo from "@assets/icon/github_logo.svg";
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -127,7 +128,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           type="button"
           backgroundColor="primary-black"
           className="h-[2.8rem] w-full mt-8 hover:brightness-110"
-          img="src/assets/icon/github_logo.svg"
+          img= {gitHubLogo}
         >
           github로 간편하게 시작하기
         </Button>

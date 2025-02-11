@@ -4,16 +4,14 @@ services:
     build:
       context: ./altteul-fe
       dockerfile: Dockerfile.prod
-    working_dir: /app
     ports:
       - "80:80"
-    volumes:
-      - ./altteul-fe:/app
-      - /app/node_modules
     environment:
-      - NODE_ENV=prod
+      - NODE_ENV=production
     depends_on:
       - backend
+    networks:  # 이 부분 추가
+      - altteul-ie-network  # backend와 같은 네트워크 사용
 
   backend:
     container_name: altteul-ie-backend

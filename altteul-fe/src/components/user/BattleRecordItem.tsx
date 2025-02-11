@@ -59,7 +59,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
 			...opponent.members[0],
 			team: "opponent",
 			...opponent,
-			members: undefined, // members 키 제거
+			// members: undefined, // members 키 제거
 		})),
 	].sort((a, b) => a.rank - b.rank);
 

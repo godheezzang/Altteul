@@ -3,7 +3,7 @@ import userIcon from "@assets/icon/User.svg";
 import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { Link, useNavigate } from "react-router-dom";
-import "@styles/base/colors.css";
+import "@styles/Base/colors.css";
 import { singleEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
