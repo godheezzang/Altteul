@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.entity.item.Item;
+import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblem;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblemHistory;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.persistent.repository.item.ItemHistoryRepository;
+import com.c203.altteulbe.game.persistent.repository.item.ItemRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryJPARepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
+import com.c203.altteulbe.game.service.exception.ItemNotFoundException;
+import com.c203.altteulbe.game.service.exception.SideProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
 import com.c203.altteulbe.game.web.dto.side.response.SubmitSideProblemResponseDto;
-import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -31,7 +35,6 @@ import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
@@ -50,27 +53,75 @@ public class SideProblemService {
 	private final GameRepository gameRepository;
 	private final SingleRoomRepository singleRoomRepository;
 	private final UserJPARepository userJPARepository;
+	private final ItemRepository itemRepository;
+	private final ItemHistoryRepository itemHistoryRepository;
 
 	public void submit(SubmitSideProblemRequestDto message, Long id) {
 		// 제출된 결과 확인
 		SideProblem sideProblem = sideProblemRepository.findById(message.getSideProblemId())
-			.orElseThrow(() -> new BusinessException("사이드 문제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+			.orElseThrow(SideProblemNotFoundException::new);
 
 		SideProblemHistory.ProblemResult result = message.getAnswer().equals(sideProblem.getAnswer()) ? SideProblemHistory.ProblemResult.P: SideProblemHistory.ProblemResult.F;
 
-		// 채점 결과 브로드 캐스트
-		sideProblemWebsocketService.sendSubmissionResult(
-			SubmitSideProblemResponseDto.builder()
-			.status(result)
-			.build(),
-			message.getGameId(),
-			message.getTeamId()
-		);
-
-		// 결과를 사이드 문제 풀이내역에 저장
-		// 게임 찾기
 		Game game = gameRepository.findWithRoomByGameId(message.getGameId())
 			.orElseThrow(GameNotFoundException::new);
+
+
+		// 채점 결과 브로드 캐스트
+		if (result == SideProblemHistory.ProblemResult.P) {
+			if (game.getBattleType() == BattleType.S) {
+				// 개인전
+				sideProblemWebsocketService.sendSubmissionResult(
+					SubmitSideProblemResponseDto.builder()
+						.status(result)
+						.bonusPoint(50)
+						.build(),
+					message.getGameId(),
+					message.getTeamId()
+				);
+			} else {
+				// 팀전
+
+				// 아이템 획득
+				Random random = new Random();
+				long totalCount = itemRepository.count();
+				long randomId = random.nextLong(totalCount) + 1;
+				Item item = itemRepository.findById(randomId)
+					.orElseThrow(ItemNotFoundException::new);
+
+				// 결과 브로드 캐스트
+				sideProblemWebsocketService.sendSubmissionResult(
+					SubmitSideProblemResponseDto.builder()
+						.status(result)
+						.itemId(item.getId())
+						.itemName(item.getItemName())
+						.build(),
+					message.getGameId(),
+					message.getTeamId()
+				);
+
+				// 아이템 획득 내역 저장
+				itemHistoryRepository.save(
+					ItemHistory.builder()
+						.item(item)
+						.game(game)
+						.userId(id)
+						.teamRoom(message.getTeamId())
+						.type(ItemHistory.Type.H)
+						.build()
+				);
+			}
+		} else {
+			sideProblemWebsocketService.sendSubmissionResult(
+				SubmitSideProblemResponseDto.builder()
+					.status(result)
+					.build(),
+				message.getGameId(),
+				message.getTeamId()
+			);
+		}
+
+		// 결과를 사이드 문제 풀이내역에 저장
 
 		SideProblemHistory sideProblemHistory = null;
 		User user = userJPARepository.findByUserId(id)
@@ -88,6 +139,7 @@ public class SideProblemService {
 		} else {
 			TeamRoom teamRoom = teamRoomRepository.findById(message.getTeamId())
 				.orElseThrow(RoomNotFoundException::new);
+
 			sideProblemHistory = SideProblemHistory.builder()
 				.sideProblemId(message.getSideProblemId())
 				.gameId(game)

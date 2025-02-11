@@ -17,7 +17,7 @@ import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
-import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
 import com.c203.altteulbe.game.service.exception.GameCannotStartException;
@@ -58,7 +58,7 @@ public class SingleRoomService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
-	private final GameJPARepository gameRepository;
+	private final GameRepository gameRepository;
 
 	/*
 	 * 개인전 대기방 입장 처리
