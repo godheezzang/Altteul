@@ -6,7 +6,7 @@ import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
 import { useMatchStore } from "@stores/matchStore";
 import { useState, useEffect } from "react";
-import UserProfile from "@components/match/UserProfile";
+import UserProfile from "@components/Match/UserProfile";
 import useMatchWebSocket from "@hooks/useMatchWebSocket";
 
 const SingleFinalPage = () => {

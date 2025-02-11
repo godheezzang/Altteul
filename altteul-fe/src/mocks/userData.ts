@@ -4,38 +4,38 @@ import peopleIcon from "@assets/icon/People.svg";
 export const userData = [
   {
     userId: 1,
-    nickName: "알리언",
-    profileImg: peopleIcon,
+    nickname: "알리언",
+    profileIm:peopleIcon,
     tierId: 3,
   },
   {
     userId: 2,
-    nickName: "샤샤샤",
-    profileImg: peopleIcon,
+    nickname: "샤샤샤",
+    profileIm:peopleIcon,
     tierId: 3,
   },
   {
     userId: 3,
-    nickName: "오리진",
-    profileImg: peopleIcon,
+    nickname: "오리진",
+    profileIm:peopleIcon,
     tierId: 3,
   },
   {
     userId: 4,
-    nickName: "가희바희보",
-    profileImg: peopleIcon,
+    nickname: "가희바희보",
+    profileIm:peopleIcon,
     tierId: 3,
   },
   {
     userId: 5,
-    nickName: "콜드캡슐",
-    profileImg: peopleIcon,
+    nickname: "콜드캡슐",
+    profileIm:peopleIcon,
     tierId: 3,
   },
   {
     userId: 6,
-    nickName: "리카스",
-    profileImg: peopleIcon,
+    nickname: "리카스",
+    profileIm:peopleIcon,
     tierId: 3,
   },
 ];
@@ -43,20 +43,20 @@ export const userData = [
 export const TeamData = [
   {
     userId: 1,
-    nickName: "알리언",
-    profileImage: peopleIcon,
+    nickname: "알리언",
+    profileImg: peopleIcon,
     tierId: 3,
   },
   {
     userId: 2,
-    nickName: "샤샤샤",
-    profileImage: peopleIcon,
+    nickname: "샤샤샤",
+    profileImg: peopleIcon,
     tierId: 3,
   },
   {
     userId: 3,
-    nickName: "오리진",
-    profileImage: peopleIcon,
+    nickname: "오리진",
+    profileImg: peopleIcon,
     tierId: 3,
   },
 ];

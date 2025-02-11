@@ -1,9 +1,12 @@
-// 채팅 모달 임시
-
-// pages/MainPage.tsx
-import React, { useState } from 'react';
-import FriendModal from '@components/friend/FriendModal';
-import FriendChatModal from '@components/friend/FriendChatModal';
+import AnimatedCodeEditor from '@components/Main/AnimatedCodeEditor';
+import useAuthStore from '@stores/authStore';
+import { useEffect, useState } from 'react';
+import throttle from 'lodash/throttle';
+// import GameGuide from '@components/Main/GameGuide';
+import SmallButton from '@components/Common/Button/SmallButton ';
+import { useNavigate } from 'react-router-dom';
+import LoginModal from '@components/Auth/LoginModal';
+import useModalStore from '@stores/modalStore';
 
 const MainPage = () => {
   // 통합 모달과 채팅 모달만 상태 관리

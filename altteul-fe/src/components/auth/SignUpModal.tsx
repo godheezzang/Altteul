@@ -3,12 +3,12 @@
 
 import { useState } from "react";
 
-import Input from "@components/common/Input";
-import Modal from "@components/common/Modal";
-import Button from "@components/common/Button/Button";
-import Dropdown from "@components/common/Dropdown";
+import Input from "@components/Common/Input";
+import Modal from "@components/Common/Modal";
+import Button from "@components/Common/Button/Button";
+import Dropdown from "@components/Common/Dropdown";
 
-import { checkUsername, registerUser } from "@utils/api/auth";
+import { checkUsername, registerUser } from "@utils/Api/auth";
 import {
   validateSignUpForm,
   SignUpFormData,
