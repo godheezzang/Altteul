@@ -25,6 +25,7 @@ import com.c203.altteulbe.game.service.exception.NotEnoughUserException;
 import com.c203.altteulbe.game.service.exception.ProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.response.GameStartForProblemDto;
 import com.c203.altteulbe.game.web.dto.response.GameStartForTestcaseDto;
+import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -36,6 +37,7 @@ import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
+import com.c203.altteulbe.room.web.dto.response.SingleGameLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -59,6 +61,7 @@ public class SingleRoomService {
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
 	private final GameJPARepository gameRepository;
+	private final VoiceChatService voiceChatService;
 
 	/*
 	 * 개인전 대기방 입장 처리
@@ -265,6 +268,90 @@ public class SingleRoomService {
 		);
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
+
+	// @Transactional
+	// public void leaveGameInProgress(RoomRequestDto requestDto) {
+	// 	Long userId = requestDto.getUserId();
+	// 	Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
+	//
+	// 	if (roomId == null) {
+	// 		throw new UserNotInRoomException();
+	// 	}
+	//
+	// 	// 퇴장하는 유저 정보 조회
+	// 	User user = userJPARepository.findByUserId(userId)
+	// 		.orElseThrow(NotFoundUserException::new);
+	// 	UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
+	//
+	// 	// Redis에서 퇴장하는 유저 삭제
+	// 	String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+	// 	redisTemplate.opsForList().remove(roomUsersKey, 0, userId.toString());
+	// 	redisTemplate.delete(RedisKeys.userSingleRoom(userId));
+	//
+	// 	// 음성 채팅 연결 종료
+	// 	voiceChatService.terminateUserVoiceConnection(roomId, userId.toString());
+	//
+	// 	// Redis에서 현재 남아있는 유저들의 정보 조회
+	// 	List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+	// 	List<UserInfoResponseDto> remainingUsers = new ArrayList<>();
+	//
+	// 	if (remainingUserIds != null && !remainingUserIds.isEmpty()) {
+	// 		// 남아있는 유저들 정보 조회
+	// 		List<User> users = userJPARepository.findByUserIdIn(
+	// 			remainingUserIds.stream()
+	// 				.map(Long::parseLong)
+	// 				.collect(Collectors.toList())
+	// 		);
+	// 		remainingUsers = users.stream()
+	// 			.map(UserInfoResponseDto::fromEntity)
+	// 			.collect(Collectors.toList());
+	// 	}
+	//
+	// 	// 웹소켓으로 퇴장 이벤트 전송
+	// 	SingleGameLeaveResponseDto responseDto = SingleGameLeaveResponseDto.builder()
+	// 		.roomId(roomId)
+	// 		.leftUser(leftUserDto)
+	// 		.remainingUsers(remainingUsers)
+	// 		.build();
+	//
+	// 	roomWebSocketService.sendWebSocketMessage(
+	// 		roomId.toString(),
+	// 		"GAME_LEAVE",
+	// 		responseDto,
+	// 		BattleType.S
+	// 	);
+	//
+	// 	// 남은 유저가 0명이면 게임 종료 처리
+	// 	if (remainingUsers.isEmpty()) {
+	// 		String gameIdStr = redisTemplate.opsForValue().get(RedisKeys.SingleRoomGame(roomId));
+	// 		if (gameIdStr != null) {
+	// 			Long gameId = Long.parseLong(gameIdStr);
+	// 			Game game = gameRepository.findById(gameId)
+	// 				.orElseThrow(() -> new RuntimeException("Game not found"));
+	//
+	// 			// 게임 상태를 종료로 변경
+	// 			game.finishGame();
+	// 			gameRepository.save(game);
+	//
+	// 			// 게임 종료 이벤트 전송
+	// 			Map<String, Object> gameEndPayload = new HashMap<>();
+	// 			gameEndPayload.put("gameId", gameId);
+	// 			gameEndPayload.put("reason", "ALL_PLAYERS_LEFT");
+	//
+	// 			roomWebSocketService.sendWebSocketMessage(
+	// 				roomId.toString(),
+	// 				"GAME_END",
+	// 				gameEndPayload,
+	// 				BattleType.S
+	// 			);
+	//
+	// 			// Redis에서 게임 관련 데이터 삭제
+	// 			redisTemplate.delete(roomUsersKey);
+	// 			redisTemplate.delete(RedisKeys.SingleRoomStatus(roomId));
+	// 			redisTemplate.delete(RedisKeys.SingleRoomGame(roomId));
+	// 		}
+	// 	}
+	// }
 
 
 	// userId 리스트로 User 엔티티 조회

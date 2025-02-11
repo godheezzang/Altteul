@@ -79,4 +79,13 @@ public class TeamRoomController {
 		teamRoomService.handleInviteReaction(requestDto);
 		return ApiResponse.success();
 	}
+
+	/*
+	 * 팀전 게임 중 퇴장 API
+	 */
+	@PostMapping("/game/leave")
+	public ApiResponseEntity<Void> leaveGameInProgress(@RequestBody RoomRequestDto requestDto) {
+		teamRoomService.leaveGameInProgress(requestDto);
+		return ApiResponse.success();
+	}
 }
