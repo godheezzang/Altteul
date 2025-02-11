@@ -87,8 +87,8 @@ public class SingleRoomService {
 			RoomEnterResponseDto responseDto = singleRoomRedisRepository.insertUserToExistingRoom(existingRoomId, user);
 
 			// 웹소켓 메시지 브로드캐스트
-			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(), "ENTER", responseDto,
-				BattleType.S);
+			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(),
+											 "ENTER", responseDto, BattleType.S);
 			return responseDto;
 		}
 
@@ -183,7 +183,7 @@ public class SingleRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "5");
+		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "6");
 	}
 
 	/**
@@ -193,8 +193,8 @@ public class SingleRoomService {
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL",
-													 "최소 인원 수가 미달되었습니다.", BattleType.S);
+			Map<String, String> notePayload = Map.of("note", "최소 인원 수가 미달되었습니다.");
+			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL", notePayload, BattleType.S);
 			return;
 		}
 
