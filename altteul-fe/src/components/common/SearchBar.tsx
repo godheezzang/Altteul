@@ -1,5 +1,6 @@
-import Input from "@components/common/Input";
-import React, { useState } from "react";
+import Input from '@components/common/Input';
+import React, { useState } from 'react';
+import searchIcon from '@assets/icon/friend/Search.svg';
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
@@ -11,10 +12,10 @@ interface SearchBarProps {
 
 const SearchBar = ({
   onSearch,
-  initiaValue = "",
-  placeholder = "검색어를 입력하세요",
-  width = "",
-  className = "",
+  initiaValue = '',
+  placeholder = '검색어를 입력하세요',
+  width = '',
+  className = '',
 }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState(initiaValue);
 
@@ -30,12 +31,9 @@ const SearchBar = ({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={`relative flex items-center ${className}`}
-    >
+    <form onSubmit={handleSubmit} className={`relative flex items-center ${className}`}>
       <Input
-        type="search"
+        type="text"
         name="search"
         value={searchTerm}
         onChange={handleChange}
@@ -48,11 +46,7 @@ const SearchBar = ({
         className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80"
         aria-label="검색"
       >
-        <img
-          src="/src/assets/icon/search.svg"
-          alt="돋보기"
-          className="w-5 h-5"
-        />
+        <img src={searchIcon} alt="돋보기" className="w-5 h-5" />
       </button>
     </form>
   );
