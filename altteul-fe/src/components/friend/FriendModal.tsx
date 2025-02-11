@@ -41,6 +41,9 @@ const FriendModal = ({
   // 탭에 따른 검색바 표시 여부
   const showSearchBar = showSearch && (currentTab === 'friends' || currentTab === 'chat');
 
+  // 채팅창에서는 네브바를 숨김
+  const showNavigation = !children;
+
   // 탭에 따른 컨텐츠 렌더링
   const renderContent = () => {
     if (children) {
@@ -78,14 +81,16 @@ const FriendModal = ({
       {/* 메인 컨텐츠 영역 */}
       <div className="flex-1 overflow-y-auto p-4">{renderContent()}</div>
 
-      {/* 하단 네비게이션 */}
-      <Navigation
-        currentTab={currentTab}
-        onNavigate={tab => {
-          setCurrentTab(tab);
-          setSearchQuery(''); // 탭 변경 시 검색어 초기화
-        }}
-      />
+      {/* children이 있을 때는 네비게이션 바를 숨김 */}
+      {showNavigation && (
+        <Navigation
+          currentTab={currentTab}
+          onNavigate={tab => {
+            setCurrentTab(tab);
+            setSearchQuery('');
+          }}
+        />
+      )}
     </BaseModal>
   );
 };
