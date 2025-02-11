@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import FriendModal from "@components/friend/FriendModal";
-import SmallButton from "@components/common/Button/SmallButton ";
+import FriendModal from "@components/Friend/FriendModal";
+import SmallButton from "@components/Common/Button/SmallButton ";
 import { mockChatRooms } from "mocks/friendData"; // mockChatRooms import
 
 type FriendListModalProps = {

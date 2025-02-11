@@ -3,14 +3,14 @@ import userIcon from "@assets/icon/User.svg";
 import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { Link, useNavigate } from "react-router-dom";
-import "@styles/base/colors.css";
-import { singleEnter } from "@utils/api/matchApi";
+import "@styles/Base/colors.css";
+import { singleEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
 const SelectPage = () => {
   const navigate = useNavigate();
   //TODO: userId, 당장은 임시부여, 이후에 zustand에서 가져오면 될듯
-  const userId = 15;
+  const userId = Number(localStorage.getItem("userId"));
   const { setMatchData, setLoading } = useMatchStore();
 
   const singleNavigate = async () => {
