@@ -26,7 +26,7 @@ import com.c203.altteulbe.friend.service.exception.SuspendedUserException;
 import com.c203.altteulbe.friend.service.exception.WithdrawUserException;
 import com.c203.altteulbe.friend.web.dto.response.FriendRequestResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FriendRequestService {
 	private final FriendRequestRepository friendRequestRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final FriendshipRepository friendshipRepository;
 	private final FriendRedisService friendRedisService;
 
@@ -46,7 +46,7 @@ public class FriendRequestService {
 	@Transactional
 	public PageResponse<FriendRequestResponseDto> getPendingRequestsFromRedis(Long userId, Pageable pageable) throws
 		JsonProcessingException {
-		userJPARepository.findByUserId(userId).orElseThrow(() -> {
+		userRepository.findByUserId(userId).orElseThrow(() -> {
 			log.error("유저 찾기 실패");
 			return new NotFoundUserException();
 		});
@@ -81,8 +81,8 @@ public class FriendRequestService {
 	// 친구 신청 생성
 	@Transactional
 	public FriendRequestResponseDto createFriendRequest(Long fromUserId, Long toUserId) throws JsonProcessingException {
-		User fromUser = userJPARepository.findById(fromUserId).orElseThrow(NotFoundUserException::new);
-		User toUser = userJPARepository.findById(toUserId).orElseThrow(NotFoundUserException::new);
+		User fromUser = userRepository.findById(fromUserId).orElseThrow(NotFoundUserException::new);
+		User toUser = userRepository.findById(toUserId).orElseThrow(NotFoundUserException::new);
 		validateFriendRequest(fromUser, toUser);
 		FriendRequest friendRequest = new FriendRequest(fromUser, toUser);
 		// 친구 요청이 새로 생겼으니 이미 있던 친구 요청 목록 캐시 삭제

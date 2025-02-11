@@ -1,9 +1,10 @@
 package com.c203.altteulbe.ranking.batch;
 
 import java.util.List;
+
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
 import com.c203.altteulbe.ranking.persistent.entity.RankingHistory;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.ranking_history.RankingHistoryRepository;
@@ -24,7 +25,7 @@ public class RankingHistoryItemProcessor implements ItemProcessor<User, RankingC
 	public RankingHistoryItemProcessor(
 		RankingHistoryRepository rankingHistoryRepository,
 		TodayRankingRepository todayRankingRepository,
-		@Qualifier("userRepositoryImpl") UserRepository userRepository) {
+		UserRepository userRepository) {
 		this.rankingHistoryRepository = rankingHistoryRepository;
 		this.userRepository = userRepository;
 		this.todayRankingRepository = todayRankingRepository;

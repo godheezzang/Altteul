@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +22,12 @@ import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
 import com.c203.altteulbe.game.web.dto.side.response.SubmitSideProblemResponseDto;
-import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
@@ -49,7 +46,7 @@ public class SideProblemService {
 	private final SideProblemWebsocketService sideProblemWebsocketService;
 	private final GameRepository gameRepository;
 	private final SingleRoomRepository singleRoomRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 
 	public void submit(SubmitSideProblemRequestDto message, Long id) {
 		// 제출된 결과 확인
@@ -73,7 +70,7 @@ public class SideProblemService {
 			.orElseThrow(GameNotFoundException::new);
 
 		SideProblemHistory sideProblemHistory = null;
-		User user = userJPARepository.findByUserId(id)
+		User user = userRepository.findByUserId(id)
 			.orElseThrow(NotFoundUserException::new);
 
 		if (game.getBattleType() == BattleType.S) {
