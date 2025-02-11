@@ -1,9 +1,8 @@
-import { IdeLayout } from "@components/Ide/IdeLayout";
-import { useIde } from "@hooks/useIde";
+import { IdeLayout } from '@components/Ide/IdeLayout';
+import { useIde } from '@hooks/useIde';
 
 const SingleIdePage = () => {
-	const ideProps = useIde(false);
-	return <IdeLayout {...ideProps} />;
+  return <IdeLayout {...useIde(false)} />;
 };
 
 export default SingleIdePage;
