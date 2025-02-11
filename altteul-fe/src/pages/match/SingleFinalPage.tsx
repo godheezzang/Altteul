@@ -5,23 +5,56 @@ import backgroundImage from "@assets/background/single_matching_bg.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { User } from "types/types";
 import { useMatchStore } from "@stores/matchStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserProfile from "@components/match/UserProfile";
+import useMatchWebSocket from "@hooks/useMatchWebSocket";
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
-  const store = useMatchStore();  //select 페이지에서 저장한 데이터 호출
-  const [waitUsers] = useState(store.matchData.users); //(방장 포함)대기 중인 유저 리스트
-  const leaderId = store.matchData.leaderId;
-  const headUser = waitUsers.find((user) => user.userId === store.matchData.leaderId)
+  const store = useMatchStore();
+  const [waitUsers, setWaitUsers] = useState(store.matchData.users);
+  const [leaderId] = useState(store.matchData.leaderId);
+  const roomId = store.matchData.roomId;
+  const [headUser, setHeadUser] = useState<User>(
+    waitUsers.find((user) => user.userId === leaderId)
+  );
+
+  const { c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
+
+  useEffect(() => {
+    if (c_waitUsers && c_leaderId) {
+      console.log("유저정보 Update");
+      console.log("대기 유저 정보: ", c_waitUsers);
+      console.log("방장 ID: ", c_leaderId);
+      setHeadUser(c_waitUsers.find((user) => user.userId === c_leaderId));
+      setWaitUsers(c_waitUsers.filter((user) => user.userId !== c_leaderId));
+    }
+  }, [c_waitUsers, c_leaderId]);
+  
+  // 타이머 완료 여부를 추적하는 상태 추가
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   const { seconds } = useTimer({
     initialSeconds: 10,
     onComplete: () => {
-      //TODO: single IDE 페이지로 이동
-      // navigate('/single-final');
+      setIsTimeUp(true);
     },
   });
+
+  // 타이머 완료 시 페이지 이동 처리
+  useEffect(() => {
+    if (isTimeUp) {
+      store.setMatchData({
+        data: {
+          roomId: roomId,
+          leaderId: leaderId,
+          users: [headUser, ...waitUsers],
+        }
+      });
+      // TODO: single IDE 페이지로 이동
+      // navigate('/single-final');
+    }
+  }, [isTimeUp, roomId, leaderId, waitUsers, navigate]);
 
   return (
     <div className="relative min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
@@ -32,8 +65,12 @@ const SingleFinalPage = () => {
       </Link>
 
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
-        {/* 방장 */}
-        <UserProfile nickName={headUser.nickName} profileImage={headUser.profileImage} tierId={headUser.tierId} className="mb-4" />
+        <UserProfile 
+          nickname={headUser.nickname} 
+          profileImg={headUser.profileImg} 
+          tierId={headUser.tierId} 
+          className="mb-4" 
+        />
 
         <div className="text-white text-2xl mb-4">나는 방장</div>
 
@@ -42,10 +79,16 @@ const SingleFinalPage = () => {
         <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
 
         <div className="flex justify-center items-center gap-20">
-          {/* 방장을 제외한 유저 */}
-          {(waitUsers.filter((user) => user.userId !== leaderId)).map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
-          ))}
+          {waitUsers
+            
+            .map((user: User) => (
+              <UserProfile 
+                key={user.userId} 
+                nickname={user.nickname} 
+                profileImg={user.profileImg} 
+                tierId={user.tierId} 
+              />
+            ))}
         </div>
       </div>
     </div>
