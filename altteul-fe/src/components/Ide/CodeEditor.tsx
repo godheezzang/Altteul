@@ -1,7 +1,7 @@
 import { forwardRef, useEffect } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import { configureMonaco } from "@utils/monacoConfig";
-import Dropdown from "@components/common/Dropdown";
+import Dropdown from "@components/Common/Dropdown";
 import * as monaco from "monaco-editor";
 import { Cursor } from "@hooks/useIde";
 
@@ -69,7 +69,7 @@ const CodeEditor = forwardRef<monaco.editor.IStandaloneCodeEditor, CodeEditorPro
 						vertical: "auto",
 						horizontal: "auto",
 					},
-					readonly: readonly,
+					readOnly: readonly,
 				}}
 				loading="에디터를 불러오는 중입니다."
 				onChange={(value) => setCode(value || "")}

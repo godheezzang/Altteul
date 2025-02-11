@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { loginUser } from "@utils/api/auth";
-import Modal from "@components/common/Modal";
-import Input from "@components/common/Input";
-import Button from "@components/common/Button/Button";
+import { loginUser } from "@utils/Api/auth";
+import Modal from "@components/Common/Modal";
+import Input from "@components/Common/Input";
+import Button from "@components/Common/Button/Button";
 import axios from "axios";
 import useAuthStore from "@stores/authStore";
 import useModalStore from "@stores/modalStore";
