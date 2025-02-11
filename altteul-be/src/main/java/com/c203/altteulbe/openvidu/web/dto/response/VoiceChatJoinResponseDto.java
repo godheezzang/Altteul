@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class VoiceChatJoinResponseDto {
-	private String token;
-	private String sessionId;
-	private Set<ParticipantResponseDto> participants;
+	private String token; // OpenVide 연결 토큰
+	private String sessionId; // 세션 Id
+	private Set<ParticipantResponseDto> participants; // 현재 참가자 목록
 }

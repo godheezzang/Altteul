@@ -12,8 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class VoiceEventRequestDto {
-	private String userId;
+	private String userId; // 이벤트 발생 유저
+	private String targetUserId; // 특정 유저 음소거에 필요
 	private VoiceEventType type;
+	// true: 활성 상태 (입장, 마이크 켜짐)
+	// false: 비활성 상태 (퇴장, 마이크 꺼짐)
 	private boolean status;
-	private String message;
 }

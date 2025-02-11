@@ -58,11 +58,11 @@ public class WebSocketEventListener {
 				Long userId = (Long)sessionAttributes.get("userId");
 				Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
 
-				Long teamId = (Long) sessionAttributes.get("teamId");
+				Long teamId = (Long)sessionAttributes.get("teamId");
 
-				if(userId != null && teamId != null) {
+				if (userId != null && teamId != null) {
 					log.info("{} 팀 유저 {} 연결 해제 되었습니다.", teamId, userId);
-					voiceChatService.leaveVoiceChat(teamId, userId.toString());
+					voiceChatService.terminateUserVoiceConnection(teamId, userId.toString());
 				}
 
 				// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리

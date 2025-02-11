@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,10 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
-import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.openvidu.web.dto.reqeust.MicStatusUpdateRequestDto;
-import com.c203.altteulbe.openvidu.web.dto.response.VoiceChatJoinResponseDto;
 
 import io.openvidu.java.client.Connection;
 import io.openvidu.java.client.OpenViduHttpException;
@@ -26,45 +23,48 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/teams/{teamId}/voice")
+@RequestMapping("/api/team/{roomId}/voice")
 @Slf4j
 public class VoiceChatController {
 	private final VoiceChatService voiceChatService;
 
+	// 음성 채팅 참여
 	@PostMapping("/join")
-	public ApiResponseEntity<ResponseBody.Success<Map<String, Object>>> joinVoiceChat(
-		@PathVariable(value = "teamId") Long teamId,
+	public ApiResponseEntity<?> joinVoiceChat(
+		@PathVariable(value = "roomId") Long roomId,
 		@AuthenticationPrincipal Long userId) {
 		try {
-			Connection connection = voiceChatService.initializeVoiceSession(teamId, userId.toString());
+			Connection connection = voiceChatService.initializeVoiceSession(roomId, userId.toString());
 			return ApiResponse.success(Map.of("token", connection.getToken()), HttpStatus.OK);
 		} catch (OpenViduJavaClientException | OpenViduHttpException e) {
 			log.error("보이스 연결 실패", e);
-			return ApiResponse.success(Map.of("token", e.getMessage()),
-				HttpStatus.INTERNAL_SERVER_ERROR, "보이스 연결 실패");
+			return ApiResponse.error("보이스 연결 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	@PostMapping("/mic-status")
-	public ApiResponseEntity<Void> updateMicStatus(
-		@PathVariable(value = "teamId") Long teamId,
-		@AuthenticationPrincipal Long userId,
-		@RequestBody MicStatusUpdateRequestDto requestDto) {
-		voiceChatService.updateMicStatus(teamId, userId.toString(), requestDto.getIsMuted());
-		return ApiResponse.success();
-	}
-
+	// 음성 채팅방 나가기
 	@PostMapping("/leave")
 	public ApiResponseEntity<Void> leaveVoiceChat(
-		@PathVariable(value = "teamId") Long teamId,
+		@PathVariable(value = "roomId") Long roomId,
 		@AuthenticationPrincipal Long userId) {
-		voiceChatService.leaveVoiceChat(teamId, userId.toString());
+		voiceChatService.terminateUserVoiceConnection(roomId, userId.toString());
 		return ApiResponse.success();
 	}
 
-	@GetMapping("/state")
-	public ApiResponseEntity<ResponseBody.Success<VoiceChatJoinResponseDto>> getVoiceState(
-		@PathVariable(value = "teamId") Long teamId) {
-		return ApiResponse.success(voiceChatService.getTeamVoiceState(teamId), HttpStatus.OK);
+	// 자신의 마이크 상태 업데이트 (음소거/음소거 해제)
+	@PostMapping("/mic-status")
+	public ApiResponseEntity<Void> updateMicStatus(
+		@PathVariable(value = "roomId") Long roomId,
+		@AuthenticationPrincipal Long userId,
+		@RequestBody MicStatusUpdateRequestDto requestDto) {
+		voiceChatService.updateMicStatus(roomId, userId.toString(), requestDto.getIsMuted());
+		return ApiResponse.success();
 	}
+
+	// // 현재 음성 채팅방의 상태 조회 (참가자 목록, 마이크 상태 등)
+	// @GetMapping("/state")
+	// public ApiResponseEntity<ResponseBody.Success<VoiceChatJoinResponseDto>> getVoiceState(
+	// 	@PathVariable(value = "roomId") Long roomId) {
+	// 	return ApiResponse.success(voiceChatService.getTeamVoiceState(roomId), HttpStatus.OK);
+	// }
 }
