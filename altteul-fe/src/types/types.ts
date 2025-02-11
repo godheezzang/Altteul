@@ -1,4 +1,5 @@
 export interface User {
+  roomId?: number;
   userId: number;
   nickname: string;
   profileImg: string;
@@ -22,7 +23,7 @@ export interface Problem {
 
 export interface GameState {
   gameId: number | null;
-  leaderId: number | null;
+  roomId: number | null;
   users: User[];
   problem: Problem | null;
   testcases: TestCase[];
@@ -68,6 +69,8 @@ export interface SingleMatchData {
   leaderId: number;
   users?: User[];
   remainingUsers?: User[];
+  problem?: Problem;
+  testcases?: TestCase[];
 }
 
 export interface SingleEnterApiResponse {
