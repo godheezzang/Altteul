@@ -537,6 +537,4 @@ public class TeamRoomService {
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 	}
-
-
 }
