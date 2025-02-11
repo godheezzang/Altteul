@@ -2,6 +2,7 @@
 // 채팅 입력하는 인풋
 
 import React from 'react';
+import sendIcon from '@assets/icon/friend/Send.svg';
 
 type ChatInputProps = {
   message: string;
@@ -35,7 +36,7 @@ const ChatInput = ({ message, onChange, onSend }: ChatInputProps) => {
           }}
           className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80"
         >
-          <img src="src/assets/icon/Send.svg" alt="send message" className="w-7 h-7" />
+          <img src={sendIcon} alt="send message" className="w-7 h-7" />
         </button>
       </div>
     </div>
