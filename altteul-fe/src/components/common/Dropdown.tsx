@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import arrow from "@assets/icon/arrow.svg"
 
 type DropdownProps = {
   options: { id: number | null; value: string; label: string }[];
@@ -28,7 +29,7 @@ const Dropdown = ({
       >
         <span>{selectedOption?.label}</span>
         <img
-          src="/src/assets/icon/arrow.svg"
+          src={arrow}
           alt="arrow"
           className={`w-4 h-4 ml-2 transition-transform ${
             isOpen ? "rotate-[270deg]" : "rotate-90"
