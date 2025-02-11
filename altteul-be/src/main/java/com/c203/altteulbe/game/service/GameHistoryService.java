@@ -14,6 +14,7 @@ import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameCustomRepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.service.exception.GameNotParticipatedException;
 import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
 import com.c203.altteulbe.game.web.dto.record.response.ItemInfo;
@@ -31,13 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GameHistoryService {
 
-	private final GameCustomRepository gameCustomRepository;
+	private final GameRepository gameRepository;
 	private final UserJPARepository userJPARepository;
 	public PageResponse<GameRecordResponseDto> getGameRecord(Long userId, Pageable pageable) {
 		if (!userJPARepository.existsById(userId)) {
 			throw new NotFoundUserException();
 		}
-		List<Game> games = gameCustomRepository.findWithItemAndProblemAndAllMemberByUserId(userId);
+		List<Game> games = gameRepository.findWithItemAndProblemAndAllMemberByUserId(userId);
 
 		List<Game> pagedGames = games.stream()
 			.sorted(Comparator.comparing(Game::getCreatedAt).reversed()) // 최신순 정렬

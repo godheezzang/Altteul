@@ -16,6 +16,7 @@ import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
 import com.c203.altteulbe.game.persistent.repository.game.GameCustomRepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.web.dto.judge.request.JudgeRequestDto;
@@ -46,7 +47,7 @@ public class JudgeService {
 	private final JudgeWebsocketService judgeWebsocketService;
 	private final ProblemRepository problemRepository;
 	private final TestHistoryRepository testHistoryRepository;
-	private final GameCustomRepository gameCustomRepository;
+	private final GameRepository gameRepository;
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
 
@@ -141,7 +142,7 @@ public class JudgeService {
 			request.getCode(),
 			request.getLang()
 		);
-		Game game = gameCustomRepository.findWithRoomByGameId(request.getGameId())
+		Game game = gameRepository.findWithRoomByGameId(request.getGameId())
 			.orElseThrow(() -> new BusinessException("게임 찾을 수 없음", HttpStatus.NOT_FOUND));
 		//팀방, 개인방인 경우를 분리해서 로직 진행
 		if (game.getBattleType() == BattleType.S) {

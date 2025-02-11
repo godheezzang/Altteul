@@ -1,5 +1,7 @@
 package com.c203.altteulbe.game.persistent.entity.item;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 import com.c203.altteulbe.game.persistent.entity.Game;
 
@@ -46,7 +48,8 @@ public class ItemHistory extends BaseCreatedEntity {
 	private Long userId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "type", nullable = false)
+	@Column(name = "type")
+	@ColumnDefault("'H'")
 	private Type type; // 기본값 설정
 
 	@PrePersist
