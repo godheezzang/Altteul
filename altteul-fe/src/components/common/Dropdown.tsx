@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { arrow } from "@assets/icon/arrow.svg"
+import arrow from "@assets/icon/arrow.svg"
 
 type DropdownProps = {
   options: { id: number | null; value: string; label: string }[];
