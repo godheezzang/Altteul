@@ -10,7 +10,7 @@ import { useMatchStore } from "@stores/matchStore";
 const SelectPage = () => {
   const navigate = useNavigate();
   //TODO: userId, 당장은 임시부여, 이후에 zustand에서 가져오면 될듯
-  const userId = 15;
+  const userId = Number(localStorage.getItem("userId"));
   const { setMatchData, setLoading } = useMatchStore();
 
   const singleNavigate = async () => {
