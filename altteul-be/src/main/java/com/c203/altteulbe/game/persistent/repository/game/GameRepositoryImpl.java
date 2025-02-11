@@ -24,7 +24,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
-public class GameRepositoryImpl extends QuerydslRepositorySupport implements GameRepository {
+public class GameRepositoryImpl extends QuerydslRepositorySupport implements GameCustomRepository {
 	private final JPAQueryFactory queryFactory;
 
 	public GameRepositoryImpl(JPAQueryFactory queryFactory) {
