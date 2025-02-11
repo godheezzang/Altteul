@@ -60,11 +60,4 @@ public class VoiceChatController {
 		voiceChatService.updateMicStatus(roomId, userId.toString(), requestDto.getIsMuted());
 		return ApiResponse.success();
 	}
-
-	// // 현재 음성 채팅방의 상태 조회 (참가자 목록, 마이크 상태 등)
-	// @GetMapping("/state")
-	// public ApiResponseEntity<ResponseBody.Success<VoiceChatJoinResponseDto>> getVoiceState(
-	// 	@PathVariable(value = "roomId") Long roomId) {
-	// 	return ApiResponse.success(voiceChatService.getTeamVoiceState(roomId), HttpStatus.OK);
-	// }
 }

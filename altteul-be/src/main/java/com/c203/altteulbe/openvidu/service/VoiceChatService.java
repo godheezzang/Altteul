@@ -38,7 +38,6 @@ public class VoiceChatService {
 	private final RoomValidator roomValidator;
 
 	// 게임 시작 시 팀 음성 채팅 세션 설정
-	// TODO: 게임 시작시 적용
 	public void createTeamVoiceSession(String matchId, Long roomId) {
 		String sessionId = "team-" + roomId;
 		try {
@@ -120,7 +119,7 @@ public class VoiceChatService {
 	}
 
 	// 게임 종료 시 팀 음성 채팅 세션 종료
-	// TODO: 게임 종료, 나가기 시 적용
+	// TODO: 게임 종료, 나가기 시 적용, 방이 삭제될 때
 	public void terminateTeamVoiceSession(Long roomId) {
 		try {
 			Session session = openVidu.getActiveSession("team-" + roomId);
@@ -187,19 +186,4 @@ public class VoiceChatService {
 		messagingTemplate.convertAndSend("/sub/team/" + roomId + "/voice/status",
 			WebSocketResponse.withData(event.getType().toString(), event));
 	}
-
-	// 현재 음성 채팅방 상태 조회
-	// public VoiceChatJoinResponseDto getTeamVoiceState(Long roomId) {
-	// 	String key = RedisKeys.getVoiceParticipantsKey(roomId);
-	// 	HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-	//
-	// 	String sessionId = getOrCreateSessionId(roomId);
-	// 	Set<ParticipantResponseDto> participants = new HashSet<>(hashOps.values(key));
-	//
-	// 	return VoiceChatJoinResponseDto.builder()
-	// 		.token(null)
-	// 		.sessionId(sessionId)
-	// 		.participants(participants)
-	// 		.build();
-	// }
 }
