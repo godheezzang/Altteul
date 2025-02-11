@@ -40,10 +40,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.setAllowedOriginPatterns("*")
 			// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
 			.withSockJS();
-		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("*");
-		// .setAllowedOrigins("http://localhost:3000", "http://localhost:80");
-
 	}
 
 	@Override
