@@ -9,10 +9,13 @@ spring:
         - dev-redis
         - dev-oauth
         - dev-judge
+        - dev-batch
+        - dev-openvidu
       prod:
         - prod-mysql
         - prod-token
         - prod-redis
         - prod-oauth
         - prod-judge
+        - prod-openvidu
     active: ${SPRING_PROFILES_ACTIVE}
