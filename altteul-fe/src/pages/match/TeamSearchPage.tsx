@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import UserProfile from "@components/match/UserProfile";
-import Button from "@components/common/Button/Button";
+import UserProfile from "@components/Match/UserProfile";
+import Button from "@components/Common/Button/Button";
 import backgroundImage from "@assets/background/team_matching_bg.svg";
 import tmi from "@assets/tmi.json";
 import { User } from "types/types";
@@ -45,7 +45,7 @@ const TeamSearchPage = () => {
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
           {TeamData.map((user: User) => (
-            <UserProfile key={user.userId} nickName={user.nickName} profileImage={user.profileImage} tierId={user.tierId} />
+            <UserProfile key={user.userId} nickname={user.nickname} profileImg={user.profileImg} tierId={user.tierId} />
           ))}
         </div>
 

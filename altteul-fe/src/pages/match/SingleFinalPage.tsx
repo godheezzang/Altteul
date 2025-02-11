@@ -1,3 +1,4 @@
+import useGameStore from '@stores/useGameStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { formatTime } from '@utils/formatTime';
 import { useTimer } from '@hooks/useTimer';
@@ -8,7 +9,6 @@ import { useMatchStore } from '@stores/matchStore';
 import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
-import useGameStore from '@stores/useGameStore';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();

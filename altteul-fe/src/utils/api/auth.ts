@@ -1,4 +1,4 @@
-import { authApi } from "@utils/api/commonApi";
+import { authApi } from "@utils/Api/commonApi";
 import axios from "axios";
 
 // 회원가입 API 요청
