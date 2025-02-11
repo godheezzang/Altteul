@@ -5,6 +5,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
@@ -25,9 +26,10 @@ public class TodayRankingController {
 	// 랭킹 페이지 전체 조회
 	@GetMapping
 	public ApiResponseEntity<ResponseBody.Success<PageResponse<TodayRankingListResponseDto>>> getRankingList(
-		@PageableDefault(page = 0, size = 10) Pageable pageable,
-		String nickname, Long tierId, String lang
-	) {
+							@PageableDefault(page = 0, size = 10) Pageable pageable,
+							@RequestParam(required = false) String nickname,
+							@RequestParam(required = false) Long tierId,
+							@RequestParam(required = false) String lang) {
 		PageResponse<TodayRankingListResponseDto> rankingList =
 											rankingService.getRankingList(pageable, nickname, tierId, lang);
 		return ApiResponse.success(rankingList, HttpStatus.OK);

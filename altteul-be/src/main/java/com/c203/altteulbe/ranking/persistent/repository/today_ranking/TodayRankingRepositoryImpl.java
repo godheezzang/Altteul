@@ -14,6 +14,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
+import com.c203.altteulbe.ranking.util.TodayRankingPredicate;
 import com.c203.altteulbe.ranking.web.response.TodayRankingListResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -64,9 +65,14 @@ public class TodayRankingRepositoryImpl extends QuerydslRepositorySupport implem
 			.from(todayRanking)
 			.join(todayRanking.user, user)
 			.join(user.tier, tier)
+			.where(
+				TodayRankingPredicate.nicknameContains(nickname),
+				TodayRankingPredicate.tierEquals(tierId),
+				TodayRankingPredicate.langEquals(lang)
+			)
 			.orderBy(
 				Expressions.numberTemplate(Integer.class,
-					"CASE WHEN {0} = {1} THEN 1 ELSE 2 END", // 로그인한 사용자는 최상단 정렬
+					"CASE WHEN {0} = {1} THEN 1 ELSE 2 END",  // 로그인한 사용자는 최상단 정렬
 					todayRanking.user.userId, userId
 				).asc(),
 				todayRanking.ranking.asc()   // 기본 랭킹 정렬
@@ -75,7 +81,12 @@ public class TodayRankingRepositoryImpl extends QuerydslRepositorySupport implem
 		// 전체 개수 조회
 		JPAQuery<Long> countQuery = queryFactory
 			.select(todayRanking.count())
-			.from(todayRanking);
+			.from(todayRanking)
+			.where(
+				TodayRankingPredicate.nicknameContains(nickname),
+				TodayRankingPredicate.tierEquals(tierId),
+				TodayRankingPredicate.langEquals(lang)
+			);
 
 		// 페이징 적용 후 결과 조회
 		List<TodayRankingListResponseDto> rankingList = getQuerydsl()
@@ -85,7 +96,7 @@ public class TodayRankingRepositoryImpl extends QuerydslRepositorySupport implem
 		return PageableExecutionUtils.getPage(rankingList, pageable, countQuery::fetchOne);
 	}
 
-	// 특정 유저와 팀원들의 통과 횟수 계산 (result = 'P' 인 경우)
+	// 특정 유저와 팀원들의 통과 횟수 계산 (result = P 인 경우)
 	private JPQLQuery<Long> testHistoryPassCount(NumberExpression<Long> userId) {
 		return JPAExpressions.select(testHistory.count())
 			.from(testHistory)

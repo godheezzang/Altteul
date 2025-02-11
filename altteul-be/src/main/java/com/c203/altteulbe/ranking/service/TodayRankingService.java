@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.ranking.web.response.TodayRankingListResponseDto;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,8 +19,8 @@ public class TodayRankingService {
 
 	private final TodayRankingRepository todayRankingRepository;
 
-	public PageResponse<TodayRankingListResponseDto> getRankingList(Pageable pageable,
-															String nickname, Long tireId, String lang) {
+	public PageResponse<TodayRankingListResponseDto> getRankingList(Pageable pageable, String nickname,
+																	Long tireId, String lang) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Long userId = null;
 
