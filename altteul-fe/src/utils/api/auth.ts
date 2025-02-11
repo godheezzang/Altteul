@@ -1,9 +1,5 @@
+import { authApi } from "@utils/api/commonApi";
 import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://localhost:8080/api/",
-  withCredentials: true,
-});
 
 // 회원가입 API 요청
 export const registerUser = async (formData: FormData) => {
@@ -11,7 +7,7 @@ export const registerUser = async (formData: FormData) => {
     console.log("회원가입 요청 시작");
     console.log("요청 데이터:", formData);
 
-    const response = await api.post("register", formData, {
+    const response = await authApi.post("register", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -44,14 +40,13 @@ export const registerUser = async (formData: FormData) => {
     } else {
       console.log("알 수 없는 에러 : ", error);
     }
-    
   }
 };
 
 // 로그인 API 요청
 export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await api.post(
+    const response = await authApi.post(
       "login",
       { username, password },
       {
@@ -65,7 +60,6 @@ export const loginUser = async (username: string, password: string) => {
 
     if (response.status >= 200 && response.status < 300) {
       console.log("로그인 성공");
-
       return response;
     } else {
       throw new Error(response.data.message || "잘못된 응답");
@@ -87,7 +81,6 @@ export const loginUser = async (username: string, password: string) => {
     } else {
       console.error("예상치 못한 에러 발생:", error);
     }
-
     throw error;
   }
 };
@@ -95,7 +88,7 @@ export const loginUser = async (username: string, password: string) => {
 // 아이디 중복확인 요청
 export const checkUsername = async (username: string) => {
   try {
-    const response = await api.get(`id-check?username=${username}`);
+    const response = await authApi.get(`id-check?username=${username}`);
     return response.data;
   } catch (error) {
     console.error("아이디 중복 확인 실패:", error);
