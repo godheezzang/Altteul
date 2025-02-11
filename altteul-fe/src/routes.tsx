@@ -10,12 +10,17 @@ import TeamSearchPage from '@pages/Match/TeamSearchPage';
 import RankPage from '@pages/Rank/RankPage';
 import UserPage from '@pages/User/UserPage';
 import App from 'App';
+import { UserSearchProvider } from 'contexts/UserSearchContext';
 import { createBrowserRouter } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: (
+      <UserSearchProvider>
+        <App />
+      </UserSearchProvider>
+    ),
     children: [
       {
         index: true,
@@ -53,6 +58,10 @@ const router = createBrowserRouter([
   {
     path: 'match',
     children: [
+      {
+        path: 'select',
+        element: <SelectPage />,
+      },
       {
         path: 'select',
         element: <SelectPage />,

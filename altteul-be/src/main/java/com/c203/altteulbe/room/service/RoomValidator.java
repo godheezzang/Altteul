@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +39,12 @@ public class RoomValidator {
 		return "matched".equals(roomStatus);
 	}
 
+	// 팀이 게임 중인지 검증
+	public boolean isRoomGaming(Long roomId) {
+		String roomStatus = redisTemplate.opsForValue().get(RedisKeys.TeamRoomStatus(roomId));
+		return "gaming".equals(roomStatus);
+	}
+
 	// 방장 검증
 	public boolean isRoomLeader(Long roomId, Long leaderId, BattleType type) {
 		String roomUsersKey = switch (type) {
@@ -51,9 +58,24 @@ public class RoomValidator {
 
 	// 최소 인원 검증
 	public boolean isEnoughUsers(Long roomId, BattleType type) {
-		String roomUsersKey = (type == BattleType.S) ? RedisKeys.SingleRoomUsers(roomId) : RedisKeys.TeamRoomUsers(roomId);
+		String roomUsersKey =
+			(type == BattleType.S) ? RedisKeys.SingleRoomUsers(roomId) : RedisKeys.TeamRoomUsers(roomId);
 		Long userCount = redisTemplate.opsForList().size(roomUsersKey);
 
 		return userCount != null && userCount >= type.getMinUsers() && userCount <= type.getMaxUsers();
+	}
+
+	// 유저가 해당 방에 속해있는지 검증
+	public boolean isUserInGamingRoom(Long roomId, Long userId) {
+		// 유저가 팀 방에 존재하는지 확인
+		if (!isUserInAnyRoom(userId, BattleType.T)) {
+			return false;
+		}
+
+		// 해당 방에 속한 유저인지 확인
+		String userRoomKey = RedisKeys.userTeamRoom(userId);
+		String currentRoomId = redisTemplate.opsForValue().get(userRoomKey);
+
+		return roomId.toString().equals(currentRoomId);
 	}
 }

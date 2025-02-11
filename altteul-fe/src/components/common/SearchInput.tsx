@@ -1,5 +1,5 @@
-import React from "react";
-import searchIcon from '@assets/icon/Search.svg'
+import React from 'react';
+import searchIcon from '@assets/icon/friend/Search.svg';
 
 type SearchInputProps = {
   value: string;
