@@ -8,6 +8,7 @@ import { useMatchStore } from '@stores/matchStore';
 import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
+import useGameStore from '@stores/useGameStore';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -17,8 +18,13 @@ const SingleFinalPage = () => {
   const roomId = store.matchData.roomId;
   const gameId = store.matchData.gameId;
   const [headUser, setHeadUser] = useState<User>(waitUsers.find(user => user.userId === leaderId));
-
+  const setGameInfo = useGameStore(state => state.setGameInfo);
+  const setUsers = useGameStore(state => state.setUsers);
+  const setProblem = useGameStore(state => state.setProblem);
+  const setTestcases = useGameStore(state => state.setTestcases);
   const { c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
+  const problem = store.matchData.problem;
+  const testcases = store.matchData.testcases;
 
   useEffect(() => {
     if (c_waitUsers && c_leaderId) {
@@ -49,8 +55,15 @@ const SingleFinalPage = () => {
           roomId: roomId,
           leaderId: leaderId,
           users: [headUser, ...waitUsers],
+          problem: problem,
+          testcases: testcases,
         },
       });
+
+      setGameInfo(gameId, roomId);
+      setUsers([headUser, ...waitUsers]);
+      setProblem(problem);
+      setTestcases(testcases);
 
       navigate(`/game/single/${gameId}/${roomId}`);
     }
