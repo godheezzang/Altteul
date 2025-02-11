@@ -4,5 +4,4 @@ public enum VoiceEventType {
 	JOIN,
 	LEAVE,
 	MIC_STATUS,
-	MUTE_USER
 }
