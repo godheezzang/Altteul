@@ -8,6 +8,10 @@ import axios from "axios";
 import { mockGameData } from "mocks/gameData";
 import * as monaco from "monaco-editor";
 
+const SOCKET_URL = import.meta.env.NODE_ENV === 'prod'
+  ? import.meta.env.VITE_SOCKET_URL_PROD
+  : import.meta.env.VITE_SOCKET_URL_DEV;
+
 export interface Cursor {
 	line: number;
 	ch: number;
@@ -50,7 +54,7 @@ export const useIde = (isTeamMode: boolean) => {
 		const ytext = ydoc.getText("codemirror");
 
 		const stompClient = new Client({
-			brokerURL: "http://localhost:8080/ws",
+			brokerURL: SOCKET_URL,
 			connectHeaders: {},
 			debug: (str) => {
 				console.log(str);
@@ -104,7 +108,7 @@ export const useIde = (isTeamMode: boolean) => {
 		stompClient.activate();
 		stompClientRef.current = stompClient;
 
-		const provider = new WebsocketProvider("http://localhost:8080/ws", editorId, ydoc);
+		const provider = new WebsocketProvider(SOCKET_URL, editorId, ydoc);
 		providerRef.current = provider;
 
 		return () => {

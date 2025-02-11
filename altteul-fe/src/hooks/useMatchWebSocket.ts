@@ -4,6 +4,10 @@ import { Client } from '@stomp/stompjs';
 import { User } from 'types/types';
 import { useSocketStore } from '@stores/socketStore';
 
+const SOCKET_URL = import.meta.env.NODE_ENV === 'prod'
+  ? import.meta.env.VITE_SOCKET_URL_PROD
+  : import.meta.env.VITE_SOCKET_URL_DEV;
+
 interface WebSocketMessage {
   type: 'ENTER' | 'LEAVE' | 'FINAL' | 'START';
   data: {
@@ -21,8 +25,6 @@ interface UseMatchWebSocketReturn {
   isFinal: boolean;
   isStart: boolean;
 }
-
-const SOCKET_URL = 'http://localhost:8080/ws';
 
 const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
   const [isConnected, setIsConnected] = useState(false);
