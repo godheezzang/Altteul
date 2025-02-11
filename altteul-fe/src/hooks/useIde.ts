@@ -5,8 +5,8 @@ import { WebsocketProvider } from 'y-websocket';
 import { Client } from '@stomp/stompjs';
 import useGameStore from '@stores/useGameStore';
 import axios from 'axios';
-import { mockGameData } from 'mocks/gameData';
 import * as monaco from 'monaco-editor';
+import { TeamInfo } from 'types/types';
 
 const SOCKET_URL =
   import.meta.env.NODE_ENV === 'prod'
@@ -41,8 +41,8 @@ export const useIde = (isTeamMode: boolean) => {
   const providerRef = useRef<WebsocketProvider | null>(null);
   const stompClientRef = useRef<Client | null>(null);
   const [partnerCode, setPartnerCode] = useState('');
-  const [teamMembers, setTeamMembers] = useState<string[]>([]);
-  const [opponentMembers, setOpponentMembers] = useState<string[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamInfo>(null);
+  const [opponentMembers, setOpponentMembers] = useState<TeamInfo>(null);
   const { gameId, roomId, problem, testcases, users } = useGameStore();
 
   useEffect(() => {
