@@ -1,7 +1,9 @@
 package com.c203.altteulbe.room.persistent.repository.team;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -79,7 +81,7 @@ public class TeamRoomRedisRepository {
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 
 		// Redis에 유저 추가
-		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());              // 유저 추가 (방장 위임을 위한 유지)
+		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());              // 유저 추가 (방장 위임을 위해 순서 유지)
 		redisTemplate.opsForValue().set(RedisKeys.userTeamRoom(user.getUserId()), roomId.toString()); // 유저가 속한 방 저장
 
 		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);             // 방장 검색
@@ -93,10 +95,20 @@ public class TeamRoomRedisRepository {
 		List<User> users = userJPARepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
-		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(users);
 
+		// 조회된 users를 userId 기준으로 Map으로 변환
+		Map<Long, User> userMap = users.stream()
+			.collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+		// Redis 순서대로 정렬
+		List<User> sortedUsers = userIds.stream()
+									.map(id -> userMap.get(Long.parseLong(id)))  // Redis 순서 유지
+									.collect(Collectors.toList());
+
+		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(sortedUsers);
 		return RoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
 	}
+
 
 	// 카운팅 중 유저가 모두 퇴장한 경우 → 팀전 방 데이터 삭제
 	public void deleteRedisTeamRoom(Long roomId) {

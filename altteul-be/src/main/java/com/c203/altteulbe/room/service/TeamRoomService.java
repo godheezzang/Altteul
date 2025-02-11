@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -138,7 +139,6 @@ public class TeamRoomService {
 
 		// 방 상태 확인
 		String status = teamRoomRedisRepository.getRoomStatus(roomId);
-
 		if (!"waiting".equals(status)) {
 			throw new CannotLeaveRoomException();
 		}
@@ -150,18 +150,28 @@ public class TeamRoomService {
 
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
-
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
 			teamRoomRedisRepository.deleteRedisTeamRoom(roomId);
 			return;
 		}
 
-		// 방장 조회
+		// 방장 조회 (Redis 순서의 첫 번째 유저)
 		Long leaderId = Long.parseLong(remainingUserIds.get(0));
 
-		// 남은 유저들 정보 반환
+		// 남은 유저들 정보 조회 (DB에서 가져오기)
 		List<User> remainingUsers = getUserByIds(remainingUserIds);
-		List<UserInfoResponseDto> remainingUserDtos = UserInfoResponseDto.fromEntities(remainingUsers);
+
+		// 조회된 users를 userId 기준으로 Map 변환
+		Map<Long, User> userMap = remainingUsers.stream()
+			.collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+		// Redis 순서대로 정렬
+		List<User> sortedUsers = remainingUserIds.stream()
+			.map(id -> userMap.get(Long.parseLong(id)))  // Redis 순서 유지
+			.collect(Collectors.toList());
+
+		// DTO 변환
+		List<UserInfoResponseDto> remainingUserDtos = UserInfoResponseDto.fromEntities(sortedUsers);
 
 		RoomLeaveResponseDto responseDto = RoomLeaveResponseDto.toResponse(
 			roomId, leaderId, leftUserDto, remainingUserDtos
@@ -270,7 +280,7 @@ public class TeamRoomService {
 		}
 		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
 		Problem problemEntity = problemRepository.findById(randomProblemId)
-			.orElseThrow(ProblemNotFoundException::new);
+											     .orElseThrow(ProblemNotFoundException::new);
 
 		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
 
@@ -293,11 +303,11 @@ public class TeamRoomService {
 
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
-			.map(GameStartForTestcaseDto::from)
-			.collect(Collectors.toList());
+																  .map(GameStartForTestcaseDto::from)
+																  .collect(Collectors.toList());
 
-		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(game.getId(), team1Dto,
-			team2Dto, problem, testcases);
+		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(
+														game.getId(), team1Dto, team2Dto, problem, testcases);
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
 
@@ -310,6 +320,7 @@ public class TeamRoomService {
 	 */
 	@Transactional
 	public void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
+
 		// Redis에서 유저 ID 조회
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
@@ -319,13 +330,13 @@ public class TeamRoomService {
 
 		// 조회된 User들을 Map으로 변환 (ID → User)
 		Map<Long, User> userMap = usersFromDb.stream()
-			.collect(Collectors.toMap(User::getUserId, user -> user));
+									.collect(Collectors.toMap(User::getUserId, user -> user));
 
 		// userIds1의 순서대로 User 리스트 정렬
 		List<User> users = userIdList.stream()
-			.map(userMap::get)
-			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
+								 	 .map(userMap::get)
+									 .filter(Objects::nonNull)
+									 .collect(Collectors.toList());
 
 		// DB에 UserTeamRoom 저장
 		for (int i = 0; i < users.size(); i++) {
@@ -357,7 +368,7 @@ public class TeamRoomService {
 		// 매칭 팀을 찾은 후에는 취소 불가능
 		if (!"matching".equals(status)) {
 			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "MATCH_CANCEL_FAIL",
-				"이미 매칭된 팀이 있어 취소할 수 없습니다.", BattleType.T);
+												"이미 매칭된 팀이 있어 취소할 수 없습니다.", BattleType.T);
 			throw new CannotMatchCancelException();
 		}
 		// 방 상태를 매칭 취소로 변경
