@@ -1,5 +1,5 @@
-import SmallButton from "@components/common/Button/SmallButton ";
-import Modal from "@components/common/Modal";
+import SmallButton from "@components/Common/Button/SmallButton ";
+import Modal from "@components/Common/Modal";
 import noCodeImg from "@assets/icon/no_code.svg";
 const CodeModal = ({ code, isOpen, onClose, nickname }: { code: string; isOpen: boolean; onClose: () => void; nickname: string }) => {
 	return (

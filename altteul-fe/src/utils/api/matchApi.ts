@@ -1,5 +1,5 @@
 //매칭관련 API(싱글이든 팀이든)
-import { sigleApi } from "@utils/api/commonApi";
+import { sigleApi } from "@utils/Api/commonApi";
 import axios from 'axios';
 
 //싱글 매칭 입장시 사용 api

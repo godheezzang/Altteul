@@ -1,7 +1,7 @@
 // src/components/common/Modal/ResultModal.tsx
 import React from "react";
-import Modal from "@components/common/Modal";
-import SmallButton from "@components/common/Button/Button";
+import Modal from "@components/Common/Modal";
+import SmallButton from "@components/Common/Button/Button";
 import winCrown from "@assets/icon/result/winCrown.svg";
 import LoseSceleton from "@assets/icon/result/LoseSceleton.svg";
 import useModalStore from "@stores/modalStore";

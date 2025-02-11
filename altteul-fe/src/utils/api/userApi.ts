@@ -1,4 +1,4 @@
-import { api } from "@utils/api/commonApi";
+import { api } from "@utils/Api/commonApi";
 import { UserGameRecordResponse, UserInfoResponse } from "types/types";
 
 export const getUserInfo = async (userId: string): Promise<UserInfoResponse> => {

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { formatTime } from "@utils/formatTime";
-import UserProfile from "@components/match/UserProfile";
-import Button from "@components/common/Button/Button";
+import UserProfile from "@components/Match/UserProfile";
+import Button from "@components/Common/Button/Button";
 import backgroundImage from "@assets/background/single_matching_bg.svg";
 import logo from "@assets/icon/Altteul.svg";
 import tmi from "@assets/tmi.json";
@@ -12,7 +12,7 @@ import { User } from "types/types";
 import useMatchWebSocket from "@hooks/useMatchWebSocket";
 import { useMatchStore } from "@stores/matchStore";
 import { useSocketStore } from "@stores/socketStore";
-import { singleOut, singleStart } from "@utils/api/matchApi";
+import { singleOut, singleStart } from "@utils/Api/matchApi";
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
