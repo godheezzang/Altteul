@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RankingListResponseDto {
+public class TodayRankingListResponseDto {
+	private String nickname;
+	private int tierId;
 	private int rank;
 	private int rankChange;
-	private int rankingPoint;
-	private Language language;
-	private double avgWinRate;
+	private int point;
+	private String lang;
+	private double rate;
 }
