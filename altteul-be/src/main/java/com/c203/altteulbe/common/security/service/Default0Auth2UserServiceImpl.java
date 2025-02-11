@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
-import com.c203.altteulbe.ranking.persistent.repository.TodayRankingRepository;
+import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 
