@@ -4,6 +4,7 @@ import static com.c203.altteulbe.ranking.persistent.entity.QTier.*;
 import static com.c203.altteulbe.ranking.persistent.entity.QTodayRanking.*;
 import static com.c203.altteulbe.user.persistent.entity.QUser.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -69,4 +70,23 @@ public class UserRepositoryImpl implements UserRepository {
 		);
 	}
 
+	@Override
+	public List<User> findAllOrderedByRankingPointTierUsername() {
+		return queryFactory
+			.selectFrom(user)
+			.orderBy(
+				user.rankingPoint.desc(),
+				user.tier.id.desc(),
+				user.username.asc()
+			)
+			.fetch();
+	}
+
+	@Override
+	public long countUsers() {
+		return queryFactory
+			.select(user.count())
+			.from(user)
+			.fetchOne();
+	}
 }

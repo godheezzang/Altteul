@@ -1,4 +1,4 @@
-import SmallButton from '@components/common/Button/SmallButton ';
+import SmallButton from '@components/Common/Button/SmallButton ';
 import useCodeExecutionStore from '@stores/useCodeExecutionStore';
 
 interface IdeFooterProps {

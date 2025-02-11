@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import rank_page_bg from "@assets/background/rank_page_bg.svg";
-import SearchInput from "@components/common/SearchInput";
-import Dropdown from "@components/common/Dropdown";
-import RankingItem from "@components/ranking/RankingItem";
+import SearchInput from "@components/Common/SearchInput";
+import Dropdown from "@components/Common/Dropdown";
+import RankingItem from "@components/Ranking/RankingItem";
 import { rankMockData } from "mocks/rankData";
 
 // 메인 랭킹 페이지 컴포넌트

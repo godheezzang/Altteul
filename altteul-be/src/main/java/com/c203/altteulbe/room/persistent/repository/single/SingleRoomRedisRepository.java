@@ -1,8 +1,10 @@
 package com.c203.altteulbe.room.persistent.repository.single;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,18 +81,29 @@ public class SingleRoomRedisRepository {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 
 		// Redis에 유저 추가
-		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());                  // 유저를 대기방에 추가 (방장 위임을 위해 순서 유지)
-		redisTemplate.opsForValue().set(RedisKeys.userSingleRoom(user.getUserId()), roomId.toString());   // 유저가 속한 방 저장
+		redisTemplate.opsForList().rightPush(roomUsersKey, user.getUserId().toString());                // 유저를 대기방에 추가 (방장 위임을 위해 순서 유지)
+		redisTemplate.opsForValue().set(RedisKeys.userSingleRoom(user.getUserId()), roomId.toString()); // 유저가 속한 방 저장
 
-		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);              // 방장 검색
-		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);  // 현재 방에 속한 모든 유저 정보 조회
+		// 현재 방장 ID 가져오기
+		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
 
-		List<User> users = userJPARepository.findByUserIdIn(
-			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
-		);
-		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(users);
+		// 현재 방에 속한 모든 유저 ID 조회 (순서 보장)
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+		List<Long> userIdLongs = userIds.stream().map(Long::parseLong).collect(Collectors.toList());
+
+		List<User> users = userJPARepository.findByUserIdIn(userIdLongs);
+
+		// 조회된 users를 userIds 순서대로 정렬
+		Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getUserId, Function.identity()));
+		List<User> sortedUsers = userIdLongs.stream()
+											.map(userMap::get)
+											.collect(Collectors.toList());
+
+		// DTO 변환
+		List<UserInfoResponseDto> userDtos = UserInfoResponseDto.fromEntities(sortedUsers);
 		return RoomEnterResponseDto.from(roomId, Long.parseLong(leaderId), userDtos);
 	}
+
 
 	// 카운팅 중 유저가 모두 퇴장한 경우 → 개인전 방 데이터 삭제
 	public void deleteRedisSingleRoom(Long roomId) {
