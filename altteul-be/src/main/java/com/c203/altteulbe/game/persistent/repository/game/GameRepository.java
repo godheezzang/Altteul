@@ -14,6 +14,4 @@ public interface GameRepository {
 	Optional<Game> findWithAllMemberByGameId(Long gameId);
 
 	Optional<Game> findWithRoomByGameId(Long gameId);
-
-	void saveTestResult();
 }

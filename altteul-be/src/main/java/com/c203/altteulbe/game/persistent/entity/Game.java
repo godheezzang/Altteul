@@ -7,6 +7,7 @@ import java.util.List;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 
@@ -20,7 +21,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
