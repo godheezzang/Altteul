@@ -11,43 +11,94 @@ import { useTimer } from "@hooks/useTimer";
 import { User } from "types/types";
 import useMatchWebSocket from "@hooks/useMatchWebSocket";
 import { useMatchStore } from "@stores/matchStore";
-import { singleOut } from "@utils/api/matchApi";
+import { useSocketStore } from "@stores/socketStore";
+import { singleOut, singleStart } from "@utils/api/matchApi";
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const store = useMatchStore(); //select 페이지에서 저장한 데이터 호출
+  const store = useMatchStore();
+  const socketStore = useSocketStore();
   const [fact, setFact] = useState<string>("");
   const [facts] = useState<string[]>(tmi.facts);
-  /////////////////////////초기 값(전역 상태 값)/////////////////////////
-  const [waitUsers, setWaitUsers] = useState(store.matchData.users); //(방장 포함)대기 중인 유저 리스트
+  const [waitUsers, setWaitUsers] = useState(store.matchData.users);
   const [leaderId] = useState(store.matchData.leaderId);
   const [headUser, setHeadUser] = useState<User>(
     waitUsers.find((user) => user.userId === leaderId)
   );
-  /////////////////////////////////////////////////////////////////////
   const roomId = store.matchData.roomId;
-  // WebSocket 훅 사용
+  const currentUserId = Number(localStorage.getItem("userId"));
+  const isLeader = currentUserId === leaderId;
+  
+  // 타이머 완료 여부를 추적하는 상태 추가
+  const [isTimeUp, setIsTimeUp] = useState(false);
+  
   const { isConnected, error, c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
 
-  //connetTest
+  // 타이머 설정
+  const { seconds } = useTimer({
+    initialSeconds: 10,
+    onComplete: () => {
+      setIsTimeUp(true);
+    },
+  });
+
+  // 타이머 완료 시 페이지 이동 처리
+  useEffect(() => {
+    if (isTimeUp) {
+      store.setMatchData({
+        data: {
+          roomId: roomId,
+          leaderId: leaderId,
+          users: [headUser, ...waitUsers],
+        }
+      });
+
+      //게임 시작 API 호출
+      const res = singleStart(roomId, leaderId, "time");
+      if (res === 200) {
+        navigate("/match/single/final");
+      }
+
+    }
+  }, [isTimeUp, roomId, leaderId, waitUsers, navigate]);
+
+  // Socket connection management
+  useEffect(() => {
+    socketStore.setKeepConnection(true);
+    return () => {
+      if (!socketStore.keepConnection) {
+        singleOut(currentUserId);
+        socketStore.resetConnection();
+      }
+    };
+  }, []);
+
   useEffect(() => {
     console.log("연결 상태확인: ", isConnected);
   }, [isConnected]);
 
   // 유저 정보 업데이트
-  // useEffect(() => {
-  //   console.log("유저정보 Update");
-  //   setHeadUser(c_waitUsers.find((user) => user.userId === c_leaderId));
-  //   setWaitUsers(c_waitUsers);
-  // }, [c_waitUsers, c_leaderId]);
+  useEffect(() => {
+    if (c_waitUsers && c_leaderId) {
+      console.log("유저정보 Update");
+      console.log("대기 유저 정보: ", c_waitUsers);
+      console.log("방장 ID: ", c_leaderId);
+      setHeadUser(c_waitUsers.find((user) => user.userId === c_leaderId));
+      setWaitUsers(c_waitUsers.filter((user) => user.userId !== c_leaderId));
+    }
+  }, [c_waitUsers, c_leaderId]);
 
   //타이머 전 게임 시작 호출
   const userStart = () => {
-    //8명 안됐는데 시작할거냐는 알림정도?(8명 되면 자동 시작)
-    if (confirm("8명 안됐는데 시작할거임?")) {
-      //최소인원 확인
+    if (confirm("아직 8명 안됐는데 시작할거임?")) {
       if (waitUsers.length >= 2) {
-        //넘어갈 때 현재 대기중인 유저(waitUsers) 정보 넘겨야함(소켓정보 유지 필요)
+        store.setMatchData({
+          data: {
+            roomId: roomId,
+            leaderId: leaderId,
+            users: waitUsers,
+          }
+        });
         navigate("/match/single/final");
       } else {
         alert("개인전이긴 한데... 너 혼자 게임 못함...");
@@ -57,25 +108,17 @@ const SingleSearchPage = () => {
 
   //유저(본인) 퇴장
   const userOut = () => {
-    singleOut(15); //TODO: 실제 나가는 userId세팅 필요
+    socketStore.resetConnection();
+    singleOut(currentUserId);
     navigate("/match/select");
   };
-
-  const { seconds } = useTimer({
-    initialSeconds: 180, // 시작 시간 설정
-    onComplete: () => {
-      navigate("/match/single/final"); // 타이머 완료 시 실행할 콜백
-    },
-  });
 
   // TMI: 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
     setFact(facts[Math.floor(Math.random() * facts.length)]);
-
     const factRotation = setInterval(() => {
       setFact(facts[Math.floor(Math.random() * facts.length)]);
     }, 5000);
-
     return () => clearInterval(factRotation);
   }, [facts]);
 
@@ -84,17 +127,10 @@ const SingleSearchPage = () => {
     if (error) {
       console.error("WebSocket 연결 오류:", error);
       alert("연결에 문제가 발생했습니다. 다시 시도해주세요.");
+      socketStore.resetConnection();
       navigate("/match/select");
     }
   }, [error, navigate]);
-
-  // 언마운트 시 방 나가기
-  useEffect(() => {
-    return () => {
-      singleOut(15);
-      console.log("방에서 나가기");
-    };
-  }, []);
 
   return (
     <div
@@ -119,8 +155,8 @@ const SingleSearchPage = () => {
 
         {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
-          nickName={headUser.nickName}
-          profileImage={headUser.profileImage}
+          nickname={headUser.nickname}
+          profileImg={headUser.profileImg}
           tierId={headUser.tierId}
           className="mb-4"
         />
@@ -134,7 +170,7 @@ const SingleSearchPage = () => {
           <div className="flex text-base">
             조금만 기다려 주세요
             <div className="ml-2">
-              {/* 스피너 */}
+              {/* TODO: 스피너 제대로 된걸로 수정 */}
               <div className="animate-bounce">...</div>
             </div>
           </div>
@@ -142,15 +178,17 @@ const SingleSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mb-12">
+          {isLeader && (
+            <Button
+              className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+              onClick={userStart}
+            >
+              게임 시작
+            </Button>
+          )}
           <Button
             className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-            onClick={() => userStart()}
-          >
-            게임 시작
-          </Button>
-          <Button
-            className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-            onClick={() => userOut()}
+            onClick={userOut}
           >
             매칭 취소하기
           </Button>
@@ -163,8 +201,8 @@ const SingleSearchPage = () => {
             .map((user: User) => (
               <UserProfile
                 key={user.userId}
-                nickName={user.nickName}
-                profileImage={user.profileImage}
+                nickname={user.nickname}
+                profileImg={user.profileImg}
                 tierId={user.tierId}
               />
             ))}

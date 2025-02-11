@@ -4,7 +4,7 @@ const single = axios.create({
   baseURL: "http://localhost:8080/api/single",
   headers : {
     //TODO: 토큰값 집어넣어야함
-    Authorization : "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTQsImlhdCI6MTczODgyNDY3MywiZXhwIjoxNzM4ODYwNjczfQ.J8_1V6JQ4n1keLJONXUR4wM7RqlDUEwufW0CsaR5h3o"
+    Authorization : `Bearer " ${localStorage.getItem("token")}`
   }
 
 });
@@ -20,7 +20,11 @@ export const singleEnter = async (userId:number) => {
       return res.data
     }
   }catch(error){
-    console.log(error)
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("방 입장 error: ", (error.response.data as { message: string }).message)
+      console.log("방 나가기 로직을 실행합니다, 다시 입장해주세요")
+      singleOut(Number(userId))
+    }
   }
 
 }
@@ -29,4 +33,11 @@ export const singleEnter = async (userId:number) => {
 export const singleOut = async (userId:number) => {
   const res = await single.post("leave", {"userId":userId})
   return res.data.status
+}
+
+//싱글 매칭 시작시 사용 api
+export const singleStart = (roomId:number, leaderId:number, type:string) => {
+  // const res = await single.post("start", {"roomId":roomId, "leaderId":leaderId, "type":type})
+  // return res.data.status
+  return 200;
 }
