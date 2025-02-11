@@ -1,7 +1,7 @@
 package com.c203.altteulbe.game.persistent.repository.problem;
 
 import static com.c203.altteulbe.game.persistent.entity.QLangLimit.*;
-import static com.c203.altteulbe.game.persistent.entity.QProblem.*;
+import static com.c203.altteulbe.game.persistent.entity.problem.QProblem.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.c203.altteulbe.common.dto.Language;
-import com.c203.altteulbe.game.persistent.entity.Problem;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.persistent.entity;
+package com.c203.altteulbe.game.persistent.entity.problem;
 
 import com.c203.altteulbe.common.entity.BaseCreatedAndUpdatedEntity;
 
