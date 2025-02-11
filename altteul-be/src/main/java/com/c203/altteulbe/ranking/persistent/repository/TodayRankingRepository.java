@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 
-public interface RankingRepository extends RankingCustomRepository, JpaRepository<TodayRanking, Long> {
+public interface TodayRankingRepository extends RankingCustomRepository, JpaRepository<TodayRanking, Long> {
 }

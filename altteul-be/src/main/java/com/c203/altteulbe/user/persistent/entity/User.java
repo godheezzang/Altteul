@@ -32,10 +32,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 생성일시, 변경일시를 상속받은 Entity 생성 가능
  */
+@Slf4j
 @Entity
 @Getter
 @DynamicInsert
@@ -125,6 +127,16 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 
 	public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
 		return passwordEncoder.matches(plainPassword, this.password);
+	}
+
+	// rankingPoint 업데이트
+	public void updateRankingPoint(Long newPoint) {
+		this.rankingPoint = newPoint;
+	}
+
+	// Tier 업데이트
+	public void updateTier(Tier newTier) {
+		this.tier = newTier;
 	}
 }
 

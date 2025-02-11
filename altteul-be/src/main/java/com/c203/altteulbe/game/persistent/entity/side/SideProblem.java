@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "side_problem")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @SuperBuilder
 public class SideProblem extends BaseCreatedEntity {
 	@Id
@@ -35,4 +37,5 @@ public class SideProblem extends BaseCreatedEntity {
 
 	@Column(name = "side_problem_answer", nullable = false, length = 255)
 	private String answer;
+
 }

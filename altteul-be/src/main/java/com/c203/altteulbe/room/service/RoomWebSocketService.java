@@ -44,6 +44,21 @@ public class RoomWebSocketService {
 		}
 	}
 
+	// 문자열을 받아서 { note : ".." } 으로 변환
+	public void sendWebSocketMessageWithNote(String roomId, String eventType, String message, BattleType type) {
+		Map<String, String> payload = createNotePayload(message);
+		sendWebSocketMessage(roomId, eventType, payload, type);
+	}
+
+	public void sendWebSocketMessageWithNote(String destination, String eventType, String message) {
+		Map<String, String> payload = createNotePayload(message);
+		sendWebSocketMessage(destination, eventType, payload);
+	}
+
+	public Map<String, String> createNotePayload(String message) {
+		return Map.of("note", message);
+	}
+
 	private <T> void sendMessage(String destination, String eventType, T payload) {
 		try {
 			messagingTemplate.convertAndSend(destination, WebSocketResponse.withData(eventType, payload));
@@ -57,4 +72,5 @@ public class RoomWebSocketService {
 		return (type == BattleType.S) ? "/sub/single/room/" + roomId : "/sub/team/room/" + roomId;
 	}
 }
+
 

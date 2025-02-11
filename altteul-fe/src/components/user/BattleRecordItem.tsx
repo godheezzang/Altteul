@@ -8,9 +8,9 @@ import gold from "@assets/icon/badge/Badge_05.svg";
 import platinum from "@assets/icon/badge/Badge_07.svg";
 import dia from "@assets/icon/badge/Badge_08.svg";
 import arrow from "@assets/icon/arrow.svg";
-import TeamTabs from "@components/user/TeamNavbar";
-import SmallButton from "@components/common/Button/SmallButton ";
-import CodeModal from "@components/user/CodeModal";
+import TeamTabs from "@components/User/TeamNavbar";
+import SmallButton from "@components/Common/Button/SmallButton ";
+import CodeModal from "@components/User/CodeModal";
 
 type BattleRecordItemProps = {
 	record: UserGameRecord;
@@ -59,7 +59,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
 			...opponent.members[0],
 			team: "opponent",
 			...opponent,
-			members: undefined, // members 키 제거
+			// members: undefined, // members 키 제거
 		})),
 	].sort((a, b) => a.rank - b.rank);
 

@@ -1,4 +1,4 @@
-import { getUserRecord } from "@utils/api/userApi";
+import { getUserRecord } from "@utils/Api/userApi";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UserGameRecord } from "types/types";

@@ -5,17 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
-import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
-import com.c203.altteulbe.game.persistent.entity.Problem;
-import com.c203.altteulbe.game.persistent.entity.Testcase;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
+import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
 import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
@@ -27,14 +28,16 @@ import com.c203.altteulbe.game.web.dto.response.GameStartForTestcaseDto;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
+import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
 import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
+import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
 import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
-import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
-import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
+import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
+import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -64,7 +67,7 @@ public class SingleRoomService {
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
-								  .orElseThrow(()->new NotFoundUserException());
+									 .orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
@@ -84,7 +87,8 @@ public class SingleRoomService {
 			RoomEnterResponseDto responseDto = singleRoomRedisRepository.insertUserToExistingRoom(existingRoomId, user);
 
 			// 웹소켓 메시지 브로드캐스트
-			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(), "ENTER", responseDto, BattleType.S);
+			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(),
+											 "ENTER", responseDto, BattleType.S);
 			return responseDto;
 		}
 
@@ -108,7 +112,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userJPARepository.findByUserId(userId)
-						.orElseThrow(()->new NotFoundUserException());
+									 .orElseThrow(() -> new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
@@ -128,7 +132,7 @@ public class SingleRoomService {
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
-			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제");
+			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
@@ -136,13 +140,24 @@ public class SingleRoomService {
 		// 방장 조회
 		Long leaderId = Long.parseLong(remainingUserIds.get(0));
 
-		// 남은 유저들 정보 반환
+		// 남은 유저들 정보 조회
 		List<User> remainingUsers = getUserByIds(remainingUserIds);
-		List<UserInfoResponseDto> remainingUserDtos = UserInfoResponseDto.fromEntities(remainingUsers);
+
+		// 조회된 users를 Redis 순서대로 정렬
+		Map<Long, User> userMap = remainingUsers.stream()
+			.collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+		List<User> sortedUsers = remainingUserIds.stream()
+			.map(id -> userMap.get(Long.parseLong(id)))  // Redis 순서 유지
+			.collect(Collectors.toList());
+
+		// DTO 변환
+		List<UserInfoResponseDto> remainingUserDtos = UserInfoResponseDto.fromEntities(sortedUsers);
 
 		RoomLeaveResponseDto responseDto = RoomLeaveResponseDto.toResponse(
 			roomId, leaderId, leftUserDto, remainingUserDtos
 		);
+
 		// WebSocket 메시지 브로드캐스트
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.S);
 	}
@@ -156,16 +171,19 @@ public class SingleRoomService {
 		Long leaderId = requestDto.getLeaderId();
 
 		// 검증
-		if (!validator.isRoomWaiting(roomId, BattleType.S)) throw new GameCannotStartException();
-		if (!validator.isRoomLeader(roomId, leaderId, BattleType.S)) throw new NotRoomLeaderException();
-		if (!validator.isEnoughUsers(roomId, BattleType.S)) throw new NotEnoughUserException();
+		if (!validator.isRoomWaiting(roomId, BattleType.S))
+			throw new GameCannotStartException();
+		if (!validator.isRoomLeader(roomId, leaderId, BattleType.S))
+			throw new NotRoomLeaderException();
+		if (!validator.isEnoughUsers(roomId, BattleType.S))
+			throw new NotEnoughUserException();
 
 		// 방 상태 변경 (waiting → counting)
 		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString());
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "5");
+		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "6");
 	}
 
 	/**
@@ -175,7 +193,7 @@ public class SingleRoomService {
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
+			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
 			return;
 		}
 
@@ -202,7 +220,7 @@ public class SingleRoomService {
 
 		// User 엔티티 조회 및 Map으로 변환
 		Map<Long, User> userMap = getUserByIds(userIds).stream()
-			.collect(Collectors.toMap(User::getUserId, user -> user));
+										.collect(Collectors.toMap(User::getUserId, user -> user));
 
 		// SingleRoom 객체 생성 후 저장
 		List<SingleRoom> singleRooms = new ArrayList<>();
@@ -227,9 +245,13 @@ public class SingleRoomService {
 		// 방 상태를 gaming으로 변경
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "gaming");
 
-		// WebSocket으로 게임 시작 데이터 전송
-		List<SingleRoomGameStartForUserInfoResponseDto> users = userMap.values().stream()
-			.map(user -> SingleRoomGameStartForUserInfoResponseDto.fromEntity(user, userRoomIdMap.get(user.getUserId()))) // SingleRoom의 pk를 roomId로 설정
+		// Redis 순서대로 users 리스트 생성
+		List<SingleRoomGameStartForUserInfoResponseDto> users = userIds.stream()
+			.map(userId -> {
+				Long id = Long.parseLong(userId);
+				User user = userMap.get(id);
+				return SingleRoomGameStartForUserInfoResponseDto.fromEntity(user, userRoomIdMap.get(id));
+			})
 			.collect(Collectors.toList());
 
 		List<GameStartForTestcaseDto> testcase = testcaseEntities.stream()
@@ -241,7 +263,6 @@ public class SingleRoomService {
 		SingleRoomGameStartResponseDto responseDto = SingleRoomGameStartResponseDto.from(
 			game.getId(), leaderId, users, problem, testcase
 		);
-
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
 

@@ -1,4 +1,4 @@
-import { getUserInfo } from "@utils/api/userApi";
+import { getUserInfo } from "@utils/Api/userApi";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UserInfo as UserInfoType } from "types/types";
@@ -30,7 +30,7 @@ const UserInfo = () => {
 			try {
 				setIsLoading(true);
 
-				const response = await getUserInfo(userId, token);
+				const response = await getUserInfo(userId);
 				const data = response.data;
 
 				setUserInfo(data);

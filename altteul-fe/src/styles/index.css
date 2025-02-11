@@ -16,9 +16,10 @@
 }
 
 @layer base {
-  html {
+  html,
+  body {
     font-family: 'Pretendard Variable', sans-serif;
-    @apply text-primary-white;
+    @apply text-primary-white bg-primary-black h-[100vh] overflow-hidden;
   }
 }
 

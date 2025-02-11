@@ -57,6 +57,21 @@ services:
       - BACKEND_URL=http://host.docker.internal:8080/api/judge/check
       - TOKEN=${SECRET_KEY}
     entrypoint: ["/bin/sh", "-c", "exec /app/entrypoint.sh"]
+  openvidu-server:
+    image: openvidu/openvidu-server-kms:latest
+    container_name: altteul-openvidu
+    restart: always
+    ports:
+      - "4443:4443"
+    env_file:
+      - .env
+    environment:
+      - OPENVIDU_SECRET=${OPENVIDU_SECRET}  # .env 파일에서 불러오기
+      - OPENVIDU_CORS=${OPENVIDU_CORS}      # 프론트엔드 주소
+      - DOMAIN_OR_PUBLIC_IP=${DOMAIN_OR_PUBLIC_IP}  # 실제 배포 시 변경
+      - OPENVIDU_RECORDING=${OPENVIDU_RECORDING}  # 녹화 여부
+    networks:
+      - altteul-network  # 기존 네트워크 사용
 
 
   #  backend:

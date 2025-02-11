@@ -1,5 +1,5 @@
-import BattleRecord from '@components/user/BattleRecord';
-import UserInfo from '@components/user/UserInfo';
+import BattleRecord from '@components/User/BattleRecord';
+import UserInfo from '@components/User/UserInfo';
 
 const UserPage = () => {
   return (

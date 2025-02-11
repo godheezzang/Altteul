@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import FriendInput from "@components/friend/FriendInput";
+import FriendInput from "@components/Friend/FriendInput";
 
 type FriendModalProps = {
   isOpen: boolean;

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import arrow from "@assets/icon/arrow.svg"
 
 type DropdownProps = {
   options: { id: number | null; value: string; label: string }[];
@@ -13,27 +14,47 @@ const Dropdown = ({
   options,
   value,
   onChange,
-  width,
+  width = "",
   height,
   className,
 }: DropdownProps) => {
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange(e.target.value);
-  };
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
 
   return (
-    <select
-      value={value}
-      onChange={handleChange}
-      style={{ width, height }}
-      className={className}
-    >
-      {options.map((el) => (
-        <option key={el.id} value={el.value}>
-          {el.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative" style={{ width }}>
+      <div
+        className={`flex items-center justify-between border px-4 py-2 bg-gray-03 text-primary-white rounded-lg cursor-pointer ${className}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{selectedOption?.label}</span>
+        <img
+          src={arrow}
+          alt="arrow"
+          className={`w-4 h-4 ml-2 transition-transform ${
+            isOpen ? "rotate-[270deg]" : "rotate-90"
+          }`}
+        />
+      </div>
+      {isOpen && (
+        <div className="absolute mt-1 w-full bg-gray-03 rounded-lg overflow-hidden border border-gray-02 ">
+          {" "}
+          {/* w-full로 변경 */}
+          {options.map((option) => (
+            <div
+              key={option.id}
+              className="px-4 py-2 text-primary-white hover:bg-gray-05 border border-gray-02 cursor-pointer"
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+            >
+              {option.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

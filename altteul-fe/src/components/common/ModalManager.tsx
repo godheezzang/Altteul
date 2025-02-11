@@ -1,12 +1,12 @@
 // src/components/common/Modal/ModalManager.tsx
-import SignUpModal from "@components/auth/SignUpModal";
-import LoginModal from "@components/auth/LoginModal";
-import ResultModal from "@components/Result/ResultModal";
-import useModalStore from "@stores/modalStore";
-import { MODAL_TYPES } from "types/modalTypes";
-import AdditionalModal from "@components/Result/AdditionalModal";
-import NavigateModal from "@components/Result/NavigateModal";
-import ResultDetailModal from "@components/Result/ResultDetailModal";
+import SignUpModal from '@components/Auth/SignUpModal';
+import LoginModal from '@components/Auth/LoginModal';
+import ResultModal from '@components/Result/ResultModal';
+import useModalStore from '@stores/modalStore';
+import { MODAL_TYPES } from 'types/modalTypes';
+import AdditionalModal from '@components/Result/AdditionalModal';
+import NavigateModal from '@components/Result/NavigateModal';
+import ResultDetailModal from '@components/Result/ResultDetailModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();

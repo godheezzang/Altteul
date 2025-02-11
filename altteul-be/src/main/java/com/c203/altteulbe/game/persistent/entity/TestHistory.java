@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmissionTeamResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 
