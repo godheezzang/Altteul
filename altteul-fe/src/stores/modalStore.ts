@@ -14,14 +14,16 @@ interface ModalState {
 const useModalStore = create<ModalState>((set, get) => ({
   currentModal: null,
   modalInfo: null,
-  openModal: (modalName, info = null) => set({ 
-    currentModal: modalName,
-    modalInfo: info
-  }),
-  closeModal: () => set({ 
-    currentModal: null,
-    modalInfo: null 
-  }),
+  openModal: (modalName, info = null) =>
+    set({
+      currentModal: modalName,
+      modalInfo: info,
+    }),
+  closeModal: () =>
+    set({
+      currentModal: null,
+      modalInfo: null,
+    }),
   isOpen: (modalName) => get().currentModal === modalName,
   getModalInfo: () => get().modalInfo,
 }));
