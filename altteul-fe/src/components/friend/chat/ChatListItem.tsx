@@ -1,6 +1,4 @@
-// 채팅 목록 아이템 컴포넌트
-// ChatListItem.tsx
-
+// components/friend/chat/ChatListItem.tsx
 import React from 'react';
 
 type ChatListItemProps = {
@@ -24,37 +22,47 @@ const ChatListItem = ({
   createdAt,
   onSelect,
 }: ChatListItemProps) => {
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClick = () => {
     onSelect?.(friendId);
   };
+
   return (
     <div
-      className="flex items-center gap-3 p-2 border-b cursor-pointer hover:bg-gray-04"
+      className="flex items-center gap-3 py-3 px-2 border-b border-gray-03 cursor-pointer hover:bg-gray-05 transition-colors duration-200"
       onClick={handleClick}
     >
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <img src={profileImg} alt={`${nickname} 프로필`} className="w-12 h-12 rounded-full" />
-        {isOnline && (
-          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border border-white"></span>
-        )}
+        <div
+          className={`absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-gray-01 ${
+            isOnline ? 'bg-green-500' : 'bg-gray-400'
+          }`}
+        />
       </div>
-
-      <div className="flex-1">
-        <p className="font-medium text-primary-white">{nickname}</p>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <p
+            className={`font-medium ${
+              isMessageRead ? 'text-primary-white' : 'text-primary-orange'
+            }`}
+          >
+            {nickname}
+          </p>{' '}
+          <p className="text-xs text-gray-02">
+            {new Date(createdAt).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
         <p
-          className={`text-sm ${isMessageRead ? 'text-gray-01' : 'text-primary-orange font-bold'}`}
+          className={`text-sm truncate ${
+            isMessageRead ? 'text-gray-02' : 'text-primary-white font-semibold'
+          }`}
         >
           {recentMessage}
         </p>
       </div>
-
-      <p className="text-xs text-gray-02">
-        {new Date(createdAt).toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
-      </p>
     </div>
   );
 };
