@@ -7,21 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Load Environment Variables') {
-            when {
-                branch 'master'
-            }
-            steps {
-                script {
-                    sh '''
-                    set -a
-                    . ${WORKSPACE}/altteul-be/.env
-                    set +a
-                    '''
-                }
-            }
-        }
-
         stage('Build Images') {
             when {
                 branch 'master'
