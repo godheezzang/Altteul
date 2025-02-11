@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
-import com.c203.altteulbe.ranking.persistent.repository.RankingRepository;
+import com.c203.altteulbe.ranking.persistent.repository.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 	private final UserJPARepository userJPARepository;
-	private final RankingRepository rankingRepository;
+	private final TodayRankingRepository rankingRepository;
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) {
 		OAuth2User oAuth2User = super.loadUser(userRequest);
