@@ -1,5 +1,6 @@
 package com.c203.altteulbe.friend.web.dto.response;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.common.dto.RequestStatus;
 import com.c203.altteulbe.friend.persistent.entity.FriendRequest;
 
@@ -29,7 +30,7 @@ public class FriendRequestResponseDto {
 			.friendRequestId(friendRequest.getFriendRequestId())
 			.fromUserId(friendRequest.getFrom().getUserId())
 			.fromUserNickname(friendRequest.getFrom().getNickname())
-			.fromUserProfileImg(friendRequest.getFrom().getProfileImg())
+			.fromUserProfileImg(S3Util.getImgUrl(friendRequest.getFrom().getProfileImg()))
 			.requestStatus(friendRequest.getRequestStatus())
 			.build();
 	}

@@ -48,4 +48,21 @@ public class S3Service {
 			throw new RuntimeException("파일 업로드 중 오류 발생", e);
 		}
 	}
+
+	/**
+	 * S3 파일 삭제
+	 */
+	public void deleteFile(String objectKey) {
+		try {
+			s3Client.deleteObject(DeleteObjectRequest.builder()
+				.bucket(bucketName)
+				.key(objectKey)
+				.build());
+
+			log.info("파일 삭제 성공: {}", objectKey);
+		} catch (Exception e) {
+			log.error("파일 삭제 실패: {}", e.getMessage());
+			throw new RuntimeException("파일 삭제 중 오류 발생", e);
+		}
+	}
 }

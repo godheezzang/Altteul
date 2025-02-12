@@ -44,6 +44,12 @@ public class AuthController {
 		return ApiResponse.success();
 	}
 
+	@GetMapping("/api/nickname-check")
+	public ApiResponseEntity<Void> validateNickname(@RequestParam String nickname) {
+		authService.validateNickname(nickname);
+		return ApiResponse.success();
+	}
+
 	@GetMapping("/oauth2/authorization/github")
 	public ApiResponseEntity<Void> socialLogin() {
 		return ApiResponse.success();

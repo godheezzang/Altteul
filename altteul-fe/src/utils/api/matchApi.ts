@@ -27,8 +27,7 @@ export const singleOut = async (userId: number) => {
 }
 
 //싱글 매칭 시작시 사용 api
-export const singleStart = (roomId: number, leaderId: number, type: string) => {
-  // const res = await sigleApi.post("start", {"roomId":roomId, "leaderId":leaderId, "type":type})
-  // return res.data.status
-  return 200;
+export const singleStart = async (roomId: number, leaderId: number) => {
+  const res = await sigleApi.post("start", {"roomId":roomId, "leaderId":leaderId})
+  return res
 }
