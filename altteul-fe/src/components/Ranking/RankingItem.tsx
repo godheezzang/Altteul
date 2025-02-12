@@ -1,8 +1,8 @@
 import rank_up from "@assets/icon/rank_up.svg";
 import rank_down from "@assets/icon/rank_down.svg";
-import {RankingResponse} from "types/types"
+import {Ranking} from "types/types"
 // 랭킹 행 컴포넌트
-const RankingItem = ({ data }: { data: RankingResponse }) => {
+const RankingItem = ({ data }: { data: Ranking }) => {
   const { nickname, lang, ranking, point, tierId, rankChange } = data;
 
   const formatNumber = (num: number) => {
@@ -52,11 +52,11 @@ const RankingItem = ({ data }: { data: RankingResponse }) => {
 
   return (
     // 한 행
-    <div className="grid grid-cols-5 py-4 px-6 bg-primary-black/30 text-primary-white text-center py-6">
+    <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr] py-4 px-6 bg-primary-black/60 text-primary-white text-center py-6">
       {/* 순위 */}
       <div className="grid justify-items-start ml-5 text-center">{ranking}</div>
       {/* 뱃지&닉네임 */}
-      <div className="flex">
+      <div className="flex items-center">
         <div>{getBadgeImage()}</div>
         <div>{nickname}</div>
       </div>

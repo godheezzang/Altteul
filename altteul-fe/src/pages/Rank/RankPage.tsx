@@ -1,70 +1,109 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/Common/SearchInput";
 import Dropdown from "@components/Common/Dropdown";
 import RankingItem from "@components/Ranking/RankingItem";
 import { getRank } from "@utils/api/rankApi";
-import type { RankApiFilter } from "types/types";
+import type { RankApiFilter, RankingResponse } from "types/types";
 
 // 메인 랭킹 페이지 컴포넌트
 const RankingPage = () => {
   const [searchNickname, setSearchNickname] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [tier, setTier] = useState(null);
   const [rankings, setRankings] = useState([]);
   const [page, setPage] = useState(0);
-  const [ref, inView] = useInView();
+  const [totalPages, setTotalPages] = useState(1);
+  const [last, setLast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [ref, inView] = useInView({
+    threshold: 0,
+    delay:500
+  });
 
   const languageOptions = [
     { id: 0, value: "", label: "전체" },
     { id: 1, value: "PY", label: "Python" },
     { id: 2, value: "JV", label: "Java" },
   ];
-
-  const filter: RankApiFilter = {
-    page: page,
+  
+  const badges = [
+    { id: 1, name: "bronze", src: "/src/assets/icon/Badge/1_bronze.svg" },
+    { id: 2, name: "silver", src: "/src/assets/icon/Badge/2_silver.svg" },
+    { id: 3, name: "gold", src: "/src/assets/icon/Badge/3_gold.svg" },
+    { id: 4, name: "platinum", src: "/src/assets/icon/Badge/4_platinum.svg" },
+    { id: 5, name: "diamond", src: "/src/assets/icon/Badge/5_diamond.svg" },
+  ];
+  
+  const filter: RankApiFilter = useMemo(() => ({
+    page,
     size: 10,
     lang: selectedLanguage,
-    tier: null,
-    keyword: searchNickname
-  };
+    tierId: tier,
+    nickname: searchNickname
+  }), [page, selectedLanguage, tier, searchNickname]);
 
-  useEffect(() => {
-    rankListUpdate();
-  },[])
-
-  //TODO: 랭킹 목록 불러오기
-  const rankListUpdate = async () => {
-    const response = await getRank(filter);
-    //0부터 가져오면서 page는 계속 증가형태
-    
-    setRankings([...rankings, ...response.data.rankings]);
-
-    //TODO: API 호출로 랭킹 목록 업데이트
-    //TODO: 닉네임과 언어선택 값 가지고 검색 해서 랭킹 목록 뽑아야 함
-  };
-
-  useEffect(() => {
-    if (inView) {
-      setPage((prev) => prev + 1);
-      rankListUpdate();
-    }
-  }, [inView]);
-
-  useEffect(() => {
-    
-  }, [page]);
-
-  //TODO: 닉네임 검색 부분
-  const handleSearch = () => {
+  const resetPagination = () => {
+    setPage(0);
     setRankings([]);
-    setPage(1);
-    rankListUpdate();
+    setTotalPages(1);
+    setLast(false);
   };
 
-  //TODO: 언어 변경 -> 검색 부분
+
+  const rankListUpdate = async () => {
+    console.log(isLoading);
+    if (isLoading || last) return;
+    
+    try {
+      setIsLoading(true);
+      const response: RankingResponse = await getRank(filter);
+      
+      // 백엔드로부터 받은 페이지네이션 정보 업데이트
+      setTotalPages(response.data.totalPages);
+      setLast(response.data.last);
+      
+      if (page === 0) {
+        setRankings(response.data.rankings);
+      } else {
+        setRankings(prev => [...prev, ...response.data.rankings]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch rankings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // 초기 로딩
   useEffect(() => {
-  }, [selectedLanguage]);
+    rankListUpdate();
+  }, []);
+
+  
+  useEffect(() => {
+    if (inView && !isLoading && !last) {
+      rankListUpdate();
+      setPage(prev => prev + 1);
+    }
+  }, [inView, isLoading, last]);
+  
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    resetPagination();
+  };
+  
+  const handleTier = (tierId: number) => {
+    setTier(tierId);
+    resetPagination();
+    rankListUpdate();
+  };
+  
+  const handleSearch = () => {
+    resetPagination();
+    rankListUpdate();
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -84,17 +123,21 @@ const RankingPage = () => {
       <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
         <div className="flex justify-between items-center mb-2 mt-12">
           <div className="flex gap-3">
-            <img src="/src/assets/icon/badge/Badge_08.svg" alt="" />
-            <img src="/src/assets/icon/badge/Badge_07.svg" alt="" />
-            <img src="/src/assets/icon/badge/Badge_05.svg" alt="" />
-            <img src="/src/assets/icon/badge/Badge_04.svg" alt="" />
-            <img src="/src/assets/icon/badge/Badge_01.svg" alt="" />
+          {badges.map((badge) => (
+            <img
+              key={badge.id}
+              src={badge.src}
+              alt={badge.name}
+              className="cursor-pointer hover:scale-110 transition-transform"
+              onClick={() => handleTier(badge.id)}
+            />
+          ))}
           </div>
           <div className="flex gap-3">
             <Dropdown
               options={languageOptions}
               value={selectedLanguage}
-              onChange={setSelectedLanguage}
+              onChange={handleLanguageChange}
               width="6.5vw"
             />
             <SearchInput
@@ -108,8 +151,8 @@ const RankingPage = () => {
         </div>
         <div className="">
           {/* grid grid-cols-5 */}
-          <div className="grid grid-cols-5 rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
-            <div className="grid justify-items-start ml-5">순위</div>
+          <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr] rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
+            <div className="grid justify-items-start ml-5 text-center">순위</div>
             <div>플레이어</div>
             <div>순위 변동</div>
             <div>랭킹 점수</div>
@@ -121,11 +164,16 @@ const RankingPage = () => {
               data={ranking}
             />
           ))}
+          
+          {isLoading && (
+            <div className="text-center py-4 text-primary-white">불러오는 중...</div>
+          )}
+          
         </div>
-        <div ref={ref} className="h-10" /> {/* Intersection Observer 타겟 */}
+        {!last && <div ref={ref} className="h-20" />}
       </div>
     </div>
-  );
+  );   
 };
 
 export default RankingPage;
