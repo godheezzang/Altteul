@@ -85,7 +85,7 @@ export interface RankingResponse {
   rank: number;
   nickname: string;
   mainLang: string;
-  rankPoint: number;
+  point: number;
   tierId: number;
   rankChange: number;
   averagePassRate: number;
@@ -141,4 +141,12 @@ export interface CodeInfo {
   executeMemory: number;
   executeTime: number;
   code: string;
+}
+
+export interface RankApiFilter {
+    page: number | null;
+    size: number | null;
+    lang: string | null;
+    tier: number | null;
+    keyword: string | null;
 }

@@ -4,7 +4,8 @@ import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/Common/SearchInput";
 import Dropdown from "@components/Common/Dropdown";
 import RankingItem from "@components/Ranking/RankingItem";
-import { rankMockData } from "mocks/rankData";
+import { getRank } from "@utils/api/rankApi";
+import type { RankApiFilter } from "types/types";
 
 // 메인 랭킹 페이지 컴포넌트
 const RankingPage = () => {
@@ -20,29 +21,32 @@ const RankingPage = () => {
     { id: 2, value: "JV", label: "Java" },
   ];
 
+  const filter: RankApiFilter = {
+    page: page,
+    size: 10,
+    lang: selectedLanguage,
+    tier: null,
+    keyword: searchNickname
+  };
+
+  useEffect(() => {
+    rankListUpdate();
+  },[])
+
   //TODO: 랭킹 목록 불러오기
   const rankListUpdate = async () => {
-    //0부터 가져오면서 page는 계속 증가형태
-    const data = [...rankMockData.data.content.slice(0, page+10)]
-    setRankings(data);
+    const response = await getRank(filter);
+    //0부터 가져오면서 page는 계속 증가형태'
+    
+    setRankings([...rankings, ...response.data.rankings]);
 
     //TODO: API 호출로 랭킹 목록 업데이트
     //TODO: 닉네임과 언어선택 값 가지고 검색 해서 랭킹 목록 뽑아야 함
-    // try {
-    //   // API 호출 로직 구현
-    //   const response = await fetch(
-    //     `/api/rankings?page=${page}&nickname=${searchNickname}&language=${selectedLanguage}`
-    //   );
-    //   const data = await response.json();
-    //   setRankings((prev) => [...prev, ...data]);
-    // } catch (error) {
-    //   console.error("랭킹 데이터 로드 실패:", error);
-    // }
   };
 
   useEffect(() => {
     if (inView) {
-      setPage((prev) => prev + 10);
+      setPage((prev) => prev + 1);
       rankListUpdate();
     }
   }, [inView]);

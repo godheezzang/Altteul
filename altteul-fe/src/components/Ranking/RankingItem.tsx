@@ -3,7 +3,7 @@ import rank_down from "@assets/icon/rank_down.svg";
 import {RankingResponse} from "types/types"
 // 랭킹 행 컴포넌트
 const RankingItem = ({ data }: { data: RankingResponse }) => {
-  const { nickname, mainLang, rank, rankPoint, tierId, rankChange } = data;
+  const { nickname, mainLang, rank, point, tierId, rankChange } = data;
 
   const formatNumber = (num: number) => {
     return num ? num.toLocaleString() : '0';
@@ -63,7 +63,7 @@ const RankingItem = ({ data }: { data: RankingResponse }) => {
       {/* 순위변동 */}
       <div>{getRankChangeDisplay()}</div>
       {/* 랭킹점수 */}
-      <div>{formatNumber(rankPoint)}</div>
+      <div>{formatNumber(point)}</div>
       {/* 선호언어 */}
       <div>{getLanguageDisplay(mainLang)}</div>
     </div>
