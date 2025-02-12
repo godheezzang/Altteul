@@ -11,15 +11,11 @@ import GameUserList from '@components/Ide/GameUserList';
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, problem } = useGameStore();
+  const { gameId, roomId, users } = useGameStore();
   const {
     sideProblem,
     sideProblemResult,
-    codeResult,
-    opponentCodeResult,
     requestSideProblem,
-    submitSideProblemAnswer,
-    submitCode,
     completeUsers,
     userProgress
   } = useGameWebSocket(gameId, roomId);
@@ -32,7 +28,7 @@ const SingleIdePage = () => {
 
   console.log(sideProblemResult);
 
-  // ✅ 5분마다 자동으로 사이드 문제 요청
+  // ✅ 10분마다 자동으로 사이드 문제 요청
   useEffect(() => {
     if (requestCount >= MAX_REQUESTS) return; // ✅ 5번 넘으면 실행 중단
 
