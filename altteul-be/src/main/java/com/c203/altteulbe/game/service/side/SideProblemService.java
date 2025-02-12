@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +15,13 @@ import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblem;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblemHistory;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
-import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryJPARepository;
+import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
 import com.c203.altteulbe.game.web.dto.side.response.SubmitSideProblemResponseDto;
-import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -31,7 +29,6 @@ import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
-import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SideProblemService {
 
 	private final SideProblemRepository sideProblemRepository;
-	private final SideProblemHistoryJPARepository sideProblemHistoryJPARepository;
+	private final SideProblemHistoryRepository sideProblemHistoryRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final SideProblemWebsocketService sideProblemWebsocketService;
 	private final GameRepository gameRepository;
@@ -123,7 +120,7 @@ public class SideProblemService {
 
 		if (game.getBattleType() == BattleType.S) {
 			sideProblemHistory = SideProblemHistory.builder()
-				.sideProblemId(message.getSideProblemId())
+				.sideProblemId(sideProblem)
 				.gameId(game)
 				.result(result)
 				.teamRoomId(null)
@@ -135,7 +132,7 @@ public class SideProblemService {
 				.orElseThrow(RoomNotFoundException::new);
 
 			sideProblemHistory = SideProblemHistory.builder()
-				.sideProblemId(message.getSideProblemId())
+				.sideProblemId(sideProblem)
 				.gameId(game)
 				.result(result)
 				.teamRoomId(teamRoom)
@@ -143,7 +140,7 @@ public class SideProblemService {
 				.userAnswer(message.getAnswer())
 				.build();
 		}
-		sideProblemHistoryJPARepository.save(sideProblemHistory);
+		sideProblemHistoryRepository.save(sideProblemHistory);
 	}
 
 	public void receive(ReceiveSideProblemRequestDto message, Long id) {
@@ -159,17 +156,17 @@ public class SideProblemService {
 		if (game.getBattleType() == BattleType.S) {
 			SingleRoom room = singleRoomRepository.findById(message.getTeamId())
 				.orElseThrow(() -> new BusinessException("개인 룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
-			histories = sideProblemHistoryJPARepository.findByUserId(room.getUser());
+			histories = sideProblemHistoryRepository.findByUserId(room.getUser());
 		} else {
 			TeamRoom room = teamRoomRepository.findById(message.getTeamId())
 				.orElseThrow(() -> new BusinessException("팀 룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
-			histories = sideProblemHistoryJPARepository.findByTeamRoomId(room);
+			histories = sideProblemHistoryRepository.findByTeamRoomId(room);
 		}
 
 		// 이전에 풀었던 문제 추출
 		Set<Long> solved = new HashSet<>();
 		for (SideProblemHistory history : histories) {
-			solved.add(history.getSideProblemId());
+			solved.add(history.getSideProblemId().getId());
 		}
 
 		Random random = new Random();

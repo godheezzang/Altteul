@@ -1,5 +1,7 @@
 package com.c203.altteulbe.game.service;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +25,17 @@ public class PointHistoryService {
 	 * DB에 저장되는 PointHistory를 이벤트 발행할 때 넘겨주시기만 하면 돼요
 	 */
 	public void savePointHistory(PointHistory pointHistory) {
-
 		// PointHistory를 DB에 저장할 때 Tier 업데이트 이벤트 발생
 		pointHistoryRepository.save(pointHistory);
 		eventPublisher.publishEvent(new PointHistorySavedEvent(pointHistory));
+	}
 
+	public void savePointHistory(List<PointHistory> pointHistories) {
+		// PointHistory를 DB에 저장할 때 Tier 업데이트 이벤트 발생
+
+		pointHistoryRepository.saveAll(pointHistories);
+		for(PointHistory pointHistory : pointHistories) {
+			eventPublisher.publishEvent(new PointHistorySavedEvent(pointHistory));
+		}
 	}
 }

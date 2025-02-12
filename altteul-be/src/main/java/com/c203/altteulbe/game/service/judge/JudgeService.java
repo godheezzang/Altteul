@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.service.judge;
+package com.c203.altteulbe.game.service;
 
 import java.util.List;
 
@@ -15,7 +15,6 @@ import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
-import com.c203.altteulbe.game.persistent.repository.game.GameCustomRepository;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
@@ -50,6 +49,8 @@ public class JudgeService {
 	private final GameRepository gameRepository;
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
+	private final PointHistoryService pointHistoryService;
+	private final SideProblemHistoryRepository sideProblemHistoryRepository;
 
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
@@ -142,30 +143,10 @@ public class JudgeService {
 			request.getCode(),
 			request.getLang()
 		);
-		Game game = gameRepository.findWithRoomByGameId(request.getGameId())
+		Game game = gameRepository.findWithAllMemberByGameId(request.getGameId())
 			.orElseThrow(() -> new BusinessException("게임 찾을 수 없음", HttpStatus.NOT_FOUND));
-		//팀방, 개인방인 경우를 분리해서 로직 진행
-		if (game.getBattleType() == BattleType.S) {
-			List<SingleRoom> rooms = game.getSingleRooms();
-			//내 팀이 어디지?
-			SingleRoom myRoom = rooms.stream()
-				.filter(room -> room.getId().equals(request.getTeamId()))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("해당 팀의 방을 찾을 수 없습니다."));
-			// 내 팀의 최고 점수 업데이트
-			updateRoomSubmission(myRoom, testHistory, request.getCode(), maxExecutionTime, maxMemory, rooms);
-			singleRoomRepository.save(myRoom);
-		} else {
-			List<TeamRoom> rooms = game.getTeamRooms();
-			//내 팀이 어디지?
-			TeamRoom myRoom = rooms.stream()
-				.filter(room -> room.getId().equals(request.getTeamId()))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("해당 팀의 방을 찾을 수 없습니다."));
-			// 내 팀의 최고 점수 업데이트 (기존 점수보다 높을 시 업데이트)
-			updateRoomSubmission(myRoom, testHistory, request.getCode(), maxExecutionTime, maxMemory, rooms);
-			teamRoomRepository.save(myRoom);
-		}
+
+		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory);
 
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
@@ -188,22 +169,156 @@ public class JudgeService {
 	}
 
 	// 함수 추출
-	private void updateRoomSubmission(Room myRoom, TestHistory testHistory, String code, int maxExecutionTime, int maxMemory, List<? extends Room> rooms) {
-		myRoom.updateSubmissionRecord(
-			testHistory.getSuccessCount(),
-			String.valueOf(maxExecutionTime),
-			String.valueOf(maxMemory),
-			code
-		);
+	private void updateRoomSubmission(Game game, Long teamId, TestHistory testHistory, String code, int maxExecutionTime, int maxMemory) {
 
-		// 다 맞춰서 게임 종료할 경우 로직
-		if (testHistory.getFailCount() == 0) {
-			// 순위 갱신: finishTime 이 있는 방들만 정렬
-			int finishedTeamCount = (int) rooms.stream()
-				.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
-				.count();
-			myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+		if (game.getBattleType() == BattleType.S) {
+			SingleRoom myRoom = singleRoomRepository.findById(teamId)
+				.orElseThrow(() -> new BusinessException("해당 팀의 방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+			myRoom.updateSubmissionRecord(
+				testHistory.getSuccessCount(),
+				String.valueOf(maxExecutionTime),
+				String.valueOf(maxMemory),
+				code
+			);
+			// 다 맞춰서 게임 종료할 경우 로직
+			if (testHistory.getFailCount() == 0) {
+				finishGame(game, game.getSingleRooms(), myRoom);
+			}
+		} else {
+			TeamRoom myRoom = teamRoomRepository.findById(teamId)
+				.orElseThrow(() -> new BusinessException("해당 팀의 방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+			myRoom.updateSubmissionRecord(
+				testHistory.getSuccessCount(),
+				String.valueOf(maxExecutionTime),
+				String.valueOf(maxMemory),
+				code
+			);
+			// 다 맞춰서 게임 종료할 경우 로직
+			if (testHistory.getFailCount() == 0) {
+				finishGame(game, game.getTeamRooms(), myRoom);
+			}
 		}
+	}
+
+	private void finishGame(Game game, List<? extends Room> rooms, Room myRoom) {
+		// 순위 갱신: finishTime 이 있는 방들만 정렬
+		int finishedTeamCount = (int) rooms.stream()
+			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
+			.count();
+		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+
+		/**
+		 * 배틀 포인트 정산 (여기까지 왔다는 것은 FAIL이 없다는 뜻)
+		 * 1. BattleResult - 1 : 승리 포인트 50 + 클리어 포인트 100 + 사이드 문제 풀이 내역 조회 후 포인트 개당 20
+		 * 2. BattleResult - 2 ~ 8 : 클리어 포인트 100 + 사이드 문제 풀이 내역 조회 후 포인트 개당 20
+		 */
+		List<PointHistory> pointHistories = new ArrayList<>();
+		if (myRoom.getBattleResult() == BattleResult.FIRST) {
+			if (myRoom instanceof SingleRoom) {
+				pointHistories.add(
+					PointHistory.create(
+						game,
+						((SingleRoom) myRoom).getUser(),
+						null,
+						100,
+						game.getBattleType(),
+						PointType.D
+					)
+				);
+				pointHistories.add(
+					PointHistory.create(
+						game,
+						((SingleRoom) myRoom).getUser(),
+						null,
+						50,
+						game.getBattleType(),
+						PointType.B
+					)
+				);
+				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(((SingleRoom) myRoom).getUser(),game, SideProblemHistory.ProblemResult.P);
+
+				for (SideProblemHistory sideProblemHistory : solvedSideProblemHistories) {
+					pointHistories.add(
+						PointHistory.create(
+							game,
+							((SingleRoom) myRoom).getUser(),
+							sideProblemHistory.getSideProblemId(),
+							20,
+							game.getBattleType(),
+							PointType.S,
+							sideProblemHistory.getCreatedAt()
+						)
+					);
+				}
+			} else if (myRoom instanceof TeamRoom) {
+				for (UserTeamRoom userTeamRoom : ((TeamRoom) myRoom).getUserTeamRooms()) {
+					pointHistories.add(
+						PointHistory.create(
+							game,
+							userTeamRoom.getUser(),
+							null,
+							100,
+							game.getBattleType(),
+							PointType.D
+						)
+					);
+					pointHistories.add(
+						PointHistory.create(
+							game,
+							userTeamRoom.getUser(),
+							null,
+							50,
+							game.getBattleType(),
+							PointType.B
+						)
+					);
+				}
+			}
+		} else if (myRoom.getBattleResult() != BattleResult.FAIL) {
+			if (myRoom instanceof SingleRoom) {
+				pointHistories.add(
+					PointHistory.create(
+						game,
+						((SingleRoom) myRoom).getUser(),
+						null,
+						100,
+						game.getBattleType(),
+						PointType.D
+					)
+				);
+				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(((SingleRoom) myRoom).getUser(),game, SideProblemHistory.ProblemResult.P);
+
+				for (SideProblemHistory sideProblemHistory : solvedSideProblemHistories) {
+					pointHistories.add(
+						PointHistory.create(
+							game,
+							((SingleRoom) myRoom).getUser(),
+							sideProblemHistory.getSideProblemId(),
+							20,
+							game.getBattleType(),
+							PointType.S,
+							sideProblemHistory.getCreatedAt()
+						)
+					);
+				}
+			} else if (myRoom instanceof TeamRoom) {
+				for (UserTeamRoom userTeamRoom : ((TeamRoom) myRoom).getUserTeamRooms()) {
+					pointHistories.add(
+						PointHistory.create(
+							game,
+							userTeamRoom.getUser(),
+							null,
+							100,
+							game.getBattleType(),
+							PointType.D
+						)
+					);
+				}
+			}
+		}
+
+		// 포인트 내역 저장
+		pointHistoryService.savePointHistory(pointHistories);
 	}
 }
 
