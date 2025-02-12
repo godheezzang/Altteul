@@ -209,3 +209,15 @@ export interface NotificationItem {
   roomId?: number; // gameInvite일 때만 존재
   createdAt: string;
 }
+
+export interface FriendsResponse {
+  status: number;
+  message: string;
+  data: {
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+    friends: Friend[];
+  };
+}
