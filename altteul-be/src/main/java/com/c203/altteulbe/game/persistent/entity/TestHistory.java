@@ -62,10 +62,10 @@ public class TestHistory extends BaseCreatedEntity {
 	private Status result;
 
 	@Column(name = "success_count", columnDefinition = "TINYINT")
-	private int successCount;
+	private Integer successCount;
 
 	@Column(name = "fail_count", columnDefinition = "TINYINT")
-	private int failCount;
+	private Integer failCount;
 
 	@OneToMany(mappedBy = "testHistory", cascade = CascadeType.ALL)
 	private List<TestResult> testResults = new ArrayList<>();
@@ -78,6 +78,15 @@ public class TestHistory extends BaseCreatedEntity {
 	}
 
 	public static TestHistory from(CodeSubmissionTeamResponseDto teamResponseDto, Long gameId, Long problemId, Long userId, String maxExecuteTime, String maxMemory,  String code, String lang) {
+		Integer failCount;
+		Integer successCount;
+		if (teamResponseDto.getTotalCount() == null) {
+			failCount = null;
+			successCount = null;
+		} else {
+			successCount = teamResponseDto.getPassCount();
+			failCount = teamResponseDto.getTotalCount() - successCount;
+		}
 		return TestHistory.builder()
 			.game(Game.builder().id(gameId).build())
 			.user(User.builder().userId(userId).build())
@@ -85,8 +94,8 @@ public class TestHistory extends BaseCreatedEntity {
 			.code(code)
 			.executeTime(maxExecuteTime)
 			.executeMemory(maxMemory)
-			.successCount(teamResponseDto.getPassCount())
-			.failCount(teamResponseDto.getTotalCount()-teamResponseDto.getPassCount())
+			.successCount(successCount)
+			.failCount(failCount)
 			.result(Status.valueOf(teamResponseDto.getStatus()))
 			.build();
 	}
