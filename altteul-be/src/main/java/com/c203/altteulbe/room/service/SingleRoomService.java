@@ -183,7 +183,7 @@ public class SingleRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "6");
+		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "10");
 	}
 
 	/**
