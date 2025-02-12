@@ -1,6 +1,7 @@
 package com.c203.altteulbe.room.web.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +31,8 @@ public class SingleRoomController {
 	 */
 	@PostMapping("/enter")
 	public ApiResponseEntity<ResponseBody.Success<RoomEnterResponseDto>> enterSingleRoom(
-										@RequestBody RoomRequestDto requestDto) {
-
-		RoomEnterResponseDto responseDto = singleRoomService.enterSingleRoom(requestDto);
+														@AuthenticationPrincipal Long userId) {
+		RoomEnterResponseDto responseDto = singleRoomService.enterSingleRoom(userId);
 		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
 

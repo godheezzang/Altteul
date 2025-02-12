@@ -90,15 +90,15 @@ public class TeamRoomService {
 	private final VoiceChatService voiceChatService;
 
 	//@DistributedLock(key="#requestDto.userId")
-	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
-		User user = userRepository.findByUserId(requestDto.getUserId())
+	public RoomEnterResponseDto enterTeamRoom(Long userId) {
+		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+		if (validator.isUserInAnyRoom(userId, BattleType.S)) {
 			throw new DuplicateRoomEntryException();
 		}
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
+		if (validator.isUserInAnyRoom(userId, BattleType.T)) {
 			throw new DuplicateRoomEntryException();
 		}
 

@@ -65,17 +65,17 @@ public class SingleRoomService {
 	 * 동일 유저의 중복 요청 방지 및 동시성 제어를 위해 userId를 키로 갖는 락을 생성
 	 */
 	//@DistributedLock(key="#requestDto.userId")
-	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
-		User user = userRepository.findByUserId(requestDto.getUserId())
-									 .orElseThrow(() -> new NotFoundUserException());
+	public RoomEnterResponseDto enterSingleRoom(Long userId) {
+		User user = userRepository.findByUserId(userId)
+								  .orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
-			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+		if (validator.isUserInAnyRoom(userId, BattleType.S)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", userId);
 			throw new DuplicateRoomEntryException();
 		}
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
-			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+		if (validator.isUserInAnyRoom(userId, BattleType.T)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", userId);
 			throw new DuplicateRoomEntryException();
 		}
 
