@@ -16,6 +16,8 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const [sideProblemResult, setSideProblemResult] = useState(null);
   const [codeResult, setCodeResult] = useState(null);
   const [opponentCodeResult, setOpponentCodeResult] = useState(null);
+  const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set())
+  const [userProgress, setUserProgress] = useState<Record<number, number>>({})
   const socketStore = useSocketStore();
 
   useEffect(() => {
@@ -129,8 +131,16 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         console.log('📩 코드 채점 결과 수신:', data);
         setCodeResult(data);
 
-        if (data.status === "P") {
-          const myUserId = localStorage.getItem("userId")
+        // 정답을 다 맞췄을 때 
+        if (data.status === "P" && data.passCount === data.totalCount) {
+          const myUserId = Number(localStorage.getItem("userId"))
+          if (myUserId) updateUserStatus(myUserId)
+        }
+
+        // 일부만 정답을 맞췄을 때
+        if (data.status === "F" && data.passCount > 0) {
+          const myUserId = Number(localStorage.getItem("userId"))
+          updateUserProgress(myUserId, data.passCount, data.totalCount)
         }
       });
     }
@@ -143,14 +153,32 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         console.log('상대 코드 채점 결과 수신', data);
 
         setOpponentCodeResult(data);
+        
+        // 상대방이 다 맞았을 때
+        if (data.status === "P" && data.passCount === data.totalCount) {
+          users.forEach(user => {
+            if (user.roomId !== roomId) updateUserStatus(user.userId)
+          })
+        }
+
+        if (data.status === "F" && data.passCount > 0) {
+          users.forEach(user => {
+            if (user.roomId !== roomId) updateUserProgress(user.userId, data.passCount, data.totalCount)
+          })
+        }
       });
     }
   };
 
+  // 문제를 다 맞춘 유저는 완료된 유저 목록에 추가
   const updateUserStatus = (userId: number) => {
-    setUsers(
-      users.map(user => user.userId === userId ? { ...user, status: "P"}: user)
-    )
+    setCompleteUsers(prev => new Set(prev).add(userId))
+  }
+
+  // 유저 진행율 업데이트
+  const updateUserProgress = (userId: number, passCount: number, totalCount: number) => {
+    const progress = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
+    setUserProgress(prev => ({...prev, [userId]: progress}))
   }
 
   return {
@@ -161,6 +189,8 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     requestSideProblem,
     submitSideProblemAnswer,
     submitCode,
+    completeUsers,
+    userProgress
   };
 };
 
