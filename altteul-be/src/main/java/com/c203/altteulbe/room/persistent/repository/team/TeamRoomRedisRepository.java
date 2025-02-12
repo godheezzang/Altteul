@@ -13,7 +13,7 @@ import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TeamRoomRedisRepository {
 	private final RedisTemplate<String, String> redisTemplate;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final SingleRoomRedisRepository singleRoomRedisRepository;
 
 	// 입장 가능한 대기방 조회
@@ -92,7 +92,7 @@ public class TeamRoomRedisRepository {
 
 	// User를 RoomEnterResponseDto로 변환
 	public RoomEnterResponseDto convertToRoomEnterResponseDto(Long roomId, String leaderId, List<String> userIds) {
-		List<User> users = userJPARepository.findByUserIdIn(
+		List<User> users = userRepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 

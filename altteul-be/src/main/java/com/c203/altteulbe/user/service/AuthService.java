@@ -9,7 +9,7 @@ import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
 import com.c203.altteulbe.user.service.exception.DuplicateUsernameException;
 import com.c203.altteulbe.user.web.dto.request.RegisterUserRequestDto;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TodayRankingRepository rankingRepository;
 
@@ -53,19 +53,19 @@ public class AuthService {
 			.build();
 
 		user.hashPassword(passwordEncoder);
-		userJPARepository.save(user);
+		userRepository.save(user);
 		rankingRepository.save(todayRanking);
 	}
 
 	public void validateId(String username) {
-		if (userJPARepository.existsByUsername(username)) {
+		if (userRepository.existsByUsername(username)) {
 			throw new DuplicateUsernameException();
 		}
 		;
 	}
 
 	public void validateNickname(String nickname) {
-		if (userJPARepository.existsByNickname(nickname)) {
+		if (userRepository.existsByNickname(nickname)) {
 			throw new DuplicateNicknameException();
 		}
 		;

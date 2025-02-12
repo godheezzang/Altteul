@@ -17,7 +17,7 @@ import com.c203.altteulbe.chat.web.dto.response.ChatroomListResponseDto;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
 import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChatroomService {
 	private final ChatroomRepository chatroomRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final UserChatRoomRepository userChatRoomRepository;
 	private final FriendshipRepository friendshipRepository;
 
@@ -62,9 +62,9 @@ public class ChatroomService {
 		}
 
 		// 유저 찾기
-		User user = userJPARepository.findById(userId)
+		User user = userRepository.findById(userId)
 			.orElseThrow(NotFoundUserException::new);
-		User friend = userJPARepository.findById(friendId)
+		User friend = userRepository.findById(friendId)
 			.orElseThrow(NotFoundUserException::new);
 
 		// 새 채팅방 생성

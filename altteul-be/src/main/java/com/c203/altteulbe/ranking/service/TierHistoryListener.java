@@ -12,7 +12,7 @@ import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TierHistory;
 import com.c203.altteulbe.ranking.persistent.repository.tier.TierRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TierHistoryListener {
 
 	private final TierHistoryRepository tierHistoryRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final TierRepository tierRepository;
 
 	/*
