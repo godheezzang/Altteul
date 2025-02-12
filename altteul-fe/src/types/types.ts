@@ -242,3 +242,15 @@ export interface ChatRoomDetailResponse {
   message: string;
   status: number;
 }
+
+export interface FriendRequestsResponse {
+  data: {
+    friendRequests: FriendRequest[];
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+  };
+  message: string;
+  status: string;
+}
