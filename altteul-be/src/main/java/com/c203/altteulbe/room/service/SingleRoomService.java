@@ -17,7 +17,7 @@ import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
-import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
 import com.c203.altteulbe.game.service.exception.GameCannotStartException;
@@ -37,7 +37,6 @@ import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
 import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
-import com.c203.altteulbe.room.web.dto.response.SingleGameLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -60,7 +59,7 @@ public class SingleRoomService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
-	private final GameJPARepository gameRepository;
+	private final GameRepository gameRepository;
 	private final VoiceChatService voiceChatService;
 
 	/*
@@ -70,7 +69,7 @@ public class SingleRoomService {
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
 		User user = userJPARepository.findByUserId(requestDto.getUserId())
-									 .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
@@ -91,7 +90,7 @@ public class SingleRoomService {
 
 			// 웹소켓 메시지 브로드캐스트
 			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(),
-											 "ENTER", responseDto, BattleType.S);
+				"ENTER", responseDto, BattleType.S);
 			return responseDto;
 		}
 
@@ -115,7 +114,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userJPARepository.findByUserId(userId)
-									 .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
@@ -196,7 +195,8 @@ public class SingleRoomService {
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
+			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL",
+				"최소 인원 수가 미달되었습니다.", BattleType.S);
 			return;
 		}
 
@@ -223,7 +223,7 @@ public class SingleRoomService {
 
 		// User 엔티티 조회 및 Map으로 변환
 		Map<Long, User> userMap = getUserByIds(userIds).stream()
-										.collect(Collectors.toMap(User::getUserId, user -> user));
+			.collect(Collectors.toMap(User::getUserId, user -> user));
 
 		// SingleRoom 객체 생성 후 저장
 		List<SingleRoom> singleRooms = new ArrayList<>();
@@ -352,7 +352,6 @@ public class SingleRoomService {
 	// 		}
 	// 	}
 	// }
-
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {
