@@ -221,3 +221,9 @@ export interface FriendsResponse {
     friends: Friend[];
   };
 }
+
+export interface ChatRoomsResponse {
+  status: number;
+  message: string;
+  data: ChatRoom[];
+}
