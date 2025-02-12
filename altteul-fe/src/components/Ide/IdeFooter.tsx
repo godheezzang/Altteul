@@ -37,8 +37,13 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
         "Authorization": `Bearer ${token}`,
       }});
 
-      const data = response?.data;
-      if (response.status === 200) {
+      console.log(response);
+      
+
+      const data = response?.data.data;
+      console.log(data);
+      
+      if (response?.data.status === 200) {
         if (data.isNotCompileError) {
           setOutput(`컴파일 에러가 발생했습니다. ${data.message}`);
         } else {
