@@ -18,6 +18,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const [opponentCodeResult, setOpponentCodeResult] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set())
   const [userProgress, setUserProgress] = useState<Record<number, number>>({})
+  const [voiceToken, setVoiceToken] = useState<string | null>(null)
   const socketStore = useSocketStore();
 
   useEffect(() => {
