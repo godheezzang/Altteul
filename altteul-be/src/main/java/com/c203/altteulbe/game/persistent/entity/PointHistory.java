@@ -1,5 +1,7 @@
 package com.c203.altteulbe.game.persistent.entity;
 
+import java.time.LocalDateTime;
+
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.dto.PointType;
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
@@ -63,6 +65,19 @@ public class PointHistory extends BaseCreatedEntity {
 			.point(point)
 			.gameType(gameType)
 			.pointType(pointType)
+			.build();
+	}
+
+	public static PointHistory create(Game game, User user, SideProblem sideProblem, int point,
+		BattleType gameType, PointType pointType, LocalDateTime createdAt) {
+		return PointHistory.builder()
+			.game(game)
+			.user(user)
+			.sideProblem(sideProblem)
+			.point(point)
+			.gameType(gameType)
+			.pointType(pointType)
+			.createdAt(createdAt)
 			.build();
 	}
 }
