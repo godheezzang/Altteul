@@ -139,9 +139,15 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 		this.tier = newTier;
 	}
 
+	// nickname, mainLang 업데이트
 	public void updateProfile(String nickname, Language mainLang) {
 		this.nickname = nickname;
 		this.mainLang = mainLang;
+	}
+
+	// profileImg 업데이트
+	public void updateProfileImage(String profileImg) {
+		this.profileImg = profileImg;
 	}
 }
 
