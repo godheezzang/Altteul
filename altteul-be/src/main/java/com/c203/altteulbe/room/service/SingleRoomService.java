@@ -164,11 +164,17 @@ public class SingleRoomService {
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
 	//@DistributedLock(key = "requestDto.roomId")
-	public void startGame(RoomGameStartRequestDto requestDto) {
-		Long roomId = requestDto.getRoomId();
-		Long leaderId = requestDto.getLeaderId();
+	public void startGame(Long roomId, Long leaderId) {
+		// 유저 정보 조회
+		userRepository.findByUserId(leaderId)
+			          .orElseThrow(() -> new NotFoundUserException());
 
-		// 검증
+		// 유저가 방에 속했는지 검증
+		if (!validator.isUserInThisRoom(leaderId, roomId, BattleType.S)) {
+			throw new UserNotInRoomException();
+		}
+
+		// 기타 검증
 		if (!validator.isRoomWaiting(roomId, BattleType.S))
 			throw new GameCannotStartException();
 		if (!validator.isRoomLeader(roomId, leaderId, BattleType.S))
@@ -181,7 +187,7 @@ public class SingleRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "6");
+		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "10");
 	}
 
 	/**

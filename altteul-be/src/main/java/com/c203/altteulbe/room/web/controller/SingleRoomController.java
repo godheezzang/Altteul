@@ -50,9 +50,10 @@ public class SingleRoomController {
 	/*
 	 * 개인전 게임 시작 API
 	 */
-	@PostMapping("/start")
-	public ApiResponseEntity<Void> startGame(@RequestBody RoomGameStartRequestDto requestDto) {
-		singleRoomService.startGame(requestDto);
+	@PostMapping("/start/{roomId}")
+	public ApiResponseEntity<Void> startGame(@PathVariable Long roomId,
+										     @AuthenticationPrincipal Long leaderId) {
+		singleRoomService.startGame(roomId, leaderId);
 		return ApiResponse.success();
 	}
 }
