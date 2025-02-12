@@ -8,19 +8,6 @@ import gold from '@assets/icon/badge/Badge_05.svg';
 import platinum from '@assets/icon/badge/Badge_07.svg';
 import dia from '@assets/icon/badge/Badge_08.svg';
 import arrow from '@assets/icon/friend/arrow.svg';
-import TeamTabs from '@components/user/TeamNavbar';
-import SmallButton from '@components/common/Button/SmallButton ';
-import CodeModal from '@components/user/CodeModal';
-import { MemberInfo, UserGameRecord } from 'types/types';
-import baseImage from '@assets/icon/People.svg';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
-import bronze from '@assets/icon/badge/Badge_01.svg';
-import silver from '@assets/icon/badge/Badge_04.svg';
-import gold from '@assets/icon/badge/Badge_05.svg';
-import platinum from '@assets/icon/badge/Badge_07.svg';
-import dia from '@assets/icon/badge/Badge_08.svg';
-import arrow from '@assets/icon/arrow.svg';
 import TeamTabs from '@components/User/TeamNavbar';
 import SmallButton from '@components/Common/Button/SmallButton ';
 import CodeModal from '@components/User/CodeModal';
@@ -57,24 +44,6 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
     setSelectedCode(null);
   };
 
-  const isTeam = record.gameType === 'T' ? true : false;
-  const isWin = isTeam ? record.myTeam.gameResult === 'FIRST' : record.myTeam.gameResult !== 'FAIL';
-  const startedAt = record.startedAt;
-  const formattedDate = startedAt.replace('T', ' ').slice(0, 19).replace(/-/g, '.');
-  const allPlayers = [
-    {
-      ...record.myTeam.members[0],
-      team: 'myTeam',
-      ...record.myTeam,
-      members: undefined, // members 키 제거
-    },
-    ...record.opponents.map(opponent => ({
-      ...opponent.members[0],
-      team: 'opponent',
-      ...opponent,
-      members: undefined, // members 키 제거
-    })),
-  ].sort((a, b) => a.rank - b.rank);
   const isTeam = record.gameType === 'T' ? true : false;
   const isWin = isTeam ? record.myTeam.gameResult === 'FIRST' : record.myTeam.gameResult !== 'FAIL';
   const startedAt = record.startedAt;

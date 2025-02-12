@@ -65,9 +65,9 @@ const MainPage = () => {
   };
 
   return (
-    <div>
+    <div className="overflow-hidden">
       {/* 첫 번째 섹션 */}
-      <section className="h-[calc(100vh-3.5rem)] relative">
+      <section className="h-[calc(100vh-3.5rem)] relative overflow-hidden">
         <AnimatedCodeEditor />
         <div className="absolute top-0 bottom-0 right-20 flex flex-col items-end justify-center text-primary-white  z-20 tracking-tight">
           <div className="text-5xl font-semibold text-right">
