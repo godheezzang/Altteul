@@ -3,7 +3,7 @@ import rank_down from "@assets/icon/rank_down.svg";
 import {RankingResponse} from "types/types"
 // 랭킹 행 컴포넌트
 const RankingItem = ({ data }: { data: RankingResponse }) => {
-  const { nickname, mainLang, rank, point, tierId, rankChange } = data;
+  const { nickname, lang, ranking, point, tierId, rankChange } = data;
 
   const formatNumber = (num: number) => {
     return num ? num.toLocaleString() : '0';
@@ -34,18 +34,18 @@ const RankingItem = ({ data }: { data: RankingResponse }) => {
 
   const getBadgeImage = () => {
     const badge =
-      rank == 1
-        ? "/src/assets/icon/Badge/Badge_09.svg"
+      ranking == 1
+        ? "/src/assets/icon/Badge/0_onlyone.svg"
         : tierId == 1
-        ? "/src/assets/icon/Badge/Badge_01.svg"
+        ? "/src/assets/icon/Badge/1_bronze.svg"
+        : tierId == 2
+        ? "/src/assets/icon/Badge/2_silver.svg"
+        : tierId == 3
+        ? "/src/assets/icon/Badge/3_gold.svg"
         : tierId == 4
-        ? "/src/assets/icon/Badge/Badge_04.svg"
+        ? "/src/assets/icon/Badge/4_platinum.svg"
         : tierId == 5
-        ? "/src/assets/icon/Badge/Badge_05.svg"
-        : tierId == 7
-        ? "/src/assets/icon/Badge/Badge_07.svg"
-        : tierId == 8
-        ? "/src/assets/icon/Badge/Badge_08.svg"
+        ? "/src/assets/icon/Badge/5_diamond.svg"
         : "";
     return <img src={badge} alt="뱃지" className="w-6 h-6" />;
   };
@@ -54,7 +54,7 @@ const RankingItem = ({ data }: { data: RankingResponse }) => {
     // 한 행
     <div className="grid grid-cols-5 py-4 px-6 bg-primary-black/30 text-primary-white text-center py-6">
       {/* 순위 */}
-      <div className="grid justify-items-start ml-5 text-center">{rank}</div>
+      <div className="grid justify-items-start ml-5 text-center">{ranking}</div>
       {/* 뱃지&닉네임 */}
       <div className="flex">
         <div>{getBadgeImage()}</div>
@@ -65,7 +65,7 @@ const RankingItem = ({ data }: { data: RankingResponse }) => {
       {/* 랭킹점수 */}
       <div>{formatNumber(point)}</div>
       {/* 선호언어 */}
-      <div>{getLanguageDisplay(mainLang)}</div>
+      <div>{getLanguageDisplay(lang)}</div>
     </div>
   );
 };

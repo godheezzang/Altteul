@@ -36,7 +36,7 @@ const RankingPage = () => {
   //TODO: 랭킹 목록 불러오기
   const rankListUpdate = async () => {
     const response = await getRank(filter);
-    //0부터 가져오면서 page는 계속 증가형태'
+    //0부터 가져오면서 page는 계속 증가형태
     
     setRankings([...rankings, ...response.data.rankings]);
 
