@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.service;
+package com.c203.altteulbe.game.service.side;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,12 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.entity.item.Item;
+import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblem;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblemHistory;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.persistent.repository.item.ItemHistoryRepository;
+import com.c203.altteulbe.game.persistent.repository.item.ItemRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
+import com.c203.altteulbe.game.service.exception.ItemNotFoundException;
+import com.c203.altteulbe.game.service.exception.SideProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
@@ -28,7 +34,7 @@ import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 
 import lombok.RequiredArgsConstructor;
@@ -46,14 +52,21 @@ public class SideProblemService {
 	private final SideProblemWebsocketService sideProblemWebsocketService;
 	private final GameRepository gameRepository;
 	private final SingleRoomRepository singleRoomRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
+	private final ItemRepository itemRepository;
+	private final ItemHistoryRepository itemHistoryRepository;
+
 
 	public void submit(SubmitSideProblemRequestDto message, Long id) {
 		// 제출된 결과 확인
 		SideProblem sideProblem = sideProblemRepository.findById(message.getSideProblemId())
-			.orElseThrow(() -> new BusinessException("사이드 문제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+			.orElseThrow(SideProblemNotFoundException::new);
 
 		SideProblemHistory.ProblemResult result = message.getAnswer().equals(sideProblem.getAnswer()) ? SideProblemHistory.ProblemResult.P: SideProblemHistory.ProblemResult.F;
+
+		Game game = gameRepository.findWithRoomByGameId(message.getGameId())
+			.orElseThrow(GameNotFoundException::new);
+
 
 		// 채점 결과 브로드 캐스트
 		if (result == SideProblemHistory.ProblemResult.P) {
@@ -110,9 +123,6 @@ public class SideProblemService {
 		}
 
 		// 결과를 사이드 문제 풀이내역에 저장
-		// 게임 찾기
-		Game game = gameRepository.findWithRoomByGameId(message.getGameId())
-			.orElseThrow(GameNotFoundException::new);
 
 		SideProblemHistory sideProblemHistory = null;
 		User user = userRepository.findByUserId(id)
@@ -142,6 +152,7 @@ public class SideProblemService {
 		}
 		sideProblemHistoryRepository.save(sideProblemHistory);
 	}
+
 
 	public void receive(ReceiveSideProblemRequestDto message, Long id) {
 		// 팀의 문제를 구독하는 사람에게 문제 전달

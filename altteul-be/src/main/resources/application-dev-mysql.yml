@@ -5,6 +5,10 @@ server:
       force: true
   port: ${LOCAL_SERVER_PORT}
 spring:
+  ai:
+    openai:
+      api-key: ${OPEN_AI_SECRET_KEY}
+      model: gpt-4o-turbo
   config:
     activate:
       on-profile: dev-mysql
