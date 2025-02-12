@@ -1,14 +1,13 @@
 interface TerminalProps {
-	output: string;
+  output: string;
 }
 
 const Terminal = ({ output }: TerminalProps) => {
-	return (
-		<div className="h-[25vh] bg-primary-black text-gray-100 flex flex-col">
-			<h3 className="font-semibold">Terminal</h3>
-			<p>{output}</p>
-		</div>
-	);
+  return (
+    <div className="h-[25vh] bg-gray-04 text-gray-02 p-3 overflow-auto">
+      <pre className="whitespace-pre-wrap text-sm text-gray-01">{output}</pre>
+    </div>
+  );
 };
 
 export default Terminal;
