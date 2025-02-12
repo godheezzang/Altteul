@@ -68,6 +68,22 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       setIsUsernameVerified(false);
       setIsUsernameTaken(false);
     }
+    // 비밀번호 실시간 유효성 검사
+    if (name === 'password') {
+      let passwordError = '';
+      if (value.length < 8) {
+        passwordError = '비밀번호는 8자 이상이어야 합니다.';
+      } else if (!/\d/.test(value)) {
+        passwordError = '숫자를 포함해야 합니다.';
+      } else if (!/[a-zA-Z]/.test(value)) {
+        passwordError = '영문자를 포함해야 합니다.';
+      }
+
+      setErrors(prev => ({
+        ...prev,
+        password: passwordError,
+      }));
+    }
   };
 
   // 드롭다운 언어 선택
