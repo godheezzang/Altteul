@@ -8,9 +8,12 @@ type DropdownProps = {
   width?: string;
   height?: string;
   className?: string;
+  optionCustomName?: string
+  borderColor?: string
+  fontSize?: string;
 };
 
-const Dropdown = ({ options, value, onChange, width = '', height, className }: DropdownProps) => {
+const Dropdown = ({ options, value, onChange, width = '', height, className, optionCustomName, borderColor, fontSize }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = options.find(opt => opt.value === value);
 
@@ -30,13 +33,13 @@ const Dropdown = ({ options, value, onChange, width = '', height, className }: D
         />
       </div>
       {isOpen && (
-        <div className="absolute mt-1 w-full bg-gray-03 rounded-lg overflow-hidden border border-gray-02 ">
+        <div className={`absolute top-9 left-0 mt-1 w-full bg-gray-03 rounded-lg overflow-hidden z-10 ${optionCustomName}`}>
           {' '}
           {/* w-full로 변경 */}
           {options.map(option => (
             <div
               key={option.id}
-              className="px-4 py-2 text-primary-white hover:bg-gray-05 border border-gray-02 cursor-pointer"
+              className={`px-4 py-2 text-primary-white hover:bg-gray-05 cursor-pointer z-30 border-b dropdown-last ${borderColor} ${fontSize}`}
               onClick={() => {
                 onChange(option.value);
                 setIsOpen(false);

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CodeSubmissionOpponentResponseDto {
 	private String status;
-	private int passCount;
-	private int totalCount;
+	private Integer passCount;
+	private Integer totalCount;
 }
 

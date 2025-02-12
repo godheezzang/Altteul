@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(value = {BusinessException.class})
   protected ApiResponseEntity<ResponseBody.Failure> handleConflict(BusinessException e) {
     log.error("BusinessException", e);
-    return ApiResponse.error(e.getMessage(), e.getHttpStatus());
+    return ApiResponse.error(e.getCode(), e.getMessage(), e.getHttpStatus());
   }
 
   @ExceptionHandler(SignatureException.class)

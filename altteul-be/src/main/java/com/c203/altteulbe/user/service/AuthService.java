@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.c203.altteulbe.aws.service.S3Service;
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.config.AWSConfig;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
@@ -16,6 +17,7 @@ import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
 import com.c203.altteulbe.user.service.exception.DuplicateUsernameException;
 import com.c203.altteulbe.user.web.dto.request.RegisterUserRequestDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,10 +29,12 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final TodayRankingRepository rankingRepository;
 	private final S3Service s3Service;
-	private final AWSConfig awsConfig;
+	private String defaultProfileImgKey;
 
-	// S3에 저장된 기본 이미지 key
-	private final String defaultProfileImgKey = "uploads/1739326628591_People.svg";
+	@PostConstruct
+	private void init() {
+		this.defaultProfileImgKey = S3Util.getDefaultImgKey();
+	}
 
 	public void registerUser(RegisterUserRequestDto request, MultipartFile image) {
 

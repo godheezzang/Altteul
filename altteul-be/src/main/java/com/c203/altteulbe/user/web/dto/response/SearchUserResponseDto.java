@@ -1,5 +1,6 @@
 package com.c203.altteulbe.user.web.dto.response;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.user.persistent.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class SearchUserResponseDto {
 		return SearchUserResponseDto.builder()
 			.userId(user.getUserId())
 			.nickname(user.getNickname())
-			.profileImg(user.getProfileImg())
+			.profileImg(S3Util.getImgUrl(user.getProfileImg()))
 			.isOnline(isOnline)
 			.build();
 	}
