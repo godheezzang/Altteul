@@ -39,7 +39,7 @@ import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SingleRoomService {
 	private final RedisTemplate<String, String> redisTemplate;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final RoomValidator validator;
 	private final RoomWebSocketService roomWebSocketService;
 	private final SingleRoomRedisRepository singleRoomRedisRepository;
@@ -66,7 +66,7 @@ public class SingleRoomService {
 	 */
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
-		User user = userJPARepository.findByUserId(requestDto.getUserId())
+		User user = userRepository.findByUserId(requestDto.getUserId())
 									 .orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
@@ -111,7 +111,7 @@ public class SingleRoomService {
 		}
 
 		// 퇴장하는 유저 정보 조회
-		User user = userJPARepository.findByUserId(userId)
+		User user = userRepository.findByUserId(userId)
 									 .orElseThrow(() -> new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
@@ -269,7 +269,7 @@ public class SingleRoomService {
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {
-		return userJPARepository.findByUserIdIn(
+		return userRepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 	}

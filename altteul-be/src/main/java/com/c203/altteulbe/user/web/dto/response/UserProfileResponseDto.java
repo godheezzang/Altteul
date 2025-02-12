@@ -1,5 +1,6 @@
 package com.c203.altteulbe.user.web.dto.response;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.common.dto.AbstractDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 
@@ -31,7 +32,7 @@ public class UserProfileResponseDto implements AbstractDto {
 			.userId(user.getUserId())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
-			.profileImg(user.getProfileImg())
+			.profileImg(S3Util.getImgUrl(user.getProfileImg()))
 			.tierId(user.getTier().getId())
 			.tierName(user.getTier().getTierName())
 			.rankPercentile((long)((double) user.getTodayRanking().getId() / totalCount * 100))
@@ -46,7 +47,7 @@ public class UserProfileResponseDto implements AbstractDto {
 			.userId(user.getUserId())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
-			.profileImg(user.getProfileImg())
+			.profileImg(S3Util.getImgUrl(user.getProfileImg()))
 			.tierId(user.getTier().getId())
 			.tierName(user.getTier().getTierName())
 			.isOwner(user.getUserId().equals(currentUserId))

@@ -5,15 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.c203.altteulbe.aws.service.S3Service;
+import com.c203.altteulbe.aws.util.S3Util;
+import com.c203.altteulbe.config.AWSConfig;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.DuplicateNicknameException;
 import com.c203.altteulbe.user.service.exception.DuplicateUsernameException;
 import com.c203.altteulbe.user.web.dto.request.RegisterUserRequestDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,23 +25,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TodayRankingRepository rankingRepository;
+	private final S3Service s3Service;
+	private String defaultProfileImgKey;
+
+	@PostConstruct
+	private void init() {
+		this.defaultProfileImgKey = S3Util.getDefaultImgKey();
+	}
 
 	public void registerUser(RegisterUserRequestDto request, MultipartFile image) {
 
 		//일치하는 아이디, 닉네임이 존재하는가?
 		validateId(request.getUsername());
-
 		validateNickname(request.getNickname());
+
+		String profileImgKey = (image == null || image.isEmpty())
+								? defaultProfileImgKey                            // 기본 이미지 objectKey 저장
+								: s3Service.uploadFiles(image, "uploads/"); // S3에 업로드 후 objectKey 저장
 
 		User user = User.builder()
 			.username(request.getUsername())
 			.password(request.getPassword())
 			.nickname(request.getNickname())
 			.mainLang(request.getMainLang())
-			.profileImg("")
+			.profileImg(profileImgKey)        // objectKey 저장
 			.rankingPoint(0L)
 			.provider(User.Provider.LC)
 			.userStatus(User.UserStatus.A)
@@ -53,21 +67,19 @@ public class AuthService {
 			.build();
 
 		user.hashPassword(passwordEncoder);
-		userJPARepository.save(user);
+		userRepository.save(user);
 		rankingRepository.save(todayRanking);
 	}
 
 	public void validateId(String username) {
-		if (userJPARepository.existsByUsername(username)) {
+		if (userRepository.existsByUsername(username)) {
 			throw new DuplicateUsernameException();
 		}
-		;
 	}
 
 	public void validateNickname(String nickname) {
-		if (userJPARepository.existsByNickname(nickname)) {
+		if (userRepository.existsByNickname(nickname)) {
 			throw new DuplicateNicknameException();
 		}
-		;
 	}
 }

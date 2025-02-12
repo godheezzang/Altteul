@@ -1,7 +1,9 @@
 package com.c203.altteulbe.game.web.dto.judge.request;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 public class SubmitCodeRequestDto {
 	private Long gameId;
