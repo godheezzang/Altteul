@@ -23,14 +23,20 @@ const SingleIdePage = () => {
   const [language, setLanguage] = useState<'python' | 'java'>('python');
   const [showModal, setShowModal] = useState(false);
 
-  // ✅ 5분마다 자동으로 사이드 문제 요청
-  useEffect(() => {
-    const interval = setInterval(() => {
-      requestSideProblem();
-    }, 10 * 1000); // 5분
+  console.log(sideProblemResult);
 
-    return () => clearInterval(interval);
-  }, [requestSideProblem]);
+  // ✅ 5분마다 자동으로 사이드 문제 요청
+  // useEffect(() => {
+  //   const interval = setInterval(
+  //     () => {
+  //       requestSideProblem();
+  //     },
+  //     // 5 * 60 * 1000
+  //     10 * 1000
+  //   ); // 5분
+
+  //   return () => clearInterval(interval);
+  // }, [requestSideProblem]);
 
   // ✅ 사이드 문제가 도착하면 모달 띄우기
   useEffect(() => {
@@ -51,15 +57,14 @@ const SingleIdePage = () => {
         <IdeFooter onExecute={() => submitCode(problem.problemId, language, code)} />
       </div>
       {/* ✅ 사이드 문제 모달 */}
-      {showModal &&
-        sideProblem(
-          <SideProblemModal
-            gameId={gameId}
-            roomId={roomId}
-            problem={sideProblem?.data}
-            onClose={() => setShowModal(false)}
-          />
-        )}
+      {showModal && sideProblem && (
+        <SideProblemModal
+          gameId={gameId}
+          roomId={roomId}
+          problem={sideProblem?.data}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
