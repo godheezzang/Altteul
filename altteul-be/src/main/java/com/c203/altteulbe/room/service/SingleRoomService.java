@@ -160,6 +160,7 @@ public class SingleRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.S);
 	}
 
+
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
