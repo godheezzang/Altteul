@@ -67,7 +67,7 @@ public class SingleRoomService {
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterSingleRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
-								  .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(userId, BattleType.S)) {
@@ -88,7 +88,7 @@ public class SingleRoomService {
 
 			// 웹소켓 메시지 브로드캐스트
 			roomWebSocketService.sendWebSocketMessage(responseDto.getRoomId().toString(),
-											 "ENTER", responseDto, BattleType.S);
+				"ENTER", responseDto, BattleType.S);
 			return responseDto;
 		}
 
@@ -105,7 +105,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
-								  .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 방에 속했는지 검증
 		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
@@ -160,7 +160,6 @@ public class SingleRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.S);
 	}
 
-
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
@@ -168,7 +167,7 @@ public class SingleRoomService {
 	public void startGame(Long roomId, Long leaderId) {
 		// 유저 정보 조회
 		userRepository.findByUserId(leaderId)
-			          .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 방에 속했는지 검증
 		if (!validator.isUserInThisRoom(leaderId, roomId, BattleType.S)) {
@@ -225,7 +224,7 @@ public class SingleRoomService {
 
 		// User 엔티티 조회 및 Map으로 변환
 		Map<Long, User> userMap = getUserByIds(userIds).stream()
-										.collect(Collectors.toMap(User::getUserId, user -> user));
+			.collect(Collectors.toMap(User::getUserId, user -> user));
 
 		// SingleRoom 객체 생성 후 저장
 		List<SingleRoom> singleRooms = new ArrayList<>();
