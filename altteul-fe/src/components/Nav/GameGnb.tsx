@@ -1,17 +1,19 @@
 import useGameStore from '@stores/useGameStore';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '@assets/icon/Altteul.svg';
 
 const GameGnb = () => {
   const navigate = useNavigate();
   const problem = useGameStore((state) => state.problem);
-
+  const location = useLocation();
+  
   const handleNavigate = () => {
     navigate('./');
   };
 
-  // TODO: 팀전/개인전 구분하는 로직 수정
-  const isTeam = true;
+  console.log(location);
+  const isTeam = location.pathname.includes('/game/team')
+  
   return (
     <>
       <nav className='fixed top-0 w-full bg-primary-black z-50 px-8 text-sm'>
