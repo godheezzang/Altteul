@@ -35,7 +35,7 @@ public class UserController {
 		return ApiResponse.success(userService.getUserProfile(userId, currentUserId));
 	}
 
-	@PatchMapping(value = "/user",  consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	@PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ApiResponseEntity<Void> updateUserProfile(
 		@RequestPart(value="request") UpdateProfileRequestDto request,
 		@RequestPart(required = false, value="image") MultipartFile image,

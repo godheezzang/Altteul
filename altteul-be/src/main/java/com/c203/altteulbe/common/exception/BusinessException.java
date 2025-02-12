@@ -10,9 +10,17 @@ import lombok.Getter;
 @Getter
 public class BusinessException extends RuntimeException {
 	private final HttpStatus httpStatus;
+	private final int code;
 
 	public BusinessException(String message, HttpStatus httpStatus) {
 		super(message);
+		this.code = httpStatus.value();
+		this.httpStatus = httpStatus;
+	}
+
+	public BusinessException(String message, HttpStatus httpStatus, int code) {
+		super(message);
+		this.code = code;
 		this.httpStatus = httpStatus;
 	}
 }
