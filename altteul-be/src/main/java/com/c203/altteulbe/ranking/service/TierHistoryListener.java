@@ -43,7 +43,7 @@ public class TierHistoryListener {
 		// 유저의 현재 랭킹 포인트
 		Long prevPoint = user.getRankingPoint();
 
-		// 포인트 업데이트
+		// 유저의 현재 포인트 업데이트
 		Long newPoint = prevPoint + pointHistory.getPoint();
 		user.updateRankingPoint(newPoint);
 
@@ -59,7 +59,7 @@ public class TierHistoryListener {
 		TierHistory tierHistory = TierHistory.create(user, prevPoint, newPoint, newTier);
 		tierHistoryRepository.save(tierHistory);
 		user.updateTier(newTier);
-		log.info("Tier 변동 이벤트 발생");
+		log.info("Tier EventListener 발생");
 	}
 
 

@@ -3,7 +3,7 @@ import useAuthStore from '@stores/authStore';
 import { useEffect, useState } from 'react';
 import throttle from 'lodash/throttle';
 // import GameGuide from '@components/Main/GameGuide';
-import SmallButton from '@components/common/Button/SmallButton ';
+import SmallButton from '@components/Common/Button/SmallButton ';
 import { useNavigate } from 'react-router-dom';
 import LoginModal from '@components/Auth/LoginModal';
 import useModalStore from '@stores/modalStore';
@@ -87,7 +87,6 @@ const MainPage = () => {
           <SmallButton onClick={handleGameStart}>게임 시작</SmallButton>
         </div>
       </section>
-
       {/* 두 번째 섹션 */}
       {/* <section
         className={`min-h-[57rem] p-8 transition-opacity duration-500 mt-4 ${
@@ -96,7 +95,7 @@ const MainPage = () => {
       >
         <GameGuide />
       </section> */}
-      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
+      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />{' '}
     </div>
   );
 };

@@ -69,10 +69,10 @@ export const IdeLayout = ({
 				)}
 			</div>
 			<div className="min-w-[13rem] border-l border-gray-04">
-				<GameUserList
+				{/* <GameUserList
 					teamMembers={teamMembers}
 					opponentMembers={opponentMembers}
-				/>
+				/> */}
 			</div>
 		</div>
 	);

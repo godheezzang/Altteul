@@ -13,6 +13,7 @@ import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
 import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.repository.game.GameCustomRepository;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.service.exception.GameNotParticipatedException;
 import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
