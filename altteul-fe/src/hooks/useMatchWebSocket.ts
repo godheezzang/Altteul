@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import { User } from 'types/types';
+import { GameState, Problem, TestCase, User } from 'types/types';
 import { useSocketStore } from '@stores/socketStore';
 
 const SOCKET_URL = import.meta.env.MODE === 'production'
@@ -10,11 +10,19 @@ const SOCKET_URL = import.meta.env.MODE === 'production'
 
 console.log('SOCKET_URL:', SOCKET_URL);
 interface WebSocketMessage {
-  type: 'ENTER' | 'LEAVE' | 'FINAL' | 'START';
+  type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START';
   data: {
     leaderId: number;
     users: User[];
     remainingUsers?: User[];
+
+    //couting message
+    time: number;
+
+    //game start message
+    gameId: number;
+    problem: Problem
+    testcases: TestCase[]
   };
 }
 
@@ -23,14 +31,16 @@ interface UseMatchWebSocketReturn {
   error: Error | null;
   c_waitUsers: User[];
   c_leaderId: number;
-  isFinal: boolean;
   isStart: boolean;
+  count: number;
+  gameData: {gameId:number, users:User[], problem:Problem, testcases:TestCase[]};
 }
 
 const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
   const [isConnected, setIsConnected] = useState(false);
-  const [isFinal, setIsFinal] = useState(false);
+  const [count, setCount] = useState<number>();
   const [isStart, setIsStart] = useState(false);
+  const [gameData, setGameData] = useState<{gameId:number, users:User[], problem:Problem, testcases:TestCase[]}>()
   const [error, setError] = useState<Error | null>(null);
   const [c_waitUsers, setWaitUsers] = useState<User[]>([]);
   const [c_leaderId, setLeaderId] = useState<number>(0);
@@ -49,11 +59,17 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
         setLeaderId(data.leaderId);
         setWaitUsers(data.users);
         break;
-      case 'FINAL':
-        setIsFinal(true);
+      case 'COUNTING':
+        setCount(data.time);
         break;
-      case 'START':
+      case 'GAME_START':
         setIsStart(true);
+        setGameData({
+          gameId: data.gameId,
+          users: data.users,
+          problem: data.problem,
+          testcases: data.testcases
+        })
         break
       default:
         console.warn('알 수 없는 메시지 타입:', type);
@@ -61,6 +77,10 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
   }, []);
 
   useEffect(() => {
+    if (socketStore.keepConnection) {
+      console.log('소켓 연결 유지 중이므로 연결 시도하지 않음');
+      return
+    }
     console.log('Attempting to create STOMP client with URL:', SOCKET_URL);
     console.log('Current location:', window.location.href);
     
@@ -137,7 +157,8 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
         setIsConnected(false);
       },
       debug: (str) => {
-        console.log('STOMP Debug:', str);
+        // 디버그 시 사용할 로그
+        // console.log('STOMP Debug:', str);
       },
     });
 
@@ -177,8 +198,9 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
     error,
     c_waitUsers,
     c_leaderId,
-    isFinal,
-    isStart
+    isStart,
+    count,
+    gameData
   };
 };
 
