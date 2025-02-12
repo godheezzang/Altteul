@@ -241,19 +241,21 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           placeholder="아이디를 입력해 주세요."
           onChange={handleChange}
           value={form.username}
-          className="w-[22rem]"
+          buttonText={isCheckingUsername ? '확인중...' : '중복확인'}
+          onButtonClick={handleCheckUsername}
+          className="w-[22rem] w-[16rem]"
         />
         {errors.username && <p className="text-primary-orange text-sm">{errors.username}</p>}
         {isUsernameVerified && !isUsernameTaken && !errors.username && (
           <p className="text-primary-green text-sm">사용 가능한 아이디입니다.</p>
         )}
-        <Button
+        {/* <Button
           onClick={handleCheckUsername}
           disabled={isCheckingUsername || !form.username}
           className={`h-[3rem] ${isCheckingUsername ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isCheckingUsername ? '확인중...' : '중복확인'}
-        </Button>
+        </Button> */}
 
         <Input
           name="password"
