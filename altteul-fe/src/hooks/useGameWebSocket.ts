@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { useSocketStore } from '@stores/socketStore';
+import useGameStore from '@stores/useGameStore';
 
 const SOCKET_URL =
   import.meta.env.NODE_ENV === 'development'
@@ -9,6 +10,7 @@ const SOCKET_URL =
     : import.meta.env.VITE_SOCKET_URL_DEV;
 
 const useGameWebSocket = (gameId: number, roomId: number) => {
+  const { users, setUsers } = useGameStore();
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [sideProblem, setSideProblem] = useState(null);
   const [sideProblemResult, setSideProblemResult] = useState(null);
@@ -106,10 +108,13 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const submitCode = useCallback(
     (problemId: number, lang: string, code: string) => {
       if (stompClient?.connected) {
+        const payload = { gameId: gameId, teamId: roomId, problemId, lang, code }
         stompClient.publish({
           destination: `/pub/judge/submition`,
-          body: JSON.stringify({ gameId: gameId, teamId: roomId, problemId, lang, code }),
+          body: JSON.stringify({ gameId: gameId, teamId: roomId, problemId: 1, lang, code }),
         });
+        console.log(payload);
+        
         console.log('📨 알고리즘 코드 제출 요청 전송');
       }
     },
@@ -123,6 +128,10 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         const data = JSON.parse(message.body);
         console.log('📩 코드 채점 결과 수신:', data);
         setCodeResult(data);
+
+        if (data.status === "P") {
+          const myUserId = localStorage.getItem("userId")
+        }
       });
     }
   };
@@ -137,6 +146,12 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
       });
     }
   };
+
+  const updateUserStatus = (userId: number) => {
+    setUsers(
+      users.map(user => user.userId === userId ? { ...user, status: "P"}: user)
+    )
+  }
 
   return {
     sideProblem,
