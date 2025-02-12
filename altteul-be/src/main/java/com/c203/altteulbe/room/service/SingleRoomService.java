@@ -25,7 +25,6 @@ import com.c203.altteulbe.game.service.exception.NotEnoughUserException;
 import com.c203.altteulbe.game.service.exception.ProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.response.GameStartForProblemDto;
 import com.c203.altteulbe.game.web.dto.response.GameStartForTestcaseDto;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -40,7 +39,7 @@ import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
@@ -60,7 +59,6 @@ public class SingleRoomService {
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
 	private final GameRepository gameRepository;
-	private final VoiceChatService voiceChatService;
 
 	/*
 	 * 개인전 대기방 입장 처리
@@ -69,7 +67,7 @@ public class SingleRoomService {
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
 		User user = userRepository.findByUserId(requestDto.getUserId())
-									 .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
 		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
@@ -114,7 +112,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
-									 .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
@@ -268,7 +266,6 @@ public class SingleRoomService {
 		);
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
-
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {

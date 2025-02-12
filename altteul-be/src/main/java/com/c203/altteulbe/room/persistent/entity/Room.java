@@ -53,12 +53,17 @@ public class Room extends BaseCreatedEntity {
 		this.finishTime = LocalDateTime.now();
 	}
 
-	public void updateSubmissionRecord(int solvedTestcaseCount, String lastExecuteTime, String lastExecuteMemory, String code) {
+	public void updateSubmissionRecord(int solvedTestcaseCount, String lastExecuteTime, String lastExecuteMemory,
+		String code) {
 		if (solvedTestcaseCount > this.solvedTestcaseCount) {
 			this.solvedTestcaseCount = solvedTestcaseCount;
 			this.lastExecuteTime = lastExecuteTime;
 			this.lastExecuteMemory = lastExecuteMemory;
 			this.code = code;
 		}
+	}
+
+	public void updateBattleResult(BattleResult battleResult) {
+		this.battleResult = battleResult;
 	}
 }

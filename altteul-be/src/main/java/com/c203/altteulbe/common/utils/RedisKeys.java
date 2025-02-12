@@ -67,6 +67,11 @@ public class RedisKeys {
 		return FRIEND_LIST_CACHE + ":" + userId;
 	}
 
+	// 게임 관련 키 추가
+	public static String TeamMatchId(Long roomId) {
+		return "room:team:" + roomId + ":match";
+	}
+
 	// 개인전 방 상태
 	public static String SingleRoomStatus(Long roomId) {
 		return "room:single:" + roomId + ":status";

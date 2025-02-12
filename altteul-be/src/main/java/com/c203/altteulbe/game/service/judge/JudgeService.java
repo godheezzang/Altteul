@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,16 +16,15 @@ import com.c203.altteulbe.common.dto.PointType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.PointHistory;
-import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.side.SideProblemHistory;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryRepository;
 import com.c203.altteulbe.game.service.PointHistoryService;
-import com.c203.altteulbe.game.service.judge.JudgeWebsocketService;
 import com.c203.altteulbe.game.web.dto.judge.request.JudgeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDto;
@@ -59,6 +59,7 @@ public class JudgeService {
 	private final TeamRoomRepository teamRoomRepository;
 	private final PointHistoryService pointHistoryService;
 	private final SideProblemHistoryRepository sideProblemHistoryRepository;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
@@ -94,7 +95,7 @@ public class JudgeService {
 			.src(request.getCode())
 			.language_config(langDto)
 			.max_cpu_time(1000L) // 기본 1초
-			.max_memory(100*1024*1024L) // 기본 100MB
+			.max_memory(100 * 1024 * 1024L) // 기본 100MB
 			.test_case_id(problemFolderName)
 			.output(true)
 			.build();
@@ -111,7 +112,8 @@ public class JudgeService {
 		// 저지에게 코드 제출
 		JudgeResponse judgeResponse = submitToJudge(request, PROBLEM_PREFIX);
 
-		if (judgeResponse == null) throw new NullPointerException();
+		if (judgeResponse == null)
+			throw new NullPointerException();
 
 		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse);
 		CodeSubmissionOpponentResponseDto opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
@@ -135,7 +137,7 @@ public class JudgeService {
 		int maxMemory = -1;
 		int maxExecutionTime = -1;
 		if (judgeResponse.isNotCompileError()) {
-			for (TestCaseResponseDto testCase:teamResponseDto.getTestCases()) {
+			for (TestCaseResponseDto testCase : teamResponseDto.getTestCases()) {
 				maxMemory = Math.max(maxMemory, Integer.parseInt(testCase.getExecutionMemory()));
 				maxExecutionTime = Math.max(maxExecutionTime, Integer.parseInt(testCase.getExecutionTime()));
 			}
@@ -165,7 +167,8 @@ public class JudgeService {
 		// 저지에게 코드 제출
 		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX);
 
-		if (judgeResponse == null) throw new NullPointerException();
+		if (judgeResponse == null)
+			throw new NullPointerException();
 
 		// request.problemId의 테스트케이스 1,2번 output 정보가 필요함
 		judgeWebsocketService.sendExecutionResult(CodeExecutionResponseDto.from(judgeResponse),
@@ -177,7 +180,8 @@ public class JudgeService {
 	}
 
 	// 함수 추출
-	private void updateRoomSubmission(Game game, Long teamId, TestHistory testHistory, String code, int maxExecutionTime, int maxMemory) {
+	private void updateRoomSubmission(Game game, Long teamId, TestHistory testHistory, String code,
+		int maxExecutionTime, int maxMemory) {
 
 		if (game.getBattleType() == BattleType.S) {
 			SingleRoom myRoom = singleRoomRepository.findById(teamId)
@@ -210,7 +214,7 @@ public class JudgeService {
 
 	private void finishGame(Game game, List<? extends Room> rooms, Room myRoom) {
 		// 순위 갱신: finishTime 이 있는 방들만 정렬
-		int finishedTeamCount = (int) rooms.stream()
+		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
 		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
@@ -226,7 +230,7 @@ public class JudgeService {
 				pointHistories.add(
 					PointHistory.create(
 						game,
-						((SingleRoom) myRoom).getUser(),
+						((SingleRoom)myRoom).getUser(),
 						null,
 						100,
 						game.getBattleType(),
@@ -236,20 +240,21 @@ public class JudgeService {
 				pointHistories.add(
 					PointHistory.create(
 						game,
-						((SingleRoom) myRoom).getUser(),
+						((SingleRoom)myRoom).getUser(),
 						null,
 						50,
 						game.getBattleType(),
 						PointType.B
 					)
 				);
-				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(((SingleRoom) myRoom).getUser(),game, SideProblemHistory.ProblemResult.P);
+				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(
+					((SingleRoom)myRoom).getUser(), game, SideProblemHistory.ProblemResult.P);
 
 				for (SideProblemHistory sideProblemHistory : solvedSideProblemHistories) {
 					pointHistories.add(
 						PointHistory.create(
 							game,
-							((SingleRoom) myRoom).getUser(),
+							((SingleRoom)myRoom).getUser(),
 							sideProblemHistory.getSideProblemId(),
 							20,
 							game.getBattleType(),
@@ -259,7 +264,7 @@ public class JudgeService {
 					);
 				}
 			} else if (myRoom instanceof TeamRoom) {
-				for (UserTeamRoom userTeamRoom : ((TeamRoom) myRoom).getUserTeamRooms()) {
+				for (UserTeamRoom userTeamRoom : ((TeamRoom)myRoom).getUserTeamRooms()) {
 					pointHistories.add(
 						PointHistory.create(
 							game,
@@ -287,20 +292,21 @@ public class JudgeService {
 				pointHistories.add(
 					PointHistory.create(
 						game,
-						((SingleRoom) myRoom).getUser(),
+						((SingleRoom)myRoom).getUser(),
 						null,
 						100,
 						game.getBattleType(),
 						PointType.D
 					)
 				);
-				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(((SingleRoom) myRoom).getUser(),game, SideProblemHistory.ProblemResult.P);
+				List<SideProblemHistory> solvedSideProblemHistories = sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(
+					((SingleRoom)myRoom).getUser(), game, SideProblemHistory.ProblemResult.P);
 
 				for (SideProblemHistory sideProblemHistory : solvedSideProblemHistories) {
 					pointHistories.add(
 						PointHistory.create(
 							game,
-							((SingleRoom) myRoom).getUser(),
+							((SingleRoom)myRoom).getUser(),
 							sideProblemHistory.getSideProblemId(),
 							20,
 							game.getBattleType(),
@@ -310,7 +316,7 @@ public class JudgeService {
 					);
 				}
 			} else if (myRoom instanceof TeamRoom) {
-				for (UserTeamRoom userTeamRoom : ((TeamRoom) myRoom).getUserTeamRooms()) {
+				for (UserTeamRoom userTeamRoom : ((TeamRoom)myRoom).getUserTeamRooms()) {
 					pointHistories.add(
 						PointHistory.create(
 							game,
@@ -327,6 +333,7 @@ public class JudgeService {
 
 		// 포인트 내역 저장
 		pointHistoryService.savePointHistory(pointHistories);
+		// Todo : 제출 시 후처리
 	}
 }
 

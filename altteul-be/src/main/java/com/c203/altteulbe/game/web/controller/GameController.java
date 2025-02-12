@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.c203.altteulbe.common.response.ApiResponse;
@@ -18,8 +16,6 @@ import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.response.ResponseBody;
 import com.c203.altteulbe.game.service.GameHistoryService;
 import com.c203.altteulbe.game.service.GameLeaveService;
-import com.c203.altteulbe.game.service.GameResultService;
-import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
 import com.c203.altteulbe.game.service.result.AIFeedbackService;
 import com.c203.altteulbe.game.service.result.GameResultService;
 import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
@@ -56,13 +52,14 @@ public class GameController {
 	}
 
 	@GetMapping("/game/result/feedback")
-	public ApiResponseEntity<ResponseBody.Success<AIFeedbackResponse>> getCodeEvaluation(@ModelAttribute AIFeedbackRequestDto request) {
+	public ApiResponseEntity<ResponseBody.Success<AIFeedbackResponse>> getCodeEvaluation(
+		@ModelAttribute AIFeedbackRequestDto request) {
 		return ApiResponse.success(aiFeedbackService.getEvaluation(request));
 	}
 
 	@PostMapping("/game/leave")
-	public ApiResponseEntity<Void> leaveGame(@RequestBody GameLeaveRequestDto requestDto) {
-		gameLeaveService.leaveGame(requestDto.getUserId());
+	public ApiResponseEntity<Void> leaveGame(@AuthenticationPrincipal Long userId) {
+		gameLeaveService.leaveGame(userId);
 		return ApiResponse.success();
 	}
 }

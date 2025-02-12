@@ -8,4 +8,6 @@ import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 
 public interface SingleRoomRepository extends JpaRepository<SingleRoom, Long>, SingleRoomRepositoryCustom {
 	Optional<SingleRoom> findByGameId(Long game_id);
+
+	Optional<SingleRoom> findByUser_UserId(Long userId);
 }
