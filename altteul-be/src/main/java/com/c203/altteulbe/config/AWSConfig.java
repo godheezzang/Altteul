@@ -29,6 +29,9 @@ public class AWSConfig {
 	@Value("${cloud.aws.region.static}")
 	private String region;
 
+	@Value("${cloud.aws.s3.url}")
+	private String s3BaseUrl;
+
 	@Bean
 	public Region awsRegion() {
 		return Region.of(region);
@@ -55,5 +58,9 @@ public class AWSConfig {
 			.region(Region.of(region))
 			.credentialsProvider(awsCredentialsProvider())
 			.build();
+	}
+
+	public String getS3BaseUrl() {
+		return s3BaseUrl;
 	}
 }

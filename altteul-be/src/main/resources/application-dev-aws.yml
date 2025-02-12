@@ -2,8 +2,15 @@ cloud:
   aws:
     s3:
       bucket: ${AWS_BUCKET_NAME}
+      url: ${AWS_URL}
     stack.auto: false
     region.static: ap-northeast-2
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
