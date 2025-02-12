@@ -1,31 +1,26 @@
-// ** 회원가입 모달 컴포넌트 **
-// 추가할 것 - 아이디, 닉네임 중복 확인
-
 import { useState } from 'react';
 
 import Input from '@components/Common/Input';
 import Modal from '@components/Common/Modal';
 import Button from '@components/Common/Button/Button';
-// import Dropdown from '@components/Common/Dropdown';
 import SignUpDropdown from '@components/Auth/SignUpDropdown';
 
-import { checkUsername, registerUser } from '@utils/Api/auth';
+import { checkUsername, registerUser } from '@utils/api/auth';
 import { validateSignUpForm, SignUpFormData, ValidationErrors } from '@utils/validation';
+import ProfileUpload from '@components/Auth/ProfileUpload';
 
-// 회원가입 모달에 필요한 props
 interface SignUpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
-  // 언어 매핑
   const languageOptions = [
     { id: 1, value: 'PY', label: 'Python' },
     { id: 2, value: 'JV', label: 'Java' },
   ];
 
-  // 입력 폼 상태
+  // 폼 상태
   const [form, setForm] = useState<SignUpFormData>({
     username: '',
     password: '',
@@ -35,7 +30,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     profileImg: null,
   });
 
-  // 에러메시지 상태 추가
+  // 에러 상태
   const [errors, setErrors] = useState<ValidationErrors>({
     username: '',
     password: '',
@@ -45,90 +40,141 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     profileImg: '',
   });
 
-  // API 요청 시 발생하는 에러 메시지
+  // API 및 로딩 상태
   const [apiError, setApiError] = useState('');
-  // 로딩 상태 관리 - 추후 로딩 스피너 사용
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 아이디 중복 확인 - 추후 수정
-  // const [isUsernameTaken, setIsUsernameTaken] = useState(false);
-  // const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  // 아이디 중복확인 상태
+  const [isUsernameTaken, setIsUsernameTaken] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isUsernameVerified, setIsUsernameVerified] = useState(false);
 
-  // 입력값 변경 핸들러 (input 필드 값 바뀔 때 실행)
+  // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+
+    // 다른 에러 메시지 초기화
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setApiError('');
+
+    // username이 변경될 때 verified 상태 리셋
+    if (name === 'username') {
+      setIsUsernameVerified(false);
+      setIsUsernameTaken(false);
+    }
   };
 
   // 드롭다운 언어 선택
   const handleSelectChange = (selected: string) => {
-    setForm({ ...form, mainLang: selected });
+    setForm(prev => ({ ...prev, mainLang: selected }));
   };
 
-  //이미지 파일 업로드 처리
+  // 이미지 파일 업로드 처리
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      setForm({ ...form, profileImg: e.target.files[0] });
+      setForm(prev => ({ ...prev, profileImg: e.target.files![0] }));
+    }
+  };
+
+  // 아이디 중복 확인
+  const handleCheckUsername = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // 아이디 유효성 검사
+    if (!/^[a-zA-Z0-9]{5,8}$/.test(form.username)) {
+      setErrors(prev => ({
+        ...prev,
+        username: '아이디는 영문과 숫자의 조합으로 5자 이상, 8자 이하여야 합니다.',
+      }));
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    setIsUsernameTaken(false);
+    setApiError('');
+
+    try {
+      const response = await checkUsername(form.username);
+      if (response.isTaken) {
+        setIsUsernameTaken(true);
+        setIsUsernameVerified(false);
+        setErrors(prev => ({
+          ...prev,
+          username: '이미 사용 중인 아이디입니다.',
+        }));
+      } else {
+        setIsUsernameTaken(false);
+        setIsUsernameVerified(true);
+        setErrors(prev => ({
+          ...prev,
+          username: '',
+        }));
+      }
+    } catch (error) {
+      console.error('아이디 중복 확인 실패:', error);
+      setErrors(prev => ({
+        ...prev,
+        username: '이미 사용 중인 아이디입니다.',
+      }));
+      setIsUsernameVerified(false);
+    } finally {
+      setIsCheckingUsername(false);
     }
   };
 
   // 폼 유효성 검사
   const validateForm = () => {
     const validationResult = validateSignUpForm(form);
-    setErrors(validationResult.errors);
 
-    // 비밀번호 확인
+    // 순차적으로 에러 체크
+    if (validationResult.errors.username) {
+      setErrors({ ...errors, username: validationResult.errors.username });
+      return false;
+    }
+    if (!isUsernameVerified) {
+      setApiError('아이디 중복확인이 필요합니다.');
+      return false;
+    }
+    if (validationResult.errors.password) {
+      setErrors({ ...errors, password: validationResult.errors.password });
+      return false;
+    }
     if (form.password !== form.confirmPassword) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
+      setErrors(prev => ({
+        ...prev,
         confirmPassword: '비밀번호가 일치하지 않습니다.',
       }));
       return false;
     }
+    if (validationResult.errors.nickname) {
+      setErrors({ ...errors, nickname: validationResult.errors.nickname });
+      return false;
+    }
 
-    return validationResult.isValid;
+    return true;
   };
 
-  // 아이디 중복 확인 핸들러
-  // const handleCheckUsername = async () => {
-  //   setIsCheckingUsername(true);
-  //   setIsUsernameTaken(false);
-
-  //   try {
-  //     const response = await checkUsername(form.username);
-  //     if (response.isTaken) {
-  //       setIsUsernameTaken(true);
-  //       setErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         username: "이미 사용 중인 아이디입니다.",
-  //       }));
-  //     } else {
-  //       setIsUsernameTaken(false);
-  //       setErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         username: "",
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.error("아이디 중복 확인 실패:", error);
-  //     setApiError("아이디 중복 확인에 실패했습니다.");
-  //   } finally {
-  //     setIsCheckingUsername(false);
-  //   }
-  // };
+  // 비밀번호 일치여부 확인
+  const checkPasswordMatch = () => {
+    if (form.password && form.confirmPassword) {
+      if (form.password !== form.confirmPassword) {
+        return '비밀번호가 일치하지 않습니다.';
+      }
+      if (!errors.password) {
+        return '비밀번호가 일치합니다.';
+      }
+    }
+    return '';
+  };
 
   // 폼 제출 핸들러
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 유효성 검사 실패 시 중단
     if (!validateForm()) return;
 
-    // 폼 입력값 확인용 console.log
-    console.log('입력값:', form);
-
-    // 폼 데이터 생성
     const formData = new FormData();
-
     const requestData = {
       username: form.username,
       password: form.password,
@@ -138,25 +184,20 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
 
     formData.append('request', JSON.stringify(requestData));
 
-    // profileImg는 파일로 추가
     if (form.profileImg) {
       formData.append('profileImg', form.profileImg);
     } else {
-      formData.append('profileImg', '');
+      formData.append('profileImg', '0');
     }
 
     try {
-      setIsSubmitting(true); // 제출 중 상태 활성화
+      setIsSubmitting(true);
+      const response = await registerUser(formData);
 
-      // API 호출
-      const response = await registerUser(formData); // api.ts에서 정의한 함수 사용
-
-      // 성공처리 - 200번대
-      if (response.status >= 200 && response.status < 300) {
+      if (response?.status >= 200 && response?.status < 300) {
         console.log('회원가입 성공');
         onClose();
 
-        // 폼 리셋
         setForm({
           username: '',
           password: '',
@@ -166,7 +207,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           profileImg: null,
         });
 
-        // 에러 메시지도 초기화
         setErrors({
           username: '',
           password: '',
@@ -175,8 +215,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           mainLang: '',
           profileImg: '',
         });
-      } else {
-        setApiError(response.message || '잘못된 응답입니다.');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -184,18 +222,8 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         setApiError(error.message || '서버와 연결 할 수 없습니다. 다시 시도하세요.');
       }
     } finally {
-      setIsSubmitting(false); // 로딩 끝
+      setIsSubmitting(false);
     }
-  };
-
-  // 비밀번호 일치여부 확인
-  const checkPasswordMatch = () => {
-    if (form.password && form.confirmPassword && form.password !== form.confirmPassword) {
-      return '비밀번호가 일치하지 않습니다.';
-    } else if (form.password && form.confirmPassword && form.password === form.confirmPassword) {
-      return '비밀번호가 일치합니다.';
-    }
-    return '';
   };
 
   return (
@@ -213,23 +241,19 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           placeholder="아이디를 입력해 주세요."
           onChange={handleChange}
           value={form.username}
-          className="w-[22rem] "
+          className="w-[22rem]"
         />
         {errors.username && <p className="text-primary-orange text-sm">{errors.username}</p>}
-        {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
-        <Button children="중복확인(현재기능x)" className="h-[3rem]" />
-        {/*         
+        {isUsernameVerified && !isUsernameTaken && !errors.username && (
+          <p className="text-primary-green text-sm">사용 가능한 아이디입니다.</p>
+        )}
         <Button
-          className={`w-full h-[2.8rem] ${
-            isCheckingUsername
-              ? "bg-gray-03 cursor-not-allowed"
-              : "bg-primary-orange"
-          }`}
           onClick={handleCheckUsername}
-          disabled={isCheckingUsername}
+          disabled={isCheckingUsername || !form.username}
+          className={`h-[3rem] ${isCheckingUsername ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          {isCheckingUsername ? "확인중..." : "아이디 중복 확인"}
-        </Button> */}
+          {isCheckingUsername ? '확인중...' : '중복확인'}
+        </Button>
 
         <Input
           name="password"
@@ -239,6 +263,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           value={form.password}
         />
         {errors.password && <p className="text-primary-orange text-sm">{errors.password}</p>}
+
         <Input
           name="confirmPassword"
           type="password"
@@ -249,7 +274,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         {errors.confirmPassword && (
           <p className="text-primary-orange text-sm">{errors.confirmPassword}</p>
         )}
-        {checkPasswordMatch() && (
+        {!errors.password && checkPasswordMatch() && (
           <p
             className={`text-sm ${
               form.password === form.confirmPassword
@@ -269,6 +294,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           value={form.nickname}
         />
         {errors.nickname && <p className="text-primary-orange text-sm">{errors.nickname}</p>}
+
         <SignUpDropdown
           options={languageOptions}
           value={form.mainLang}
@@ -276,16 +302,11 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           className="bg-primary-white border rounded-xl"
         />
         {errors.mainLang && <p className="text-primary-orange text-sm">{errors.mainLang}</p>}
-        <div>
-          <input
-            type="file"
-            name="profileImg"
-            onChange={handleFileChange}
-            accept="image/png, image/jpg, image/jpeg"
-          />
-          {errors.profileImg && <p className="error">{errors.profileImg}</p>}
-        </div>
-        {/* 제출중일때 버튼 비활성화 (추후 로딩스피너 추가할 때 수정예정) */}
+
+        <ProfileUpload onChange={handleFileChange} currentImage={form.profileImg} />
+
+        {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
+
         <Button type="submit" className="h-[3rem]">
           {isSubmitting ? '처리중...' : '가입하기'}
         </Button>
