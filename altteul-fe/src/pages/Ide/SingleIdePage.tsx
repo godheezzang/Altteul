@@ -43,7 +43,7 @@ const SingleIdePage = () => {
       } else {
         clearInterval(interval); // ✅ 5번 요청하면 멈춤
       }
-    }, 5 * 60 * 1000); // 5분
+    }, 10 * 60 * 1000); // 5분
 
     return () => clearInterval(interval);
   }, [requestCount, requestSideProblem]);
