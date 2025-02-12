@@ -10,11 +10,9 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.persistent.entity.FriendId;
@@ -63,7 +61,6 @@ import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -259,7 +256,7 @@ public class TeamRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.TeamRoomCountdown(matchId), "6");
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomCountdown(matchId), "10");
 	}
 
 	/**
