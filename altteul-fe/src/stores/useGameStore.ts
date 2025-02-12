@@ -6,9 +6,9 @@ const useGameStore = create<GameState>(set => ({
   // TODO: 현재는 테스트를 위해 기본값 1로 해둠. null로 수정할 것
   gameId: localStorage.getItem('gameId') ? Number(localStorage.getItem('gameId')) : 1,
   roomId: localStorage.getItem('roomId') ? Number(localStorage.getItem('roomId')) : 1,
-  users: JSON.parse(localStorage.getItem('users') || `[{"roomId":1, "userId":2,"nickname":"닉넴2","profileImg":"이미지Byte", "tierId":"티어"},
-			  {"roomId":2, "userId":3,"nickname":"닉넴3","profileImg":"이미지Byte", "tierId":"티어"},
-			  {"roomId":3, "userId":4,"nickname":"닉넴4","profileImg":"이미지Byte", "tierId":"티어"}]`),
+  users: JSON.parse(localStorage.getItem('users') || `[{"roomId":1, "userId":2,"nickname":"닉넴2","profileImg":"", "tierId":"1"},
+			  {"roomId":2, "userId":3,"nickname":"닉넴3","profileImg":"", "tierId":"2"},
+			  {"roomId":3, "userId":4,"nickname":"닉넴4","profileImg":"", "tierId":"3"}]`),
   problem: JSON.parse(localStorage.getItem('problem') || '{"problemId": 1}'),
   testcases: JSON.parse(localStorage.getItem('testcases') || '[]'),
 
