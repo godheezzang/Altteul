@@ -1,55 +1,67 @@
-// import { extendedMockUsers } from "mocks/searchUserData";
-import React, { createContext, useState, ReactNode, useContext } from 'react';
-import { mockFriends } from 'Mocks/friendData';
-import { Friend, UserSearchContextType } from 'types/types';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { searchUser } from '@utils/Api/userApi';
+import type { SearchedUser } from 'types/types';
 
-// Context 생성
-const UserSearchContext = createContext<UserSearchContextType | null>(null);
+interface UserSearchContextType {
+  searchQuery: string;
+  searchResults: SearchedUser[];
+  isLoading: boolean;
+  error: string | null;
+  handleSearch: (query: string) => Promise<void>;
+}
 
-// Custom Hook
-export const useUserSearch = () => {
-  const context = useContext(UserSearchContext);
-  if (context === null) {
-    throw new Error('useUserSearch must be used within a UserSearchProvider');
-  }
-  return context;
-};
+const UserSearchContext = createContext<UserSearchContextType | undefined>(undefined);
 
-// Provider 컴포넌트
-export const UserSearchProvider = ({ children }: { children: ReactNode }) => {
+export const UserSearchProvider = ({ children }: { children: React.ReactNode }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Friend[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchedUser[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
-
-    if (query.trim() === '') {
+    if (!query.trim()) {
       setSearchResults([]);
       return;
     }
 
-    // mockUsers 데이터로 검색
-    const filteredUsers = mockFriends.filter(user =>
-      user.nickname.toLowerCase().includes(query.toLowerCase())
-    );
-    setSearchResults(filteredUsers);
-  };
+    setIsLoading(true);
+    try {
+      const response = await searchUser(query);
+      if (response.status === 200) {
+        // 단일 사용자 응답을 배열로 변환
+        setSearchResults([response.data]);
+      } else {
+        throw new Error('검색 결과를 가져오는데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('사용자 검색 실패:', error);
+      setError(error instanceof Error ? error.message : '검색에 실패했습니다.');
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  // 검색 초기화
-  const resetSearch = () => {
-    setSearchQuery('');
-    setSearchResults([]);
-  };
   return (
     <UserSearchContext.Provider
       value={{
         searchQuery,
         searchResults,
+        isLoading,
+        error,
         handleSearch,
-        resetSearch, // Provider에 resetSearch 함수 추가
       }}
     >
       {children}
     </UserSearchContext.Provider>
   );
+};
+
+export const useUserSearch = () => {
+  const context = useContext(UserSearchContext);
+  if (context === undefined) {
+    throw new Error('useUserSearch must be used within a UserSearchProvider');
+  }
+  return context;
 };

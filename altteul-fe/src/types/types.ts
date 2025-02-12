@@ -254,3 +254,16 @@ export interface FriendRequestsResponse {
   message: string;
   status: string;
 }
+
+export interface SearchedUser {
+  userId: number;
+  nickname: string;
+  profileImage: string;
+  isOnline: boolean;
+}
+
+export interface UserSearchResponse {
+  status: number;
+  message: string;
+  data: SearchedUser;
+}
