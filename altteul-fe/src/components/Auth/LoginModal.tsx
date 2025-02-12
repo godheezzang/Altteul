@@ -1,35 +1,35 @@
-import React, { useState } from "react";
-import { loginUser } from "@utils/Api/auth";
-import Modal from "@components/Common/Modal";
-import Input from "@components/Common/Input";
-import Button from "@components/Common/Button/Button";
-import axios from "axios";
-import useAuthStore from "@stores/authStore";
-import useModalStore from "@stores/modalStore";
-import gitHubLogo from "@assets/icon/github_logo.svg";
+import React, { useState } from 'react';
+import { loginUser } from '@utils/api/auth';
+import Modal from '@components/Common/Modal';
+import Input from '@components/Common/Input';
+import Button from '@components/Common/Button/Button';
+import axios from 'axios';
+import useAuthStore from '@stores/authStore';
+import useModalStore from '@stores/modalStore';
+import gitHubLogo from '@assets/icon/github_logo.svg';
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
-  const [form, setForm] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
 
   const handleSignUpClick = () => {
     closeModal();
-    openModal("signup");
+    openModal('signup');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (!form.username.trim() || !form.password.trim()) {
-      setError("아이디와 비밀번호를 모두 입력해주세요.");
+      setError('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
@@ -37,43 +37,42 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       const response = await loginUser(form.username, form.password);
 
       if (!response) {
-        throw new Error("서버 응답이 없습니다.");
+        throw new Error('서버 응답이 없습니다.');
       }
 
-      const token =
-        response.headers?.authorization || response.headers?.["authorization"];
+      const token = response.headers?.authorization || response.headers?.['authorization'];
       if (!token) {
-        throw new Error("토큰이 응답에 포함되지 않았습니다");
+        throw new Error('토큰이 응답에 포함되지 않았습니다');
       }
 
-      const userId = response.headers?.userid || response.headers?.["userid"];
+      const userId = response.headers?.userid || response.headers?.['userid'];
       if (!userId) {
-        throw new Error("userId가 응답에 포함되지 않았습니다.");
+        throw new Error('userId가 응답에 포함되지 않았습니다.');
       }
 
-      const cleanToken = token.replace(/^Bearer\s+/i, "");
+      const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
 
       closeModal();
     } catch (error) {
-      console.error("로그인 실패:", error);
+      console.error('로그인 실패:', error);
 
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          setError(error.response.data?.message || "로그인 실패!");
+          setError(error.response.data?.message || '로그인 실패!');
         } else {
           setError(error.message);
         }
       } else {
-        setError("알 수 없는 오류 발생!");
+        setError('알 수 없는 오류 발생!');
       }
     }
   };
 
   // 깃허브 로그인
   const handleGithubLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
   };
 
   return (
@@ -128,7 +127,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           type="button"
           backgroundColor="primary-black"
           className="h-[2.8rem] w-full mt-8 hover:brightness-110"
-          img= {gitHubLogo}
+          img={gitHubLogo}
         >
           github로 간편하게 시작하기
         </Button>

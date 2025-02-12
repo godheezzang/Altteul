@@ -1,10 +1,8 @@
-package com.c203.altteulbe.game.service;
+package com.c203.altteulbe.game.service.side;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmissionOpponentResponseDto;
-import com.c203.altteulbe.game.web.dto.judge.response.CodeSubmissionTeamResponseDto;
 import com.c203.altteulbe.game.web.dto.side.response.ReceiveSideProblemResponseDto;
 import com.c203.altteulbe.game.web.dto.side.response.SubmitSideProblemResponseDto;
 import com.c203.altteulbe.websocket.dto.response.WebSocketResponse;

@@ -13,7 +13,7 @@ import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 @RequiredArgsConstructor
 public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final TodayRankingRepository rankingRepository;
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -32,7 +32,7 @@ public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 		String username = attributes.get("id").toString();
 		String nickname = attributes.get("login").toString();
 
-		return userJPARepository.findByProviderAndUsername(User.Provider.GH, username)
+		return userRepository.findByProviderAndUsername(User.Provider.GH, username)
 			.orElseGet(() -> {
 				// 신규 사용자 생성
 				User user = User.builder()
@@ -54,7 +54,7 @@ public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 					.id(rankingRepository.count()+1)
 					.build();
 
-				userJPARepository.save(user);
+				userRepository.save(user);
 				rankingRepository.save(todayRanking);
 				return user;
 			});

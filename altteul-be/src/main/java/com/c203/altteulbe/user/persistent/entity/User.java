@@ -138,5 +138,10 @@ public class User extends BaseCreatedAndUpdatedEntity implements UserDetails, OA
 	public void updateTier(Tier newTier) {
 		this.tier = newTier;
 	}
+
+	public void updateProfile(String nickname, Language mainLang) {
+		this.nickname = nickname;
+		this.mainLang = mainLang;
+	}
 }
 

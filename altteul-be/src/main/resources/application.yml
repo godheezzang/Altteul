@@ -11,6 +11,7 @@ spring:
         - dev-judge
         - dev-batch
         - dev-openvidu
+        - dev-aws
       prod:
         - prod-mysql
         - prod-token
