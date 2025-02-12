@@ -24,7 +24,7 @@ const SignUpDropdown = ({
   return (
     <div className="relative" style={{ width, height }}>
       <div
-        className={`flex items-center justify-between border border-gray-02 px-4 py-2 bg-primary-white text-gray-04 rounded-xl cursor-pointer hover:border-primary-orange ${className}`}
+        className={`flex items-center justify-between border-2 border-gray-02 px-4 py-2 rounded-lg cursor-pointer hover:border-primary-orange ${className}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{selectedOption?.label}</span>
@@ -37,11 +37,12 @@ const SignUpDropdown = ({
         />
       </div>
       {isOpen && (
-        <div className="absolute mt-1 w-full bg-primary-white rounded-xl overflow-hidden border border-gray-02 shadow-lg">
-          {options.map(option => (
+        <div className="absolute mt-1 w-full bg-primary-white rounded-xl overflow-hidden border border-gray-02 shadow-lg z-50">
+          {options.map((option, index) => (
             <div
               key={option.id}
-              className="px-4 py-2 text-gray-05 hover:text-primary-orange hover:bg-gray-100 border-b border-gray-02 last:border-b-0 cursor-pointer"
+              className={`px-4 py-2 text-gray-05 hover:text-primary-orange hover:bg-gray-01 cursor-pointer transition-colors duration-200
+                ${index !== options.length - 1 ? 'border-b border-gray-01' : ''}`}
               onClick={() => {
                 onChange(option.value);
                 setIsOpen(false);
