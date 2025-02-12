@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.service;
+package com.c203.altteulbe.game.service.result;
 
 import java.util.ArrayList;
 import java.util.List;

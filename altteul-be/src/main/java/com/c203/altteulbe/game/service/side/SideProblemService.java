@@ -1,4 +1,4 @@
-package com.c203.altteulbe.game.service;
+package com.c203.altteulbe.game.service.side;
 
 import java.util.HashSet;
 import java.util.List;
