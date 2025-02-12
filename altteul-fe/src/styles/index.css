@@ -19,7 +19,7 @@
   html,
   body {
     font-family: 'Pretendard Variable', sans-serif;
-    @apply text-primary-white bg-primary-black h-[100vh] overflow-hidden;
+    @apply text-primary-white bg-primary-black h-[100vh];
   }
 }
 
