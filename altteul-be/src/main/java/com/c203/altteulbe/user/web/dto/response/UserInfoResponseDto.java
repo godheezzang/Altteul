@@ -2,6 +2,8 @@ package com.c203.altteulbe.user.web.dto.response;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.user.persistent.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +25,7 @@ public class UserInfoResponseDto {
 		return UserInfoResponseDto.builder()
 								  .userId(user.getUserId())
 								  .nickname(user.getNickname())
-								  .profileImg(user.getProfileImg())
+								  .profileImg(S3Util.getImgUrl(user.getProfileImg()))
 								  .tierId(user.getTier().getId())
 								  .build();
 	}
