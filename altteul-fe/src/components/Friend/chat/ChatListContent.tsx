@@ -1,7 +1,8 @@
 // components/friend/ChatListContent.tsx
 import React from 'react';
-import ChatListItem from '@components/friend/chat/ChatListItem';
-import { mockChatRooms } from 'mocks/friendData';
+
+import ChatListItem from '@components/Friend/Chat/ChatListItem';
+import { mockChatRooms } from 'Mocks/friendData';
 
 type ChatListContentProps = {
   onChatSelect?: (friendId: number) => void;

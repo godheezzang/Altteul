@@ -1,13 +1,13 @@
 // 채팅창 모달
 
 import React, { useState, useEffect } from 'react';
-import FriendModal from '@components/friend/FriendModal';
+// import FriendModal from '@components/Friend/FriendModal';
+import BaseModal from '@components/Friend/Friend_common/Basemodal';
+import ChatHeader from '@components/Friend/Chat/ChatHeader';
+import ChatMessage from '@components/Friend/Chat/ChatMessage';
+import ChatInput from '@components/Friend/Chat/ChatInput';
 
-import ChatHeader from '@components/friend/chat/ChatHeader';
-import ChatMessage from '@components/friend/chat/ChatMessage';
-import ChatInput from '@components/friend/chat/ChatInput';
-
-import { mockChatRoomDetail } from 'mocks/friendData';
+import { mockChatRoomDetail } from 'Mocks/friendData';
 
 type FriendChatModalProps = {
   isOpen: boolean;
@@ -21,7 +21,7 @@ const FriendChatModal = ({ isOpen, onClose, friendId = 1 }: FriendChatModalProps
   const [chatHistory, setChatHistory] = useState(mockChatRoomDetail.messages);
 
   useEffect(() => {
-    // 실제로는 여기서 API 호출을 하게 될 것입니다
+    // 실제로는 여기서 API 호출
     // 지금은 목데이터를 사용하므로 mockChatWithFriend를 그대로 사용
     setCurrentChat(mockChatRoomDetail);
     setChatHistory(mockChatRoomDetail.messages);
@@ -47,13 +47,7 @@ const FriendChatModal = ({ isOpen, onClose, friendId = 1 }: FriendChatModalProps
   };
 
   return (
-    <FriendModal
-      isOpen={isOpen}
-      onClose={onClose}
-      showSearch={false}
-      showBackButton={true}
-      onBack={onClose}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} showBackButton={true} onBack={onClose}>
       <div className="flex flex-col h-full">
         {/* 채팅방 헤더 */}
         <ChatHeader
@@ -80,7 +74,7 @@ const FriendChatModal = ({ isOpen, onClose, friendId = 1 }: FriendChatModalProps
         {/* 메시지 입력 영역 */}
         <ChatInput message={message} onChange={handleMessageChange} onSend={handleSendMessage} />
       </div>
-    </FriendModal>
+    </BaseModal>
   );
 };
 
