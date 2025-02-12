@@ -74,19 +74,16 @@ const SingleSearchPage = () => {
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 1,
+    initialSeconds: 180,  //3분
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
-      console.log(waitUsers)
-      console.log(waitUsers.length === 0)
       //1. 혼자만 있으면 시작 x
       if (waitUsers.length === 0) {
         alert('상대 유저가 입장하지 않아 종료합니다.')
         userOut()
         return;
       }
-
       //2. 방장 제외 1명 이상의 플레이어만 충족하면 시작
       navigateFinalPage()
     },
