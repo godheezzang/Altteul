@@ -1,49 +1,54 @@
-import SingleIdePage from "@pages/Ide/SingleIdePage";
-import TeamIdePage from "@pages/Ide/TeamIdePage";
-import MainPage from "@pages/Main/MainPage";
-import SelectPage from "@pages/Match/SelectPage";
-import SingleFinalPage from "@pages/Match/SingleFinalPage";
-import SingleSearchPage from "@pages/Match/SingleSearchPage";
-import TeamcompositionPage from "@pages/Match/TeamcompositionPage";
-import TeamFinalPage from "@pages/Match/TeamFinalPage";
-import TeamSearchPage from "@pages/Match/TeamSearchPage";
-import RankPage from "@pages/Rank/RankPage";
-import UserPage from "@pages/User/UserPage";
-import App from "App";
-import { createBrowserRouter } from "react-router-dom";
+import SingleIdePage from '@pages/Ide/SingleIdePage';
+import TeamIdePage from '@pages/Ide/TeamIdePage';
+import MainPage from '@pages/Main/MainPage';
+import SelectPage from '@pages/Match/SelectPage';
+import SingleFinalPage from '@pages/Match/SingleFinalPage';
+import SingleSearchPage from '@pages/Match/SingleSearchPage';
+import TeamcompositionPage from '@pages/Match/TeamcompositionPage';
+import TeamFinalPage from '@pages/Match/TeamFinalPage';
+import TeamSearchPage from '@pages/Match/TeamSearchPage';
+import RankPage from '@pages/Rank/RankPage';
+import UserPage from '@pages/User/UserPage';
+import App from 'App';
+import { UserSearchProvider } from 'contexts/UserSearchContext';
+import { createBrowserRouter } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    path: '/',
+    element: (
+      <UserSearchProvider>
+        <App />
+      </UserSearchProvider>
+    ),
     children: [
       {
         index: true,
         element: <MainPage />,
       },
       {
-        path: "rank",
+        path: 'rank',
         element: <RankPage />,
       },
       // 회원
       {
-        path: "users",
+        path: 'users',
         children: [
           {
-            path: ":userId",
+            path: ':userId',
             element: <UserPage />,
           },
         ],
       },
       {
-        path: "game",
+        path: 'game',
         children: [
           {
-            path: "team",
+            path: 'team/:gameId/:roomId',
             element: <TeamIdePage />,
           },
           {
-            path: "single",
+            path: 'single/:gameId/:roomId',
             element: <SingleIdePage />,
           },
         ],
@@ -51,42 +56,42 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "match",
+    path: 'match',
     children: [
       {
-        path: "select",
+        path: 'select',
         element: <SelectPage />,
       },
       {
-        path: "select",
+        path: 'select',
         element: <SelectPage />,
       },
       {
-        path: "team",
+        path: 'team',
         children: [
           {
-            path: "composition",
+            path: 'composition',
             element: <TeamcompositionPage />,
           },
           {
-            path: "search",
+            path: 'search',
             element: <TeamSearchPage />,
           },
           {
-            path: "final",
+            path: 'final',
             element: <TeamFinalPage />,
           },
         ],
       },
       {
-        path: "single",
+        path: 'single',
         children: [
           {
-            path: "search",
+            path: 'search',
             element: <SingleSearchPage />,
           },
           {
-            path: "final",
+            path: 'final',
             element: <SingleFinalPage />,
           },
         ],

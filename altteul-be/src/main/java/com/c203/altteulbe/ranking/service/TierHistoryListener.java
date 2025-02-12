@@ -12,7 +12,7 @@ import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TierHistory;
 import com.c203.altteulbe.ranking.persistent.repository.tier.TierRepository;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TierHistoryListener {
 
 	private final TierHistoryRepository tierHistoryRepository;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final TierRepository tierRepository;
 
 	/*
@@ -43,7 +43,7 @@ public class TierHistoryListener {
 		// 유저의 현재 랭킹 포인트
 		Long prevPoint = user.getRankingPoint();
 
-		// 포인트 업데이트
+		// 유저의 현재 포인트 업데이트
 		Long newPoint = prevPoint + pointHistory.getPoint();
 		user.updateRankingPoint(newPoint);
 
@@ -59,7 +59,7 @@ public class TierHistoryListener {
 		TierHistory tierHistory = TierHistory.create(user, prevPoint, newPoint, newTier);
 		tierHistoryRepository.save(tierHistory);
 		user.updateTier(newTier);
-		log.info("Tier 변동 이벤트 발생");
+		log.info("Tier EventListener 발생");
 	}
 
 

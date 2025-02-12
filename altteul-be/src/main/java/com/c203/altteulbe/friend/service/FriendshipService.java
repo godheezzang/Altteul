@@ -15,7 +15,7 @@ import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
 import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
 import com.c203.altteulbe.friend.web.dto.response.FriendResponseDto;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -29,13 +29,13 @@ public class FriendshipService {
 
 	private final FriendshipRepository friendshipRepository;
 	private final UserStatusService userStatusService;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final FriendRedisService friendRedisService;
 
 	@Transactional(readOnly = true)
 	public PageResponse<FriendResponseDto> getFriendsList(Long userId, Pageable pageable) throws
 		JsonProcessingException {
-		userJPARepository.findByUserId(userId)
+		userRepository.findByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
 		// 캐시된 친구 리스트 조회

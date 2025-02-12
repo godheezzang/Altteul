@@ -23,7 +23,7 @@ import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.problem.Testcase;
-import com.c203.altteulbe.game.persistent.repository.game.GameJPARepository;
+import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.persistent.repository.testcase.TestcaseRepository;
 import com.c203.altteulbe.game.service.exception.GameCannotStartException;
@@ -60,7 +60,7 @@ import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamMatchResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamRoomGameStartResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
@@ -76,7 +76,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TeamRoomService {
 	private final RedisTemplate<String, String> redisTemplate;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private final UserStatusService userStatusService;
 	private final FriendshipRepository friendshipRepository;
 	private final TeamRoomRedisRepository teamRoomRedisRepository;
@@ -84,14 +84,14 @@ public class TeamRoomService {
 	private final UserTeamRoomRepository userTeamRoomRepository;
 	private final ProblemRepository problemRepository;
 	private final TestcaseRepository testcaseRepository;
-	private final GameJPARepository gameRepository;
+	private final GameRepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
 	private final VoiceChatService voiceChatService;
 
 	//@DistributedLock(key="#requestDto.userId")
 	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
-		User user = userJPARepository.findByUserId(requestDto.getUserId())
+		User user = userRepository.findByUserId(requestDto.getUserId())
 			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
@@ -134,7 +134,7 @@ public class TeamRoomService {
 		}
 
 		// 퇴장하는 유저 정보 조회
-		User user = userJPARepository.findByUserId(userId)
+		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
 		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
@@ -337,7 +337,7 @@ public class TeamRoomService {
 		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 
 		List<Long> userIdList = userIds1.stream().map(Long::parseLong).collect(Collectors.toList());
-		List<User> usersFromDb = userJPARepository.findByUserIdIn(userIdList);
+		List<User> usersFromDb = userRepository.findByUserIdIn(userIdList);
 
 		// 조회된 User들을 Map으로 변환 (ID → User)
 		Map<Long, User> userMap = usersFromDb.stream()
@@ -364,7 +364,7 @@ public class TeamRoomService {
 		Long userId = requestDto.getUserId();
 		Long roomId = requestDto.getRoomId();
 
-		userJPARepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
+		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
 
 		// 방에 존재하는지 확인
 		String key = RedisKeys.userTeamRoom(userId);
@@ -406,8 +406,8 @@ public class TeamRoomService {
 		Long userId = requestDto.getInviterId();
 		Long friendId = requestDto.getInviteeId();
 
-		userJPARepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
-		userJPARepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
+		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
+		userRepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
 
 		// 친구 관계 확인
 		if (!friendshipRepository.existsById(new FriendId(userId, friendId))) {
@@ -499,7 +499,7 @@ public class TeamRoomService {
 				throw new RoomFullException();
 			}
 
-			User user = userJPARepository.findByUserId(friendId).orElseThrow(() -> new NotFoundUserException());
+			User user = userRepository.findByUserId(friendId).orElseThrow(() -> new NotFoundUserException());
 			RoomEnterResponseDto responseDto = teamRoomRedisRepository.insertUserToExistingRoom(roomId, user);
 
 			// 초대한 유저에게 수락 사실 전송, 초대받은 유저에게 수락 정상 처리 사실 전송
@@ -549,7 +549,7 @@ public class TeamRoomService {
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {
-		return userJPARepository.findByUserIdIn(
+		return userRepository.findByUserIdIn(
 			userIds.stream().map(Long::parseLong).collect(Collectors.toList())
 		);
 	}

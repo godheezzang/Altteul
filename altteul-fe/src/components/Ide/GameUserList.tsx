@@ -1,19 +1,21 @@
-import { TeamInfo } from "types/types";
+import { TeamInfo } from 'types/types';
 
 interface GameUserListProps {
-	teamMembers: TeamInfo;
+  teamMembers: TeamInfo;
+  opponentMembers: TeamInfo;
 }
 
-const GameUserList = ({ teamMembers }: GameUserListProps) => {
-	console.log(teamMembers);
+const GameUserList = ({ teamMembers, opponentMembers }: GameUserListProps) => {
+  console.log('teamMembers:', teamMembers);
+  console.log('opponentMembers:', opponentMembers);
 
-	return (
-		<>
-			<div>
-				<h1>Game User List</h1>
-			</div>
-		</>
-	);
+  return (
+    <>
+      <div>
+        <h1>Game User List</h1>
+      </div>
+    </>
+  );
 };
 
 export default GameUserList;
