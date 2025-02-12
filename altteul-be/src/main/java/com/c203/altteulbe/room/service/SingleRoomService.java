@@ -101,20 +101,16 @@ public class SingleRoomService {
 	 * 개인전 대기방 퇴장 처리
 	 */
 	//@DistributedLock(key = "#requestDto.userId")
-	public void leaveSingleRoom(RoomRequestDto requestDto) {
-		Long userId = requestDto.getUserId();
-
-		// 유저가 속한 방 조회
-		Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
-		if (roomId == null) {
-			throw new UserNotInRoomException();
-		}
+	public void leaveSingleRoom(Long roomId, Long userId) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
-									 .orElseThrow(() -> new NotFoundUserException());
+								  .orElseThrow(() -> new NotFoundUserException());
 
-		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
+		// 유저가 방에 속했는지 검증
+		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
+			throw new UserNotInRoomException();
+		}
 
 		// 방 상태 확인
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
@@ -132,13 +128,15 @@ public class SingleRoomService {
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
-			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
 
 		// 방장 조회
 		Long leaderId = Long.parseLong(remainingUserIds.get(0));
+
+		// 떠나는 유저 정보 조회
+		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
 		// 남은 유저들 정보 조회
 		List<User> remainingUsers = getUserByIds(remainingUserIds);

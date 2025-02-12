@@ -2,6 +2,7 @@ package com.c203.altteulbe.room.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,9 +40,10 @@ public class SingleRoomController {
 	/*
 	 * 개인전 방 퇴장 API
 	 */
-	@PostMapping("/leave")
-	public ApiResponseEntity<Void> leaveSingleRoom(@RequestBody RoomRequestDto requestDto) {
-		singleRoomService.leaveSingleRoom(requestDto);
+	@PostMapping("/leave/{roomId}")
+	public ApiResponseEntity<Void> leaveSingleRoom(@PathVariable Long roomId,
+												   @AuthenticationPrincipal Long userId) {
+		singleRoomService.leaveSingleRoom(roomId, userId);
 		return ApiResponse.success();
 	}
 

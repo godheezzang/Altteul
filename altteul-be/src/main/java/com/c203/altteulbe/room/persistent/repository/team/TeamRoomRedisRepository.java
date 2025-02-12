@@ -118,5 +118,6 @@ public class TeamRoomRedisRepository {
 		redisTemplate.delete(roomUsersKey);  // 방에 속한 유저 삭제
 		redisTemplate.delete(roomStatusKey); // 방 상태 삭제
 		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_WAITING_ROOMS, roomId.toString()); // 대기방 목록에서 제거
+		log.info("모든 유저들이 퇴장한 팀전 방의 데이터 삭제 : roomId = {}", roomId);
 	}
 }

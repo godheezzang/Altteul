@@ -52,12 +52,13 @@ public class WebSocketEventListener {
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 		Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+
 		log.info(accessor.toString());
+
 		if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
 			try {
 				Long userId = (Long)sessionAttributes.get("userId");
 				Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
-
 				Long teamId = (Long)sessionAttributes.get("teamId");
 
 				if (userId != null && teamId != null) {
@@ -66,14 +67,13 @@ public class WebSocketEventListener {
 				}
 
 				// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리
-				if (roomId != null) {
+				if (userId != null && roomId != null) {
 					String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
 					String status = redisTemplate.opsForValue().get(roomStatusKey);
 
 					if ("counting".equals(status)) {
 						log.info("WebSocket Disconnect 발생 : userId : {}, roomId : {}", userId, roomId);
-						RoomRequestDto leftUser = RoomRequestDto.toDto(userId);
-						singleRoomService.leaveSingleRoom(leftUser);
+						singleRoomService.leaveSingleRoom(roomId, userId);
 					}
 				}
 				userStatusService.setUserOffline(userId);
