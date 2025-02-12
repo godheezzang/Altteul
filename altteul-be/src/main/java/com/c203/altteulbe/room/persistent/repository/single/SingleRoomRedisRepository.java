@@ -7,14 +7,13 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SingleRoomRedisRepository {
 	private final RedisTemplate<String, String> redisTemplate;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 
 	// 입장 가능한 대기방 조회
 	public Long getAvailableRoom() {
@@ -91,7 +90,7 @@ public class SingleRoomRedisRepository {
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		List<Long> userIdLongs = userIds.stream().map(Long::parseLong).collect(Collectors.toList());
 
-		List<User> users = userJPARepository.findByUserIdIn(userIdLongs);
+		List<User> users = userRepository.findByUserIdIn(userIdLongs);
 
 		// 조회된 users를 userIds 순서대로 정렬
 		Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getUserId, Function.identity()));
