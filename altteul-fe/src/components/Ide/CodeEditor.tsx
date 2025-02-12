@@ -20,7 +20,7 @@ const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) =>
   useEffect(() => {
     configureMonaco();
     setCode(DEFAULT_CODE[language]);
-  }, []);
+  }, [language]);
 
   const languageOptions = [
     { id: 1, value: 'python', label: 'Python' },
@@ -28,7 +28,7 @@ const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) =>
   ];
 
   return (
-    <div className="flex flex-col border-b border-gray-04">
+    <div className="flex flex-col border-b border-gray-04 items-end">
       {/* 언어 선택 드롭다운 */}
       <Dropdown
         options={languageOptions}
@@ -38,6 +38,10 @@ const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) =>
         }}
         width="10rem"
         height="3.7rem"
+        className='bg-gray-06 border-0 text-sm'
+        optionCustomName='bg-gray-05 border-0'
+        borderColor='border-gray-06'
+        fontSize='text-sm'
       />
 
       <Editor
