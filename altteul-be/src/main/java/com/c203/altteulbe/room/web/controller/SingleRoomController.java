@@ -30,7 +30,7 @@ public class SingleRoomController {
 	 */
 	@PostMapping("/enter")
 	public ApiResponseEntity<ResponseBody.Success<RoomEnterResponseDto>> enterSingleRoom(
-										@RequestBody RoomRequestDto requestDto) {
+		@RequestBody RoomRequestDto requestDto) {
 
 		RoomEnterResponseDto responseDto = singleRoomService.enterSingleRoom(requestDto);
 		return ApiResponse.success(responseDto, HttpStatus.OK);
@@ -51,15 +51,6 @@ public class SingleRoomController {
 	@PostMapping("/start")
 	public ApiResponseEntity<Void> startGame(@RequestBody RoomGameStartRequestDto requestDto) {
 		singleRoomService.startGame(requestDto);
-		return ApiResponse.success();
-	}
-
-	/*
-	 * 개인전 게임 중 퇴장 API
-	 */
-	@PostMapping("/game/leave")
-	public ApiResponseEntity<Void> leaveGameInProgress(@RequestBody RoomRequestDto requestDto) {
-		singleRoomService.leaveGameInProgress(requestDto);
 		return ApiResponse.success();
 	}
 }

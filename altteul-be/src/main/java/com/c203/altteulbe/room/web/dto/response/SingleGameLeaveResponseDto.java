@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SingleGameLeaveResponseDto {
+	private Long gameId;
 	private Long roomId;
 	private UserInfoResponseDto leftUser;
 	private List<UserInfoResponseDto> remainingUsers;

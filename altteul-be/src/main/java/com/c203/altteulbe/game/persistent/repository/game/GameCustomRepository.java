@@ -11,4 +11,5 @@ public interface GameCustomRepository {
 	Optional<Game> findWithAllMemberByGameId(Long gameId);
 
 	Optional<Game> findWithRoomByGameId(Long gameId);
+
 }
