@@ -15,7 +15,8 @@ interface CodeEditorProps {
   setLanguage: (lang: 'python' | 'java') => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, language, setLanguage }) => {
+const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) => {
+
   useEffect(() => {
     configureMonaco();
     setCode(DEFAULT_CODE[language]);
