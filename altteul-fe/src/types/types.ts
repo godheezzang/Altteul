@@ -227,3 +227,18 @@ export interface ChatRoomsResponse {
   message: string;
   data: ChatRoom[];
 }
+
+export interface ChatRoomDetail {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  messages: ChatMessage[];
+  createdAt: string;
+}
+
+export interface ChatRoomDetailResponse {
+  data: ChatRoomDetail;
+  message: string;
+  status: number;
+}
