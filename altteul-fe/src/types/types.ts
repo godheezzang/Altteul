@@ -142,3 +142,70 @@ export interface CodeInfo {
   executeTime: number;
   code: string;
 }
+
+export type UserSearchContextType = {
+  searchQuery: string;
+  searchResults: Friend[];
+  handleSearch: (query: string) => void;
+  resetSearch: () => void; // 검색 초기화
+};
+
+export type Friend = {
+  userId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+};
+
+export type FriendRequest = {
+  friendRequestId: number;
+  fromUserId: number;
+  fromUserNickname: string;
+  fromUserProfileImg: string;
+  requestStatus: 'P' | 'A' | 'R';
+};
+
+export type ChatRoom = {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  recentMessage: string;
+  isMessageRead: boolean;
+  createdAt: string;
+};
+
+export type ChatMessage = {
+  chatMessageId: number;
+  senderId: number;
+  senderNickname: string;
+  messageContent: string;
+  checked: boolean;
+  createdAt: string;
+};
+
+export type Notification = {
+  id: number;
+  type: 'gameInvite' | 'friendRequest';
+  from: {
+    id: number;
+    nickname: string;
+    profileImg: string;
+  };
+  createdAt: string;
+};
+
+export interface NotificationUser {
+  id: number;
+  nickname: string;
+  profileImg: string;
+  isOnline?: boolean;
+}
+
+export interface NotificationItem {
+  id: number;
+  type: 'friendRequest' | 'gameInvite';
+  from: NotificationUser;
+  roomId?: number; // gameInvite일 때만 존재
+  createdAt: string;
+}
