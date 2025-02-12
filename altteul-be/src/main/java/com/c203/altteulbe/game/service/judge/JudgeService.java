@@ -1,5 +1,6 @@
-package com.c203.altteulbe.game.service;
+package com.c203.altteulbe.game.service.judge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,14 +11,20 @@ import org.springframework.web.client.RestTemplate;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.common.dto.PointType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
+import com.c203.altteulbe.game.persistent.entity.PointHistory;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.entity.TestHistory;
 import com.c203.altteulbe.game.persistent.entity.TestResult;
+import com.c203.altteulbe.game.persistent.entity.side.SideProblemHistory;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.persistent.repository.history.TestHistoryRepository;
 import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
+import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryRepository;
+import com.c203.altteulbe.game.service.PointHistoryService;
+import com.c203.altteulbe.game.service.judge.JudgeWebsocketService;
 import com.c203.altteulbe.game.web.dto.judge.request.JudgeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.lang.LangDto;
@@ -31,6 +38,7 @@ import com.c203.altteulbe.game.web.dto.judge.response.TestCaseResponseDto;
 import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
+import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
 

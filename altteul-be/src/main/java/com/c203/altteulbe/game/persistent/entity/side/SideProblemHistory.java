@@ -45,7 +45,7 @@ public class SideProblemHistory extends BaseCreatedEntity {
 	private User userId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@Column(name = "side_problem_id", nullable = false)
+	@JoinColumn(name = "side_problem_id", nullable = false)
 	private SideProblem sideProblemId;
 
 	@Column(name = "user_answer", nullable = false, length = 128)
