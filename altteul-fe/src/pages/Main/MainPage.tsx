@@ -87,7 +87,6 @@ const MainPage = () => {
           <SmallButton onClick={handleGameStart}>게임 시작</SmallButton>
         </div>
       </section>
-
       {/* 두 번째 섹션 */}
       {/* <section
         className={`min-h-[57rem] p-8 transition-opacity duration-500 mt-4 ${
@@ -96,7 +95,7 @@ const MainPage = () => {
       >
         <GameGuide />
       </section> */}
-      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
+      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />{' '}
     </div>
   );
 };

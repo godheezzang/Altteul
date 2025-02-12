@@ -13,4 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SubmitSideProblemResponseDto {
 	SideProblemHistory.ProblemResult status;
+	Long itemId;
+	String itemName;
+	int bonusPoint;
 }

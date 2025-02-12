@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import MonacoEditor from '@monaco-editor/react';
+import MonacoEditor, { loader } from '@monaco-editor/react';
 
 const codeSnippet = `import java.util.ArrayList;
 import java.util.Arrays;

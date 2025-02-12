@@ -6,6 +6,8 @@ import com.c203.altteulbe.user.persistent.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,7 +24,9 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class TodayRanking extends BaseCreatedEntity {
+
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ranking_id")
 	Long id;
 
@@ -34,9 +38,21 @@ public class TodayRanking extends BaseCreatedEntity {
 	@JoinColumn(name = "tier_id", nullable = false)
 	private Tier tier;
 
+	private int ranking;  // 순위
+
 	@Column(name = "ranking_point")
 	Long rankingPoint;
 
 	@Column(name = "ranking_change")
 	Long rankingChange;
+
+	public static TodayRanking create(User user, Tier tier, Long rankingPoint, Long rankingChange, int ranking) {
+		return TodayRanking.builder()
+						   .user(user)
+						   .tier(tier)
+						   .rankingPoint(rankingPoint)
+						   .rankingChange(rankingChange)
+						   .ranking(ranking)
+						   .build();
+	}
 }
