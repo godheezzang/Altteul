@@ -107,6 +107,7 @@ public class JudgeService {
 	 * @param id : username
 	 */
 	public void submitCode(SubmitCodeRequestDto request, Long id) {
+		System.out.println(request.toString());
 		// 저지에게 코드 제출
 		JudgeResponse judgeResponse = submitToJudge(request, PROBLEM_PREFIX);
 
@@ -114,12 +115,21 @@ public class JudgeService {
 			throw new NullPointerException();
 
 		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse);
-		CodeSubmissionOpponentResponseDto opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
-			.totalCount(teamResponseDto.getTotalCount())
-			.passCount(teamResponseDto.getPassCount())
-			.status(teamResponseDto.getStatus())
-			.build();
+		CodeSubmissionOpponentResponseDto opponentResponseDto;
+		if (judgeResponse.isNotCompileError()) {
+			log.debug(judgeResponse.toString());
+			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.totalCount(teamResponseDto.getTotalCount())
+				.passCount(teamResponseDto.getPassCount())
+				.status(teamResponseDto.getStatus())
+				.build();
 
+		} else {
+			 opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.passCount(null)
+				.totalCount(null)
+				.build();
+		}
 		// 채점 결과 팀별로 메세지 전송
 		judgeWebsocketService.sendTeamSubmissionResult(teamResponseDto,
 			request.getGameId(),
@@ -191,7 +201,7 @@ public class JudgeService {
 				code
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
-			if (testHistory.getFailCount() == 0) {
+			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
 				finishGame(game, game.getSingleRooms(), myRoom);
 			}
 		} else {
@@ -204,7 +214,7 @@ public class JudgeService {
 				code
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
-			if (testHistory.getFailCount() == 0) {
+			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
 				finishGame(game, game.getTeamRooms(), myRoom);
 			}
 		}

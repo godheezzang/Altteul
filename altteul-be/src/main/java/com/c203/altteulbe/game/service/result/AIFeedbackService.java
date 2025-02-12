@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AIFeedbackService {
 	private final ChatModel chatModel;
 	private final GameRepository gameRepository;
-	private final LoggersEndpoint loggersEndpoint;
 
 	public AIFeedbackResponse getEvaluation(AIFeedbackRequestDto request) {
 		// 유저 프롬프트 템플릿 로드 및 변수 설정

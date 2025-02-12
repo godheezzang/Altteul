@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
@@ -69,6 +71,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		User userDetails = (User) authentication.getPrincipal();
 
 		String token = jwtUtil.createJwt(userDetails.getUserId(), 60*60*10000L);
+		log.info("token={}", token);
 
 		response.addHeader("Authorization", "Bearer " + token);
 		response.addHeader("userid", userDetails.getUserId().toString());

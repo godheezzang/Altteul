@@ -184,6 +184,7 @@ public class SideProblemService {
 
 		// 랜덤 번호와 안겹칠때까지 찾고 추출
 		SideProblem nextProblem = null;
+
 		while (solved.size() < 30) {
 			long randomId = random.nextLong(totalCount) + 1; // 1부터 totalCount까지의 랜덤 숫자
 			if (!solved.contains(randomId)) {

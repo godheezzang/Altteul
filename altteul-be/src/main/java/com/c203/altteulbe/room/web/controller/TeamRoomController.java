@@ -1,6 +1,8 @@
 package com.c203.altteulbe.room.web.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,18 +33,19 @@ public class TeamRoomController {
 	 */
 	@PostMapping("/enter")
 	public ApiResponseEntity<ResponseBody.Success<RoomEnterResponseDto>> enterTeamRoom(
-		@RequestBody RoomRequestDto requestDto) {
+		@AuthenticationPrincipal Long userId) {
 
-		RoomEnterResponseDto responseDto = teamRoomService.enterTeamRoom(requestDto);
+		RoomEnterResponseDto responseDto = teamRoomService.enterTeamRoom(userId);
 		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
 
 	/*
 	 * 팀전 방 퇴장 API
 	 */
-	@PostMapping("/leave")
-	public ApiResponseEntity<Void> leaveTeamRoom(@RequestBody RoomRequestDto requestDto) {
-		teamRoomService.leaveTeamRoom(requestDto);
+	@PostMapping("/leave/{roomId}")
+	public ApiResponseEntity<Void> leaveTeamRoom(@PathVariable Long roomId,
+												 @AuthenticationPrincipal Long userId) {
+		teamRoomService.leaveTeamRoom(roomId, userId);
 		return ApiResponse.success();
 	}
 

@@ -65,17 +65,17 @@ public class SingleRoomService {
 	 * 동일 유저의 중복 요청 방지 및 동시성 제어를 위해 userId를 키로 갖는 락을 생성
 	 */
 	//@DistributedLock(key="#requestDto.userId")
-	public RoomEnterResponseDto enterSingleRoom(RoomRequestDto requestDto) {
-		User user = userRepository.findByUserId(requestDto.getUserId())
+	public RoomEnterResponseDto enterSingleRoom(Long userId) {
+		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
-			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+		if (validator.isUserInAnyRoom(userId, BattleType.S)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", userId);
 			throw new DuplicateRoomEntryException();
 		}
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
-			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", requestDto.getUserId());
+		if (validator.isUserInAnyRoom(userId, BattleType.T)) {
+			log.info("이미 방에 존재하는 유저가 중복으로 방 입장 요청 : userId = {}", userId);
 			throw new DuplicateRoomEntryException();
 		}
 
@@ -101,20 +101,16 @@ public class SingleRoomService {
 	 * 개인전 대기방 퇴장 처리
 	 */
 	//@DistributedLock(key = "#requestDto.userId")
-	public void leaveSingleRoom(RoomRequestDto requestDto) {
-		Long userId = requestDto.getUserId();
-
-		// 유저가 속한 방 조회
-		Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
-		if (roomId == null) {
-			throw new UserNotInRoomException();
-		}
+	public void leaveSingleRoom(Long roomId, Long userId) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
-		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
+		// 유저가 방에 속했는지 검증
+		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
+			throw new UserNotInRoomException();
+		}
 
 		// 방 상태 확인
 		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
@@ -139,6 +135,9 @@ public class SingleRoomService {
 
 		// 방장 조회
 		Long leaderId = Long.parseLong(remainingUserIds.get(0));
+
+		// 떠나는 유저 정보 조회
+		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
 
 		// 남은 유저들 정보 조회
 		List<User> remainingUsers = getUserByIds(remainingUserIds);
@@ -166,11 +165,17 @@ public class SingleRoomService {
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
 	//@DistributedLock(key = "requestDto.roomId")
-	public void startGame(RoomGameStartRequestDto requestDto) {
-		Long roomId = requestDto.getRoomId();
-		Long leaderId = requestDto.getLeaderId();
+	public void startGame(Long roomId, Long leaderId) {
+		// 유저 정보 조회
+		userRepository.findByUserId(leaderId)
+			.orElseThrow(() -> new NotFoundUserException());
 
-		// 검증
+		// 유저가 방에 속했는지 검증
+		if (!validator.isUserInThisRoom(leaderId, roomId, BattleType.S)) {
+			throw new UserNotInRoomException();
+		}
+
+		// 기타 검증
 		if (!validator.isRoomWaiting(roomId, BattleType.S))
 			throw new GameCannotStartException();
 		if (!validator.isRoomLeader(roomId, leaderId, BattleType.S))
@@ -183,7 +188,7 @@ public class SingleRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomStatus(roomId), "counting");
 
 		// 카운트다운 시작 → Scheduler가 인식
-		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "6");
+		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "10");
 	}
 
 	/**

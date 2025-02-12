@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TierHistoryListener {
 
 	private final TierHistoryRepository tierHistoryRepository;
-	private final UserRepository userRepository;
 	private final TierRepository tierRepository;
 
 	/*

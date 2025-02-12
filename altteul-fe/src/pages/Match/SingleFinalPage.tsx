@@ -14,16 +14,19 @@ import { useSocketStore } from '@stores/socketStore';
 const SingleFinalPage = () => {
   const navigate = useNavigate();
   const store = useMatchStore();
-  const [waitUsers, setWaitUsers] = useState(store.matchData.users);
-  const [leaderId] = useState(store.matchData.leaderId);
+  const socket = useSocketStore()
+
   const roomId = store.matchData.roomId;
-  const gameId = store.matchData.gameId;
-  const [headUser, setHeadUser] = useState<User>(waitUsers.find(user => user.userId === leaderId));
-  const { resetGameInfo, setGameInfo, setUsers, setProblem, setTestcases } =
-    useGameStore.getState();
-  const { c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
-  const problem = store.matchData.problem;
-  const testcases = store.matchData.testcases;
+  const [leaderId] = useState(store.matchData.leaderId);
+  // Store에 저장된 데이터로 초기 세팅
+  const [waitUsers, setWaitUsers] = useState(store.matchData.users.filter((user) => user.userId !== leaderId));
+  const [headUser, setHeadUser] = useState<User>(store.matchData.users.find(user => user.userId === leaderId));
+  // console.log("전달 받은 데이터::", store.matchData)
+  const { setGameInfo, setUsers, setProblem, setTestcases } = useGameStore();
+
+  const { c_waitUsers, c_leaderId, count, isStart, gameData } = useMatchWebSocket(roomId);
+
+  const [seconds, setSeconds] = useState<number>(10)
 
   useEffect(() => {
     if (c_waitUsers && c_leaderId) {
@@ -35,56 +38,49 @@ const SingleFinalPage = () => {
     }
   }, [c_waitUsers, c_leaderId]);
 
-  // 타이머 완료 여부를 추적하는 상태 추가
-  const [isTimeUp, setIsTimeUp] = useState(false);
-
-  const { seconds } = useTimer({
-    initialSeconds: 10,
-    onComplete: () => {
-      setIsTimeUp(true);
-    },
-  });
-
-  // 타이머 완료 시 페이지 이동 처리
+  //응답 데이터 수신에 따른 count 변화
   useEffect(() => {
-    if (isTimeUp) {
-      store.setMatchData({
-        data: {
-          gameId: gameId,
-          roomId: roomId,
-          leaderId: leaderId,
-          users: [headUser, ...waitUsers],
-          problem: problem,
-          testcases: testcases,
-        },
-      });
+    setSeconds((count))
+  }, [count])
 
-      setGameInfo(gameId, roomId);
-      setUsers([headUser, ...waitUsers]);
-      setProblem(problem);
-      setTestcases(testcases);
-      useSocketStore.getState().setKeepConnection(true);
-      console.log('keepConnection true 완료');
+  // 소켓 연결 관리 부분
+  useEffect(() => {
+    //소켓 연결 유지는 페이지 넘어가기 전에만 설정, 초기에는 false
+    //정상적인 페이지 이동이 아닌 경우 Defalut로 연결 끊기 위함
+    socket.setKeepConnection(false);
+    return () => {
+      // 소켓 연결 유지 선언을 하지 않았다면 연결 유지 초기화(소켓 끊음)
+      if (!socket.keepConnection) {
+        console.log('!!연결 유지 선언이 없어서 소켓 연결을 초기화 합니다!!');
+        socket.resetConnection();
+        navigate('/match/select');
+      }
+    };
+  },[])
+
+  // GAME_START 수신 시 페이지 이동 처리
+  useEffect(() => {
+    if (isStart) {  //소켓에서 GAME_START 수신 시
+      // IDE에서 쓸 데이터 setting
+      setGameInfo(gameData.gameId, roomId);
+      setUsers(gameData.users);
+      setProblem(gameData.problem);
+      setTestcases(gameData.testcases);
+      socket.setKeepConnection(true); //정상 이동, 소켓 연결 유지
 
       setTimeout(() => {
-        console.log('페이지 이동');
-        navigate(`/game/single/${gameId}/${roomId}`);
+        console.log('IDE 페이지 이동');
+        navigate(`/game/single/${gameData.gameId}/${roomId}`);
       }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
   }, [
-    isTimeUp,
+    isStart,
     roomId,
-    gameId,
-    leaderId,
-    waitUsers,
-    headUser,
-    problem,
+    gameData,
     setGameInfo,
     setProblem,
     setTestcases,
     setUsers,
-    store,
-    testcases,
     navigate,
   ]);
 
@@ -116,7 +112,7 @@ const SingleFinalPage = () => {
           게임이 시작됩니다!
         </div>
 
-        <div className="text-white text-4xl mb-8">{formatTime(seconds)}</div>
+        <div className="text-white text-4xl mb-8">{seconds}</div>
 
         <div className="flex justify-center items-center gap-20">
           {waitUsers.map((user: User) => (

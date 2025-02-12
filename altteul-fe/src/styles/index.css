@@ -40,3 +40,8 @@
 .monaco-mouse-cursor-text {
   position: inherit;
 }
+
+/* 드롭다운 마지막 요소 border 지우기 */
+.dropdown-last:last-child {
+  border: 0;
+}
