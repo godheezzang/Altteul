@@ -20,6 +20,34 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     { id: 2, value: 'JV', label: 'Java' },
   ];
 
+  // 폼 초기화 함수
+  const resetForm = () => {
+    setForm({
+      username: '',
+      password: '',
+      confirmPassword: '',
+      nickname: '',
+      mainLang: 'PY',
+      profileImg: null,
+    });
+
+    setErrors({
+      username: '',
+      password: '',
+      confirmPassword: '',
+      nickname: '',
+      mainLang: '',
+      profileImg: '',
+    });
+
+    // 검증 상태 초기화
+    setIsUsernameVerified(false);
+    setIsUsernameTaken(false);
+    setIsNicknameVerified(false);
+    setIsNicknameTaken(false);
+    setApiError('');
+  };
+
   // 폼 상태
   const [form, setForm] = useState<SignUpFormData>({
     username: '',
@@ -303,6 +331,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      onReset={resetForm}
       title="알뜰 회원가입"
       height="auto"
       className="bg-primary-white"
