@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import Input from '@components/Common/Input';
 import Modal from '@components/Common/Modal';
 import Button from '@components/Common/Button/Button';
 import SignUpDropdown from '@components/Auth/SignUpDropdown';
 
-import { checkUsername, registerUser } from '@utils/api/auth';
+import { checkUsername, registerUser, checkNickname } from '@utils/api/auth';
 import { validateSignUpForm, SignUpFormData, ValidationErrors } from '@utils/validation';
 import ProfileUpload from '@components/Auth/ProfileUpload';
 
@@ -44,10 +44,15 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 아이디 중복확인 상태
+  // 아이디 중복확인
   const [isUsernameTaken, setIsUsernameTaken] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isUsernameVerified, setIsUsernameVerified] = useState(false);
+
+  // 닉네임 중복확인
+  const [isNicknameTaken, setIsNicknameTaken] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [isNicknameVerified, setIsNicknameVerified] = useState(false);
 
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +128,53 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     }
   };
 
+  // 닉네임 중복확인
+
+  const handleCheckNickname = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // 닉네임 유효성 검사
+    if (form.nickname.length < 2 || form.nickname.length > 8) {
+      setErrors(prev => ({
+        ...prev,
+        nickname: '닉네임은 2자 이상 8자 이하여야 합니다.',
+      }));
+      return;
+    }
+
+    setIsCheckingNickname(true);
+    setIsNicknameTaken(false);
+    setApiError('');
+
+    try {
+      const response = await checkNickname(form.nickname);
+      if (response.isTaken) {
+        setIsNicknameTaken(true);
+        setIsNicknameVerified(false);
+        setErrors(prev => ({
+          ...prev,
+          nickname: '이미 사용 중인 닉네임입니다.',
+        }));
+      } else {
+        setIsNicknameTaken(false);
+        setIsNicknameVerified(true);
+        setErrors(prev => ({
+          ...prev,
+          nickname: '',
+        }));
+      }
+    } catch (error) {
+      console.error('닉네임 중복 확인 실패:', error);
+      setErrors(prev => ({
+        ...prev,
+        nickname: '이미 사용 중인 닉네임입니다.',
+      }));
+      setIsNicknameVerified(false);
+    } finally {
+      setIsCheckingNickname(false);
+    }
+  };
+
   // 폼 유효성 검사
   const validateForm = () => {
     const validationResult = validateSignUpForm(form);
@@ -136,6 +188,11 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       setApiError('아이디 중복확인이 필요합니다.');
       return false;
     }
+    if (!isNicknameVerified) {
+      setApiError('닉네임 중복확인이 필요합니다.');
+      return false;
+    }
+
     if (validationResult.errors.password) {
       setErrors({ ...errors, password: validationResult.errors.password });
       return false;
@@ -249,13 +306,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
         {isUsernameVerified && !isUsernameTaken && !errors.username && (
           <p className="text-primary-green text-sm">사용 가능한 아이디입니다.</p>
         )}
-        {/* <Button
-          onClick={handleCheckUsername}
-          disabled={isCheckingUsername || !form.username}
-          className={`h-[3rem] ${isCheckingUsername ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {isCheckingUsername ? '확인중...' : '중복확인'}
-        </Button> */}
 
         <Input
           name="password"
@@ -294,8 +344,13 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           placeholder="닉네임을 입력해 주세요"
           onChange={handleChange}
           value={form.nickname}
+          buttonText={isCheckingNickname ? '확인중...' : '중복확인'}
+          onButtonClick={handleCheckNickname}
         />
         {errors.nickname && <p className="text-primary-orange text-sm">{errors.nickname}</p>}
+        {isNicknameVerified && !isNicknameTaken && !errors.nickname && (
+          <p className="text-primary-green text-sm">사용 가능한 닉네임입니다.</p>
+        )}
 
         <SignUpDropdown
           options={languageOptions}
