@@ -23,8 +23,6 @@ interface SocketStore {
   unsubscribe: (destination: string) => void;
   sendMessage: (destination: string, message: any) => void;
   restoreSubscriptions: () => void;
-  // addCallback: (destination: string, callback: (data: any) => void) => void;
-  // removeCallback: (destination: string, callback: (data: any) => void) => void;
 }
 
 // const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:8080/ws';
@@ -43,8 +41,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   subscriptions: new Map(),
   reconnectAttempts: 0,
   maxReconnectAttempts: MAX_RECONNECT_ATTEMPTS,
-
-  callbackMap: new Map<string, Set<(data: any) => void>>(), // 구독당 여러 콜백 관리를 위한 Map
 
   connect: () => {
     if (!checkAuthStatus()) {
@@ -117,15 +113,9 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   subscribe: (destination: string, callback: (data: any) => void) => {
-    const { client, connected, subscriptions, callbackMap } = get();
+    const { client, connected, subscriptions } = get();
 
-    // 콜백 등록
-    if (!callbackMap.has(destination)) {
-      callbackMap.set(destination, new Set());
-    }
-    callbackMap.get(destination)?.add(callback);
-
-    // 이미 구독중이면 위에서 콜백만 추가하고 종료
+    // 이미 구독중이면 종료
     if (subscriptions.has(destination)) {
       console.warn(`Already subscribed to ${destination}`);
       return;
@@ -141,8 +131,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     const subscription = client.subscribe(destination, (message: Message) => {
       try {
         const data = JSON.parse(message.body);
-        // 등록된 모든 콜백 실행
-        callbackMap.get(destination)?.forEach((cb: (data: any) => void) => cb(data));
+        callback(data);
       } catch (error) {
         console.error('Error parsing message:', error);
       }
