@@ -27,7 +27,6 @@ import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
-import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
@@ -50,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GameLeaveService {
 	private final UserRepository userRepository;
 	private final RoomValidator roomValidator;
-	private final SingleRoomRedisRepository singleRoomRedisRepository;
 	private final TeamRoomRedisRepository teamRoomRedisRepository;
 	private final GameRepository gameRepository;
 	private final RedisTemplate<String, String> redisTemplate;
@@ -118,10 +116,11 @@ public class GameLeaveService {
 
 	// 개인전 정상 종료 후 나가기 처리
 	private void handleFinishedSingleGameLeave(Game game, User user) {
-		SingleRoom userRoom = singleRoomRepository.findByUser_UserId(user.getUserId())
+		SingleRoom userRoom = singleRoomRepository.findByUser_UserIdAndGame(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
 		Long roomId = userRoom.getId();
-		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
+		String roomUsersKey = RedisKeys.SingleRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 		// Redis에서 유저 정보 삭제
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
@@ -148,7 +147,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			redisRoomId,
 			"GAME_FINISH_LEAVE",
 			responseDto,
 			BattleType.S
@@ -245,7 +244,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			redisRoomId,
 			"GAME_LEAVE",
 			responseDto,
 			BattleType.S
