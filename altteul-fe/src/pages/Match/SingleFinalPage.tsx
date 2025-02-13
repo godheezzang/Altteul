@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
+import { singleOut } from '@utils/Api/matchApi';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ const SingleFinalPage = () => {
       // 소켓 연결 유지 선언을 하지 않았다면 연결 유지 초기화(소켓 끊음)
       if (!socket.keepConnection) {
         console.log('!!연결 유지 선언이 없어서 소켓 연결을 초기화 합니다!!');
+        singleOut(roomId)
         socket.resetConnection();
         navigate('/match/select');
       }
