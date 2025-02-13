@@ -414,10 +414,8 @@ public class GameLeaveService {
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 
 		// 모든 삭제할 키를 리스트에 추가
-		List<String> keysToDelete = new ArrayList<>();
-
 		// 기존 키들 추가
-		keysToDelete.addAll(Arrays.asList(
+		List<String> keysToDelete = new ArrayList<>(Arrays.asList(
 			roomUsersKey,
 			RedisKeys.SingleRoomStatus(roomId)
 		));
@@ -439,10 +437,8 @@ public class GameLeaveService {
 		List<String> userIds2 = redisTemplate.opsForList().range(roomUsersKey2, 0, -1);
 
 		// 모든 삭제할 키를 리스트에 추가
-		List<String> keysToDelete = new ArrayList<>();
-
 		// 기존 키들 추가
-		keysToDelete.addAll(Arrays.asList(
+		List<String> keysToDelete = new ArrayList<>(Arrays.asList(
 			roomUsersKey1,
 			roomUsersKey2,
 			RedisKeys.TeamRoomStatus(roomId),
