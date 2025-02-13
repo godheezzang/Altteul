@@ -31,13 +31,19 @@ const SingleFinalPage = () => {
   //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
+
+    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    return () => {
+      console.log("singleFinalPage Out, 구독 취소")
+      socket.unsubscribe(`/sub/single/room/${roomId}`)
+    }
   }, [roomId])
 
   //소켓 응답 처리
   const handleMessage = (message) => {
     const { type, data } = message;
-
-    if (type === 'ENTER' || type === 'LEAVE') {
+    console.log(message)
+    if (type === 'LEAVE') {
       setWaitUsers(data.users.filter(user => user.userId !== leaderId));
       setHeadUser(data.users.find(user => user.userId === leaderId))
     }
@@ -54,6 +60,11 @@ const SingleFinalPage = () => {
         testcases: data.testcases
       })
       setIsStart(true);
+
+      setTimeout(() => {
+        console.log('IDE 페이지 이동');
+        navigate(`/game/single/${data.gameId}/${roomId}`);
+      }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
   }
 
@@ -66,10 +77,6 @@ const SingleFinalPage = () => {
       setProblem(gameData.problem);
       setTestcases(gameData.testcases);
 
-      setTimeout(() => {
-        console.log('IDE 페이지 이동');
-        navigate(`/game/single/${gameData.gameId}/${roomId}`);
-      }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
   }, [
     isStart,
