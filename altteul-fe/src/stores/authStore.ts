@@ -4,28 +4,27 @@ interface AuthState {
   token: string;
   userId: string;
   setToken: (newToken: string) => void;
-  setUserId: (newUserId: string | number) => void;
+  setUserId: (newUserId: string) => void;
   logout: () => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
-  token: localStorage.getItem("token") || "",
-  userId: localStorage.getItem("userId") || "",
+  token:sessionStorage.getItem("token") || "",
+  userId:sessionStorage.getItem("userId") || "",
 
   setToken: (newToken: string) => {
-    const cleanToken = newToken.replace(/^Bearer\s+/i, "");
-    localStorage.setItem("token", cleanToken); //로컬에 저장
-    set({ token: cleanToken }); // zustand에 저장
+  sessionStorage.setItem("token", newToken); //로컬에 저장
+    set({ token: newToken }); // zustand에 저장
   },
 
-  setUserId: (newUserId: string | number) => {
-    localStorage.setItem("userId", newUserId.toString());
+  setUserId: (newUserId: string) => {
+  sessionStorage.setItem("userId", newUserId);
     set({ userId: newUserId.toString() });
   },
 
   logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("userId");
     set({ token: "", userId: "" });
   },
 }));
