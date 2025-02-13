@@ -28,17 +28,30 @@ const SingleSearchPage = () => {
   //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
+
+    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    return () => {
+      console.log("singleSearchPage Out, 구독 취소")
+      socket.unsubscribe(`/sub/single/room/${roomId}`)
+    }
   }, [roomId])
 
   //소켓 응답 처리
   const handleMessage = (message) => {
+    console.log(message)
     const { type, data } = message;
     if (type === 'ENTER' || type === 'LEAVE') {
       setLeaderId(data.leaderId);
       setWaitUsers(data.users.filter(user => user.userId !== leaderId));
       setHeadUser(data.users.find(user => user.userId === leaderId))
       setIsLeader(currentUserId === leaderId)
-    }else{
+    }
+    
+    else if (type === 'COUNTING') {
+      navigate('/match/single/final');
+    }
+    
+    else{
       console.warn('예상하지 못한 소켓응답')
       console.log(message)
     }
@@ -95,12 +108,7 @@ const SingleSearchPage = () => {
     });
 
     //게임 시작 API 호출(For socket 응답 변환)
-    const res = await singleStart(roomId);
-      if (res.status === 200) {
-        navigate('/match/single/final');
-      }else if (res.status === 400) {
-        console.log("게임 매칭 완료 중 에러 발생")
-      }
+    await singleStart(roomId);
   }
 
   //유저 퇴장 로직
