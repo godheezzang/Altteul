@@ -79,7 +79,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     <Modal
       isOpen={isOpen}
       onClose={closeModal}
-      height="35rem"
+      height="29rem"
       title="알뜰 로그인"
       className="bg-primary-white"
     >
@@ -114,19 +114,19 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         >
           회원가입
         </Button>
-
+        {/* 
         <a
           href="#"
           className="text-right text-gray-03 cursor-pointer underline hover:font-semibold"
         >
           비밀번호 재설정
-        </a>
+        </a> */}
 
         <Button
           onClick={handleGithubLogin}
           type="button"
           backgroundColor="primary-black"
-          className="h-[2.8rem] w-full mt-8 hover:brightness-110"
+          className="h-[2.8rem] w-[22rem]  hover:brightness-110"
           img={gitHubLogo}
         >
           github로 간편하게 시작하기
