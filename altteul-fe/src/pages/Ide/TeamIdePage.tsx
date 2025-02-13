@@ -7,6 +7,7 @@ import IdeFooter from '@components/Ide/IdeFooter';
 import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
+import VoiceChat from '@components/Ide/VoiceChat';
 
 const MAX_REQUESTS = 5;
 
@@ -70,7 +71,7 @@ const TeamIdePage = () => {
       
       <div className="w-[50rem] border-l border-gray-04">
         <CodeEditor code={opponentCode} setCode={setOpponentCode} language={language} setLanguage={setLanguage} />
-        <GameUserList users={users} completeUsers={completeUsers} userProgress={userProgress} />
+        <VoiceChat />
         
       </div>
       
