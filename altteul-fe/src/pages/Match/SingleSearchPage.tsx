@@ -74,7 +74,7 @@ const SingleSearchPage = () => {
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 180,  //3분
+    initialSeconds: 15,  //3분
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
@@ -115,7 +115,7 @@ const SingleSearchPage = () => {
     });
 
     //게임 시작 API 호출(For socket 응답 변환)
-    const res = await singleStart(roomId, leaderId);
+    const res = await singleStart(roomId);
       if (res.status === 200) {
         socket.setKeepConnection(true); // 연결 유지 상태로 변경
         navigate('/match/single/final');
@@ -126,7 +126,7 @@ const SingleSearchPage = () => {
 
   //유저 퇴장 로직
   const userOut = () => {
-    singleOut(currentUserId);
+    singleOut(roomId);
     socket.resetConnection();
     navigate('/match/select');
   };
