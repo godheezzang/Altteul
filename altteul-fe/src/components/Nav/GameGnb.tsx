@@ -11,7 +11,6 @@ const GameGnb = () => {
     navigate('./');
   };
 
-  console.log(location);
   const isTeam = location.pathname.includes('/game/team')
   
   return (
