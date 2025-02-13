@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InviteTeamAnswerRequestDto {
 	private Long inviterId;
-	private Long inviteeId;
 	private Long roomId;        // websocket으로 전송한 roomId
 	private boolean accepted;   // 초대 수락 여부 (true: 수락, false: 거절)
 }
