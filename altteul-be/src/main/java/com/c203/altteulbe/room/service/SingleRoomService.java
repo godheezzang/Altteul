@@ -128,6 +128,7 @@ public class SingleRoomService {
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
+			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
@@ -197,7 +198,8 @@ public class SingleRoomService {
 	public void startGameAfterCountDown(Long roomId) {
 		// 최소 인원 수 검증
 		if (!validator.isEnoughUsers(roomId, BattleType.S)) {
-			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL", "최소 인원 수가 미달되었습니다.", BattleType.S);
+			roomWebSocketService.sendWebSocketMessageWithNote(String.valueOf(roomId), "COUNTING_CANCEL",
+				"최소 인원 수가 미달되었습니다.", BattleType.S);
 			return;
 		}
 
@@ -269,7 +271,6 @@ public class SingleRoomService {
 		);
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
-
 
 	// userId 리스트로 User 엔티티 조회
 	private List<User> getUserByIds(List<String> userIds) {

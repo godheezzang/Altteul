@@ -153,13 +153,6 @@ public class VoiceChatService {
 			}
 			removeParticipant(roomId, userId);
 
-			notifyTeam(roomId, VoiceEventResponseDto.builder()
-				.userId(userId)
-				.roomId(roomId)
-				.type(VoiceEventType.LEAVE)
-				.status(false)
-				.build());
-
 			log.info("User {} voice connection terminated in team {}", userId, roomId);
 		} catch (Exception e) {
 			log.error("Failed to terminate voice connection for user {} in team {}", userId, roomId, e);

@@ -224,6 +224,10 @@ public class TeamRoomService {
 		// 해당 메시지를 전송받으면 "/sub/team/room/{matchId}"를 구독시켜야 함
 		String matchId = generateMatchId(roomId1, roomId2);
 
+		// 매칭된 방의 matchId를 Redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId1)), matchId);
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId2)), matchId);
+
 		Map<String, String> matchIdPayload = Map.of("matchId", matchId);
 		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", matchIdPayload, BattleType.T);
 		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", matchIdPayload, BattleType.T);
