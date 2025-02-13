@@ -95,27 +95,42 @@ public class SingleRoomService {
 		return responseDto;
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 개인전 대기방 퇴장 처리
 	 */
-	//@DistributedLock(key = "#requestDto.userId")
+
+	// 정식으로 요청했을 경우의 퇴장 처리
 	public void leaveSingleRoom(Long roomId, Long userId) {
+		removeUserFromSingleRoom(roomId, userId, true);
+	}
+
+	// 웹소켓 연결이 끊겼을 경우의 퇴장 처리
+	public void webSocketDisconnectLeave(Long roomId, Long userId) {
+		removeUserFromSingleRoom(roomId, userId, false);
+	}
+
+	//@DistributedLock(key = "#requestDto.userId")
+	public void removeUserFromSingleRoom(Long roomId, Long userId, boolean validateRoomStatus) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
 							      .orElseThrow(() -> new NotFoundUserException());
 
-		// 유저가 방에 속했는지 검증
-		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
-			throw new UserNotInRoomException();
-		}
+		if (validateRoomStatus) {
+			// 유저가 방에 속했는지 검증
+			if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
+				throw new UserNotInRoomException();
+			}
 
-		// 방 상태 확인
-		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
-		String status = redisTemplate.opsForValue().get(roomStatusKey);
+			// 방 상태 확인
+			String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
+			String status = redisTemplate.opsForValue().get(roomStatusKey);
 
-		if (!"waiting".equals(status)) {
-			throw new CannotLeaveRoomException();
+			if (!"waiting".equals(status)) {
+				throw new CannotLeaveRoomException();
+			}
 		}
 
 		// Redis에서 퇴장하는 유저 삭제
@@ -159,6 +174,8 @@ public class SingleRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.S);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
@@ -188,6 +205,8 @@ public class SingleRoomService {
 		// 카운트다운 시작 → Scheduler가 인식
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "10");
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 개인전 게임 시작 처리
