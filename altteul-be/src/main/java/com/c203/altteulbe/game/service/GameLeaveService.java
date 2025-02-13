@@ -154,9 +154,9 @@ public class GameLeaveService {
 		);
 	}
 
-	// 팀전 정상 종료 후 나가기 처리
+	// TODO : 팀전 정상 종료 후 나가기 처리
 	private void handleFinishedTeamGameLeave(Game game, User user) {
-		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserId(user.getUserId())
+		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
 		Long roomId = userTeamRoom.getTeamRoom().getId();
 		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userTeamRoom(user.getUserId()));
@@ -200,10 +200,10 @@ public class GameLeaveService {
 
 		// 팀의 마지막 유저인 경우 음성 채팅 세션 종료
 		List<String> remainingTeamUsers = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
-		if (remainingTeamUsers.isEmpty()) {
-			voiceChatService.terminateTeamVoiceSession(roomId);
-			String opposingRoomId = matchId.replace(roomId.toString(), "").replace("-", "");
-			cleanupTeamGameRedisData(roomId, Long.parseLong(opposingRoomId));
+		if (remainingTeamUsers == null || remainingTeamUsers.isEmpty()) {
+			voiceChatService.terminateTeamVoiceSession(Long.parseLong(redisRoomId));
+			String opposingRoomId = matchId.replace(redisRoomId, "").replace("-", "");
+			cleanupTeamGameRedisData(Long.parseLong(redisRoomId), Long.parseLong(opposingRoomId));
 		}
 	}
 
@@ -260,7 +260,7 @@ public class GameLeaveService {
 			);
 
 			roomWebSocketService.sendWebSocketMessage(
-				roomId.toString(),
+				redisRoomId,
 				"GAME_END",
 				gameEndPayload,
 				BattleType.S
