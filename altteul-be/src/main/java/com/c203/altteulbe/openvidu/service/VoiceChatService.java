@@ -119,7 +119,6 @@ public class VoiceChatService {
 	}
 
 	// 게임 종료 시 팀 음성 채팅 세션 종료
-	// TODO: 게임 종료, 나가기 시 적용, 방이 삭제될 때
 	public void terminateTeamVoiceSession(Long roomId) {
 		try {
 			Session session = openVidu.getActiveSession("team-" + roomId);
@@ -166,6 +165,8 @@ public class VoiceChatService {
 
 		String status = micEnabled ? "ENABLED" : "DISABLED";
 		hashOps.put(key, userId, status);
+		Map<String, String> entries = hashOps.entries(key);
+		log.info(entries.toString());
 	}
 
 	// Redis에서 참가자 정보 삭제

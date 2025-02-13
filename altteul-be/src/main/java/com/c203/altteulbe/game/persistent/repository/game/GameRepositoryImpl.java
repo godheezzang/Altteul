@@ -52,8 +52,6 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 					.where(userTeamRoom.user.userId.eq(userId))
 			));
 
-
-
 		JPAQuery<Game> singleRoomQuery = queryFactory
 			.selectFrom(game)
 			.leftJoin(game.singleRooms, singleRoom).fetchJoin()
@@ -143,6 +141,26 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
 				.leftJoin(game.problem, problem).fetchJoin()
 				.where(game.id.eq(gameId).and(teamRoom.id.eq(teamId)))
+				.fetchOne()
+			);
+		}
+	}
+
+	public Optional<Game> findWithGameByRoomIdAndType(Long roomId, BattleType battleType) {
+		if (BattleType.T.equals(battleType)) {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
+				.leftJoin(game.problem).fetchJoin()
+				.where(teamRoom.id.eq(roomId))
+				.fetchOne()
+			);
+		} else {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.singleRooms, singleRoom).fetchJoin()
+				.leftJoin(game.problem).fetchJoin()
+				.where(singleRoom.id.eq(roomId))
 				.fetchOne()
 			);
 		}
