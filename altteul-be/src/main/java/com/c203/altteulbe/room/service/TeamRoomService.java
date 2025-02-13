@@ -120,25 +120,40 @@ public class TeamRoomService {
 		return responseDto;
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 팀전 대기방 퇴장 처리
 	 */
-	//@DistributedLock(key = "#requestDto.userId")
+
+	// 정식으로 요청했을 경우의 퇴장 처리
 	public void leaveTeamRoom(Long roomId, Long userId) {
+		removeUserFromTeamRoom(roomId, userId, true);
+	}
+
+	// 웹소켓 연결이 끊겼을 경우의 퇴장 처리
+	public void webSocketDisconnectLeave(Long roomId, Long userId) {
+		removeUserFromTeamRoom(roomId, userId, false);
+	}
+
+	//@DistributedLock(key = "#requestDto.userId")
+	public void removeUserFromTeamRoom(Long roomId, Long userId, boolean validateRoomStatus) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
-		// 유저가 방에 속했는지 검증
-		if (!validator.isUserInThisRoom(userId, roomId, BattleType.T)) {
-			throw new UserNotInRoomException();
-		}
+		if (validateRoomStatus) {
+			// 유저가 방에 속했는지 검증
+			if (!validator.isUserInThisRoom(userId, roomId, BattleType.T)) {
+				throw new UserNotInRoomException();
+			}
 
-		// 방 상태 확인
-		String status = teamRoomRedisRepository.getRoomStatus(roomId);
-		if (!"waiting".equals(status)) {
-			throw new CannotLeaveRoomException();
+			// 방 상태 확인
+			String status = teamRoomRedisRepository.getRoomStatus(roomId);
+			if (!"waiting".equals(status)) {
+				throw new CannotLeaveRoomException();
+			}
 		}
 
 		// Redis에서 퇴장하는 유저 삭제
@@ -181,6 +196,8 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.T);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 팀전 매칭 시작
 	 */
@@ -214,6 +231,8 @@ public class TeamRoomService {
 		log.info("팀전 매칭 시작 : roomId = {}", roomId);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/*
 	 * 스케줄러가 매칭할 팀을 찾은 후 실행되는 작업
 	 */
@@ -243,6 +262,8 @@ public class TeamRoomService {
 		startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/*
 	 * 두 팀에 대한 카운팅 시작
 	 */
@@ -267,6 +288,8 @@ public class TeamRoomService {
 		// 카운트다운 시작 → Scheduler가 인식
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomCountdown(matchId), "10");
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 팀전 게임 시작 처리
@@ -331,6 +354,8 @@ public class TeamRoomService {
 		log.info("각 팀에게 게임 시작 메시지 전송 완료");
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * Redis에서 유저 ID를 조회하고, DB에 UserTeamRoom을 저장하는 메소드
 	 */
@@ -361,6 +386,8 @@ public class TeamRoomService {
 			userTeamRoomRepository.save(userTeamRoom);
 		}
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 매칭 취소 처리
@@ -396,6 +423,8 @@ public class TeamRoomService {
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId), "cancelling");
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/*
 	 * 매칭 취소 후 작업
 	 */
@@ -407,6 +436,8 @@ public class TeamRoomService {
 		// 취소가 완료된 경우 팀에게 매칭 취소 이벤트 전송
 		roomWebSocketService.sendWebSocketMessage(roomId, "MATCH_CANCEL_SUCCESS", responseDto, BattleType.T);
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/*
 	 * 팀 초대 처리
@@ -476,6 +507,8 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/*
 	 * 팀 초대 수락 및 거절 처리
 	 */
@@ -528,6 +561,8 @@ public class TeamRoomService {
 				"초대 거절 요청이 정상 처리되었습니다.");
 		}
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
