@@ -66,4 +66,12 @@ public class Game extends BaseCreatedEntity {
 			.battleType(battleType)
 			.build();
 	}
+
+	public void cancelGame() {
+		this.completedAt = LocalDateTime.now();
+	}
+
+	public boolean isInProgress() {
+		return completedAt == null;  // completedAt이 null이면 게임이 진행 중
+	}
 }

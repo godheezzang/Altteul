@@ -1,86 +1,116 @@
-// 채팅창 모달
+import React, { useState, useEffect, useRef } from 'react';
+import BaseModal from '@components/Friend/Friend_common/Basemodal';
+import ChatHeader from '@components/Friend/Chat/ChatHeader';
+import ChatMessage from '@components/Friend/Chat/ChatMessage';
+import ChatInput from '@components/Friend/Chat/ChatInput';
+import { getChatRoomDetail } from '@utils/Api/chatApi';
+import type { ChatRoomDetail, ChatMessage as ChatMessageType } from 'types/chat';
 
-import React, { useState, useEffect } from 'react';
-import FriendModal from '@components/friend/FriendModal';
-
-import ChatHeader from '@components/friend/chat/ChatHeader';
-import ChatMessage from '@components/friend/chat/ChatMessage';
-import ChatInput from '@components/friend/chat/ChatInput';
-
-import { mockChatRoomDetail } from 'mocks/friendData';
-
-type FriendChatModalProps = {
+interface FriendChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  friendId?: number;
-};
+  friendId: number;
+}
 
-const FriendChatModal = ({ isOpen, onClose, friendId = 1 }: FriendChatModalProps) => {
+const FriendChatModal = ({ isOpen, onClose, friendId }: FriendChatModalProps) => {
   const [message, setMessage] = useState('');
-  const [currentChat, setCurrentChat] = useState(mockChatRoomDetail);
-  const [chatHistory, setChatHistory] = useState(mockChatRoomDetail.messages);
+  const [chatRoom, setChatRoom] = useState<ChatRoomDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const fetchChatRoom = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getChatRoomDetail(friendId);
+      if (response.status === 200) {
+        setChatRoom(response.data);
+      } else {
+        throw new Error('채팅방 정보를 불러오는데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('채팅방 조회 실패:', error);
+      setError(error instanceof Error ? error.message : '채팅방을 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // 실제로는 여기서 API 호출을 하게 될 것입니다
-    // 지금은 목데이터를 사용하므로 mockChatWithFriend를 그대로 사용
-    setCurrentChat(mockChatRoomDetail);
-    setChatHistory(mockChatRoomDetail.messages);
-  }, [friendId]);
+    if (isOpen && friendId) {
+      fetchChatRoom();
+    }
+  }, [isOpen, friendId]);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatRoom?.messages]);
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
   };
 
   const handleSendMessage = () => {
-    if (message.trim()) {
-      const newMessage = {
+    if (message.trim() && chatRoom) {
+      // TODO: 메시지 전송 API 연동
+      const newMessage: ChatMessageType = {
         chatMessageId: Date.now(),
-        senderId: 0,
+        senderId: 0, // 현재 사용자 ID로 수정 필요
         senderNickname: '나',
         messageContent: message,
         checked: false,
         createdAt: new Date().toISOString(),
       };
-      setChatHistory(prevHistory => [...prevHistory, newMessage]);
+      setChatRoom(prev => (prev ? { ...prev, messages: [...prev.messages, newMessage] } : null));
       setMessage('');
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <FriendModal
-      isOpen={isOpen}
-      onClose={onClose}
-      showSearch={false}
-      showBackButton={true}
-      onBack={onClose}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} showBackButton={true} onBack={onClose}>
       <div className="flex flex-col h-full">
-        {/* 채팅방 헤더 */}
-        <ChatHeader
-          profileImg={currentChat.profileImg}
-          nickname={currentChat.nickname}
-          isOnline={currentChat.isOnline}
-        />
+        {isLoading ? (
+          <p className="text-center text-gray-03">로딩 중...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : chatRoom ? (
+          <>
+            <ChatHeader
+              profileImg={chatRoom.profileImg}
+              nickname={chatRoom.nickname}
+              isOnline={chatRoom.isOnline}
+            />
 
-        {/* 채팅 메시지 영역 */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-white scrollbar-track-gray-03 hover:scrollbar-thumb-primary-orange/80">
-          <div className="p-4 space-y-4">
-            {chatHistory.map(msg => (
-              <ChatMessage
-                key={msg.chatMessageId}
-                chatMessageId={msg.chatMessageId}
-                senderId={msg.senderId}
-                messageContent={msg.messageContent}
-                createdAt={msg.createdAt}
-              />
-            ))}
-          </div>
-        </div>
+            <div
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-white scrollbar-track-gray-03 hover:scrollbar-thumb-primary-orange/80"
+            >
+              <div className="p-4 space-y-4">
+                {chatRoom.messages.map(msg => (
+                  <ChatMessage
+                    key={msg.chatMessageId}
+                    chatMessageId={msg.chatMessageId}
+                    senderId={msg.senderId}
+                    messageContent={msg.messageContent}
+                    createdAt={msg.createdAt}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* 메시지 입력 영역 */}
-        <ChatInput message={message} onChange={handleMessageChange} onSend={handleSendMessage} />
+            <ChatInput
+              message={message}
+              onChange={handleMessageChange}
+              onSend={handleSendMessage}
+            />
+          </>
+        ) : null}
       </div>
-    </FriendModal>
+    </BaseModal>
   );
 };
 

@@ -142,3 +142,128 @@ export interface CodeInfo {
   executeTime: number;
   code: string;
 }
+
+export type UserSearchContextType = {
+  searchQuery: string;
+  searchResults: Friend[];
+  handleSearch: (query: string) => void;
+  resetSearch: () => void; // 검색 초기화
+};
+
+export type Friend = {
+  userId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+};
+
+export type FriendRequest = {
+  friendRequestId: number;
+  fromUserId: number;
+  fromUserNickname: string;
+  fromUserProfileImg: string;
+  requestStatus: 'P' | 'A' | 'R';
+};
+
+export type ChatRoom = {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  recentMessage: string;
+  isMessageRead: boolean;
+  createdAt: string;
+};
+
+export type ChatMessage = {
+  chatMessageId: number;
+  senderId: number;
+  senderNickname: string;
+  messageContent: string;
+  checked: boolean;
+  createdAt: string;
+};
+
+export type Notification = {
+  id: number;
+  type: 'gameInvite' | 'friendRequest';
+  from: {
+    id: number;
+    nickname: string;
+    profileImg: string;
+  };
+  createdAt: string;
+};
+
+export interface NotificationUser {
+  id: number;
+  nickname: string;
+  profileImg: string;
+  isOnline?: boolean;
+}
+
+export interface NotificationItem {
+  id: number;
+  type: 'friendRequest' | 'gameInvite';
+  from: NotificationUser;
+  roomId?: number; // gameInvite일 때만 존재
+  createdAt: string;
+}
+
+export interface FriendsResponse {
+  status: number;
+  message: string;
+  data: {
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+    friends: Friend[];
+  };
+}
+
+export interface ChatRoomsResponse {
+  status: number;
+  message: string;
+  data: ChatRoom[];
+}
+
+export interface ChatRoomDetail {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  messages: ChatMessage[];
+  createdAt: string;
+}
+
+export interface ChatRoomDetailResponse {
+  data: ChatRoomDetail;
+  message: string;
+  status: number;
+}
+
+export interface FriendRequestsResponse {
+  data: {
+    friendRequests: FriendRequest[];
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+  };
+  message: string;
+  status: string;
+}
+
+export interface SearchedUser {
+  userId: number;
+  nickname: string;
+  profileImage: string;
+  isOnline: boolean;
+}
+
+export interface UserSearchResponse {
+  status: number;
+  message: string;
+  data: SearchedUser;
+}

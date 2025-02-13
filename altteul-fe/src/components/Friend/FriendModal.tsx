@@ -1,12 +1,13 @@
 // components/friend/FriendModal.tsx
 import React, { useState, ReactNode, useEffect } from 'react';
-import BaseModal from '@components/friend/friend_common/Basemodal';
-import SearchBar from '@components/common/SearchBar';
-import Navigation from '@components/friend/friend_common/Navigation';
-import FriendListContent from '@components/friend/FriendListContent';
-import ChatListContent from '@components/friend/chat/ChatListContent';
-import NotificationAndRequestModal from '@components/friend/NotificationAndRequestModal';
-import FriendChatModal from '@components/friend/FriendChatModal';
+
+import BaseModal from '@components/Friend/Friend_common/Basemodal';
+import SearchBar from '@components/Common/SearchBar';
+import Navigation from '@components/Friend/Friend_common/Navigation';
+import FriendListContent from '@components/Friend/FriendListContent';
+import ChatListContent from '@components/Friend/Chat/ChatListContent';
+import NotificationAndRequestModal from '@components/Friend/NotificationAndRequestModal';
+import FriendChatModal from '@components/Friend/FriendChatModal';
 
 type FriendModalProps = {
   isOpen: boolean;
@@ -35,6 +36,7 @@ const FriendModal = ({
       onChatSelect(friendId);
       setSelectedFriendId(friendId);
     }
+    setSelectedFriendId(friendId);
   };
 
   // 친구 검색
@@ -63,7 +65,7 @@ const FriendModal = ({
   const showSearchBar = showSearch && (currentTab === 'friends' || currentTab === 'chat');
 
   // 채팅창에서는 네브바를 숨김
-  const showNavigation = !children;
+  const showNavigation = !children && !selectedFriendId;
 
   // 탭에 따른 컨텐츠 렌더링
   const renderContent = () => {
