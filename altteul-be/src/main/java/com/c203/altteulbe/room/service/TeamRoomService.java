@@ -90,15 +90,15 @@ public class TeamRoomService {
 	private final VoiceChatService voiceChatService;
 
 	//@DistributedLock(key="#requestDto.userId")
-	public RoomEnterResponseDto enterTeamRoom(RoomRequestDto requestDto) {
-		User user = userRepository.findByUserId(requestDto.getUserId())
+	public RoomEnterResponseDto enterTeamRoom(Long userId) {
+		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 이미 방에 존재하는지 검증
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.S)) {
+		if (validator.isUserInAnyRoom(userId, BattleType.S)) {
 			throw new DuplicateRoomEntryException();
 		}
-		if (validator.isUserInAnyRoom(user.getUserId(), BattleType.T)) {
+		if (validator.isUserInAnyRoom(userId, BattleType.T)) {
 			throw new DuplicateRoomEntryException();
 		}
 
@@ -124,20 +124,16 @@ public class TeamRoomService {
 	 * 팀전 대기방 퇴장 처리
 	 */
 	//@DistributedLock(key = "#requestDto.userId")
-	public void leaveTeamRoom(RoomRequestDto requestDto) {
-		Long userId = requestDto.getUserId();
-
-		// 유저가 속한 방 조회
-		Long roomId = teamRoomRedisRepository.getRoomIdByUser(userId);
-		if (roomId == null) {
-			throw new UserNotInRoomException();
-		}
+	public void leaveTeamRoom(Long roomId, Long userId) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
-		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
+		// 유저가 방에 속했는지 검증
+		if (!validator.isUserInThisRoom(userId, roomId, BattleType.T)) {
+			throw new UserNotInRoomException();
+		}
 
 		// 방 상태 확인
 		String status = teamRoomRedisRepository.getRoomStatus(roomId);
@@ -157,10 +153,13 @@ public class TeamRoomService {
 			return;
 		}
 
-		// 방장 조회 (Redis 순서의 첫 번째 유저)
+		// 방장 조회
 		Long leaderId = Long.parseLong(remainingUserIds.get(0));
 
-		// 남은 유저들 정보 조회 (DB에서 가져오기)
+		// 떠나는 유저 정보 조회
+		UserInfoResponseDto leftUserDto = UserInfoResponseDto.fromEntity(user);
+
+		// 남은 유저들 정보 조회
 		List<User> remainingUsers = getUserByIds(remainingUserIds);
 
 		// 조회된 users를 userId 기준으로 Map 변환
