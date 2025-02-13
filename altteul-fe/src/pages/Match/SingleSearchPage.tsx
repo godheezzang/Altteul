@@ -148,14 +148,6 @@ const SingleSearchPage = () => {
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* 로고 링크 */}
-      <Link
-        to="/"
-        className="z-20 absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-      >
-        <img src={logo} alt="홈으로" className="w-full h-full" />
-      </Link>
-
       {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* Timer */}
