@@ -69,19 +69,21 @@ public class GameLeaveService {
 		// 유저가 속한 방 ID 조회 (Redis에서)
 		Long roomId;
 		BattleType battleType;
+		String dbRoomId;
 		if (roomValidator.isUserInAnyRoom(userId, BattleType.S)) {
-			roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
 			battleType = BattleType.S;
+			SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(userId).
+				orElseThrow(RoomNotFoundException::new);
+			dbRoomId = singleRoom.getId().toString();
 		} else if (roomValidator.isUserInAnyRoom(userId, BattleType.T)) {
 			roomId = teamRoomRedisRepository.getRoomIdByUser(userId);
 			battleType = BattleType.T;
+			dbRoomId = redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(roomId));
+			if (dbRoomId == null) {
+				throw new GameNotFoundException();
+			}
 		} else {
 			throw new UserNotInRoomException();
-		}
-
-		String dbRoomId = redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(roomId));
-		if (dbRoomId == null) {
-			throw new GameNotFoundException();
 		}
 
 		// 게임 정보 조회 (이미 구현된 메서드 활용)
@@ -208,12 +210,13 @@ public class GameLeaveService {
 
 	// 개인전 중간 퇴장 처리
 	private void handleInProgressSingleGameLeave(Game game, User user) {
-		SingleRoom userRoom = singleRoomRepository.findByUser_UserId(user.getUserId())
-			.orElseThrow(RoomNotFoundException::new);
-		Long roomId = userRoom.getId();
+		SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(user.getUserId()).
+			orElseThrow(RoomNotFoundException::new);
+		Long roomId = singleRoom.getId(); // dbRoomId
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
 
 		// Redis에서 유저 정보 삭제
-		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+		String roomUsersKey = RedisKeys.SingleRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
 				operations.multi();
@@ -231,8 +234,7 @@ public class GameLeaveService {
 		List<UserInfoResponseDto> remainingUsers = getRemainingUsers(remainingUserIds);
 
 		// 퇴장한 유저의 결과를 FAIL로 설정
-		userRoom.updateStatusByGameLose(BattleResult.FAIL);
-		singleRoomRepository.save(userRoom);
+		singleRoom.updateStatusByGameLose(BattleResult.FAIL);
 
 		// 퇴장 이벤트 전송
 		SingleGameLeaveResponseDto responseDto = SingleGameLeaveResponseDto.of(
@@ -252,7 +254,6 @@ public class GameLeaveService {
 		// 모든 유저가 퇴장한 경우 게임 종료
 		if (remainingUsers.isEmpty()) {
 			game.cancelGame();
-			gameRepository.save(game);
 
 			Map<String, Object> gameEndPayload = Map.of(
 				"gameId", game.getId(),
@@ -265,7 +266,7 @@ public class GameLeaveService {
 				gameEndPayload,
 				BattleType.S
 			);
-			cleanupSingleGameRedisData(roomId);
+			cleanupSingleGameRedisData(Long.parseLong(redisRoomId));
 		}
 	}
 
@@ -316,7 +317,6 @@ public class GameLeaveService {
 		// 한 팀이 전부 퇴장한 경우 게임 종료
 		if (!remainingUsersByTeam.containsKey(roomId)) {
 			game.cancelGame();
-			gameRepository.save(game);
 
 			// 남은 팀 승리 처리
 			Long winningTeamId = remainingUsersByTeam.keySet().iterator().next();
@@ -409,46 +409,58 @@ public class GameLeaveService {
 
 	// Redis의 개인전 게임 데이터 정리
 	private void cleanupSingleGameRedisData(Long roomId) {
-		redisTemplate.delete(RedisKeys.SingleRoomUsers(roomId));
-		redisTemplate.delete(RedisKeys.SingleRoomStatus(roomId));
+		// 먼저 각 방의 유저 목록을 가져옴
+		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+
+		// 모든 삭제할 키를 리스트에 추가
+		List<String> keysToDelete = new ArrayList<>();
+
+		// 기존 키들 추가
+		keysToDelete.addAll(Arrays.asList(
+			roomUsersKey,
+			RedisKeys.SingleRoomStatus(roomId)
+		));
+
+		// 유저 키들 추가
+		if (userIds != null) {
+			userIds.forEach(userId -> keysToDelete.add(RedisKeys.userSingleRoom(Long.parseLong(userId))));
+		}
+		redisTemplate.delete(keysToDelete);
 	}
 
 	// Redis의 팀전 게임 데이터 정리
 	private void cleanupTeamGameRedisData(Long roomId, Long opposingRoomId) {
-		try {
-			// 먼저 각 방의 유저 목록을 가져옴
-			String roomUsersKey1 = RedisKeys.TeamRoomUsers(roomId);
-			String roomUsersKey2 = RedisKeys.TeamRoomUsers(opposingRoomId);
+		// 먼저 각 방의 유저 목록을 가져옴
+		String roomUsersKey1 = RedisKeys.TeamRoomUsers(roomId);
+		String roomUsersKey2 = RedisKeys.TeamRoomUsers(opposingRoomId);
 
-			List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey1, 0, -1);
-			List<String> userIds2 = redisTemplate.opsForList().range(roomUsersKey2, 0, -1);
+		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey1, 0, -1);
+		List<String> userIds2 = redisTemplate.opsForList().range(roomUsersKey2, 0, -1);
 
-			// 모든 삭제할 키를 리스트에 추가
-			List<String> keysToDelete = new ArrayList<>();
+		// 모든 삭제할 키를 리스트에 추가
+		List<String> keysToDelete = new ArrayList<>();
 
-			// 기존 키들 추가
-			keysToDelete.addAll(Arrays.asList(
-				roomUsersKey1,
-				roomUsersKey2,
-				RedisKeys.TeamRoomStatus(roomId),
-				RedisKeys.TeamRoomStatus(opposingRoomId),
-				RedisKeys.TeamMatchId(roomId),
-				RedisKeys.TeamMatchId(opposingRoomId),
-				RedisKeys.getRoomDbId(roomId),
-				RedisKeys.getRoomDbId(opposingRoomId)
-			));
+		// 기존 키들 추가
+		keysToDelete.addAll(Arrays.asList(
+			roomUsersKey1,
+			roomUsersKey2,
+			RedisKeys.TeamRoomStatus(roomId),
+			RedisKeys.TeamRoomStatus(opposingRoomId),
+			RedisKeys.TeamMatchId(roomId),
+			RedisKeys.TeamMatchId(opposingRoomId),
+			RedisKeys.getRoomDbId(roomId),
+			RedisKeys.getRoomDbId(opposingRoomId)
+		));
 
-			// 유저 키들 추가
-			if (userIds1 != null) {
-				userIds1.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
-			}
-			if (userIds2 != null) {
-				userIds2.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
-			}
-			redisTemplate.delete(keysToDelete);
-			log.info("레디스 방 정보 삭제: 내팀 - {}, 상대팀 - {}", roomId, opposingRoomId);
-		} catch (Exception e) {
-			log.error("삭제 실패: 내팀 - {}, 상대팀 - {}", roomId, opposingRoomId, e);
+		// 유저 키들 추가
+		if (userIds1 != null) {
+			userIds1.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
 		}
+		if (userIds2 != null) {
+			userIds2.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
+		}
+		redisTemplate.delete(keysToDelete);
 	}
 }

@@ -10,4 +10,6 @@ public interface SingleRoomRepository extends JpaRepository<SingleRoom, Long>, S
 	Optional<SingleRoom> findByGameId(Long game_id);
 
 	Optional<SingleRoom> findByUser_UserId(Long userId);
+
+	Optional<SingleRoom> findByUser_UserIdAndActivationIsTrue(Long userId);
 }
