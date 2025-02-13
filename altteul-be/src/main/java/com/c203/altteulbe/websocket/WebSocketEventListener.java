@@ -8,15 +8,12 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

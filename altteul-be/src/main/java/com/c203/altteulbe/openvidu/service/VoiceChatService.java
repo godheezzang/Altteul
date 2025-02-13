@@ -43,8 +43,8 @@ public class VoiceChatService {
 		try {
 			SessionProperties properties = SessionProperties.fromJson(Map.of(
 				"customSessionId", sessionId,
-				"recordingMode", RecordingMode.MANUAL,
-				"defaultOutputMode", Recording.OutputMode.COMPOSED
+				"recordingMode", RecordingMode.MANUAL.toString(),
+				"defaultOutputMode", Recording.OutputMode.COMPOSED.toString()
 			)).build();
 
 			openVidu.createSession(properties);

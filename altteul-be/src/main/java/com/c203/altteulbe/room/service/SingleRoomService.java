@@ -32,8 +32,6 @@ import com.c203.altteulbe.room.service.exception.CannotLeaveRoomException;
 import com.c203.altteulbe.room.service.exception.DuplicateRoomEntryException;
 import com.c203.altteulbe.room.service.exception.NotRoomLeaderException;
 import com.c203.altteulbe.room.service.exception.UserNotInRoomException;
-import com.c203.altteulbe.room.web.dto.request.RoomGameStartRequestDto;
-import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.SingleRoomGameStartForUserInfoResponseDto;
@@ -105,7 +103,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
-			.orElseThrow(() -> new NotFoundUserException());
+							      .orElseThrow(() -> new NotFoundUserException());
 
 		// 유저가 방에 속했는지 검증
 		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
