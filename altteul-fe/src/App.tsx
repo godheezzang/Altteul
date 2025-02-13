@@ -9,7 +9,7 @@ import { useSocketStore } from '@stores/socketStore';
 const App = () => {
   const location = useLocation();
   const isGamePage = location.pathname.startsWith('/game');
-  const { connect, restoreSubscriptions } = useSocketStore();
+  const { connect } = useSocketStore();
 
   //로그인 시 소켓 연결 유지
   useEffect(() => {
