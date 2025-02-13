@@ -1,13 +1,14 @@
-package com.c203.altteulbe.room.web.dto.request;
+package com.c203.altteulbe.game.web.dto.leave.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserAndRoomRequestDto {
+@NoArgsConstructor
+@Builder
+public class GameLeaveRequestDto {
 	private Long userId;
-	private Long roomId;
 }

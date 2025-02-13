@@ -8,15 +8,12 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,12 +49,13 @@ public class WebSocketEventListener {
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 		Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+
 		log.info(accessor.toString());
+
 		if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
 			try {
 				Long userId = (Long)sessionAttributes.get("userId");
 				Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
-
 				Long teamId = (Long)sessionAttributes.get("teamId");
 
 				if (userId != null && teamId != null) {
@@ -66,14 +64,13 @@ public class WebSocketEventListener {
 				}
 
 				// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리
-				if (roomId != null) {
+				if (userId != null && roomId != null) {
 					String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
 					String status = redisTemplate.opsForValue().get(roomStatusKey);
 
 					if ("counting".equals(status)) {
 						log.info("WebSocket Disconnect 발생 : userId : {}, roomId : {}", userId, roomId);
-						RoomRequestDto leftUser = RoomRequestDto.toDto(userId);
-						singleRoomService.leaveSingleRoom(leftUser);
+						singleRoomService.leaveSingleRoom(roomId, userId);
 					}
 				}
 				userStatusService.setUserOffline(userId);

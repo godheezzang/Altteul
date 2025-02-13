@@ -65,4 +65,8 @@ public class Room extends BaseCreatedEntity {
 			}
 		}
 	}
+
+	public void updateBattleResult(BattleResult battleResult) {
+		this.battleResult = battleResult;
+	}
 }

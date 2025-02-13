@@ -29,14 +29,6 @@ public class RedisKeys {
 	// 팀 보이스 참가자
 	public static final String VOICE_PARTICIPANTS = "voice:participants";
 
-	// 팀 보이스 음소거 여부
-	public static final String VOICE_MUTE = "voice:mute";
-
-	// 팀 보이스 음소거 여부 키
-	public static String getVoiceMuteKey(Long roomId, String userId) {
-		return VOICE_MUTE + ":" + roomId + ":" + userId;
-	}
-
 	// 팀 보이스 참가자 키
 	public static String getVoiceParticipantsKey(Long roomId) {
 		return VOICE_PARTICIPANTS + ":" + roomId;
@@ -65,6 +57,11 @@ public class RedisKeys {
 	// 친구 리스트 키
 	public static String getFriendListKey(Long userId) {
 		return FRIEND_LIST_CACHE + ":" + userId;
+	}
+
+	// 게임 관련 키 추가
+	public static String TeamMatchId(Long roomId) {
+		return "room:team:" + roomId + ":match";
 	}
 
 	// 개인전 방 상태

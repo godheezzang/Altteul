@@ -1,5 +1,8 @@
 package com.c203.altteulbe.room.service;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +25,17 @@ public class RoomValidator {
 			case T -> RedisKeys.userTeamRoom(userId);
 		};
 		return Boolean.TRUE.equals(redisTemplate.hasKey(roomKey));
+	}
+
+	// 유저가 특정 방에 존재하는지 검증
+	public boolean isUserInThisRoom(Long userId, Long roomId, BattleType type) {
+		String roomKey = switch (type) {
+			case S -> RedisKeys.SingleRoomUsers(roomId);
+			case T -> RedisKeys.TeamRoomUsers(roomId);
+		};
+		// Redis에서 해당 방의 유저 목록 조회
+		List<String> users = redisTemplate.opsForList().range(roomKey, 0, -1);
+		return users != null && users.contains(String.valueOf(userId));
 	}
 
 	// 방 상태 검증 (대기 여부)

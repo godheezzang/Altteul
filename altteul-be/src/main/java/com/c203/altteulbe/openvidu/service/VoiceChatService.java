@@ -43,8 +43,8 @@ public class VoiceChatService {
 		try {
 			SessionProperties properties = SessionProperties.fromJson(Map.of(
 				"customSessionId", sessionId,
-				"recordingMode", RecordingMode.MANUAL,
-				"defaultOutputMode", Recording.OutputMode.COMPOSED
+				"recordingMode", RecordingMode.MANUAL.toString(),
+				"defaultOutputMode", Recording.OutputMode.COMPOSED.toString()
 			)).build();
 
 			openVidu.createSession(properties);
@@ -152,13 +152,6 @@ public class VoiceChatService {
 					});
 			}
 			removeParticipant(roomId, userId);
-
-			notifyTeam(roomId, VoiceEventResponseDto.builder()
-				.userId(userId)
-				.roomId(roomId)
-				.type(VoiceEventType.LEAVE)
-				.status(false)
-				.build());
 
 			log.info("User {} voice connection terminated in team {}", userId, roomId);
 		} catch (Exception e) {

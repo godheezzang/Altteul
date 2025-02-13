@@ -4,23 +4,23 @@ import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import { Link, useNavigate } from "react-router-dom";
 import "@styles/Base/colors.css";
-import { singleEnter } from "@utils/Api/matchApi";
+import { singleEnter, teamEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
 const SelectPage = () => {
   const navigate = useNavigate();
-  //TODO: userId, 당장은 임시부여, 이후에 zustand에서 가져오면 될듯
   const userId = Number(localStorage.getItem("userId"));
   const { setMatchData, setLoading } = useMatchStore();
 
+  //개인전 입장 로직
   const singleNavigate = async () => {
     setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
-
     try {
       //API 통신으로 방 입장 시의 응답값을 받아옴
       const data = await singleEnter(userId);
 
-      //가져온 데이터를 zustand에 저장(앞으로 계속 이용할 값)
+      //가져온 데이터를 Store에 저장
+      //TODO: sessionStorage 관리로 변경 필요
       setMatchData(data);
 
       //개인전 매칭 페이지 전환
@@ -32,8 +32,29 @@ const SelectPage = () => {
     } finally {
       setLoading(false);
     }
-
   };
+
+  //팀전 입장 로직
+  const teamNavigate = async () => {
+    setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
+    try {
+      //API 통신으로 방 입장 시의 응답값을 받아옴
+      const data = await teamEnter(userId);
+
+      //가져온 데이터를 Store에 저장
+      //TODO: sessionStorage 관리로 변경 필요
+      setMatchData(data);
+
+      //개인전 매칭 페이지 전환
+      navigate("/match/team/composition")
+    }catch(error){
+      console.log(error)
+      // 에러페이지로 전환
+      // navigate()
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div
@@ -61,15 +82,11 @@ const SelectPage = () => {
         </button>
 
         {/* 팀전 버튼 링크 */}
-        <div className="flex flex-col items-center">
-          <Link
-            to="/match/team/composition"
-            className="w-[150px] h-[150px] rounded-full transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-orange)]"
-          >
-            <img src={peopleIcon} alt="팀전" className="w-full h-full" />
-          </Link>
+        <button className="flex flex-col items-center w-[150px] h-[150px] rounded-full transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-orange)]"
+        onClick={() => teamNavigate()}>
+          <img src={peopleIcon} alt="팀전" className="w-full h-full" />
           <span className="mt-4 text-white text-[32px] font-bold">팀전</span>
-        </div>
+        </button>
       </div>
     </div>
   );
