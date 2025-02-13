@@ -42,6 +42,7 @@ public class DistributedLockAop {
 		boolean available = false;
 
 		try {
+			log.info("락 획득 시도");
 			// leaseTime=-1인 경우 Watchdog 활성화 (Redisson이 자동으로 락 갱신)
 			if (distributedLock.leaseTime() == -1) {
 				available = rLock.tryLock(distributedLock.waitTime(), TimeUnit.SECONDS);
