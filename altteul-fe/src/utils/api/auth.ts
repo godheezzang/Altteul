@@ -49,12 +49,7 @@ export const checkUsername = async (username: string) => {
     const response = await authApi.get(`id-check?username=${username}`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 400) {
-      console.error('이미 사용 중인 아이디입니다:', error);
-    } else {
-      console.error('아이디 중복 확인 실패:', error);
-    }
-    throw new Error('아이디 중복 확인에 실패했습니다.');
+    console.log('error: ', error)
   }
 };
 
@@ -64,11 +59,6 @@ export const checkNickname = async (nickname: string) => {
     const response = await authApi.get(`nickname-check?nickname=${nickname}`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 400) {
-      console.error('이미 사용 중인 닉네임입니다:', error);
-    } else {
-      console.error('닉네임 중복 확인 실패:', error);
-    }
-    throw new Error('닉네임 중복 확인에 실패했습니다.');
+    console.log('error: ', error)
   }
 };
