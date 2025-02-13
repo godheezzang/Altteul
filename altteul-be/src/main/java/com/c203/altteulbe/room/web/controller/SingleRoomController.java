@@ -36,7 +36,7 @@ public class SingleRoomController {
 	 * 개인전 방 퇴장 API
 	 */
 	@PostMapping("/leave/{roomId}")
-	public ApiResponseEntity<Void> leaveSingleRoom(@PathVariable Long roomId,
+	public ApiResponseEntity<Void> leaveSingleRoom(@PathVariable(value = "roomId") Long roomId,
 												   @AuthenticationPrincipal Long userId) {
 		singleRoomService.leaveSingleRoom(roomId, userId);
 		return ApiResponse.success();
@@ -46,7 +46,7 @@ public class SingleRoomController {
 	 * 개인전 게임 시작 API
 	 */
 	@PostMapping("/start/{roomId}")
-	public ApiResponseEntity<Void> startGame(@PathVariable Long roomId,
+	public ApiResponseEntity<Void> startGame(@PathVariable(value = "roomId") Long roomId,
 										     @AuthenticationPrincipal Long leaderId) {
 		singleRoomService.startGame(roomId, leaderId);
 		return ApiResponse.success();

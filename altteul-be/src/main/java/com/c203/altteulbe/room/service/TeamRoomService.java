@@ -411,9 +411,9 @@ public class TeamRoomService {
 	/*
 	 * 팀 초대 처리
 	 */
-	public void inviteFriendToTeam(InviteTeamRequestDto requestDto) {
+	public void inviteFriendToTeam(InviteTeamRequestDto requestDto, Long userId) {
+
 		Long roomId = requestDto.getRoomId();
-		Long userId = requestDto.getInviterId();
 		Long friendId = requestDto.getInviteeId();
 
 		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
@@ -479,8 +479,8 @@ public class TeamRoomService {
 	/*
 	 * 팀 초대 수락 및 거절 처리
 	 */
-	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto) {
-		Long friendId = requestDto.getInviteeId();   // 요청한 유저의 ID
+	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
+
 		Long userId = requestDto.getInviterId();
 		Long roomId = requestDto.getRoomId();
 		boolean accepted = requestDto.isAccepted();
