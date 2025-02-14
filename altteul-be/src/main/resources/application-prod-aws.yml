@@ -12,7 +12,7 @@ cloud:
 spring:
   config:
     activate:
-      on-profile: dev-aws
+      on-profile: prod-aws
   servlet:
     multipart:
       max-file-size: 20MB
