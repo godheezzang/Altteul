@@ -1,7 +1,7 @@
 import { Problem, TestCase, User } from "./types";
 
 interface socketResponseMessage {
-  type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START';
+  type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START' | "COUNTING_CANCEL";
   data: {
     leaderId?: number;
     users?: User[];
@@ -14,6 +14,9 @@ interface socketResponseMessage {
     gameId?: number;
     problem?: Problem
     testcases?: TestCase[]
+
+    //인원 미달 message
+    note?: string;
   };
 };
 
