@@ -10,6 +10,7 @@ import { User } from 'types/types';
 import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import { singleOut, singleStart } from '@utils/Api/matchApi';
+import socketResponseMessage from 'types/socketResponseMessage';
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
@@ -35,9 +36,9 @@ const SingleSearchPage = () => {
       socket.unsubscribe(`/sub/single/room/${roomId}`)
     }
   }, [roomId])
-
+  
   //소켓 응답 처리
-  const handleMessage = (message) => {
+  const handleMessage = (message:socketResponseMessage) => {
     console.log(message)
     const { type, data } = message;
     if (type === 'ENTER' || type === 'LEAVE') {
