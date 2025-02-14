@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import useGameWebSocket from '@hooks/useGameWebSocket';
+import { useSocketStore } from '@stores/socketStore';
 import SmallButton from '@components/Common/Button/SmallButton ';
 
 interface SideProblemModalProps {
@@ -15,27 +15,46 @@ interface SideProblemModalProps {
 
 const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModalProps) => {
   const [answer, setAnswer] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ 제출 중 상태
-  const [submissionResult, setSubmissionResult] = useState<string | null>(null); // ✅ 제출 결과 상태
-  const [showForfeitMessage, setShowForfeitMessage] = useState(false); // ✅ 포기 메시지 상태
-  const { submitSideProblemAnswer, sideProblemResult } = useGameWebSocket(gameId, roomId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState<string | null>(null);
+  const [showForfeitMessage, setShowForfeitMessage] = useState(false);
+  const [sideProblemResult, setSideProblemResult] = useState<any>(null);
+
+  const { subscribe, sendMessage, connected } = useSocketStore();
+
+  useEffect(() => {
+    if (!connected) return;
+
+    // ✅ 사이드 문제 채점 결과 구독
+    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, (data) => {
+      console.log('📩 사이드 문제 채점 결과 수신:', data);
+      setSideProblemResult(data);
+    });
+
+  }, [connected, gameId, roomId, subscribe]);
 
   // ✅ 제출 버튼 클릭 시
   const handleSubmit = () => {
     if (!answer.trim() || isSubmitting) return;
 
-    setIsSubmitting(true); // ✅ 로딩 시작
+    setIsSubmitting(true);
     const upperCaseAnswer = answer.toUpperCase();
-    submitSideProblemAnswer(problem.id, upperCaseAnswer);
+
+    sendMessage(`/pub/side/submit`, {
+      gameId,
+      teamId: roomId,
+      sideProblemId: problem.id,
+      answer: upperCaseAnswer,
+    });
+
+    console.log('📨 사이드 문제 채점 요청 전송');
   };
 
   // ✅ 서버에서 결과를 받으면 정답 여부 확인
   useEffect(() => {
     if (sideProblemResult && isSubmitting) {
       setIsSubmitting(false);
-      console.log('📩 사이드 문제 채점 결과 수신:', sideProblemResult);
 
-      // 서버 응답 구조 반영하여 결과 처리
       if (sideProblemResult?.data.status === 'P') {
         setSubmissionResult(`🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트 추가!`);
       } else {
@@ -46,7 +65,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
   // ✅ 안풀래요 버튼 클릭 시
   const handleForfeit = () => {
-    setShowForfeitMessage(true); // 포기 메시지 표시
+    setShowForfeitMessage(true);
   };
 
   return (
@@ -86,12 +105,12 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
                     onChange={e => setAnswer(e.target.value)}
                     placeholder="정답을 입력해주세요."
                     className="w-[15rem] px-4 py-2 rounded-md bg-gray-03"
-                    disabled={isSubmitting} // ✅ 제출 중일 때 입력 막음
+                    disabled={isSubmitting}
                   />
                   <SmallButton
                     onClick={handleSubmit}
                     className="px-4 py-2"
-                    disabled={!answer.trim() || isSubmitting} // ✅ 로딩 중 또는 빈 값이면 비활성화
+                    disabled={!answer.trim() || isSubmitting}
                   >
                     {isSubmitting ? '제출 중...' : '제출'}
                   </SmallButton>

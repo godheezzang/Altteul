@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { loginUser } from '@utils/api/auth';
+import { loginUser } from '@utils/Api/auth';
 import Modal from '@components/Common/Modal';
 import Input from '@components/Common/Input';
 import Button from '@components/Common/Button/Button';
-import axios from 'axios';
 import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import gitHubLogo from '@assets/icon/github_logo.svg';
+import { useSocketStore } from '@stores/socketStore';
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
+  const { connect, resetConnection } = useSocketStore();
 
   const handleSignUpClick = () => {
     closeModal();
@@ -27,7 +28,6 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-
     if (!form.username.trim() || !form.password.trim()) {
       setError('아이디와 비밀번호를 모두 입력해주세요.');
       return;
@@ -35,38 +35,16 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
 
     try {
       const response = await loginUser(form.username, form.password);
-
-      if (!response) {
-        throw new Error('서버 응답이 없습니다.');
-      }
-
       const token = response.headers?.authorization || response.headers?.['authorization'];
-      if (!token) {
-        throw new Error('토큰이 응답에 포함되지 않았습니다');
-      }
-
       const userId = response.headers?.userid || response.headers?.['userid'];
-      if (!userId) {
-        throw new Error('userId가 응답에 포함되지 않았습니다.');
-      }
-
       const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
-
+      resetConnection()  // 연결 전 소켓 초기화
+      connect() //로그인 성공시 소켓 연결
       closeModal();
     } catch (error) {
       console.error('로그인 실패:', error);
-
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          setError(error.response.data?.message || '로그인 실패!');
-        } else {
-          setError(error.message);
-        }
-      } else {
-        setError('알 수 없는 오류 발생!');
-      }
     }
   };
 

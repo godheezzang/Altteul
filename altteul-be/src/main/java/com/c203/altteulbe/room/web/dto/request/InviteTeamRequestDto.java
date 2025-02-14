@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InviteTeamRequestDto {
-	private Long inviterId;
 	private Long inviteeId;
 	private Long roomId;
 }

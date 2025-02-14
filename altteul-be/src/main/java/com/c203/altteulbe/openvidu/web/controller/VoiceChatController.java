@@ -42,15 +42,6 @@ public class VoiceChatController {
 		}
 	}
 
-	// 음성 채팅방 나가기
-	@PostMapping("/leave")
-	public ApiResponseEntity<Void> leaveVoiceChat(
-		@PathVariable(value = "roomId") Long roomId,
-		@AuthenticationPrincipal Long userId) {
-		voiceChatService.terminateUserVoiceConnection(roomId, userId.toString());
-		return ApiResponse.success();
-	}
-
 	// 자신의 마이크 상태 업데이트 (음소거/음소거 해제)
 	@PostMapping("/mic-status")
 	public ApiResponseEntity<Void> updateMicStatus(

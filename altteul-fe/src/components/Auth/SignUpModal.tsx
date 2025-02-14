@@ -5,7 +5,7 @@ import Modal from '@components/Common/Modal';
 import Button from '@components/Common/Button/Button';
 import SignUpDropdown from '@components/Auth/SignUpDropdown';
 
-import { checkUsername, registerUser, checkNickname } from '@utils/api/auth';
+import { checkUsername, registerUser, checkNickname } from '@utils/Api/auth';
 import { validateSignUpForm, SignUpFormData, ValidationErrors } from '@utils/validation';
 import ProfileUpload from '@components/Auth/ProfileUpload';
 
