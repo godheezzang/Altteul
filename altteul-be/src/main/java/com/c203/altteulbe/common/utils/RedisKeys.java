@@ -29,6 +29,12 @@ public class RedisKeys {
 	// 팀 보이스 참가자
 	public static final String VOICE_PARTICIPANTS = "voice:participants";
 
+	public static final String ROOM_DB_ID = "room:db_id";
+
+	public static String getRoomDbId(Long roomId) {
+		return ROOM_DB_ID + ":" + roomId;
+	}
+
 	// 팀 보이스 참가자 키
 	public static String getVoiceParticipantsKey(Long roomId) {
 		return VOICE_PARTICIPANTS + ":" + roomId;

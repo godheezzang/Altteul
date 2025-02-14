@@ -117,7 +117,7 @@ public class SingleRoomService {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
-							      .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 
 		if (validateRoomStatus) {
 			// 유저가 방에 속했는지 검증

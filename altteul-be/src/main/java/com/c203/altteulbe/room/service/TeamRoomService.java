@@ -249,6 +249,10 @@ public class TeamRoomService {
 		String matchId = generateMatchId(roomId1, roomId2);
 		Map<String, String> matchIdPayload = Map.of("matchId", matchId);
 
+		// 매칭된 방의 matchId를 Redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId1)), matchId);
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId2)), matchId);
+
 		// 해당 메시지를 전송받으면 "/sub/team/room/{matchId}"를 구독시켜야 함
 		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", matchIdPayload, BattleType.T);
 		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", matchIdPayload, BattleType.T);
@@ -362,6 +366,8 @@ public class TeamRoomService {
 	@Transactional
 	public void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
 
+		redisTemplate.opsForValue().set(RedisKeys.getRoomDbId(roomId), teamRoom.getId().toString());
+
 		// Redis에서 유저 ID 조회
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
@@ -409,7 +415,7 @@ public class TeamRoomService {
 		}
 
 		// 중복 취소 요청 처리
-		if ("cancelling".equals(status) ) {
+		if ("cancelling".equals(status)) {
 			throw new DuplicateRequestException();
 		}
 

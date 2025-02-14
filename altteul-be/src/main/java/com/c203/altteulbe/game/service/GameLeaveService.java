@@ -1,9 +1,12 @@
 package com.c203.altteulbe.game.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisOperations;
@@ -24,7 +27,6 @@ import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
-import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
@@ -47,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GameLeaveService {
 	private final UserRepository userRepository;
 	private final RoomValidator roomValidator;
-	private final SingleRoomRedisRepository singleRoomRedisRepository;
 	private final TeamRoomRedisRepository teamRoomRedisRepository;
 	private final GameRepository gameRepository;
 	private final RedisTemplate<String, String> redisTemplate;
@@ -65,18 +66,27 @@ public class GameLeaveService {
 
 		// 유저가 속한 방 ID 조회 (Redis에서)
 		Long roomId;
+		BattleType battleType;
+		String dbRoomId;
 		if (roomValidator.isUserInAnyRoom(userId, BattleType.S)) {
-			roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
+			battleType = BattleType.S;
+			SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(userId).
+				orElseThrow(RoomNotFoundException::new);
+			dbRoomId = singleRoom.getId().toString();
 		} else if (roomValidator.isUserInAnyRoom(userId, BattleType.T)) {
 			roomId = teamRoomRedisRepository.getRoomIdByUser(userId);
+			battleType = BattleType.T;
+			dbRoomId = redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(roomId));
+			if (dbRoomId == null) {
+				throw new GameNotFoundException();
+			}
 		} else {
 			throw new UserNotInRoomException();
 		}
 
 		// 게임 정보 조회 (이미 구현된 메서드 활용)
-		Game game = gameRepository.findWithRoomByGameId(roomId)
+		Game game = gameRepository.findWithGameByRoomIdAndType(Long.parseLong(dbRoomId), battleType)
 			.orElseThrow(GameNotFoundException::new);
-
 		if (!game.isInProgress()) {
 			// 정상 종료된 게임 - 단순 정리 작업
 			handleFinishedGameLeave(game, user);
@@ -106,10 +116,11 @@ public class GameLeaveService {
 
 	// 개인전 정상 종료 후 나가기 처리
 	private void handleFinishedSingleGameLeave(Game game, User user) {
-		SingleRoom userRoom = singleRoomRepository.findByUser_UserId(user.getUserId())
+		SingleRoom userRoom = singleRoomRepository.findByUser_UserIdAndGame(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
 		Long roomId = userRoom.getId();
-		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
+		String roomUsersKey = RedisKeys.SingleRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 		// Redis에서 유저 정보 삭제
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
@@ -136,7 +147,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			redisRoomId,
 			"GAME_FINISH_LEAVE",
 			responseDto,
 			BattleType.S
@@ -145,12 +156,13 @@ public class GameLeaveService {
 
 	// 팀전 정상 종료 후 나가기 처리
 	private void handleFinishedTeamGameLeave(Game game, User user) {
-		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserId(user.getUserId())
+		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
 		Long roomId = userTeamRoom.getTeamRoom().getId();
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userTeamRoom(user.getUserId()));
+		String roomUsersKey = RedisKeys.TeamRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 
 		// Redis에서 유저 정보 삭제
-		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
 				operations.multi();
@@ -167,7 +179,8 @@ public class GameLeaveService {
 		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
 
 		// 남은 유저 정보 조회 및 팀별 그룹화
-		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(game);
+		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
+			user.getUserId());
 
 		// 퇴장 이벤트 전송
 		TeamGameLeaveResponseDto responseDto = TeamGameLeaveResponseDto.of(
@@ -187,21 +200,22 @@ public class GameLeaveService {
 
 		// 팀의 마지막 유저인 경우 음성 채팅 세션 종료
 		List<String> remainingTeamUsers = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
-		if (remainingTeamUsers.isEmpty()) {
-			voiceChatService.terminateTeamVoiceSession(roomId);
-			String opposingRoomId = matchId.replace(roomId.toString(), "").replace("-", "");
-			cleanupTeamGameRedisData(roomId, opposingRoomId);
+		if (remainingTeamUsers == null || remainingTeamUsers.isEmpty()) {
+			voiceChatService.terminateTeamVoiceSession(Long.parseLong(redisRoomId));
+			String opposingRoomId = matchId.replace(redisRoomId, "").replace("-", "");
+			cleanupTeamGameRedisData(Long.parseLong(redisRoomId), Long.parseLong(opposingRoomId));
 		}
 	}
 
 	// 개인전 중간 퇴장 처리
 	private void handleInProgressSingleGameLeave(Game game, User user) {
-		SingleRoom userRoom = singleRoomRepository.findByUser_UserId(user.getUserId())
-			.orElseThrow(RoomNotFoundException::new);
-		Long roomId = userRoom.getId();
+		SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(user.getUserId()).
+			orElseThrow(RoomNotFoundException::new);
+		Long roomId = singleRoom.getId(); // dbRoomId
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
 
 		// Redis에서 유저 정보 삭제
-		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+		String roomUsersKey = RedisKeys.SingleRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
 				operations.multi();
@@ -219,8 +233,7 @@ public class GameLeaveService {
 		List<UserInfoResponseDto> remainingUsers = getRemainingUsers(remainingUserIds);
 
 		// 퇴장한 유저의 결과를 FAIL로 설정
-		userRoom.updateBattleResult(BattleResult.FAIL);
-		singleRoomRepository.save(userRoom);
+		singleRoom.updateStatusByGameLose(BattleResult.FAIL);
 
 		// 퇴장 이벤트 전송
 		SingleGameLeaveResponseDto responseDto = SingleGameLeaveResponseDto.of(
@@ -231,7 +244,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			redisRoomId,
 			"GAME_LEAVE",
 			responseDto,
 			BattleType.S
@@ -240,7 +253,6 @@ public class GameLeaveService {
 		// 모든 유저가 퇴장한 경우 게임 종료
 		if (remainingUsers.isEmpty()) {
 			game.cancelGame();
-			gameRepository.save(game);
 
 			Map<String, Object> gameEndPayload = Map.of(
 				"gameId", game.getId(),
@@ -248,23 +260,24 @@ public class GameLeaveService {
 			);
 
 			roomWebSocketService.sendWebSocketMessage(
-				roomId.toString(),
+				redisRoomId,
 				"GAME_END",
 				gameEndPayload,
 				BattleType.S
 			);
-			cleanupSingleGameRedisData(roomId);
+			cleanupSingleGameRedisData(Long.parseLong(redisRoomId));
 		}
 	}
 
 	// 팀전 퇴장 처리
 	private void handleInProgressTeamGameLeave(Game game, User user) {
-		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserId(user.getUserId())
+		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
 		Long roomId = userTeamRoom.getTeamRoom().getId();
+		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userTeamRoom(user.getUserId()));
+		String roomUsersKey = RedisKeys.TeamRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 
 		// Redis에서 유저 정보 삭제
-		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		redisTemplate.execute(new SessionCallback<List<Object>>() {
 			public List<Object> execute(RedisOperations operations) {
 				operations.multi();
@@ -278,7 +291,8 @@ public class GameLeaveService {
 		});
 
 		// 남은 유저 정보 조회 및 팀별 그룹화
-		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(game);
+		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
+			user.getUserId());
 
 		// 음성 채팅 연결 종료
 		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
@@ -291,7 +305,7 @@ public class GameLeaveService {
 			remainingUsersByTeam
 		);
 
-		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(roomId));
+		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(Long.parseLong(redisRoomId)));
 		roomWebSocketService.sendWebSocketMessage(
 			matchId,
 			"GAME_LEAVE",
@@ -302,7 +316,6 @@ public class GameLeaveService {
 		// 한 팀이 전부 퇴장한 경우 게임 종료
 		if (!remainingUsersByTeam.containsKey(roomId)) {
 			game.cancelGame();
-			gameRepository.save(game);
 
 			// 남은 팀 승리 처리
 			Long winningTeamId = remainingUsersByTeam.keySet().iterator().next();
@@ -313,7 +326,7 @@ public class GameLeaveService {
 			// 퇴장한 팀 패배 처리
 			TeamRoom losingTeam = teamRoomRepository.findById(roomId)
 				.orElseThrow(RoomNotFoundException::new);
-			losingTeam.updateBattleResult(BattleResult.SECOND);
+			losingTeam.updateStatusByGameLose(BattleResult.SECOND);
 
 			teamRoomRepository.saveAll(Arrays.asList(winningTeam, losingTeam));
 
@@ -332,11 +345,13 @@ public class GameLeaveService {
 			);
 
 			// Redis 데이터 정리
-			String opposingRoomId = matchId.replace(roomId.toString(), "").replace("-", "");
-			cleanupTeamGameRedisData(roomId, opposingRoomId);
+			String opposingRoomId = matchId.replace(redisRoomId, "").replace("-", "");
+			log.info("데이터 정리 내팀: {}", redisRoomId);
+			log.info("데이터 정리 상대팀: {}", opposingRoomId);
+			cleanupTeamGameRedisData(Long.parseLong(redisRoomId), Long.parseLong(opposingRoomId));
 
 			// Voice 채팅 세션 종료
-			voiceChatService.terminateTeamVoiceSession(roomId);
+			voiceChatService.terminateTeamVoiceSession(Long.parseLong(redisRoomId));
 			voiceChatService.terminateTeamVoiceSession(Long.parseLong(opposingRoomId));
 		}
 	}
@@ -359,30 +374,88 @@ public class GameLeaveService {
 	}
 
 	// 팀별 남은 유저 정보 조회
-	private Map<Long, List<UserInfoResponseDto>> getRemainingTeamUsers(Game game) {
-		return game.getTeamRooms().stream()
-			.collect(Collectors.toMap(
-				TeamRoom::getId,
-				room -> room.getUserTeamRooms().stream()
-					.map(UserTeamRoom::getUser)
-					.map(UserInfoResponseDto::fromEntity)
-					.collect(Collectors.toList())
-			));
+	private Map<Long, List<UserInfoResponseDto>> getRemainingTeamUsers(String redisRoomId, Long leftUserId) {
+		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = new HashMap<>();
+
+		// matchId를 이용해 양쪽 팀의 roomId를 얻기
+		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(Long.parseLong(redisRoomId)));
+		String[] roomIds = matchId.split("-");
+
+		for (String roomId : roomIds) {
+			Long teamRoomId = Long.parseLong(roomId);
+			String roomUsersKey = RedisKeys.TeamRoomUsers(teamRoomId);
+			String roomDbId = redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(teamRoomId));
+			List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+
+			if (userIds != null && !userIds.isEmpty()) {
+				List<User> users = userRepository.findByUserIdIn(
+					userIds.stream()
+						.map(Long::parseLong)
+						.filter(id -> !id.equals(leftUserId))
+						.collect(Collectors.toList())
+				);
+
+				remainingUsersByTeam.put(Long.parseLong(Objects.requireNonNull(roomDbId)),
+					users.stream()
+						.map(UserInfoResponseDto::fromEntity)
+						.collect(Collectors.toList())
+				);
+			}
+		}
+
+		return remainingUsersByTeam;
 	}
 
 	// Redis의 개인전 게임 데이터 정리
 	private void cleanupSingleGameRedisData(Long roomId) {
-		redisTemplate.delete(RedisKeys.SingleRoomUsers(roomId));
-		redisTemplate.delete(RedisKeys.SingleRoomStatus(roomId));
+		// 먼저 각 방의 유저 목록을 가져옴
+		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
+
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+
+		// 모든 삭제할 키를 리스트에 추가
+		// 기존 키들 추가
+		List<String> keysToDelete = new ArrayList<>(Arrays.asList(
+			roomUsersKey,
+			RedisKeys.SingleRoomStatus(roomId)
+		));
+
+		// 유저 키들 추가
+		if (userIds != null) {
+			userIds.forEach(userId -> keysToDelete.add(RedisKeys.userSingleRoom(Long.parseLong(userId))));
+		}
+		redisTemplate.delete(keysToDelete);
 	}
 
 	// Redis의 팀전 게임 데이터 정리
-	private void cleanupTeamGameRedisData(Long roomId, String opposingRoomId) {
-		redisTemplate.delete(RedisKeys.TeamRoomUsers(roomId));
-		redisTemplate.delete(RedisKeys.TeamRoomUsers(Long.parseLong(opposingRoomId)));
-		redisTemplate.delete(RedisKeys.TeamRoomStatus(roomId));
-		redisTemplate.delete(RedisKeys.TeamRoomStatus(Long.parseLong(opposingRoomId)));
-		redisTemplate.delete(RedisKeys.TeamMatchId(roomId));
-		redisTemplate.delete(RedisKeys.TeamMatchId(Long.parseLong(opposingRoomId)));
+	private void cleanupTeamGameRedisData(Long roomId, Long opposingRoomId) {
+		// 먼저 각 방의 유저 목록을 가져옴
+		String roomUsersKey1 = RedisKeys.TeamRoomUsers(roomId);
+		String roomUsersKey2 = RedisKeys.TeamRoomUsers(opposingRoomId);
+
+		List<String> userIds1 = redisTemplate.opsForList().range(roomUsersKey1, 0, -1);
+		List<String> userIds2 = redisTemplate.opsForList().range(roomUsersKey2, 0, -1);
+
+		// 모든 삭제할 키를 리스트에 추가
+		// 기존 키들 추가
+		List<String> keysToDelete = new ArrayList<>(Arrays.asList(
+			roomUsersKey1,
+			roomUsersKey2,
+			RedisKeys.TeamRoomStatus(roomId),
+			RedisKeys.TeamRoomStatus(opposingRoomId),
+			RedisKeys.TeamMatchId(roomId),
+			RedisKeys.TeamMatchId(opposingRoomId),
+			RedisKeys.getRoomDbId(roomId),
+			RedisKeys.getRoomDbId(opposingRoomId)
+		));
+
+		// 유저 키들 추가
+		if (userIds1 != null) {
+			userIds1.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
+		}
+		if (userIds2 != null) {
+			userIds2.forEach(userId -> keysToDelete.add(RedisKeys.userTeamRoom(Long.parseLong(userId))));
+		}
+		redisTemplate.delete(keysToDelete);
 	}
 }
