@@ -2,7 +2,8 @@
 import { create } from 'zustand';
 import SockJS from 'sockjs-client';
 import { CompatClient, Stomp, Frame, Message } from '@stomp/stompjs';
-import socketResponseMessage from 'types/socketResponseMessage'
+import socketResponseMessage from 'types/socketResponseMessage';
+import useAuthStore from '@stores/authStore';
 
 interface Subscription {
   id: string;
@@ -32,10 +33,10 @@ const SOCKET_URL = 'http://localhost:8080/ws';
 const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
-const checkAuthStatus = () => {
-  const accessToken = sessionStorage.getItem('token');
-  return !!accessToken;
-};
+// const checkAuthStatus = () => {
+//   const accessToken = sessionStorage.getItem('token');
+//   return !!accessToken;
+// };
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   client: null,
@@ -45,7 +46,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   maxReconnectAttempts: MAX_RECONNECT_ATTEMPTS,
 
   connect: () => {
-    if (!checkAuthStatus()) {
+    const token = useAuthStore.getState().token;
+    if (!token) {
       console.warn('No authentication token found');
       return;
     }
@@ -55,7 +57,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     stompClient.configure({
       connectHeaders: {
-        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`,
       },
 
       debug: str => {
@@ -135,7 +137,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         const data = JSON.parse(message.body);
         callback(data);
       } catch (error) {
-        console.error('Error parsing message:', error); 
+        console.error('Error parsing message:', error);
       }
     });
 
@@ -176,7 +178,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     console.log('unsubscribe', destination);
   },
 
-  sendMessage: (destination: string, message: any) => {    
+  sendMessage: (destination: string, message: any) => {
     const { client, connected } = get();
 
     if (!client || !connected) {
@@ -189,16 +191,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       body: JSON.stringify(message),
     });
     console.log('메시지 전송 요청');
-    
   },
 
   restoreSubscriptions: () => {
     const activeSubscriptions = JSON.parse(sessionStorage.getItem('wsSubscriptions') || '[]');
     activeSubscriptions.forEach((destination: string) => {
       // 이미 구독 중인지 체크하고, 그렇다면 구독하지 않도록 처리
-    if (!get().subscriptions.has(destination)) {
-      get().subscribe(destination, () => {});
-    }
+      if (!get().subscriptions.has(destination)) {
+        get().subscribe(destination, () => {});
+      }
     });
   },
 }));
