@@ -27,7 +27,7 @@ const TeamcompositionPage = () => {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
+    <div className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 

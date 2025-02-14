@@ -129,7 +129,7 @@ const SingleSearchPage = () => {
 
   return (
     <div
-      className="relative min-h-screen w-full bg-cover bg-center"
+      className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* 배경 오버레이 */}
