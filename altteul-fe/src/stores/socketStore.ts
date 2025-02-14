@@ -27,7 +27,7 @@ interface SocketStore {
   restoreSubscriptions: () => void;
 }
 
-// const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:8080/ws';
+// const SOCKET_URL = /ws || 'http://localhost:8080/ws';
 const SOCKET_URL = 'http://localhost:8080/ws';
 const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
