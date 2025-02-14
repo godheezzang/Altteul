@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import { formatTime } from '@utils/formatTime';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/single_matching_bg.svg';
-import logo from '@assets/icon/Altteul.svg';
 import tmi from '@assets/tmi.json';
 import { useTimer } from '@hooks/useTimer';
 import { User } from 'types/types';
-import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import { singleOut, singleStart } from '@utils/Api/matchApi';
@@ -20,61 +17,57 @@ const SingleSearchPage = () => {
   const socket = useSocketStore();
   const [fact, setFact] = useState<string>('');
   const [facts] = useState<string[]>(tmi.facts);
-  const [leaderId] = useState(matchStore.matchData.leaderId);
+  const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
   //waitUsers: 방장을 포함하지 않은 대기 유저
   const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users.filter(user => user.userId !== leaderId));
   const [headUser, setHeadUser] = useState<User>(matchStore.matchData.users.find(user => user.userId === leaderId));
   const roomId = matchStore.matchData.roomId;
-  const currentUserId = Number(localStorage.getItem('userId'));
+  const currentUserId = Number(sessionStorage.getItem('userId'));
+  const [isLeader, setIsLeader] = useState(currentUserId === leaderId);
 
-  // TODO: 게임시작 버튼 렌더링을 위해 임시 조치
-  // const [isLeader, setIsLeader] = useState(currentUserId === leaderId);
-  const isLeader = true;
-
-  // 타이머 완료 여부를 추적하는 상태 추가
-  const [isTimeUp, setIsTimeUp] = useState(false);
-  // 소켓에서 받아오는 부분 설정
-  const { isConnected, c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
-
-  // (새로 고침도 언마운트 적용될 줄 알았을 때 작성한 코드), 일단 둬보고 삭제 예정
-  // 소켓 연결 관리 부분
-  // useEffect(() => {
-  //   //소켓 연결 유지는 페이지 넘어가기 전, 정상 페이지 이동에만 설정, 초기에는 false
-  //   //정상적인 페이지 이동이 아닌 경우 Defalut로 연결 끊기 위함
-  //   socket.setKeepConnection(false);
-  //   return () => {
-  //     // 소켓 연결 유지 선언을 하지 않았다면 연결 유지 초기화
-  //     if (!socket.keepConnection) {
-  //       console.log('!!연결 유지 선언이 없어서 소켓 연결을 초기화 합니다!!');
-  //       socket.resetConnection();
-  //       console.log("비정상적인 페이지 이탈 -> 방 나가기 로직 작동")
-  //       singleOut(currentUserId)
-  //       navigate('/match/select');
-  //     }
-  //   };
-  // },[]);
-
-  // 유저 정보 업데이트
+  //구독처리
   useEffect(() => {
-    if (isConnected && c_waitUsers && c_leaderId) {
-      //타이머 리셋
-      reset()
+    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
 
-      // TODO: 게임시작 버튼 렌더링을 위해 임시 조치
-      // setIsLeader(currentUserId === c_leaderId);
-      setHeadUser(c_waitUsers.find(user => user.userId === c_leaderId));
-      setWaitUsers(c_waitUsers.filter(user => user.userId !== c_leaderId));
+    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    return () => {
+      console.log("singleSearchPage Out, 구독 취소")
+      socket.unsubscribe(`/sub/single/room/${roomId}`)
+    }
+  }, [roomId])
 
-      // 대기 유저가 8명이 되면 자동으로 게임 시작
-      if (c_waitUsers.length >= 8) {
+  //소켓 응답 처리
+  const handleMessage = (message) => {
+    console.log(message)
+    const { type, data } = message;
+    if (type === 'ENTER' || type === 'LEAVE') {
+      setLeaderId(data.leaderId);
+      setWaitUsers(data.users.filter(user => user.userId !== leaderId));
+      setHeadUser(data.users.find(user => user.userId === leaderId))
+      setIsLeader(currentUserId === leaderId)
+    }
+    
+    else if (type === 'COUNTING') {
+      navigate('/match/single/final');
+    }
+    
+    else{
+      console.warn('예상하지 못한 소켓응답')
+      console.log(message)
+    }
+
+    // 대기 유저가 8명이 되면 자동으로 게임 시작
+      if (waitUsers.length >= 8) {
         handleStartButton();
       }
-    }
-  }, [isConnected, c_waitUsers, c_leaderId]);
+
+    reset() //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
+  }
+
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 180,  //3분
+    initialSeconds: 60,  //TODO: 3분
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
@@ -115,18 +108,12 @@ const SingleSearchPage = () => {
     });
 
     //게임 시작 API 호출(For socket 응답 변환)
-    const res = await singleStart(roomId, leaderId);
-      if (res.status === 200) {
-        socket.setKeepConnection(true); // 연결 유지 상태로 변경
-        navigate('/match/single/final');
-      }else if (res.status === 400) {
-        console.log("게임 매칭 완료 중 에러 발생")
-      }
+    await singleStart(roomId);
   }
 
   //유저 퇴장 로직
   const userOut = () => {
-    singleOut(currentUserId);
+    singleOut(roomId);
     socket.resetConnection();
     navigate('/match/select');
   };
