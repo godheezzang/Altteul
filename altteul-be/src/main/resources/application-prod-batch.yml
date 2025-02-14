@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: dev-batch
+      on-profile: prod-batch
   batch:
     jdbc:
       initialize-schema: always      # Spring Batch 관련 테이블 자동 생성 설정
