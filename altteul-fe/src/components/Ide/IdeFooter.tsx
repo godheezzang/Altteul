@@ -5,6 +5,7 @@ import useGameStore from "@stores/useGameStore";
 import SmallButton from "@components/Common/Button/SmallButton ";
 import { api } from "@utils/Api/commonApi";
 import useAuthStore from "@stores/authStore";
+import { useSocketStore } from "@stores/socketStore";
 
 interface IdeFooterProps {
   code: string;
@@ -20,6 +21,8 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
   const { gameId, roomId, problem } = useGameStore();
   const { token } = useAuthStore();
   const { submitCode } = useGameWebSocket(gameId, roomId);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { sendMessage } = useSocketStore()
   
   /** ✅ 코드 실행 (API 요청) */
   const executeCode = async () => {
@@ -67,7 +70,15 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
   /** ✅ 코드 제출 (WebSocket 요청) */
   const handleSubmitCode = () => {
     const serverLang = convertLangToServerFormat(language)
-    submitCode(problem.problemId, serverLang, code);
+    setIsSubmitting(true)
+    
+    sendMessage(`/pub/judge/submition`, {
+      gameId: gameId,
+      teamId: roomId,
+      problemId: problem.problemId, 
+      lang: serverLang, 
+      code: code
+    })
   };
 
   return (
