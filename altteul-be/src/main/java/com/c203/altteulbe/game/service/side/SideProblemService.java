@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.item.Item;
 import com.c203.altteulbe.game.persistent.entity.item.ItemHistory;
@@ -23,6 +21,7 @@ import com.c203.altteulbe.game.persistent.repository.side.SideProblemHistoryRepo
 import com.c203.altteulbe.game.persistent.repository.side.SideProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.service.exception.ItemNotFoundException;
+import com.c203.altteulbe.game.service.exception.ProblemNotFoundException;
 import com.c203.altteulbe.game.service.exception.SideProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
@@ -56,17 +55,17 @@ public class SideProblemService {
 	private final ItemRepository itemRepository;
 	private final ItemHistoryRepository itemHistoryRepository;
 
-
 	public void submit(SubmitSideProblemRequestDto message, Long id) {
 		// 제출된 결과 확인
 		SideProblem sideProblem = sideProblemRepository.findById(message.getSideProblemId())
 			.orElseThrow(SideProblemNotFoundException::new);
 
-		SideProblemHistory.ProblemResult result = message.getAnswer().equals(sideProblem.getAnswer()) ? SideProblemHistory.ProblemResult.P: SideProblemHistory.ProblemResult.F;
+		SideProblemHistory.ProblemResult result =
+			message.getAnswer().equals(sideProblem.getAnswer()) ? SideProblemHistory.ProblemResult.P :
+				SideProblemHistory.ProblemResult.F;
 
 		Game game = gameRepository.findWithRoomByGameId(message.getGameId())
 			.orElseThrow(GameNotFoundException::new);
-
 
 		// 채점 결과 브로드 캐스트
 		if (result == SideProblemHistory.ProblemResult.P) {
@@ -153,7 +152,6 @@ public class SideProblemService {
 		sideProblemHistoryRepository.save(sideProblemHistory);
 	}
 
-
 	public void receive(ReceiveSideProblemRequestDto message, Long id) {
 		// 팀의 문제를 구독하는 사람에게 문제 전달
 		long totalCount = sideProblemRepository.count();
@@ -166,11 +164,11 @@ public class SideProblemService {
 
 		if (game.getBattleType() == BattleType.S) {
 			SingleRoom room = singleRoomRepository.findById(message.getTeamId())
-				.orElseThrow(() -> new BusinessException("개인 룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+				.orElseThrow(RoomNotFoundException::new);
 			histories = sideProblemHistoryRepository.findByUserId(room.getUser());
 		} else {
 			TeamRoom room = teamRoomRepository.findById(message.getTeamId())
-				.orElseThrow(() -> new BusinessException("팀 룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+				.orElseThrow(RoomNotFoundException::new);
 			histories = sideProblemHistoryRepository.findByTeamRoomId(room);
 		}
 
@@ -189,7 +187,7 @@ public class SideProblemService {
 			long randomId = random.nextLong(totalCount) + 1; // 1부터 totalCount까지의 랜덤 숫자
 			if (!solved.contains(randomId)) {
 				nextProblem = sideProblemRepository.findById(randomId)
-					.orElseThrow(() -> new BusinessException("사이드 문제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+					.orElseThrow(ProblemNotFoundException::new);
 				break;
 			}
 		}
