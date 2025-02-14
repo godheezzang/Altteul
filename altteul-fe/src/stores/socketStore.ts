@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import SockJS from 'sockjs-client';
 import { CompatClient, Stomp, Frame, Message } from '@stomp/stompjs';
+import socketResponseMessage from 'types/socketResponseMessage'
+
 interface Subscription {
   id: string;
   callback: (data: any) => void;
@@ -112,7 +114,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
   },
 
-  subscribe: (destination: string, callback: (data: any) => void) => {
+  subscribe: (destination: string, callback: (data: socketResponseMessage) => void) => {
     const { client, connected, subscriptions } = get();
 
     // 이미 구독중이면 종료
@@ -133,7 +135,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         const data = JSON.parse(message.body);
         callback(data);
       } catch (error) {
-        console.error('Error parsing message:', error);
+        console.error('Error parsing message:', error); 
       }
     });
 
