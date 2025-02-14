@@ -61,10 +61,6 @@ const router = createBrowserRouter([
             element: <SelectPage />,
           },
           {
-            path: 'select',
-            element: <SelectPage />,
-          },
-          {
             path: 'team',
             children: [
               {
