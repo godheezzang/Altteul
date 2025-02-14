@@ -52,6 +52,11 @@ export const teamOut = async (userId: number) => {
   return res.data.status
 }
 
+//팀전 매칭 시작 api
+export const teamStart = async (roomId: number) => {
+  const res = await teamApi.post(`room/${roomId}`)
+}
+
 //팀전 초대 수락 api
 export const inviteResponse = async (nickname:string, roomId:number, accepted:boolean) => {
   if (accepted) {
