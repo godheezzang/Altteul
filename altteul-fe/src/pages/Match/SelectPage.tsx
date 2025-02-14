@@ -46,7 +46,7 @@ const SelectPage = () => {
       setMatchData(data);
 
       //개인전 매칭 페이지 전환
-      navigate("/match/team/composition")
+      navigate(`/match/team/composition/${data.data.roomId}`)
     }catch(error){
       console.log(error)
       // 에러페이지로 전환
@@ -63,14 +63,6 @@ const SelectPage = () => {
     >
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
-
-      {/* 로고 링크 */}
-      <Link
-        to="/"
-        className="absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-      >
-        <img src={logo} alt="홈으로" className="w-full h-full" />
-      </Link>
 
       {/* 컨텐츠 */}
       <div className="relative flex gap-x-[40vh] items-center">
