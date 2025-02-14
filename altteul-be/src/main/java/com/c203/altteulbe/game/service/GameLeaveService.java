@@ -154,7 +154,7 @@ public class GameLeaveService {
 		);
 	}
 
-	// TODO : 팀전 정상 종료 후 나가기 처리
+	// 팀전 정상 종료 후 나가기 처리
 	private void handleFinishedTeamGameLeave(Game game, User user) {
 		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
 			.orElseThrow(RoomNotFoundException::new);
