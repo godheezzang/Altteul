@@ -522,7 +522,7 @@ public class TeamRoomService {
 	/*
 	 * 팀 초대 수락 및 거절 처리
 	 */
-	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
+	public RoomEnterResponseDto handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
 
 		User inviter = userRepository.findByNickname(requestDto.getNickname())
 								     .orElseThrow(() -> new NotFoundUserException());
@@ -531,11 +531,12 @@ public class TeamRoomService {
 		boolean accepted = requestDto.isAccepted();
 
 		String inviteKey = RedisKeys.inviteInfo(String.valueOf(roomId), String.valueOf(friendId));
+		String redisValue = (String) redisTemplate.opsForValue().get(inviteKey);
 
-		// 초대 만료 여부 확인
-		if (!Boolean.TRUE.equals(redisTemplate.hasKey(inviteKey))) {
+		if (redisValue == null) {
 			throw new AlreadyExpiredInviteException();
 		}
+
 		// 초대 정보 삭제
 		redisTemplate.delete(inviteKey);
 
@@ -560,17 +561,20 @@ public class TeamRoomService {
 			// 초대한 유저에게 수락 사실 전송, 초대받은 유저에게 수락 정상 처리 사실 전송
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + userId, "INVITE_ACCEPTED",
 				"초대를 수락했습니다.");
-			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + friendId, "INVITE_ACCEPTED",
-				"초대 수락 요청이 정상 처리되었습니다.");
 
 			// 방에 있는 모든 유저들에게 websocket으로 유저 정보 전송 (+ 초대된 유저 정보 포함)
 			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "ENTER", responseDto, BattleType.T);
+
+			// 초대 받은 유저에게 방에 있는 유저들에 대한 정보 전송
+			return responseDto;
+
 		} else {
 			// 거절한 경우
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + userId, "INVITE_REJECTED",
 				"초대를 거절했습니다.");
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + friendId, "INVITE_REJECTED",
 				"초대 거절 요청이 정상 처리되었습니다.");
+			return null;
 		}
 	}
 

@@ -78,10 +78,14 @@ public class TeamRoomController {
 	 * 팀전 초대 수락 및 거절 API
 	 */
 	@PostMapping("/invite/reaction")
-	public ApiResponseEntity<Void> handleInviteReaction(@RequestBody InviteTeamAnswerRequestDto requestDto,
+	public ApiResponseEntity<ResponseBody.Success<RoomEnterResponseDto>> handleInviteReaction(
+														@RequestBody InviteTeamAnswerRequestDto requestDto,
 													    @AuthenticationPrincipal Long userId) {
-		teamRoomService.handleInviteReaction(requestDto, userId);
-		return ApiResponse.success();
+		RoomEnterResponseDto responseDto = teamRoomService.handleInviteReaction(requestDto, userId);
+		if (responseDto == null) {
+			return ApiResponse.success(null, HttpStatus.NO_CONTENT, "초대가 거절되었습니다.");
+		}
+		return ApiResponse.success(responseDto, HttpStatus.OK);
 	}
 }
 
