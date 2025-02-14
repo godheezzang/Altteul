@@ -1,22 +1,28 @@
 import { Problem, TestCase, User } from "./types";
 
 interface socketResponseMessage {
-  type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START' | "COUNTING_CANCEL";
+  type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START' | "COUNTING_CANCEL"
+      | 'INVITE_REQUEST_RECEIVED';
   data: {
     leaderId?: number;
     users?: User[];
     remainingUsers?: User[];
 
-    //couting message
+    //카운팅 message
     time?: number;
 
-    //game start message
+    //게임 시작 message
     gameId?: number;
     problem?: Problem
     testcases?: TestCase[]
 
     //인원 미달 message
     note?: string;
+
+    //게임 초대 요청 message
+    nickname?: string;
+    roomId?: number;
+    
   };
 };
 
