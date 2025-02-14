@@ -57,6 +57,11 @@ export const teamStart = async (roomId: number) => {
   const res = await teamApi.post(`room/${roomId}`)
 }
 
+//팀전 매칭 취소 api
+export const cancelTeamMatch = async (roomId: number) => {
+  const res = await teamApi.post(`matching/cancel/{roomId}`)
+}
+
 //팀전 초대 수락 api
 export const inviteResponse = async (nickname:string, roomId:number, accepted:boolean) => {
   if (accepted) {
