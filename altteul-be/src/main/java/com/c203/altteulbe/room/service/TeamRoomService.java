@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -456,8 +457,8 @@ public class TeamRoomService {
 		Long roomId = requestDto.getRoomId();
 		Long friendId = requestDto.getInviteeId();
 
-		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
-		userRepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
+		User inviter = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
+		User invitee = userRepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
 
 		// 친구 관계 확인
 		if (!friendshipRepository.existsById(new FriendId(userId, friendId))) {
@@ -511,7 +512,7 @@ public class TeamRoomService {
 		// 초대 받은 유저에게 초대 관련 정보 전송
 		Map<String, String> payload = new HashMap<>();
 		payload.put("roomId", String.valueOf(roomId));
-		payload.put("inviterId", String.valueOf(userId));
+		payload.put("nickname", invitee.getNickname());
 
 		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
 	}
@@ -523,7 +524,9 @@ public class TeamRoomService {
 	 */
 	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
 
-		Long userId = requestDto.getInviterId();
+		User inviter = userRepository.findByNickname(requestDto.getNickname())
+								     .orElseThrow(() -> new NotFoundUserException());
+		Long userId = inviter.getUserId();
 		Long roomId = requestDto.getRoomId();
 		boolean accepted = requestDto.isAccepted();
 
