@@ -25,14 +25,20 @@ const App = () => {
     '/match/team/search',
     '/match/team/final',
     '/match/single/search',
-    '/match/single/final'
+    '/match/single/final',
   ].includes(location.pathname);
+
+  const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
+    location.pathname
+  );
 
   return (
     <UserSearchProvider>
       <div className="min-h-screen">
         {!hideNavigation && (isGamePage ? <GameGnb /> : <MainGnb />)}
-        <main className="mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]">
+        <main
+          className={`${transparentNavigation ? '' : 'mt-[3.5rem]'} bg-primary-black h-[calc(100vh-3.5rem)]`}
+        >
           <Outlet />
         </main>
         <ModalManager />
