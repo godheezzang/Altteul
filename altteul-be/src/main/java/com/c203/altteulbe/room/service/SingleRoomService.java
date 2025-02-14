@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
@@ -60,9 +61,9 @@ public class SingleRoomService {
 
 	/*
 	 * 개인전 대기방 입장 처리
-	 * 동일 유저의 중복 요청 방지 및 동시성 제어를 위해 userId를 키로 갖는 락을 생성
+	 * 기존에 있는 방에 입장할 경우 해당 방에 대해 락 획득
 	 */
-	//@DistributedLock(key="#requestDto.userId")
+	@DistributedLock(key = "#userId")
 	public RoomEnterResponseDto enterSingleRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -95,27 +96,42 @@ public class SingleRoomService {
 		return responseDto;
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 개인전 대기방 퇴장 처리
 	 */
-	//@DistributedLock(key = "#requestDto.userId")
+
+	// 정식으로 요청했을 경우의 퇴장 처리
+	@DistributedLock(key = "#roomId")
 	public void leaveSingleRoom(Long roomId, Long userId) {
+		removeUserFromSingleRoom(roomId, userId, true);
+	}
+
+	// 웹소켓 연결이 끊겼을 경우의 퇴장 처리
+	public void webSocketDisconnectLeave(Long roomId, Long userId) {
+		removeUserFromSingleRoom(roomId, userId, false);
+	}
+
+	public void removeUserFromSingleRoom(Long roomId, Long userId, boolean validateRoomStatus) {
 
 		// 퇴장하는 유저 정보 조회
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
 
-		// 유저가 방에 속했는지 검증
-		if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
-			throw new UserNotInRoomException();
-		}
+		if (validateRoomStatus) {
+			// 유저가 방에 속했는지 검증
+			if (!validator.isUserInThisRoom(userId, roomId, BattleType.S)) {
+				throw new UserNotInRoomException();
+			}
 
-		// 방 상태 확인
-		String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
-		String status = redisTemplate.opsForValue().get(roomStatusKey);
+			// 방 상태 확인
+			String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
+			String status = redisTemplate.opsForValue().get(roomStatusKey);
 
-		if (!"waiting".equals(status)) {
-			throw new CannotLeaveRoomException();
+			if (!"waiting".equals(status)) {
+				throw new CannotLeaveRoomException();
+			}
 		}
 
 		// Redis에서 퇴장하는 유저 삭제
@@ -126,7 +142,6 @@ public class SingleRoomService {
 		// 퇴장 후 방에 남은 유저가 없는 경우 관련 데이터 삭제
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		if (remainingUserIds == null || remainingUserIds.isEmpty()) {
-			log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 			singleRoomRedisRepository.deleteRedisSingleRoom(roomId);
 			return;
 		}
@@ -159,10 +174,12 @@ public class SingleRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId.toString(), "LEAVE", responseDto, BattleType.S);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
-	//@DistributedLock(key = "requestDto.roomId")
+	@DistributedLock(key = "#roomId")
 	public void startGame(Long roomId, Long leaderId) {
 		// 유저 정보 조회
 		userRepository.findByUserId(leaderId)
@@ -188,6 +205,8 @@ public class SingleRoomService {
 		// 카운트다운 시작 → Scheduler가 인식
 		redisTemplate.opsForValue().set(RedisKeys.SingleRoomCountdown(roomId), "10");
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 개인전 게임 시작 처리
