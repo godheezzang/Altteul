@@ -315,8 +315,8 @@ public class TeamRoomService {
 		}
 
 		// 게임 시작 시 음성 채팅 세션 생성
-		voiceChatService.createTeamVoiceSession(matchId, roomId1);
-		voiceChatService.createTeamVoiceSession(matchId, roomId2);
+		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
+		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
 		// 문제 및 테스트케이스 조회
 		List<Long> problemIds = problemRepository.findAllProblemIds();
@@ -335,16 +335,16 @@ public class TeamRoomService {
 
 		// DB에 TeamRoom 저장
 		TeamRoom teamRoom1 = TeamRoom.create(game);
-		teamRoomRepository.save(teamRoom1);
+		TeamRoom savedTeam1 = teamRoomRepository.save(teamRoom1);
 		saveUserTeamRooms(roomId1, teamRoom1);
 
 		TeamRoom teamRoom2 = TeamRoom.create(game);
-		teamRoomRepository.save(teamRoom2);
+		TeamRoom savedTeam2 = teamRoomRepository.save(teamRoom2);
 		saveUserTeamRooms(roomId2, teamRoom2);
 
 		// websocket으로 전송할 데이터 준비
-		RoomEnterResponseDto team1Dto = getRoomEnterResponseDto(roomId1);
-		RoomEnterResponseDto team2Dto = getRoomEnterResponseDto(roomId2);
+		RoomEnterResponseDto team1Dto = getRoomEnterResponseDtoForDB(roomId1, savedTeam1.getId());
+		RoomEnterResponseDto team2Dto = getRoomEnterResponseDtoForDB(roomId2, savedTeam2.getId());
 
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
@@ -589,14 +589,21 @@ public class TeamRoomService {
 		return TeamMatchResponseDto.toDto(responseDto1, responseDto2);
 	}
 
-	/**
-	 * 특정 팀의 유저 정보를 조회하여 RoomEnterResponseDto로 변환하는 메소드
-	 */
 	private RoomEnterResponseDto getRoomEnterResponseDto(Long roomId) {
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		return teamRoomRedisRepository.convertToRoomEnterResponseDto(roomId, leaderId, userIds);
+	}
+
+	/**
+	 * 특정 팀의 유저 정보를 조회하여 RoomEnterResponseDto로 변환하는 메소드
+	 */
+	private RoomEnterResponseDto getRoomEnterResponseDtoForDB(Long roomId, Long savedId) {
+		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+		return teamRoomRedisRepository.convertToRoomEnterResponseDto(savedId, leaderId, userIds);
 	}
 
 	/**
