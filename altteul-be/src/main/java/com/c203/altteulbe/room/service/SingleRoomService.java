@@ -63,7 +63,7 @@ public class SingleRoomService {
 	 * 개인전 대기방 입장 처리
 	 * 기존에 있는 방에 입장할 경우 해당 방에 대해 락 획득
 	 */
-	@DistributedLock(key = "#userId")
+	//@DistributedLock(key = "#userId")
 	public RoomEnterResponseDto enterSingleRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -103,7 +103,7 @@ public class SingleRoomService {
 	 */
 
 	// 정식으로 요청했을 경우의 퇴장 처리
-	@DistributedLock(key = "#roomId")
+	//@DistributedLock(key = "#roomId")
 	public void leaveSingleRoom(Long roomId, Long userId) {
 		removeUserFromSingleRoom(roomId, userId, true);
 	}
@@ -179,7 +179,7 @@ public class SingleRoomService {
 	/**
 	 * 개인전 게임 시작 전 카운트다운 처리
 	 */
-	@DistributedLock(key = "#roomId")
+	//@DistributedLock(key = "#roomId")
 	public void startGame(Long roomId, Long leaderId) {
 		// 유저 정보 조회
 		userRepository.findByUserId(leaderId)

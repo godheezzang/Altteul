@@ -90,7 +90,7 @@ public class TeamRoomService {
 	private final RoomValidator validator;
 	private final VoiceChatService voiceChatService;
 
-	@DistributedLock(key="#userId")
+	//@DistributedLock(key="#userId")
 	public RoomEnterResponseDto enterTeamRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -128,7 +128,7 @@ public class TeamRoomService {
 	 */
 
 	// 정식으로 요청했을 경우의 퇴장 처리
-	@DistributedLock(key = "#roomId")
+	//@DistributedLock(key = "#roomId")
 	public void leaveTeamRoom(Long roomId, Long userId) {
 		removeUserFromTeamRoom(roomId, userId, true);
 	}
@@ -202,7 +202,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 매칭 시작
 	 */
-	@DistributedLock(key = "#roomId")
+	//@DistributedLock(key = "#roomId")
 	public void startTeamMatch(Long roomId, Long leaderId) {
 
 		userRepository.findByUserId(leaderId)
@@ -393,7 +393,7 @@ public class TeamRoomService {
 	/**
 	 * 매칭 취소 처리
 	 */
-	@DistributedLock(key = "#roomId")
+	//@DistributedLock(key = "#roomId")
 	public void cancelTeamMatch(Long roomId, Long userId) {
 
 		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
