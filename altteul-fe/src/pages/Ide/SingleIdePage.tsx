@@ -28,7 +28,11 @@ const SingleIdePage = () => {
 
   useEffect(() => {
     if (!connected) {
+      console.log('소켓 연결 안됨, 재연결');
       connect();
+    } else {
+      console.log('소켓 연결 됨');
+      
     }
   }, [connected, connect]);
 
@@ -78,7 +82,9 @@ const SingleIdePage = () => {
 
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
-    sendMessage(`/pub/side/receive`, { gameId, teamId: roomId });
+    sendMessage(`/pub/side/receive`, { gameId, teamId: roomId });    
+    console.log('gameId:', gameId, 'teamId:',roomId);
+    
     console.log('📨 사이드 문제 요청 전송');
   };
 

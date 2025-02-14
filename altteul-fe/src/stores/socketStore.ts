@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import SockJS from 'sockjs-client';
 import { CompatClient, Stomp, Frame, Message } from '@stomp/stompjs';
+import socketResponseMessage from 'types/socketResponseMessage'
+
 interface Subscription {
   id: string;
   callback: (data: any) => void;
@@ -112,7 +114,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
   },
 
-  subscribe: (destination: string, callback: (data: any) => void) => {
+  subscribe: (destination: string, callback: (data: socketResponseMessage) => void) => {
     const { client, connected, subscriptions } = get();
 
     // 이미 구독중이면 종료
@@ -133,7 +135,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         const data = JSON.parse(message.body);
         callback(data);
       } catch (error) {
-        console.error('Error parsing message:', error);
+        console.error('Error parsing message:', error); 
       }
     });
 
@@ -174,7 +176,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     console.log('unsubscribe', destination);
   },
 
-  sendMessage: (destination: string, message: any) => {
+  sendMessage: (destination: string, message: any) => {    
     const { client, connected } = get();
 
     if (!client || !connected) {
@@ -186,13 +188,17 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       destination,
       body: JSON.stringify(message),
     });
+    console.log('메시지 전송 요청');
+    
   },
 
   restoreSubscriptions: () => {
     const activeSubscriptions = JSON.parse(sessionStorage.getItem('wsSubscriptions') || '[]');
     activeSubscriptions.forEach((destination: string) => {
-      // 임시 빈 콜백으로 구독 - 실제 콜백은 컴포넌트에서 다시 설정됨
+      // 이미 구독 중인지 체크하고, 그렇다면 구독하지 않도록 처리
+    if (!get().subscriptions.has(destination)) {
       get().subscribe(destination, () => {});
+    }
     });
   },
 }));

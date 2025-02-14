@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
@@ -89,7 +91,7 @@ public class TeamRoomService {
 	private final RoomValidator validator;
 	private final VoiceChatService voiceChatService;
 
-	//@DistributedLock(key="#requestDto.userId")
+	//@DistributedLock(key="#userId")
 	public RoomEnterResponseDto enterTeamRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -127,6 +129,7 @@ public class TeamRoomService {
 	 */
 
 	// 정식으로 요청했을 경우의 퇴장 처리
+	//@DistributedLock(key = "#roomId")
 	public void leaveTeamRoom(Long roomId, Long userId) {
 		removeUserFromTeamRoom(roomId, userId, true);
 	}
@@ -136,7 +139,6 @@ public class TeamRoomService {
 		removeUserFromTeamRoom(roomId, userId, false);
 	}
 
-	//@DistributedLock(key = "#requestDto.userId")
 	public void removeUserFromTeamRoom(Long roomId, Long userId, boolean validateRoomStatus) {
 
 		// 퇴장하는 유저 정보 조회
@@ -201,7 +203,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 매칭 시작
 	 */
-	//@DistributedLock(key = "requestDto.roomId")
+	//@DistributedLock(key = "#roomId")
 	public void startTeamMatch(Long roomId, Long leaderId) {
 
 		userRepository.findByUserId(leaderId)
@@ -398,6 +400,7 @@ public class TeamRoomService {
 	/**
 	 * 매칭 취소 처리
 	 */
+	//@DistributedLock(key = "#roomId")
 	public void cancelTeamMatch(Long roomId, Long userId) {
 
 		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
@@ -425,7 +428,8 @@ public class TeamRoomService {
 				"이미 매칭된 팀이 있어 취소할 수 없습니다.", BattleType.T);
 			throw new CannotMatchCancelException();
 		}
-		// 방 상태를 매칭 취소로 변경
+
+		// 방 상태를 매칭 취소로 변경 → 매칭 스케줄러가 인식하여 afterTeamMatchCancel 실헹
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId), "cancelling");
 	}
 
@@ -453,8 +457,8 @@ public class TeamRoomService {
 		Long roomId = requestDto.getRoomId();
 		Long friendId = requestDto.getInviteeId();
 
-		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
-		userRepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
+		User inviter = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
+		User invitee = userRepository.findById(friendId).orElseThrow(() -> new NotFoundUserException());
 
 		// 친구 관계 확인
 		if (!friendshipRepository.existsById(new FriendId(userId, friendId))) {
@@ -508,7 +512,7 @@ public class TeamRoomService {
 		// 초대 받은 유저에게 초대 관련 정보 전송
 		Map<String, String> payload = new HashMap<>();
 		payload.put("roomId", String.valueOf(roomId));
-		payload.put("inviterId", String.valueOf(userId));
+		payload.put("nickname", invitee.getNickname());
 
 		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
 	}
@@ -520,7 +524,9 @@ public class TeamRoomService {
 	 */
 	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
 
-		Long userId = requestDto.getInviterId();
+		User inviter = userRepository.findByNickname(requestDto.getNickname())
+								     .orElseThrow(() -> new NotFoundUserException());
+		Long userId = inviter.getUserId();
 		Long roomId = requestDto.getRoomId();
 		boolean accepted = requestDto.isAccepted();
 

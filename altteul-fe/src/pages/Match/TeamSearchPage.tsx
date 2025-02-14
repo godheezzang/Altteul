@@ -23,7 +23,7 @@ const TeamSearchPage = () => {
   }, [facts]);
 
   return (
-    <div className="w-full bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
+    <div className="w-full -mt-[3.5rem] bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
       
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>

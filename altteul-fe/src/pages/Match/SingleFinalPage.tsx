@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
-import { singleOut } from '@utils/Api/matchApi';
+import socketResponseMessage from 'types/socketResponseMessage';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const SingleFinalPage = () => {
   }, [roomId])
 
   //소켓 응답 처리
-  const handleMessage = (message) => {
+  const handleMessage = (message:socketResponseMessage) => {
     const { type, data } = message;
     console.log(message)
     if (type === 'LEAVE') {
@@ -91,7 +91,7 @@ const SingleFinalPage = () => {
 
   return (
     <div
-      className="relative min-h-screen w-full bg-cover bg-center"
+      className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div className="absolute inset-0 bg-black/50"></div>
