@@ -18,15 +18,10 @@ const GameGnb = () => {
   const { token } = useAuthStore()
 
   const [showModal, setShowModal] = useState(false)
-  
-  useEffect(() => {
-
-  })
 
   const handleOutConfirm = () => { 
     setShowModal(true)
   }
-
   const handleNavigate = async () => {
     console.log(token);
     
@@ -38,7 +33,7 @@ const GameGnb = () => {
       })
 
       if (response.status === 200) {
-        navigate('./');
+        navigate('/');
       }
     } catch (error) {
       console.error(error);
