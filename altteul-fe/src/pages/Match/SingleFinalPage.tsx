@@ -91,7 +91,7 @@ const SingleFinalPage = () => {
 
   return (
     <div
-      className="relative min-h-screen w-full bg-cover bg-center"
+      className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div className="absolute inset-0 bg-black/50"></div>

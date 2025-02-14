@@ -53,51 +53,48 @@ const router = createBrowserRouter([
           },
         ],
       },
-    ],
-  },
-  {
-    path: 'match',
-    children: [
       {
-        path: 'select',
-        element: <SelectPage />,
-      },
-      {
-        path: 'select',
-        element: <SelectPage />,
-      },
-      {
-        path: 'team',
+        path: 'match',
         children: [
           {
-            path: 'composition',
-            element: <TeamcompositionPage />,
+            path: 'select',
+            element: <SelectPage />,
           },
           {
-            path: 'search',
-            element: <TeamSearchPage />,
+            path: 'team',
+            children: [
+              {
+                path: 'composition',
+                element: <TeamcompositionPage />,
+              },
+              {
+                path: 'search',
+                element: <TeamSearchPage />,
+              },
+              {
+                path: 'final',
+                element: <TeamFinalPage />,
+              },
+            ],
           },
           {
-            path: 'final',
-            element: <TeamFinalPage />,
-          },
-        ],
-      },
-      {
-        path: 'single',
-        children: [
-          {
-            path: 'search',
-            element: <SingleSearchPage />,
-          },
-          {
-            path: 'final',
-            element: <SingleFinalPage />,
+            path: 'single',
+            children: [
+              {
+                path: 'search',
+                element: <SingleSearchPage />,
+              },
+              {
+                path: 'final',
+                element: <SingleFinalPage />,
+              },
+            ],
           },
         ],
       },
     ],
   },
+  
 ]);
 
 export default router;

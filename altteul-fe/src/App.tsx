@@ -20,10 +20,18 @@ const App = () => {
     }
   }, []);
 
+  const hideNavigation = [
+    '/match/team/composition',
+    '/match/team/search',
+    '/match/team/final',
+    '/match/single/search',
+    '/match/single/final'
+  ].includes(location.pathname);
+
   return (
     <UserSearchProvider>
       <div className="min-h-screen">
-        {isGamePage ? <GameGnb /> : <MainGnb />}
+        {!hideNavigation && (isGamePage ? <GameGnb /> : <MainGnb />)}
         <main className="mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]">
           <Outlet />
         </main>

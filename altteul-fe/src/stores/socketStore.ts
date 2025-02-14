@@ -176,7 +176,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     console.log('unsubscribe', destination);
   },
 
-  sendMessage: (destination: string, message: any) => {
+  sendMessage: (destination: string, message: any) => {    
     const { client, connected } = get();
 
     if (!client || !connected) {
@@ -188,13 +188,17 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       destination,
       body: JSON.stringify(message),
     });
+    console.log('메시지 전송 요청');
+    
   },
 
   restoreSubscriptions: () => {
     const activeSubscriptions = JSON.parse(sessionStorage.getItem('wsSubscriptions') || '[]');
     activeSubscriptions.forEach((destination: string) => {
-      // 임시 빈 콜백으로 구독 - 실제 콜백은 컴포넌트에서 다시 설정됨
+      // 이미 구독 중인지 체크하고, 그렇다면 구독하지 않도록 처리
+    if (!get().subscriptions.has(destination)) {
       get().subscribe(destination, () => {});
+    }
     });
   },
 }));
