@@ -4,11 +4,13 @@ import useModalStore from '@stores/modalStore';
 import React from 'react';
 import logo from '@assets/icon/Altteul.svg';
 import LoginModal from '@components/Auth/LoginModal';
+import { useSocketStore } from '@stores/socketStore';
 
 const MainGnb = () => {
   const navigate = useNavigate();
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
+  const { disconnect } =  useSocketStore();
 
   const userId = localStorage.getItem('userId');
 
@@ -32,6 +34,7 @@ const MainGnb = () => {
 
   const handleLogout = () => {
     logout();
+    disconnect()
     navigate('/');
   };
 

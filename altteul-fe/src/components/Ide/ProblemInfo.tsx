@@ -3,6 +3,8 @@ import useGameStore from '@stores/useGameStore';
 const ProblemInfo = () => {
   const { problem, testcases } = useGameStore();
 
+  const htmlString = problem.description
+
   if (!problem || !testcases) {
     return null;
   }
@@ -14,7 +16,8 @@ const ProblemInfo = () => {
       </h2>
       <div className="max-h-[30rem] min-h-[20rem] overflow-y-auto p-4 border-b border-gray-04">
         <p className="mb-3 text-sm font-semibold text-gray-02">문제 설명 </p>
-        <p className="text-md font-regular">{problem.description}</p>
+        {/* <p className="text-md font-regular">{problem.description}</p> */}
+        <div className="text-md font-regular" dangerouslySetInnerHTML={{ __html: htmlString }} />
       </div>
 
       <div className="p-4">

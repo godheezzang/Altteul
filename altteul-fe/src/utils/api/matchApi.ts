@@ -5,7 +5,7 @@ import axios from 'axios';
 //싱글 매칭 입장시 사용 api
 export const singleEnter = async (userId: number) => {
   try {
-    const res = await sigleApi.post("enter", { "userId": userId })
+    const res = await sigleApi.post("enter")
     if (res.data.status === 200) {
       return res.data
     }
@@ -19,14 +19,14 @@ export const singleEnter = async (userId: number) => {
 }
 
 //싱글 매칭 퇴장시 사용 api
-export const singleOut = async (userId: number) => {
-  const res = await sigleApi.post("leave", { "userId": userId })
+export const singleOut = async (roomId:number) => {
+  const res = await sigleApi.post(`leave/${roomId}`)
   return res.data.status
 }
 
 //싱글 매칭 시작시 사용 api
-export const singleStart = async (roomId: number, leaderId: number) => {
-  const res = await sigleApi.post("start", {"roomId":roomId, "leaderId":leaderId})
+export const singleStart = async (roomId: number) => {
+  const res = await sigleApi.post(`start/${roomId}`)
   return res
 }
 
