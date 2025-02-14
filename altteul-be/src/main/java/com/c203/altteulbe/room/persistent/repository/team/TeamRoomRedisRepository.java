@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
@@ -77,6 +78,7 @@ public class TeamRoomRedisRepository {
 	}
 
 	// 기존 대기방에 유저 추가
+	@DistributedLock(key = "#roomId")
 	public RoomEnterResponseDto insertUserToExistingRoom(Long roomId, User user) {
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 

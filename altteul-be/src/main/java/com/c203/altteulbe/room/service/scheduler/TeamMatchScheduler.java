@@ -19,7 +19,7 @@ public class TeamMatchScheduler {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final TeamRoomService teamRoomService;
 
-	// 3초마다 실행
+	// 1초마다 실행
 	@Scheduled(fixedDelay = 1000)
 	public void scheduledProcessTeamMatching() {
 		processTeamMatching();  // AOP 적용을 위해 별도 메소드로 호출
