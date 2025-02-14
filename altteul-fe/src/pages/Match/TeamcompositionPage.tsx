@@ -41,12 +41,12 @@ const TeamcompositionPage = () => {
       setLeaderId(data.leaderId);
       setWaitUsers(data.users.filter(user => user.userId !== leaderId));
       setIsLeader(currentUserId === leaderId);
-    } 
-    
+    }
+
     //teamStart API 요청 후 매칭 시작 소켓 응답
     if (type === 'MATCHING') {
       //매칭 페이지로 이동
-      navigate('/match/team/search')
+      navigate('/match/team/search');
     }
 
     // 대기 유저가 4명이 되면 자동으로 게임 시작
@@ -115,11 +115,12 @@ const TeamcompositionPage = () => {
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
           {isLeader && (
-            <Link to="/match/team/search">
-              <Button className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
-                매칭 시작
-              </Button>
-            </Link>
+            <Button
+              className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+              onClick={handleStartButton}
+            >
+              매칭 시작
+            </Button>
           )}
           <Button
             className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
