@@ -2,15 +2,15 @@ import useGameStore from '@stores/useGameStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '@assets/icon/Altteul.svg';
 import { useSocketStore } from '@stores/socketStore';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { api } from '@utils/Api/commonApi';
 import useAuthStore from '@stores/authStore';
-import Modal from '@components/Common/Modal';
 import ConfirmModal from '@components/Common/ConfirmModal';
 
 const GameGnb = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const socket = useSocketStore()
   const isTeam = location.pathname.includes('/game/team')
 
 
@@ -33,6 +33,7 @@ const GameGnb = () => {
       })
 
       if (response.status === 200) {
+        socket.restoreSubscriptions()
         navigate('/');
       }
     } catch (error) {
