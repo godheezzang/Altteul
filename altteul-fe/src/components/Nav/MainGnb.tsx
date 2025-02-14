@@ -12,8 +12,8 @@ const MainGnb = () => {
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
   const { disconnect } =  useSocketStore();
+  const { userId } = useAuthStore()
 
-  const userId = localStorage.getItem('userId');
   const isSelectPage = location.pathname.startsWith('/match')
 
   // 게임 시작 버튼 클릭 시 유저 있냐없냐에 따라 다르게
