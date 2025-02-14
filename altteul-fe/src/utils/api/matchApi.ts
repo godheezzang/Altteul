@@ -53,8 +53,10 @@ export const teamOut = async (userId: number) => {
 }
 
 //팀전 초대 수락 api
-export const teamAccept = async (nickname:string, roomId:number, accepted:boolean) => {
-  const data = {"nickname" : nickname, "roomId":roomId, "accepted":accepted}
-  const res = await teamApi.post('invite/reaction', data)
-  return res
+export const inviteResponse = async (nickname:string, roomId:number, accepted:boolean) => {
+  if (accepted) {
+    const data = {"nickname" : nickname, "roomId":roomId, "accepted":accepted}
+    const res = await teamApi.post('invite/reaction', data)
+    return res.data
+  }
 }
