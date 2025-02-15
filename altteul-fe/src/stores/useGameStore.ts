@@ -5,6 +5,7 @@ const useGameStore = create<GameState>(set => ({
   // 사용자가 새로고침한 후에도 게임 정보를 유지하기 위해 세션스토리지에 저장
   gameId: Number(sessionStorage.getItem('gameId')) || null,
   roomId: Number(sessionStorage.getItem('roomId')) || null,
+  userRoomId: Number(sessionStorage.getItem('userRoomid')) || null,
   users: JSON.parse(sessionStorage.getItem('users') || null),
   myTeam: JSON.parse(sessionStorage.getItem('myTeam')) || null,
   opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
@@ -24,6 +25,11 @@ const useGameStore = create<GameState>(set => ({
   setroomId: (roomId: number) => {
     sessionStorage.setItem('roomId', roomId.toString());
     set({ roomId });
+  },
+
+  setUserRoomId: (userRoomId: number) => {
+    sessionStorage.setItem('userRoomId', userRoomId.toString());
+    set({ userRoomId });
   },
 
   setUsers: users => {
@@ -59,6 +65,7 @@ const useGameStore = create<GameState>(set => ({
   resetGameInfo: () => {
     sessionStorage.removeItem('gameId');
     sessionStorage.removeItem('roomId');
+    sessionStorage.removeItem('userRoomId');
     sessionStorage.removeItem('users');
     sessionStorage.removeItem('problem');
     sessionStorage.removeItem('testcases');
@@ -66,6 +73,7 @@ const useGameStore = create<GameState>(set => ({
     set({
       gameId: null,
       roomId: null,
+      userRoomId: null,
       users: [],
       problem: null,
       testcases: [],

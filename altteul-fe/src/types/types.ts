@@ -24,15 +24,17 @@ export interface Problem {
 export interface GameState {
   gameId: number | null;
   roomId: number | null;
+  userRoomId: number | null;
   users: User[];
-  myTeam: MatchData,
-  opponent: MatchData,
+  myTeam: MatchData;
+  opponent: MatchData;
   problem: Problem | null;
   testcases: TestCase[];
 
   setGameInfo: (gameId: number, roomId: number) => void;
   setGameId: (gameId: number) => void;
   setroomId: (roomId: number) => void;
+  setUserRoomId: (userRoomId: number) => void;
   setUsers: (users: User[]) => void;
   setMyTeam: (data: MatchData) => void;
   setOpponent: (data: MatchData) => void;
@@ -46,7 +48,7 @@ export interface MatchState {
   myTeam: MatchData;
   opponent: MatchData;
   matchId: string;
-  
+
   setMatchData: (data: MatchData) => void;
   setMyTeam: (data: MatchData) => void;
   setOpponent: (data: MatchData) => void;
