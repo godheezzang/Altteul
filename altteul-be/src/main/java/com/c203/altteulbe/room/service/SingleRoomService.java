@@ -286,6 +286,7 @@ public class SingleRoomService {
 		SingleRoomGameStartResponseDto responseDto = SingleRoomGameStartResponseDto.from(
 			game.getId(), leaderId, users, problem, testcase
 		);
+
 		roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "GAME_START", responseDto, BattleType.S);
 	}
 
