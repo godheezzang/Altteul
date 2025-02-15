@@ -63,7 +63,9 @@ pipeline {
                         cp $FE_ENV_FILE altteul-fe/.env
 
                         # Redis 설정 파일 복사
-                        mkdir -p resources/redis && cp $REDIS_CONF_FILE resources/redis/redis.conf
+                        mkdir -p resources/redis
+                        chmod 644 $REDIS_CONF_FILE
+                        cp $REDIS_CONF_FILE resources/redis/redis.conf
 
                         # SQL 데이터 복사 (초기 데이터 로딩용)
                         cp $MOCK_DATA_FILE altteul-be/src/main/resources/data.sql
