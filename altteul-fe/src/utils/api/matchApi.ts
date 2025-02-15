@@ -38,7 +38,7 @@ export const teamOut = async (userId: number) => {
 
 //팀전 매칭 시작 api
 export const teamStart = async (roomId: number) => {
-  const res = await teamApi.post(`room/${roomId}`)
+  const res = await teamApi.post(`/matching/${roomId}`)
 }
 
 //팀전 매칭 취소 api
