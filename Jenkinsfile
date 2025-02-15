@@ -11,7 +11,7 @@ pipeline {
     stages {
 
         stage("Clean") {
-            always {
+            steps {
                 cleanWs(
                     deleteDirs: true,
                     cleanWhenFailure : true
