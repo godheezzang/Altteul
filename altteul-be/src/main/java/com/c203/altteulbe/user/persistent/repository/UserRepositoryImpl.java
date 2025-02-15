@@ -89,4 +89,12 @@ public class UserRepositoryImpl implements UserCustomRepository {
 			.from(user)
 			.fetchOne();
 	}
+
+	@Override
+	public List<User> searchByNickname(String nickname) {
+		return queryFactory
+			.selectFrom(user)
+			.where(user.nickname.containsIgnoreCase(nickname))
+			.fetch();
+	}
 }
