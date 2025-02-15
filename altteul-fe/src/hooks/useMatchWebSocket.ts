@@ -77,10 +77,6 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
   }, []);
 
   useEffect(() => {
-    if (socketStore.keepConnection) {
-      console.log('소켓 연결 유지 중이므로 연결 시도하지 않음');
-      return
-    }
     console.log('Attempting to create STOMP client with URL:', SOCKET_URL);
     console.log('Current location:', window.location.href);
     
@@ -170,16 +166,7 @@ const useMatchWebSocket = (roomId: number): UseMatchWebSocketReturn => {
       setError(err instanceof Error ? err : new Error('Failed to activate connection'));
     }
 
-    return () => {
-      if (stompClient.active && !socketStore.keepConnection) {
-        try {
-          stompClient.deactivate();
-        } catch (err) {
-          console.error('Error during cleanup:', err);
-        }
-      }
-    };
-  }, [roomId, handleMessage, socketStore.keepConnection]);
+  }, [roomId, handleMessage]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {

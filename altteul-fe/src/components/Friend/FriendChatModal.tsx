@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import BaseModal from '@components/Friend/Friend_common/Basemodal';
-import ChatHeader from '@components/Friend/Chat/ChatHeader';
-import ChatMessage from '@components/Friend/Chat/ChatMessage';
-import ChatInput from '@components/Friend/Chat/ChatInput';
+import BaseModal from '@components/Friend/friend_common/Basemodal';
+import ChatHeader from '@components/Friend/chat/ChatHeader';
+import ChatMessage from '@components/Friend/chat/ChatMessage';
+import ChatInput from '@components/Friend/chat/ChatInput';
 import { getChatRoomDetail } from '@utils/Api/chatApi';
-import type { ChatRoomDetail, ChatMessage as ChatMessageType } from 'types/chat';
+import type { ChatRoomDetail, ChatMessage as ChatMessageType } from 'types/types';
 
 interface FriendChatModalProps {
   isOpen: boolean;
