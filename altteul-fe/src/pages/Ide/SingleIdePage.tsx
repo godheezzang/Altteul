@@ -8,18 +8,15 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
-import { useNavigate } from 'react-router-dom';
 import { User } from 'types/types';
 
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const navigate = useNavigate();
   const { gameId, roomId, users, setUserRoomId } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
-  const [sideProblemResult, setSideProblemResult] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
   const [userProgress, setUserProgress] = useState<Record<number, number>>({});
   const [leftUsers, setLeftUsers] = useState<User[]>([]);
@@ -46,12 +43,6 @@ const SingleIdePage = () => {
       console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
-    });
-
-    // 사이드 문제 채점 결과 구독
-    subscribe(`/sub/${gameId}/${userRoomId}/side-problem/result`, data => {
-      console.log('📩 사이드 문제 채점 결과 수신:', data);
-      setSideProblemResult(data);
     });
 
     // 코드 채점 결과 구독
