@@ -159,7 +159,7 @@ public class GameLeaveService {
 		});
 
 		// 음성 채팅 연결 종료
-		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
+		voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
 
 		// 남은 유저 정보 조회 및 팀별 그룹화
 		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
@@ -274,7 +274,7 @@ public class GameLeaveService {
 			user.getUserId());
 
 		// 음성 채팅 연결 종료
-		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
+		voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
 
 		// 퇴장 이벤트 전송
 		TeamGameLeaveResponseDto responseDto = TeamGameLeaveResponseDto.of(
