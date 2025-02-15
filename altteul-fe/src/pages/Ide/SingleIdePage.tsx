@@ -8,90 +8,145 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
+import { useNavigate } from 'react-router-dom';
+import { User } from 'types/types';
 
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users } = useGameStore();
-  const { connect, subscribe, sendMessage, connected } = useSocketStore();
+  const navigate = useNavigate();
+  const { gameId, roomId, users, setUserRoomId } = useGameStore();
+  const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
   const [sideProblemResult, setSideProblemResult] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
   const [userProgress, setUserProgress] = useState<Record<number, number>>({});
+  const [leftUsers, setLeftUsers] = useState<User[]>([]);
 
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<'python' | 'java'>('python');
   const [showModal, setShowModal] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
   const [output, setOutput] = useState<string>('');
-  const { token } = useAuthStore();
+  const { userId } = useAuthStore();
+  const userRoomId = users.find(user => user.userId === Number(userId))?.roomId;
 
   useEffect(() => {
-    if (!connected && token) {
-      console.log('소켓 연결 안됨, 재연결');
-      connect();
-      window.location.reload();
-    } else {
-      console.log('소켓 연결 됨');
+    if (userRoomId && userRoomId !== roomId) {
+      setUserRoomId(userRoomId);
     }
-  }, [connected, connect]);
+  }, [userId, users, roomId, setUserRoomId]);
 
   useEffect(() => {
     if (!connected) return;
 
     // 사이드 문제 구독
-    subscribe(`/sub/${gameId}/${roomId}/side-problem/receive`, data => {
+    subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
       console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
     });
 
     // 사이드 문제 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
+    subscribe(`/sub/${gameId}/${userRoomId}/side-problem/result`, data => {
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
     });
 
     // 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/team-submission/result`, data => {
+    subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
       setCompleteUsers(prev => {
         const newSet = new Set(prev);
         if (data.status === 'P' && data.passCount === data.totalCount) {
-          newSet.add(Number(localStorage.getItem('userId')));
+          newSet.add(Number(sessionStorage.getItem('userId')));
         }
         return newSet;
       });
 
-      setUserProgress(prev => ({
-        ...prev,
-        [Number(localStorage.getItem('userId'))]:
-          data.status === 'F' ? Math.round((data.passCount / data.totalCount) * 100) : 100,
-      }));
+      setUserProgress(prev => {
+        if (!data.testCases || data.testCases.length === 0) {
+          return {
+            ...prev,
+            [userId]: 0, // 테스트 케이스가 없는 경우 진행률 0%
+          };
+        }
+
+        // 테스트 케이스별 진행률 계산
+        const passedCount = data.testCases.filter(
+          (tc: {
+            executionMemory: string;
+            executionTime: string;
+            status: string;
+            testCaseId: number;
+            testCaseNumber: number;
+          }) => tc.status === 'P'
+        ).length;
+        const progress = Math.round((passedCount / data.testCases.length) * 100);
+
+        return {
+          ...prev,
+          [userId]: progress,
+        };
+      });
     });
 
     // 상대 팀 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, data => {
-      console.log('📩 상대 코드 채점 결과 수신:', data);
+    subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
+      console.log('📩 상대 팀 코드 채점 결과 수신:', data);
+
+      setUserProgress(prev => {
+        const opponentId = data.userId; // 상대방 ID (백엔드에서 userId 포함해서 보내줘야 함)
+
+        if (!data.testCases || data.testCases.length === 0) {
+          return {
+            ...prev,
+            [opponentId]: 0, // 테스트 케이스가 없는 경우 진행률 0%
+          };
+        }
+
+        // ✅ 테스트 케이스별 진행률 계산
+        const passedCount = data.testCases.filter(
+          (tc: {
+            executionMemory: string;
+            executionTime: string;
+            status: string;
+            testCaseId: number;
+            testCaseNumber: number;
+          }) => tc.status === 'P'
+        ).length;
+        const progress = Math.round((passedCount / data.testCases.length) * 100);
+
+        return {
+          ...prev,
+          [opponentId]: progress,
+        };
+      });
+    });
+
+    // 퇴장하기 구독
+    subscribe(`/sub/single/room/${gameId}`, data => {
+      console.log('퇴장하기 구독 데이터:', data);
+
+      if (data.type === 'GAME_LEAVE') {
+        const { leftUser, remainingUsers } = data.data;
+
+        setLeftUsers(prev => [...prev, leftUser]);
+        setUserProgress(remainingUsers);
+      }
     });
 
     return () => {
       // 모든 구독 해제
     };
-  }, [connected, gameId, roomId, subscribe]);
+  }, [gameId]);
 
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
-    sendMessage(`/pub/side/receive`, { gameId, teamId: roomId });
+    sendMessage(`/pub/side/receive`, { gameId, teamId: userRoomId });
 
     console.log('📨 사이드 문제 요청 전송');
-  };
-
-  // ✅ 알고리즘 코드 제출
-  const submitCode = (problemId: number, lang: string, code: string) => {
-    sendMessage(`/pub/judge/submition`, { gameId, teamId: roomId, problemId, lang, code });
-    console.log('📨 알고리즘 코드 제출 요청 전송');
   };
 
   // ✅ 10분마다 자동으로 사이드 문제 요청
@@ -112,7 +167,7 @@ const SingleIdePage = () => {
     );
 
     return () => clearInterval(interval);
-  }, [connected, requestCount]);
+  }, [requestCount]);
 
   useEffect(() => {
     if (sideProblem) {
@@ -130,12 +185,22 @@ const SingleIdePage = () => {
         <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
         <Terminal output={output} />
         <div className="text-center">
-          <IdeFooter code={code} language={language} setOutput={setOutput} />
+          <IdeFooter
+            code={code}
+            language={language}
+            setOutput={setOutput}
+            userRoomId={userRoomId}
+          />
         </div>
       </div>
 
       <div className="grow max-w-[15rem] min-w-[15rem]">
-        <GameUserList users={users} completeUsers={completeUsers} userProgress={userProgress} />
+        <GameUserList
+          users={users}
+          completeUsers={completeUsers}
+          userProgress={userProgress}
+          leftUsers={leftUsers}
+        />
       </div>
 
       {/* ✅ 사이드 문제 모달 */}
