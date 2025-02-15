@@ -63,6 +63,7 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
         setOutput(`⚠️ 오류 발생: ${data.message}`);
       }
     } catch (error) {
+      console.error('코드 실행 중 오류 발생:', error);
       setOutput('🚨 코드 실행 중 오류가 발생했습니다.');
     }
   };
