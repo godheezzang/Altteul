@@ -1,7 +1,7 @@
 // components/friend/FriendRequestItem.tsx
 
 import React from 'react';
-import SmallButton from '@components/common/Button/SmallButton ';
+import SmallButton from '@components/Common/Button/SmallButton ';
 
 type FriendRequestItemProps = {
   friendId: number;
