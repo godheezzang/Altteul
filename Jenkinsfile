@@ -74,9 +74,6 @@ pipeline {
         }
 
         stage('Stop Previous Containers') {
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     // 기존 실행 중인 컨테이너들 정리
@@ -86,9 +83,6 @@ pipeline {
         }
 
         stage('Start Containers') {
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     sh '''
