@@ -4,7 +4,6 @@ import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import "@styles/base/colors.css";
 import { useNavigate } from "react-router-dom";
-import "@styles/Base/colors.css";
 import { singleEnter, teamEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
