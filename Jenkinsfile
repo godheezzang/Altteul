@@ -13,9 +13,9 @@ pipeline {
         stage('Git Clone') {
             steps {
                 steps {
-                    git branch: GIT_BRANCH
+                    git branch: ${GIT_BRANCH}
                     credentialsId: 'C203'
-                    url: GIT_REPO
+                    url: ${GIT_REPO}
                 }
             }
         }
