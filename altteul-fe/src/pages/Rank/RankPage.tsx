@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/Common/SearchInput";
