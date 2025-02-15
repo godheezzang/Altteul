@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_NAME = "altteul"
-        BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        GIT_REPO = "https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git"
-        GIT_BRANCH = "master"
+        PROJECT_NAME = 'altteul'
+        BUILD_NUMBER = '${env.BUILD_NUMBER}'
+        GIT_REPO = https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
+        GIT_BRANCH = 'master'
     }
 
     stages {
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 steps {
                     git branch: GIT_BRANCH
-                    credentialsId: C203,
+                    credentialsId: 'C203',
                     url: GIT_REPO
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
         stage('Secret Download') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'BE_ENV', variable: 'BE_ENV_FILE'),
+                    file(credentialsId: credentials('BE_ENV', variable: 'BE_ENV_FILE'),
                     file(credentialsId: 'FE_ENV', variable: 'FE_ENV_FILE'),
                     file(credentialsId: 'REDIS_CONF', variable: 'REDIS_CONF_FILE'),
                     file(credentialsId: 'MOCK_DATA', variable: 'MOCK_DATA_FILE'),
