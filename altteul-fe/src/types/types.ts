@@ -63,7 +63,7 @@ export interface UserInfo {
   rankChange: number;
   isOwner: boolean;
 }
-export interface SingleMatchData {
+export interface MatchData {
   gameId?: number;
   roomId: number;
   leaderId: number;
@@ -74,10 +74,9 @@ export interface SingleMatchData {
 }
 
 export interface SingleEnterApiResponse {
-  type?: string;
-  data: SingleMatchData;
-  message?: string;
-  status?: string;
+  data: MatchData;
+  message: string;
+  status: string;
 }
 
 export interface RankingResponse {

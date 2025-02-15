@@ -105,8 +105,8 @@ const SingleSearchPage = () => {
       leaderId: leaderId,
       users: [headUser, ...waitUsers],
     }
-    
-    sessionStorage.setItem("matchData", JSON.stringify(matchData))
+
+    matchStore.setMatchData(matchData)
 
     //게임 시작 API 호출(For socket 응답 변환)
     await singleStart(roomId);
