@@ -1,6 +1,6 @@
-// components/friend/FriendListContent.tsx
+// FriendListContent.tsx
 import React, { useEffect, useState } from 'react';
-import FriendListItem from './FriendListItem';
+import FriendListItem from '@components/Friend/FriendListItem';
 import { getFriends } from '@utils/Api/friendApi';
 import { Friend } from 'types/types';
 
@@ -12,7 +12,6 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [invitingFriends, setInvitingFriends] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(0);
   const [isLast, setIsLast] = useState(false);
 
@@ -20,7 +19,7 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
     setIsLoading(true);
     try {
       const response = await getFriends({ page: currentPage });
-      console.log('친구 목록 응답:', response); // 개발 시 데이터 확인용
+      console.log('친구 목록 응답:', response);
 
       if (response.status === 200) {
         setFriends(prev =>
@@ -43,26 +42,12 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
   }, [currentPage]);
 
   useEffect(() => {
-    setCurrentPage(0); // 검색어가 변경되면 페이지를 리셋
+    setCurrentPage(0);
   }, [searchQuery]);
 
   const filteredFriends = friends.filter(friend =>
     friend.nickname.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleInvite = (userId: number, nickname: string) => {
-    setInvitingFriends(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
-        console.log(`${nickname} 게임 초대 취소`);
-      } else {
-        newSet.add(userId);
-        console.log(`${nickname} 게임 초대`);
-      }
-      return newSet;
-    });
-  };
 
   const handleLoadMore = () => {
     if (!isLoading && !isLast) {
@@ -85,8 +70,6 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
               nickname={friend.nickname}
               profileImg={friend.profileImg}
               isOnline={friend.isOnline}
-              onInvite={handleInvite}
-              isInviting={invitingFriends.has(friend.userId)}
             />
           ))}
           {!isLast && (

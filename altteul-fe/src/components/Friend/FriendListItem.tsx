@@ -1,6 +1,9 @@
+// FriendListItem.tsx
 import React, { useState } from 'react';
-import SmallButton from '@components/Common/Button/SmallButton ';
-import { useFriendWebSocket } from 'Hooks/useFriendWebSocket';
+import SmallButton from '@components/common/Button/SmallButton ';
+import { useSocketStore } from '@stores/socketStore';
+import { getChatRoomDetail } from '@utils/Api/chatApi';
+import useAuthStore from '@stores/authStore';
 
 type FriendListItemProps = {
   friendId: number;
@@ -8,8 +11,6 @@ type FriendListItemProps = {
   profileImg: string;
   isOnline: boolean;
   showFriendRequest?: boolean;
-  onInvite: (friendId: number, nickname: string) => void;
-  isInviting: boolean;
 };
 
 const FriendListItem = ({
@@ -18,24 +19,51 @@ const FriendListItem = ({
   profileImg,
   isOnline,
   showFriendRequest,
-  onInvite,
-  isInviting,
 }: FriendListItemProps) => {
-  const { sendFriendRequest } = useFriendWebSocket();
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+
+  const socketStore = useSocketStore(); // socketStore 훅 사용
+  const { sendMessage } = socketStore; // sendMessage 메서드 추출
+
+  const { userId } = useAuthStore();
 
   const handleFriendRequest = async () => {
     try {
       setIsRequesting(true);
-      await sendFriendRequest(friendId);
-      // 성공 시 처리 (예: 토스트 메시지)
+      // 친구 신청 로직
     } catch (error) {
       console.error('친구 신청 실패:', error);
-      // 에러 처리
     } finally {
       setIsRequesting(false);
     }
   };
+
+  const handleInvite = () => {
+    setIsInviting(prev => !prev);
+    console.log(`${nickname} ${!isInviting ? '게임 초대' : '게임 초대 취소'}`);
+  };
+
+  const handleDeleteFriend = async () => {
+    try {
+      const payload = { userId, friendId };
+      sendMessage('/pub/friend/delete', payload); // socketStore의 sendMessage 사용
+      console.log('친구 삭제 요청 전송', payload);
+    } catch (error) {
+      console.error('친구 삭제 실패:', error);
+    }
+  };
+
+  // 채팅으로 이동
+  const handleChat = async () => {
+    try {
+      const chatRoomData = await getChatRoomDetail(friendId);
+      console.log('채팅방 데이터:', chatRoomData);
+    } catch (error) {
+      console.error('채팅방 조회 실패:', error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg shadow-md">
       <div className="flex items-center gap-3">
@@ -56,12 +84,12 @@ const FriendListItem = ({
             {isRequesting ? '요청중...' : '친구 신청'}
           </SmallButton>
         ) : (
-          onInvite && (
-            <SmallButton onClick={() => onInvite(friendId, nickname)} disabled={isInviting}>
-              {isInviting ? '초대중...' : '게임 초대'}
-            </SmallButton>
-          )
+          <SmallButton onClick={handleInvite} disabled={isInviting}>
+            {isInviting ? '초대중...' : '게임 초대'}
+          </SmallButton>
         )}
+        <SmallButton onClick={handleChat}>대화하기</SmallButton>
+        <SmallButton onClick={handleDeleteFriend}>친구 삭제</SmallButton>
       </div>
     </div>
   );
