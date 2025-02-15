@@ -12,10 +12,10 @@ pipeline {
 
         stage('Git Clone') {
             steps {
-                script {
-                    sh '''
-                        git clone -b $GIT_BRANCH $GIT_REPO .
-                    '''
+                steps {
+                    git branch: GIT_BRANCH
+                    credentialsId: 'C203',
+                    url: GIT_REPO
                 }
             }
         }
