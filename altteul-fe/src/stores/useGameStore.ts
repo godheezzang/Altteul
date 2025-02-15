@@ -2,11 +2,12 @@ import { GameState } from 'types/types';
 import { create } from 'zustand';
 
 const useGameStore = create<GameState>(set => ({
-  // 사용자가 새로고침한 후에도 게임 정보를 유지하기 위해 로컬스토리지에 저장
-  // TODO: 현재는 테스트를 위해 기본값 1로 해둠. null로 수정할 것
+  // 사용자가 새로고침한 후에도 게임 정보를 유지하기 위해 세션스토리지에 저장
   gameId: Number(sessionStorage.getItem('gameId')) || null,
   roomId: Number(sessionStorage.getItem('roomId')) || null,
   users: JSON.parse(sessionStorage.getItem('users') || null),
+  myTeam: JSON.parse(sessionStorage.getItem('myTeam')) || null,
+  opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
   problem: JSON.parse(sessionStorage.getItem('problem') || null),
   testcases: JSON.parse(sessionStorage.getItem('testcases') || null),
 
@@ -16,9 +17,32 @@ const useGameStore = create<GameState>(set => ({
     set({ gameId, roomId });
   },
 
+  setGameId: (gameId: number) => {
+    sessionStorage.setItem('gameId', gameId.toString());
+    set({ gameId });
+  },
+  setroomId: (roomId: number) => {
+    sessionStorage.setItem('roomId', roomId.toString());
+    set({ roomId });
+  },
+
   setUsers: users => {
     sessionStorage.setItem('users', JSON.stringify(users));
     set({ users });
+  },
+
+  setMyTeam: data => {
+    sessionStorage.setItem('myTeam', JSON.stringify(data));
+    set({
+      myTeam: data,
+    });
+  },
+
+  setOpponent: data => {
+    sessionStorage.setItem('opponent', JSON.stringify(data));
+    set({
+      opponent: data,
+    });
   },
 
   setProblem: problem => {
