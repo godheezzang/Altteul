@@ -13,12 +13,22 @@ interface SideProblemModalProps {
   onClose: () => void;
 }
 
+type SideProblemResult = {
+  data: {
+    status: string;
+    itemId: number | null;
+    itemName: string | null;
+    bonusPoint: number | null;
+  };
+  type: string;
+};
+
 const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModalProps) => {
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<string | null>(null);
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
-  const [sideProblemResult, setSideProblemResult] = useState<any>(null);
+  const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
 
   const { subscribe, sendMessage, connected } = useSocketStore();
 
@@ -26,11 +36,10 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     if (!connected) return;
 
     // ✅ 사이드 문제 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, (data) => {
+    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
     });
-
   }, [connected, gameId, roomId, subscribe]);
 
   // ✅ 제출 버튼 클릭 시
@@ -55,8 +64,12 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     if (sideProblemResult && isSubmitting) {
       setIsSubmitting(false);
 
+      console.log('sideProblemResult:', sideProblemResult.data);
+
       if (sideProblemResult?.data.status === 'P') {
-        setSubmissionResult(`🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트 추가!`);
+        setSubmissionResult(
+          `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트 추가!`
+        );
       } else {
         setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득 실패');
       }
@@ -79,7 +92,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
         {/* ✅ 안풀래요 버튼을 누른 경우 */}
         {showForfeitMessage ? (
           <div className="text-center mt-6">
-            <p className="text-gray-02 font-semibold">❌ 사이드 문제를 풀지 못해 추가 점수 획득을 하지 못했어요.</p>
+            <p className="text-gray-02 font-semibold">
+              ❌ 사이드 문제를 풀지 못해 추가 점수 획득을 하지 못했어요.
+            </p>
             <SmallButton onClick={onClose} className="mt-4 px-4 py-2">
               확인
             </SmallButton>
@@ -114,7 +129,11 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
                   >
                     {isSubmitting ? '제출 중...' : '제출'}
                   </SmallButton>
-                  <SmallButton onClick={handleForfeit} className="px-4 py-2" backgroundColor="gray-03">
+                  <SmallButton
+                    onClick={handleForfeit}
+                    className="px-4 py-2"
+                    backgroundColor="gray-03"
+                  >
                     안풀래요
                   </SmallButton>
                 </div>
@@ -124,7 +143,13 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
             {/* ✅ 제출 결과 표시 */}
             {submissionResult && (
               <div className="text-center mt-6">
-                <p className={sideProblemResult?.data.status === 'P' ? 'text-primary-orange font-bold' : 'text-gray-04 font-bold'}>
+                <p
+                  className={
+                    sideProblemResult?.data.status === 'P'
+                      ? 'text-primary-orange font-bold'
+                      : 'text-gray-04 font-bold'
+                  }
+                >
                   {submissionResult}
                 </p>
                 <SmallButton onClick={onClose} className="mt-4 px-4 py-2">
