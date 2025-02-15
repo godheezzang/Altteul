@@ -4,17 +4,48 @@ pipeline {
     environment {
         PROJECT_NAME = "altteul"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        GIT_REPO = "https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git"
+        GIT_BRANCH = "master"
     }
 
     stages {
-        stage('Build Images') {
-            when {
-                branch 'master'
-            }
+
+        stage('Git Clone') {
             steps {
                 script {
-                    // frontend, backend 이미지 빌드
-                    sh "docker compose --env-file ./altteul-be/.env build"
+                    sh '''
+                        git clone -b $GIT_BRANCH $GIT_REPO .
+                    '''
+                }
+            }
+        }
+
+        stage('Secret Download') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'BE_ENV', variable: 'BE_ENV_FILE'),
+                    file(credentialsId: 'FE_ENV', variable: 'FE_ENV_FILE'),
+                    file(credentialsId: 'REDIS_CONF', variable: 'REDIS_CONF_FILE'),
+                    file(credentialsId: 'MOCK_DATA', variable: 'MOCK_DATA_FILE'),
+                    file(credentialsId: 'login-credential', variable: 'LOGIN_CONFIG_FILE')
+                ]) {
+                    script {
+                        sh '''
+                        # 백엔드 환경변수 파일 복사
+                        cp $BE_ENV_FILE altteul_be/.env
+                        cp $BE_ENV_FILE .env
+
+                        # 프론트엔드 환경변수 파일 복사
+                        cp $FE_ENV_FILE altteul_fe/.env
+
+                        # Redis 설정 파일 복사
+                        cp $REDIS_CONF_FILE resources/redis/redis.conf
+
+                        # SQL 데이터 복사 (초기 데이터 로딩용)
+                        cp $MOCK_DATA_FILE altteul_be/src/main/resources/data.sql
+
+                        '''
+                    }
                 }
             }
         }
@@ -38,7 +69,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    docker compose --env-file ${WORKSPACE}/altteul-be/.env up -d
+                    docker compose up --build -d
                     '''
                 }
             }
@@ -54,4 +85,3 @@ pipeline {
             }
         }
     }
-}
