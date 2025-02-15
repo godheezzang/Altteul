@@ -1,15 +1,69 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import UserProfile from "@components/Match/UserProfile";
-import Button from "@components/Common/Button/Button";
-import backgroundImage from "@assets/background/team_matching_bg.svg";
-import tmi from "@assets/tmi.json";
-import { User } from "types/types";
-import { TeamData } from "mocks/userData";
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import UserProfile from '@components/Match/UserProfile';
+import Button from '@components/Common/Button/Button';
+import backgroundImage from '@assets/background/team_matching_bg.svg';
+import tmi from '@assets/tmi.json';
+import { User } from 'types/types';
+import { useMatchStore } from '@stores/matchStore';
+import { useSocketStore } from '@stores/socketStore';
+import socketResponseMessage from 'types/socketResponseMessage';
+import { cancelTeamMatch } from '@utils/Api/matchApi';
 
 const TeamSearchPage = () => {
-  const [fact, setFact] = useState<string>("");
+  const [fact, setFact] = useState<string>('');
   const [facts] = useState<string[]>(tmi.facts);
+  const navigate = useNavigate();
+  const matchStore = useMatchStore();
+  const socket = useSocketStore();
+  const [alliance] = useState(matchStore.matchData.users);
+  const roomId = matchStore.matchData.roomId; //웹 소켓 연결 & 게임 초대 시(서버에서만) 필요
+  const [matchId, setMatchId] = useState<string>(); //구독 취소에 사용
+
+  //구독처리
+  useEffect(() => {
+    socket.subscribe(`/sub/team/room/${roomId}`, handleMessage);
+
+    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    return () => {
+      console.log('teamSearch Out, 콜백함수 정리');
+      socket.unsubscribe(`/sub/team/room/${roomId}`);
+      matchId?socket.unsubscribe(`/sub/team/room/${matchId}`):()=>{}
+    };
+  }, [roomId]);
+
+  //소켓 응답 처리
+  const handleMessage = (message: socketResponseMessage) => {
+    console.log(message);
+    const { type, data } = message;
+
+    //매칭 성사 소켓 응답
+    if(type ==='MATCHED') {
+      setMatchId(data.matchId)
+      sessionStorage.setItem('matchId', data.matchId) //final에서 구독 신청 시 써야함
+      socket.subscribe(`/sub/team/room/${data.matchId}`, handleMessage) //COUNTING_READY응답을 받기 위한 구독신청
+    }
+
+    if(type === 'COUNTING_READY') {
+      //final 페이지에 쓰일 데이터 저장
+      sessionStorage.setItem("alliance", JSON.stringify(data.team1))
+      sessionStorage.setItem("opponent ", JSON.stringify(data.team2))
+
+      //페이지 이동
+      navigate('match/team/final')
+    }
+
+    //매칭 취소 버튼 클릭 이후 소켓 응답
+    if (type === 'MATCH_CANCEL_SUCCESS') {
+      //매칭 페이지로 이동
+      navigate('/match/team/composition');
+    }
+  };
+
+  //매칭 취소 버튼 핸들링 -> 소켓 응답
+  const handleMatchCancelButton = () => {
+    cancelTeamMatch(roomId)
+  }
 
   // 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
@@ -23,8 +77,10 @@ const TeamSearchPage = () => {
   }, [facts]);
 
   return (
-    <div className="w-full -mt-[3.5rem] bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
-      
+    <div
+      className="w-full -mt-[3.5rem] bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
@@ -44,8 +100,13 @@ const TeamSearchPage = () => {
 
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {TeamData.map((user: User) => (
-            <UserProfile key={user.userId} nickname={user.nickname} profileImg={user.profileImg} tierId={user.tierId} />
+          {alliance.map((user: User) => (
+            <UserProfile
+              key={user.userId}
+              nickname={user.nickname}
+              profileImg={user.profileImg}
+              tierId={user.tierId}
+            />
           ))}
         </div>
 
@@ -57,7 +118,9 @@ const TeamSearchPage = () => {
             </Button>
           </Link>
           <Link to="/match/team/composition">
-            <Button className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
+            <Button 
+            className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+            onClick={handleMatchCancelButton}>
               매칭 취소하기
             </Button>
           </Link>
