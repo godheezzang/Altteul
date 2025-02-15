@@ -36,13 +36,13 @@ public class RedisKeys {
 	}
 
 	// 팀 보이스 참가자 키
-	public static String getVoiceParticipantsKey(Long roomId) {
-		return VOICE_PARTICIPANTS + ":" + roomId;
+	public static String getVoiceParticipantsKey(Long roomUUID) {
+		return VOICE_PARTICIPANTS + ":" + roomUUID;
 	}
 
 	// 음성 채팅 세선 키
-	public static String getVoiceSessionKey(Long roomId) {
-		return VOICE_SESSION + ":" + roomId;
+	public static String getVoiceSessionKey(Long roomUUID) {
+		return VOICE_SESSION + ":" + roomUUID;
 	}
 
 	// 친구 요청 키

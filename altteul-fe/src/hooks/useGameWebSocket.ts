@@ -40,11 +40,11 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     client.activate();
 
     return () => {
-      if (client.active && !socketStore.keepConnection) {
+      if (client.active) {
         client.deactivate();
       }
     };
-  }, [gameId, roomId, socketStore.keepConnection]);
+  }, [gameId, roomId]);
 
   /** ✅ stompClient가 변경될 때 구독 실행 */
   useEffect(() => {

@@ -21,16 +21,14 @@ import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
+import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
 import com.c203.altteulbe.game.web.dto.leave.response.SingleGameLeaveResponseDto;
 import com.c203.altteulbe.game.web.dto.leave.response.TeamGameLeaveResponseDto;
 import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
-import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
-import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
-import com.c203.altteulbe.room.persistent.repository.team.UserTeamRoomRepository;
 import com.c203.altteulbe.room.service.RoomValidator;
 import com.c203.altteulbe.room.service.RoomWebSocketService;
 import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
@@ -49,35 +47,26 @@ import lombok.extern.slf4j.Slf4j;
 public class GameLeaveService {
 	private final UserRepository userRepository;
 	private final RoomValidator roomValidator;
-	private final TeamRoomRedisRepository teamRoomRedisRepository;
 	private final GameRepository gameRepository;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final RoomWebSocketService roomWebSocketService;
-	private final UserTeamRoomRepository userTeamRoomRepository;
 	private final VoiceChatService voiceChatService;
 
 	@Transactional
-	public void leaveGame(Long userId) {
+	public void leaveGame(Long userId, GameLeaveRequestDto request) {
 
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
 		// 유저가 속한 방 ID 조회 (Redis에서)
-		Long roomId;
 		BattleType battleType;
-		String dbRoomId;
 		if (roomValidator.isUserInAnyRoom(userId, BattleType.S)) {
 			battleType = BattleType.S;
-			SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(userId).
-				orElseThrow(RoomNotFoundException::new);
-			dbRoomId = singleRoom.getId().toString();
 		} else if (roomValidator.isUserInAnyRoom(userId, BattleType.T)) {
-			roomId = teamRoomRedisRepository.getRoomIdByUser(userId);
 			battleType = BattleType.T;
-			dbRoomId = redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(roomId));
-			if (dbRoomId == null) {
+			if (request.getRoomId() == null) {
 				throw new GameNotFoundException();
 			}
 		} else {
@@ -85,40 +74,37 @@ public class GameLeaveService {
 		}
 
 		// 게임 정보 조회 (이미 구현된 메서드 활용)
-		Game game = gameRepository.findWithGameByRoomIdAndType(Long.parseLong(dbRoomId), battleType)
+		Game game = gameRepository.findWithGameByRoomIdAndType(request.getRoomId(), battleType)
 			.orElseThrow(GameNotFoundException::new);
 		if (!game.isInProgress()) {
 			// 정상 종료된 게임 - 단순 정리 작업
-			handleFinishedGameLeave(game, user);
+			handleFinishedGameLeave(game, user, request.getRoomId());
 		} else {
 			// 진행 중인 게임 - 중도 퇴장 처리
-			handleInProgressGameLeave(game, user);
+			handleInProgressGameLeave(game, user, request.getRoomId());
 		}
 	}
 
 	// 게임 정상 종료 후 나가기 처리
-	private void handleFinishedGameLeave(Game game, User user) {
+	private void handleFinishedGameLeave(Game game, User user, Long roomId) {
 		if (game.getBattleType() == BattleType.S) {
-			handleFinishedSingleGameLeave(game, user);
+			handleFinishedSingleGameLeave(game, user, roomId);
 		} else {
-			handleFinishedTeamGameLeave(game, user);
+			handleFinishedTeamGameLeave(game, user, roomId);
 		}
 	}
 
 	// 게임 중간 퇴장 처리
-	private void handleInProgressGameLeave(Game game, User user) {
+	private void handleInProgressGameLeave(Game game, User user, Long roomId) {
 		if (game.getBattleType() == BattleType.S) {
-			handleInProgressSingleGameLeave(game, user);
+			handleInProgressSingleGameLeave(game, user, roomId);
 		} else {
-			handleInProgressTeamGameLeave(game, user);
+			handleInProgressTeamGameLeave(game, user, roomId);
 		}
 	}
 
 	// 개인전 정상 종료 후 나가기 처리
-	private void handleFinishedSingleGameLeave(Game game, User user) {
-		SingleRoom userRoom = singleRoomRepository.findByUser_UserIdAndGame(user.getUserId(), game)
-			.orElseThrow(RoomNotFoundException::new);
-		Long roomId = userRoom.getId();
+	private void handleFinishedSingleGameLeave(Game game, User user, Long roomId) {
 		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
 		String roomUsersKey = RedisKeys.SingleRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 		// Redis에서 유저 정보 삭제
@@ -147,7 +133,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			redisRoomId,
+			game.getId().toString(),
 			"GAME_FINISH_LEAVE",
 			responseDto,
 			BattleType.S
@@ -155,10 +141,7 @@ public class GameLeaveService {
 	}
 
 	// 팀전 정상 종료 후 나가기 처리
-	private void handleFinishedTeamGameLeave(Game game, User user) {
-		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
-			.orElseThrow(RoomNotFoundException::new);
-		Long roomId = userTeamRoom.getTeamRoom().getId();
+	private void handleFinishedTeamGameLeave(Game game, User user, Long roomId) {
 		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userTeamRoom(user.getUserId()));
 		String roomUsersKey = RedisKeys.TeamRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 
@@ -176,7 +159,7 @@ public class GameLeaveService {
 		});
 
 		// 음성 채팅 연결 종료
-		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
+		voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
 
 		// 남은 유저 정보 조회 및 팀별 그룹화
 		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
@@ -190,7 +173,7 @@ public class GameLeaveService {
 			remainingUsersByTeam
 		);
 
-		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(roomId));
+		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(Long.parseLong(redisRoomId)));
 		roomWebSocketService.sendWebSocketMessage(
 			matchId,
 			"GAME_FINISH_LEAVE",
@@ -208,10 +191,9 @@ public class GameLeaveService {
 	}
 
 	// 개인전 중간 퇴장 처리
-	private void handleInProgressSingleGameLeave(Game game, User user) {
-		SingleRoom singleRoom = singleRoomRepository.findByUser_UserIdAndActivationIsTrue(user.getUserId()).
+	private void handleInProgressSingleGameLeave(Game game, User user, Long roomId) {
+		SingleRoom singleRoom = singleRoomRepository.findById(roomId).
 			orElseThrow(RoomNotFoundException::new);
-		Long roomId = singleRoom.getId(); // dbRoomId
 		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userSingleRoom(user.getUserId()));
 
 		// Redis에서 유저 정보 삭제
@@ -244,7 +226,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			redisRoomId,
+			game.getId().toString(),
 			"GAME_LEAVE",
 			responseDto,
 			BattleType.S
@@ -260,7 +242,7 @@ public class GameLeaveService {
 			);
 
 			roomWebSocketService.sendWebSocketMessage(
-				redisRoomId,
+				game.getId().toString(),
 				"GAME_END",
 				gameEndPayload,
 				BattleType.S
@@ -270,10 +252,7 @@ public class GameLeaveService {
 	}
 
 	// 팀전 퇴장 처리
-	private void handleInProgressTeamGameLeave(Game game, User user) {
-		UserTeamRoom userTeamRoom = userTeamRoomRepository.findByUser_UserIdAndTeamRoom_Game(user.getUserId(), game)
-			.orElseThrow(RoomNotFoundException::new);
-		Long roomId = userTeamRoom.getTeamRoom().getId();
+	private void handleInProgressTeamGameLeave(Game game, User user, Long roomId) {
 		String redisRoomId = redisTemplate.opsForValue().get(RedisKeys.userTeamRoom(user.getUserId()));
 		String roomUsersKey = RedisKeys.TeamRoomUsers(Long.parseLong(Objects.requireNonNull(redisRoomId)));
 
@@ -295,7 +274,7 @@ public class GameLeaveService {
 			user.getUserId());
 
 		// 음성 채팅 연결 종료
-		voiceChatService.terminateUserVoiceConnection(roomId, user.getUserId().toString());
+		voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
 
 		// 퇴장 이벤트 전송
 		TeamGameLeaveResponseDto responseDto = TeamGameLeaveResponseDto.of(

@@ -1,6 +1,8 @@
 import backgroundImage from "@assets/background/matching_select_bg.svg";
 import userIcon from "@assets/icon/User.svg";
 import peopleIcon from "@assets/icon/People.svg";
+import logo from "@assets/icon/Altteul.svg";
+import "@styles/base/colors.css";
 import { useNavigate } from "react-router-dom";
 import { matchRoomEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
