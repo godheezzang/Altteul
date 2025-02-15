@@ -23,11 +23,10 @@ pipeline {
         stage('Secret Download') {
             steps {
                 withCredentials([
-                    file(credentialsId: credentials('BE_ENV', variable: 'BE_ENV_FILE'),
+                    file(credentialsId: 'BE_ENV', variable: 'BE_ENV_FILE'),
                     file(credentialsId: 'FE_ENV', variable: 'FE_ENV_FILE'),
                     file(credentialsId: 'REDIS_CONF', variable: 'REDIS_CONF_FILE'),
-                    file(credentialsId: 'MOCK_DATA', variable: 'MOCK_DATA_FILE'),
-                    file(credentialsId: 'login-credential', variable: 'LOGIN_CONFIG_FILE')
+                    file(credentialsId: 'MOCK_DATA', variable: 'MOCK_DATA_FILE')
                 ]) {
                     script {
                         sh '''
@@ -43,7 +42,6 @@ pipeline {
 
                         # SQL 데이터 복사 (초기 데이터 로딩용)
                         cp $MOCK_DATA_FILE altteul_be/src/main/resources/data.sql
-
                         '''
                     }
                 }
