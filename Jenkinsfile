@@ -30,13 +30,10 @@ pipeline {
 
         stage('Git Clone') {
             steps {
-                steps {
-                    git branch: "${GIT_BRANCH}",
-                    credentialsId: 'C203',
-                    url: "${GIT_REPO}"
-                }
+                git branch: "${GIT_BRANCH}",
+                credentialsId: 'C203',
+                url: "${GIT_REPO}"
             }
-
 
             post {
                 failure {
