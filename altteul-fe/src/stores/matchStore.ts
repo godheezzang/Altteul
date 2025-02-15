@@ -1,41 +1,49 @@
 // src/stores/matchStore.ts
-import { create } from 'zustand'
-import { MatchData, SingleEnterApiResponse } from "types/types";
+import { create } from 'zustand';
+import { MatchState } from 'types/types';
 
-interface MatchStore {
-  matchData: MatchData;
-  isLoading: boolean;
-  
-  setMatchData: (response: MatchData) => void;
-  clearMatchData: () => void;
-  setLoading: (loading: boolean) => void;
-}
-
-export const useMatchStore = create<MatchStore>((set) => ({
-  matchData: JSON.parse(sessionStorage.getItem("matchData")) || {users: [], roomId: 0, leaderId: 0},
-  message: sessionStorage.getItem("matchMessage"),
-  status: sessionStorage.getItem("matchStatus"),
+export const useMatchStore = create<MatchState>(set => ({
+  matchData: JSON.parse(sessionStorage.getItem('matchData')) || null,
+  myTeam: JSON.parse(sessionStorage.getItem('myTeam')) || null,
+  opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
+  matchId: JSON.parse(sessionStorage.getItem('matchId')) || '',
   isLoading: false,
-  error: sessionStorage.getItem("matchError"),
 
-  setMatchData: (response) => {
-    sessionStorage.setItem("matchData", JSON.stringify(response));
-    set({ 
-      matchData: response,
+  setMatchData: data => {
+    sessionStorage.setItem('matchData', JSON.stringify(data));
+    set({
+      matchData: data,
     });
   },
 
-  clearMatchData: () => {
-    sessionStorage.removeItem("matchData");
-    sessionStorage.removeItem("matchMessage");
-    sessionStorage.removeItem("matchStatus");
-    sessionStorage.removeItem("matchError");
-    
-    set({ 
+  setMyTeam: data => {
+    sessionStorage.setItem('myTeam', JSON.stringify(data));
+    set({
+      myTeam: data,
+    });
+  },
+
+  setOpponent: data => {
+    sessionStorage.setItem('opponent', JSON.stringify(data));
+    set({
+      opponent: data,
+    });
+  },
+
+  setMathId: (matchId: string) => {
+    sessionStorage.setItem('matchId', matchId);
+    set({ matchId });
+  },
+
+  clear: () => {
+    sessionStorage.removeItem('matchData');
+    sessionStorage.removeItem('alliance');
+    sessionStorage.removeItem('opponent');
+    sessionStorage.removeItem('matchId');
+    set({
       matchData: null,
     });
   },
 
-
-  setLoading: (loading) => set({ isLoading: loading }),
+  setLoading: loading => set({ isLoading: loading }),
 }));

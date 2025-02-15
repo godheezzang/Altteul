@@ -17,8 +17,7 @@ const TeamSearchPage = () => {
   const matchStore = useMatchStore();
   const socket = useSocketStore();
   const [alliance] = useState(matchStore.matchData.users);
-  const roomId = matchStore.matchData.roomId; //웹 소켓 연결 & 게임 초대 시(서버에서만) 필요
-  const [matchId, setMatchId] = useState<string>(); //구독 취소에 사용
+  const roomId = matchStore.matchData.roomId;
 
   //구독처리
   useEffect(() => {
@@ -26,9 +25,10 @@ const TeamSearchPage = () => {
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
+      const matchId = sessionStorage.getItem('matchId');
       console.log('teamSearch Out, 콜백함수 정리');
       socket.unsubscribe(`/sub/team/room/${roomId}`);
-      matchId?socket.unsubscribe(`/sub/team/room/${matchId}`):()=>{}
+      matchId ? socket.unsubscribe(`/sub/team/room/${matchId}`) : () => {};
     };
   }, [roomId]);
 
@@ -38,19 +38,18 @@ const TeamSearchPage = () => {
     const { type, data } = message;
 
     //매칭 성사 소켓 응답
-    if(type ==='MATCHED') {
-      setMatchId(data.matchId)
-      sessionStorage.setItem('matchId', data.matchId) //final에서 구독 신청 시 써야함
-      socket.subscribe(`/sub/team/room/${data.matchId}`, handleMessage) //COUNTING_READY응답을 받기 위한 구독신청
+    if (type === 'MATCHED') {
+      matchStore.setMathId(data.matchId); //final에서 구독 신청 시 써야함
+      socket.subscribe(`/sub/team/room/${data.matchId}`, handleMessage); //COUNTING_READY응답을 받기 위한 구독신청
     }
 
-    if(type === 'COUNTING_READY') {
+    if (type === 'COUNTING_READY') {
       //final 페이지에 쓰일 데이터 저장
-      sessionStorage.setItem("alliance", JSON.stringify(data.team1))
-      sessionStorage.setItem("opponent ", JSON.stringify(data.team2))
+      matchStore.setMyTeam(data.team1);
+      matchStore.setOpponent(data.team2);
 
       //페이지 이동
-      navigate('match/team/final')
+      navigate('/match/team/final');
     }
 
     //매칭 취소 버튼 클릭 이후 소켓 응답
@@ -60,10 +59,10 @@ const TeamSearchPage = () => {
     }
   };
 
-  //매칭 취소 버튼 핸들링 -> 소켓 응답
+  //매칭 취소 버튼 핸들링 -> api 요청 -> 소켓 응답(MATCH_CANCEL_SUCCESS) -> 매칭 취소
   const handleMatchCancelButton = () => {
-    cancelTeamMatch(roomId)
-  }
+    cancelTeamMatch(roomId);
+  };
 
   // 첫 fact 생성 후 5초 간격으로 Rotation
   useEffect(() => {
@@ -112,18 +111,12 @@ const TeamSearchPage = () => {
 
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
-          <Link to="/match/team/final">
-            <Button className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]">
-              (매칭 완료)
-            </Button>
-          </Link>
-          <Link to="/match/team/composition">
-            <Button 
+          <Button
             className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-            onClick={handleMatchCancelButton}>
-              매칭 취소하기
-            </Button>
-          </Link>
+            onClick={handleMatchCancelButton}
+          >
+            매칭 취소하기
+          </Button>
         </div>
 
         {/* TMI */}

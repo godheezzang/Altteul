@@ -110,6 +110,11 @@ public class RedisKeys {
 		return "room:team:" + roomId + ":countdown";
 	}
 
+	// 특정 matchId를 가진 팀들이 풀어야 하는 문제 pk 관리
+	public static String TeamRoomProblem(String matchId) {
+		return "room:team:" + matchId + ":problem";
+	}
+
 	// 초대 정보 저장
 	public static String inviteInfo(String roomId, String friendId) {
 		return "invite:room:" + roomId + ":user:" + friendId;

@@ -6,14 +6,16 @@ import { User } from 'types/types';
 import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
+import useGameStore from '@stores/useGameStore';
 
 const TeamFinalPage = () => {
-  const matchId = sessionStorage.getItem('matchId');
   const navigate = useNavigate();
   const matchStore = useMatchStore();
+  const gameStore = useGameStore();
   const socket = useSocketStore();
-  const alliance = JSON.parse(sessionStorage.getItem('team1')).users
-  const opponent = JSON.parse(sessionStorage.getItem('team2')).users
+  const matchId = matchStore.matchId
+  const alliance = matchStore.myTeam.users
+  const opponent = matchStore.opponent.users
   const [problemTitle, setProblemTitle] = useState<string>("")
   const [displayText, setDisplayText] = useState(''); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0); //타이핑 효과 추적 변수
@@ -46,20 +48,23 @@ const TeamFinalPage = () => {
     }
 
     if (type === 'GAME_START') {
-      //문제 정보 setting
+      //현제 페이지 내의 문제 정보 setting
       setProblemTitle(data.problem.problemTitle)
 
       //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
-      sessionStorage.setItem('gameId', data.gameId.toString());
-      sessionStorage.setItem("alliance", JSON.stringify(data.team1))
-      sessionStorage.setItem("opponent ", JSON.stringify(data.team2))
-      sessionStorage.setItem('problem', JSON.stringify(data.problem));
-      sessionStorage.setItem('testcases', JSON.stringify(data.testcases));
+      gameStore.setGameId(data.gameId)
+      gameStore.setMyTeam(data.team1)
+      gameStore.setOpponent(data.team2)
+      gameStore.setProblem(data.problem)
+      gameStore.setTestcases(data.testcases)
+
+      //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
+      matchStore.clear()
 
       //페이지 이동
       setTimeout(() => {
         console.log('IDE 페이지 이동');
-        navigate(`/game/single/${data.gameId}/${matchId}`);
+        navigate(`/game/team/${data.gameId}/${matchId}`);
       }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
   };
@@ -88,17 +93,17 @@ const TeamFinalPage = () => {
       {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 문제정보(제목) */}
-        <div className="text-white text-5xl font-bold mb-8 flex items-center">
+        <div className="text-white text-6xl font-bold mb-8 flex items-center">
           {displayText}
           {/* 커서 효과 부분(텍스트 모두 입력시 사라짐) */}
           {textIndex < problemTitle.length && <span className="animate-pulse">|</span>}
         </div>
 
         {/* Message */}
-        <div className="text-white text-xl mb-2 flex flex-col items-center">대전이 시작됩니다!</div>
+        <div className="text-white text-4xl mb-2 flex flex-col items-center">대전이 시작됩니다!</div>
 
         {/* 타이머 */}
-        <div className="text-white mb-8">{seconds}</div>
+        <div className="text-white text-3xl mb-8">{seconds}</div>
 
         {/* 유저 정보 */}
         <div className="flex justify-center items-center">

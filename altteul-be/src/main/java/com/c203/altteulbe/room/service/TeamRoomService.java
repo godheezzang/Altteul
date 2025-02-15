@@ -258,8 +258,28 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", matchIdPayload, BattleType.T);
 		log.info("matchId = {}", matchId);
 
+		// 문제 및 테스트케이스 조회
+		List<Long> problemIds = problemRepository.findAllProblemIds();
+		if (problemIds.isEmpty()) {
+			throw new ProblemNotFoundException();
+		}
+		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
+		Problem problemEntity = problemRepository.findById(randomProblemId)
+			.orElseThrow(ProblemNotFoundException::new);
+
+		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+
+		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
+		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
+																  .map(GameStartForTestcaseDto::from)
+																  .collect(Collectors.toList());
+
+		// 이후 DB에 저장하기 위해 문제 pk를 redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomProblem(matchId), String.valueOf(randomProblemId));
+
 		// 각 팀의 유저 정보를 가져오는 메소드 호출
-		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2));
+		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2),
+																	problem, testcases);
 
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
@@ -316,16 +336,12 @@ public class TeamRoomService {
 		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
 		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
-		// 문제 및 테스트케이스 조회
-		List<Long> problemIds = problemRepository.findAllProblemIds();
-		if (problemIds.isEmpty()) {
-			throw new ProblemNotFoundException();
-		}
-		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
-		Problem problemEntity = problemRepository.findById(randomProblemId)
-			.orElseThrow(ProblemNotFoundException::new);
+		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
+		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
+		Problem problemEntity = problemRepository.findById(Long.valueOf(problemId))
+			.orElseThrow(() -> new ProblemNotFoundException());
 
-		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+		redisTemplate.delete(RedisKeys.TeamRoomProblem(matchId));
 
 		// DB에 Game 저장
 		Game game = Game.create(problemEntity, BattleType.T);
@@ -344,13 +360,8 @@ public class TeamRoomService {
 		RoomEnterResponseDto team1Dto = getRoomEnterResponseDtoForDB(roomId1, savedTeam1.getId());
 		RoomEnterResponseDto team2Dto = getRoomEnterResponseDtoForDB(roomId2, savedTeam2.getId());
 
-		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
-		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
-			.map(GameStartForTestcaseDto::from)
-			.collect(Collectors.toList());
-
 		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(
-			game.getId(), team1Dto, team2Dto, problem, testcases);
+																game.getId(), team1Dto, team2Dto);
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
 
@@ -581,10 +592,12 @@ public class TeamRoomService {
 	/**
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
 	 */
-	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2) {
+	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2,
+														 GameStartForProblemDto problem,
+														 List<GameStartForTestcaseDto> testcases) {
 		RoomEnterResponseDto responseDto1 = getRoomEnterResponseDto(roomId1);
 		RoomEnterResponseDto responseDto2 = getRoomEnterResponseDto(roomId2);
-		return TeamMatchResponseDto.toDto(responseDto1, responseDto2);
+		return TeamMatchResponseDto.toDto(responseDto1, responseDto2, problem, testcases);
 	}
 
 	private RoomEnterResponseDto getRoomEnterResponseDto(Long roomId) {

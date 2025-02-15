@@ -14,10 +14,10 @@ const TeamcompositionPage = () => {
   const matchStore = useMatchStore();
   const socket = useSocketStore();
   const currentUserId = Number(sessionStorage.getItem('userId'));
-  //waitUsers: 방장 포함 대기 유저
+  //매칭관련 데이터
   const [alliance, setAlliance] = useState(matchStore.matchData.users);
   const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
-  const roomId = Number(sessionStorage.getItem('roomId'));
+  const roomId = matchStore.matchData.roomId;
   const [isLeader, setIsLeader] = useState(currentUserId === leaderId); //매칭 시작 버튼 렌더링을 위한 변수
 
   //구독처리
@@ -38,7 +38,7 @@ const TeamcompositionPage = () => {
     if (type === 'ENTER' || type === 'LEAVE') {
       setLeaderId(data.leaderId);
       setAlliance(data.users);
-      setIsLeader(currentUserId === leaderId);
+      setIsLeader(currentUserId === data.leaderId);
     }
 
     //teamStart API 요청 후 매칭 시작 소켓 응답
@@ -68,14 +68,14 @@ const TeamcompositionPage = () => {
 
   //매칭 조건 충족 시
   const navigateMatchPage = async () => {
-    // Final 페이지로 넘어가기 전, 마지막 상태 데이터 저장
+    // Search 페이지로 넘어가기 전, 마지막 상태 데이터 저장
     const matchData = {
       roomId: roomId,
       leaderId: leaderId,
       users: [...alliance],
     };
 
-    sessionStorage.setItem('matchData', JSON.stringify(matchData));
+    matchStore.setMatchData(matchData)
 
     //게임 시작 API 호출(For socket 응답 변환)
     await teamStart(roomId);
@@ -83,7 +83,7 @@ const TeamcompositionPage = () => {
 
   //나가기(퇴장) 버튼 로직
   const userOut = () => {
-    teamOut(currentUserId);
+    teamOut(roomId);
     socket.unsubscribe(`/sub/team/room/${roomId}`);
     navigate('/match/select');
   };
