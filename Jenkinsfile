@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_NAME = 'altteul'
         BUILD_NUMBER = '${env.BUILD_NUMBER}'
-        GIT_REPO = https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
+        GIT_REPO = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
         GIT_BRANCH = 'master'
     }
 
