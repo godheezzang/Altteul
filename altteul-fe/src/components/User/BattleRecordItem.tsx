@@ -109,7 +109,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -123,7 +123,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               <p key={member.userId} className="flex gap-2 items-center mb-1">
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -145,7 +145,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -162,7 +162,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -292,7 +292,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                         >
                           <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
                             <img
-                              src={member.profileImage ? member.profileImage : baseImage}
+                              src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
                               className="w-[1.8rem]"
                             />
@@ -353,7 +353,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                         >
                           <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
                             <img
-                              src={member.profileImage ? member.profileImage : baseImage}
+                              src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
                               className="w-[1.8rem]"
                             />
@@ -409,7 +409,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       <div className="flex items-center mr-20">
                         <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2 mr-4">
                           <img
-                            src={member.profileImage ? member.profileImage : baseImage}
+                            src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                             alt={member.nickname + ' 프로필 이미지'}
                             className="w-[1.8rem]"
                           />
