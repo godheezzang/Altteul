@@ -48,8 +48,8 @@ pipeline {
         stage('Secret Download') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'BE_ENV', variable: 'BE_ENV_FILE'),
-                    file(credentialsId: 'FE_ENV', variable: 'FE_ENV_FILE'),
+                    file(credentialsId: 'BE-ENV', variable: 'BE_ENV_FILE'),
+                    file(credentialsId: 'FE-ENV', variable: 'FE_ENV_FILE'),
                     file(credentialsId: 'REDIS_CONF', variable: 'REDIS_CONF_FILE'),
                     file(credentialsId: 'MOCK_DATA', variable: 'MOCK_DATA_FILE')
                 ]) {
