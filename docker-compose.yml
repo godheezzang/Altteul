@@ -9,6 +9,9 @@ services:
       - "443:443"
     environment:
       - NODE_ENV=production
+    volumes:
+      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/fullchain1.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/privkey1.pem:/etc/nginx/ssl/privkey.pem:ro
     depends_on:
       - backend
     networks:  # 이 부분 추가
