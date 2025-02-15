@@ -9,9 +9,12 @@ services:
       - "443:443"
     environment:
       - NODE_ENV=production
+    volumes:
+      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/fullchain1.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/privkey1.pem:/etc/nginx/ssl/privkey.pem:ro
     depends_on:
       - backend
-    networks:  # 이 부분 추가
+    networks: # 이 부분 추가
       - altteul-ie-network  # backend와 같은 네트워크 사용
 
   backend:
@@ -104,6 +107,8 @@ services:
       - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
       - BACKEND_URL=${PROD_SERVER_URL}/api/judge/check
       - TOKEN=${SECRET_KEY}
+    networks: #사용할 네트워크 지정
+      - altteul-ie-network
 
 volumes:
   mysql_dev_data:
