@@ -71,8 +71,8 @@ public class GameController {
 
 	@GetMapping("game/code/{roomId}")
 	public ApiResponseEntity<ResponseBody.Success<OpponentCodeResponseDto>> getOpponentCode(
-		@PathVariable(value = "roomId") Long roomUUID, OpponentCodeRequestDto request) {
-		OpponentCodeResponseDto response = gameResultService.getOpponentCode(roomUUID, request);
+		@PathVariable(value = "roomId") Long roomId, OpponentCodeRequestDto request) {
+		OpponentCodeResponseDto response = gameResultService.getOpponentCode(roomId, request);
 		return ApiResponse.success(response, HttpStatus.OK);
 	}
 }
