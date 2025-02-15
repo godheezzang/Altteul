@@ -65,9 +65,9 @@ const MainPage = () => {
   };
 
   return (
-    <div>
+    <div className="overflow-hidden">
       {/* 첫 번째 섹션 */}
-      <section className="h-[calc(100vh-3.5rem)] relative">
+      <section className="h-[calc(100vh-3.5rem)] relative overflow-hidden">
         <AnimatedCodeEditor />
         <div className="absolute top-0 bottom-0 right-20 flex flex-col items-end justify-center text-primary-white  z-20 tracking-tight">
           <div className="text-5xl font-semibold text-right">
@@ -87,7 +87,6 @@ const MainPage = () => {
           <SmallButton onClick={handleGameStart}>게임 시작</SmallButton>
         </div>
       </section>
-
       {/* 두 번째 섹션 */}
       {/* <section
         className={`min-h-[57rem] p-8 transition-opacity duration-500 mt-4 ${
@@ -96,7 +95,7 @@ const MainPage = () => {
       >
         <GameGuide />
       </section> */}
-      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
+      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />{' '}
     </div>
   );
 };

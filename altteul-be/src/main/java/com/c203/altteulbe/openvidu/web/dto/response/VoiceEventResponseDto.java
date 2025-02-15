@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VoiceEventResponseDto {
 	private String userId; // 이벤트 발생 유저
-	private String targetUserId; // 특정 유저 음소거에 필요
 	private Long roomId; // 팀 roomId
 	private VoiceEventType type;
 	// true: 활성 상태 (입장, 마이크 켜짐)

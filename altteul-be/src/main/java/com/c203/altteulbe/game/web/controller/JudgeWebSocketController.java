@@ -5,7 +5,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import com.c203.altteulbe.game.service.JudgeService;
+import com.c203.altteulbe.game.service.judge.JudgeService;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 
 import lombok.RequiredArgsConstructor;

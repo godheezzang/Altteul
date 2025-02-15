@@ -1,16 +1,20 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import React from 'react';
 import logo from '@assets/icon/Altteul.svg';
 import LoginModal from '@components/Auth/LoginModal';
+import { useSocketStore } from '@stores/socketStore';
 
 const MainGnb = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
+  const { disconnect } =  useSocketStore();
 
   const userId = localStorage.getItem('userId');
+  const isSelectPage = location.pathname.startsWith('/match')
 
   // 게임 시작 버튼 클릭 시 유저 있냐없냐에 따라 다르게
   const handleGameStart = () => {
@@ -32,6 +36,7 @@ const MainGnb = () => {
 
   const handleLogout = () => {
     logout();
+    disconnect()
     navigate('/');
   };
 
@@ -44,7 +49,8 @@ const MainGnb = () => {
             <button onClick={() => navigate('/')} className="flex items-center">
               <img src={logo} alt="홈으로" className="w-5/6" />
             </button>
-            <div className="flex space-x-2">
+            { !isSelectPage && (
+              <div className="flex space-x-2">
               <button
                 onClick={handleGameStart}
                 className="px-3 py-1 bg-primary-orange text-primary-white rounded-lg hover:bg-secondary-orange hover:text-gray-01 transition-colors"
@@ -52,6 +58,8 @@ const MainGnb = () => {
                 게임 시작
               </button>
             </div>
+            )}
+            
           </div>
 
           {/* 우측 영역 */}

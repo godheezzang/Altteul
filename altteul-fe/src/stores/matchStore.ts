@@ -3,11 +3,11 @@ import { create } from 'zustand'
 import { SingleMatchData, SingleEnterApiResponse } from "types/types";
 
 interface MatchStore {
-  matchData: SingleMatchData | null;
-  message: string | null;
-  status: string | null;
+  matchData: SingleMatchData;
+  message: string;
+  status: string;
   isLoading: boolean;
-  error: string | null;
+  error: string;
   
   setMatchData: (response: SingleEnterApiResponse) => void;
   clearMatchData: () => void;
@@ -16,7 +16,7 @@ interface MatchStore {
 }
 
 export const useMatchStore = create<MatchStore>((set) => ({
-  matchData: null,
+  matchData: JSON.parse(sessionStorage.getItem("matchData")) || {users: [], roomId: 0, leaderId: 0},
   message: null,
   status: null,
   isLoading: false,

@@ -1,101 +1,89 @@
-import { forwardRef, useEffect } from "react";
-import Editor, { OnMount } from "@monaco-editor/react";
-import { configureMonaco } from "@utils/monacoConfig";
-import Dropdown from "@components/Common/Dropdown";
-import * as monaco from "monaco-editor";
-import { Cursor } from "@hooks/useIde";
+import { useEffect } from 'react';
+import Editor from '@monaco-editor/react';
+import { configureMonaco } from '@utils/monacoConfig';
+import Dropdown from '@components/Common/Dropdown';
 
 const DEFAULT_CODE = {
-	python: 'print("Hello World!")',
-	java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello World!");\n  }\n}',
+  python: 'print("Hello World!")',
+  java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello World!");\n  }\n}',
 };
 
 interface CodeEditorProps {
-	code: string;
-	setCode: (code: string) => void;
-	language: "python" | "java";
-	setLanguage: (lang: "python" | "java") => void;
-	onCursorChange: (cursor: Cursor) => void;
-	readonly?: boolean;
+  code: string;
+  setCode: (code: string) => void;
+  language: 'python' | 'java';
+  setLanguage: (lang: 'python' | 'java') => void;
 }
 
-const CodeEditor = forwardRef<monaco.editor.IStandaloneCodeEditor, CodeEditorProps>(({ code, setCode, language, setLanguage, onCursorChange, readonly }, ref) => {
-	useEffect(() => {
-		configureMonaco();
-		setCode(DEFAULT_CODE[language]);
-	}, []);
+const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) => {
 
-	const languageOptions = [
-		{ id: 1, value: "python", label: "Python" },
-		{ id: 2, value: "java", label: "Java" },
-	];
+  useEffect(() => {
+    configureMonaco();
+    setCode(DEFAULT_CODE[language]);
+  }, [language]);
 
-	const handleEditorDidMount: OnMount = (editor) => {
-		if (ref) {
-			(ref as React.MutableRefObject<monaco.editor.IStandaloneCodeEditor>).current = editor;
-		}
+  const languageOptions = [
+    { id: 1, value: 'python', label: 'Python' },
+    { id: 2, value: 'java', label: 'Java' },
+  ];
 
-		editor.onDidChangeCursorPosition((e: monaco.editor.ICursorPositionChangedEvent) => {
-			const position = e.position;
-			onCursorChange({ line: position.lineNumber, ch: position.column });
-		});
-	};
+  return (
+    <div className="flex flex-col border-b border-gray-04 items-end">
+      {/* 언어 선택 드롭다운 */}
+      <Dropdown
+        options={languageOptions}
+        value={language}
+        onChange={newLang => {
+          setLanguage(newLang as typeof language);
+        }}
+        width="10rem"
+        height="3.7rem"
+        className='bg-gray-06 border-0 text-sm'
+        optionCustomName='bg-gray-05 border-0'
+        borderColor='border-gray-06'
+        fontSize='text-sm'
+      />
 
-	return (
-		<div className="flex flex-col border-b border-gray-04">
-			{!readonly && (
-				<Dropdown
-					options={languageOptions}
-					value={language}
-					onChange={(newLang: string) => {
-						setLanguage(newLang as typeof language);
-					}}
-					width="10rem"
-					height="3.7rem"
-				/>
-			)}
+      <Editor
+        height="55vh"
+        language={language}
+        value={code}
+        theme="vs-dark"
+        options={{
+          minimap: { enabled: false },
+          fontSize: 14,
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto',
+          },
+        }}
+        loading="에디터를 불러오는 중입니다."
+        onChange={value => setCode(value || '')}
+        beforeMount={monaco => {
+          monaco.editor.defineTheme('custom-dark', {
+            base: 'vs-dark',
+            inherit: false,
+            colors: { 'editor.background': '#242A32' },
+            rules: [],
+          });
 
-			<Editor
-				height="55vh"
-				language={language}
-				value={code}
-				theme="vs-dark"
-				options={{
-					minimap: { enabled: false },
-					fontSize: 14,
-					automaticLayout: true,
-					scrollBeyondLastLine: false,
-					scrollbar: {
-						vertical: "auto",
-						horizontal: "auto",
-					},
-					readOnly: readonly,
-				}}
-				loading="에디터를 불러오는 중입니다."
-				onChange={(value) => setCode(value || "")}
-				onMount={handleEditorDidMount}
-				beforeMount={(monaco) => {
-					monaco.editor.defineTheme("custom-dark", {
-						base: "vs-dark",
-						inherit: false,
-						colors: { "editor.background": "#242A32" },
-						rules: [],
-					});
-
-					monaco.languages.register({ id: "java" });
-					monaco.languages.setLanguageConfiguration("java", {
-						autoClosingPairs: [
-							{ open: "{", close: "}" },
-							{ open: "[", close: "]" },
-							{ open: "(", close: ")" },
-							{ open: '"', close: '"' },
-							{ open: "'", close: "'" },
-						],
-					});
-				}}
-			/>
-		</div>
-	);
-});
+          // Java 언어 설정 추가
+          monaco.languages.register({ id: 'java' });
+          monaco.languages.setLanguageConfiguration('java', {
+            autoClosingPairs: [
+              { open: '{', close: '}' },
+              { open: '[', close: ']' },
+              { open: '(', close: ')' },
+              { open: '"', close: '"' },
+              { open: "'", close: "'" },
+            ],
+          });
+        }}
+      />
+    </div>
+  );
+};
 
 export default CodeEditor;

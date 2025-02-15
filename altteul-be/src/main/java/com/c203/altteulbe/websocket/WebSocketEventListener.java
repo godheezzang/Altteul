@@ -8,15 +8,13 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
+import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
-import com.c203.altteulbe.room.web.dto.request.RoomRequestDto;
+import com.c203.altteulbe.room.service.TeamRoomService;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 public class WebSocketEventListener {
 	private final UserStatusService userStatusService;
 	private final SingleRoomRedisRepository singleRoomRedisRepository;
+	private final TeamRoomRedisRepository teamRoomRedisRepository;
 	private final SingleRoomService singleRoomService;
+	private final TeamRoomService teamRoomService;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final VoiceChatService voiceChatService;
 
@@ -52,29 +52,28 @@ public class WebSocketEventListener {
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 		Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+
 		log.info(accessor.toString());
+
 		if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
 			try {
 				Long userId = (Long)sessionAttributes.get("userId");
-				Long roomId = singleRoomRedisRepository.getRoomIdByUser(userId);
-
 				Long teamId = (Long)sessionAttributes.get("teamId");
+
+				Long singleRoomId = singleRoomRedisRepository.getRoomIdByUser(userId);
+				Long teamRoomId = teamRoomRedisRepository.getRoomIdByUser(userId);
 
 				if (userId != null && teamId != null) {
 					log.info("{} 팀 유저 {} 연결 해제 되었습니다.", teamId, userId);
 					voiceChatService.terminateUserVoiceConnection(teamId, userId.toString());
 				}
-
-				// 웹소켓 연결이 끊긴 유저와 연결된 방이 있는 경우 퇴장 처리
-				if (roomId != null) {
-					String roomStatusKey = RedisKeys.SingleRoomStatus(roomId);
-					String status = redisTemplate.opsForValue().get(roomStatusKey);
-
-					if ("counting".equals(status)) {
-						log.info("WebSocket Disconnect 발생 : userId : {}, roomId : {}", userId, roomId);
-						RoomRequestDto leftUser = RoomRequestDto.toDto(userId);
-						singleRoomService.leaveSingleRoom(leftUser);
-					}
+				if (userId != null && singleRoomId != null) {
+					log.info("유저 {}가 개인전 대기방 {}에서 연결 해제 되었습니다.", userId, singleRoomId);
+					singleRoomService.webSocketDisconnectLeave(singleRoomId, userId);
+				}
+				if (userId != null && teamRoomId != null) {
+					log.info("유저 {}가 팀전 대기방 {}에서 연결 해제 되었습니다.", userId, teamRoomId);
+					teamRoomService.webSocketDisconnectLeave(teamRoomId, userId);
 				}
 				userStatusService.setUserOffline(userId);
 				log.info("유저가 연결 해제 되었습니다 - userId: {}", userId);

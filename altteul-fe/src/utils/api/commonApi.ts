@@ -1,6 +1,7 @@
 // src/config/api.ts
 import axios from 'axios';
 
+// const baseURL = /api || 'http://localhost:8080/api';
 const BASE_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
   : import.meta.env.VITE_API_URL_DEV;
@@ -17,7 +18,7 @@ const createApiInstance = (additionalPath = '') => {
 
   // 토큰이 필요한 요청에 대한 인터셉터
   instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -5,7 +5,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import com.c203.altteulbe.game.service.SideProblemService;
+import com.c203.altteulbe.game.service.side.SideProblemService;
 import com.c203.altteulbe.game.web.dto.side.request.ReceiveSideProblemRequestDto;
 import com.c203.altteulbe.game.web.dto.side.request.SubmitSideProblemRequestDto;
 

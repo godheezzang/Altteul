@@ -7,7 +7,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.stereotype.Component;
 
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,13 +18,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RankingHistoryItemReader implements ItemReader<User> {
 
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 	private Iterator<User> userIterator;
 
 	@Override
 	public User read() {
 		if (userIterator == null) {
-			List<User> users = userJPARepository.findAll();
+			List<User> users = userRepository.findAll();
 			userIterator = users.iterator();
 		}
 		return userIterator.hasNext() ? userIterator.next() : null;

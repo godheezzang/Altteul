@@ -60,7 +60,21 @@ public class SecurityConfig {
 			@Override
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				CorsConfiguration configuration = new CorsConfiguration();
-				configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+				configuration.setAllowedOriginPatterns(Arrays.asList(
+					"http://localhost:80",
+					"http://localhost:5173",
+					"http://frontend:80",
+					"http://frontend:5173",
+					"http://host.docker.internal:80",
+					"http://host.docker.internal:5173",
+					"https://localhost:80",
+					"https://localhost:5173",
+					"https://frontend:80",
+					"https://frontend:5173",
+					"https://host.docker.internal:80",
+					"https://host.docker.internal:5173"
+				));
+
 				// configuration.setAllowedOrigins(
 				// 	Arrays.asList(
 				// 		"http://localhost:3000",

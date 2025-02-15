@@ -11,11 +11,14 @@ spring:
         - dev-judge
         - dev-batch
         - dev-openvidu
+        - dev-aws
       prod:
         - prod-mysql
         - prod-token
         - prod-redis
         - prod-oauth
         - prod-judge
+        - prod-batch
         - prod-openvidu
+        - prod-aws
     active: ${SPRING_PROFILES_ACTIVE}

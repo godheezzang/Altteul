@@ -24,7 +24,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
-public class GameRepositoryImpl extends QuerydslRepositorySupport implements GameRepository {
+public class GameRepositoryImpl extends QuerydslRepositorySupport implements GameCustomRepository {
 	private final JPAQueryFactory queryFactory;
 
 	public GameRepositoryImpl(JPAQueryFactory queryFactory) {
@@ -51,8 +51,6 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 					.join(userTeamRoom.teamRoom, teamRoom)  // `userTeamRoom`을 통해 `teamRoom`을 가져옴
 					.where(userTeamRoom.user.userId.eq(userId))
 			));
-
-
 
 		JPAQuery<Game> singleRoomQuery = queryFactory
 			.selectFrom(game)
@@ -118,5 +116,53 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 			.leftJoin(game.singleRooms, singleRoom)
 			.fetchOne()
 		);
+	}
+
+	@Override
+	public Optional<Game> findWithRoomAndProblemByGameIdAndTeamId(Long gameId, Long teamId) {
+		QProblem problem = QProblem.problem;
+		BattleType gameType = queryFactory
+			.select(game.battleType)
+			.from(game)
+			.where(game.id.eq(gameId))
+			.fetchOne();
+
+		if (BattleType.S.equals(gameType)) {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.singleRooms, singleRoom).fetchJoin()
+				.leftJoin(game.problem, problem).fetchJoin()
+				.where(game.id.eq(gameId).and(singleRoom.id.eq(teamId)))
+				.fetchOne()
+			);
+		} else {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
+				.leftJoin(game.problem, problem).fetchJoin()
+				.where(game.id.eq(gameId).and(teamRoom.id.eq(teamId)))
+				.fetchOne()
+			);
+		}
+	}
+
+	public Optional<Game> findWithGameByRoomIdAndType(Long roomId, BattleType battleType) {
+		if (BattleType.T.equals(battleType)) {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.teamRooms, teamRoom).fetchJoin()
+				.leftJoin(game.problem).fetchJoin()
+				.where(teamRoom.id.eq(roomId))
+				.fetchOne()
+			);
+		} else {
+			return Optional.ofNullable(queryFactory
+				.selectFrom(game)
+				.leftJoin(game.singleRooms, singleRoom).fetchJoin()
+				.leftJoin(game.problem).fetchJoin()
+				.where(singleRoom.id.eq(roomId))
+				.fetchOne()
+			);
+		}
 	}
 }

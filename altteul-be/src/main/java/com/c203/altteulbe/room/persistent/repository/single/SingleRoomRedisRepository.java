@@ -7,14 +7,14 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
-import com.c203.altteulbe.user.persistent.repository.UserJPARepository;
+import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.web.dto.response.UserInfoResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SingleRoomRedisRepository {
 	private final RedisTemplate<String, String> redisTemplate;
-	private final UserJPARepository userJPARepository;
+	private final UserRepository userRepository;
 
 	// 입장 가능한 대기방 조회
 	public Long getAvailableRoom() {
@@ -77,6 +77,7 @@ public class SingleRoomRedisRepository {
 	}
 
 	// 기존 대기방에 유저 추가
+	//@DistributedLock(key = "#roomId")
 	public RoomEnterResponseDto insertUserToExistingRoom(Long roomId, User user) {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 
@@ -91,7 +92,7 @@ public class SingleRoomRedisRepository {
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		List<Long> userIdLongs = userIds.stream().map(Long::parseLong).collect(Collectors.toList());
 
-		List<User> users = userJPARepository.findByUserIdIn(userIdLongs);
+		List<User> users = userRepository.findByUserIdIn(userIdLongs);
 
 		// 조회된 users를 userIds 순서대로 정렬
 		Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getUserId, Function.identity()));
@@ -113,6 +114,7 @@ public class SingleRoomRedisRepository {
 		redisTemplate.delete(roomUsersKey);  // 방에 속한 유저 삭제
 		redisTemplate.delete(roomStatusKey); // 방 상태 삭제
 		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString()); // 대기방 목록에서 제거
+		log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 	}
 
 	// roomId 생성 → DB 저장 시 game_id로 저장됨

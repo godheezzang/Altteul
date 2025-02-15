@@ -3,16 +3,15 @@ package com.c203.altteulbe.user.persistent.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.c203.altteulbe.user.persistent.entity.User;
 
+public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
 
-public interface UserRepository {
-	boolean existsByUsername(String username);
-	boolean existsByNickname(String nickname);
-	Optional<User> findByUsername(String username);
-	Optional<User> findByProviderAndUsername(User.Provider provider, String username);
-	Optional<User> findWithRankingByUserId(Long userId);
-	List<User> findAllOrderedByRankingPointTierUsername();
-	long countUsers();
+	Optional<User> findByUserId(Long userId);
 
+	List<User> findByUserIdIn(List<Long> userIds);
+
+	Optional<User> findByNickname(String nickname);
 }

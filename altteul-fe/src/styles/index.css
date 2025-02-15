@@ -19,7 +19,7 @@
   html,
   body {
     font-family: 'Pretendard Variable', sans-serif;
-    @apply text-primary-white bg-primary-black h-[100vh] overflow-hidden;
+    @apply text-primary-white bg-primary-black h-[100vh];
   }
 }
 
@@ -39,4 +39,9 @@
 
 .monaco-mouse-cursor-text {
   position: inherit;
+}
+
+/* 드롭다운 마지막 요소 border 지우기 */
+.dropdown-last:last-child {
+  border: 0;
 }

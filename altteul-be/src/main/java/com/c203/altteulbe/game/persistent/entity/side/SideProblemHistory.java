@@ -1,7 +1,5 @@
 package com.c203.altteulbe.game.persistent.entity.side;
 
-import java.time.LocalDateTime;
-
 import com.c203.altteulbe.common.entity.BaseCreatedEntity;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
@@ -19,7 +17,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -47,8 +44,9 @@ public class SideProblemHistory extends BaseCreatedEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User userId;
 
-	@Column(name = "side_problem_id", nullable = false)
-	private Long sideProblemId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "side_problem_id", nullable = false)
+	private SideProblem sideProblemId;
 
 	@Column(name = "user_answer", nullable = false, length = 128)
 	private String userAnswer;

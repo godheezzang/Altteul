@@ -1,4 +1,3 @@
-// src/types/modalTypes.ts
 export const MODAL_TYPES = {
     RESULT: 'game-result',
     LIST: 'single-result-list',
