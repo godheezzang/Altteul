@@ -60,9 +60,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         Authorization: `Bearer ${token}`,
       },
 
-      debug: str => {
-        console.debug(str);
-      },
+      debug: console.debug,
       reconnectDelay: RECONNECT_DELAY,
 
       onConnect: (frame: Frame) => {
@@ -82,7 +80,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       onStompError: (frame: Frame) => {
         console.error('STOMP error:', frame);
         const { reconnectAttempts, maxReconnectAttempts } = get();
-
         if (reconnectAttempts < maxReconnectAttempts) {
           set({ reconnectAttempts: reconnectAttempts + 1 });
           setTimeout(() => get().connect(), RECONNECT_DELAY);
@@ -117,8 +114,14 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   subscribe: (destination: string, callback: (data: socketResponseMessage) => void) => {
-    console.log("구독 신청 경로", destination)
+    console.log('구독 신청 경로', destination);
     const { client, connected, subscriptions } = get();
+
+    //소켓 연결 자체가 안되어 있으면 종료
+    if (!client || !connected) {
+      console.warn('No active connection');
+      return;
+    }
 
     // 이미 구독중이면 종료
     if (subscriptions.has(destination)) {
@@ -126,12 +129,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       return;
     }
 
-    //소켓 연결 자체가 안되어 있으면 종료
-    if (!client || !connected) {
-      console.warn('No active connection');
-      return;
-    }
-    
     // 구독 설정
     const subscription = client.subscribe(destination, (message: Message) => {
       try {
