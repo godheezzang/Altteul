@@ -1,7 +1,7 @@
 // components/friend/FriendRequestModal.tsx
 import React from 'react';
-import FriendModal from '@components/friend/FriendModal';
-import FriendRequestItem from '@components/friend/FriendRequestItem';
+import FriendModal from '@components/Friend/FriendModal';
+import FriendRequestItem from '@components/Friend/FriendRequestItem';
 import { mockFriendRequests } from 'mocks/friendData';
 
 type FriendRequestModalProps = {

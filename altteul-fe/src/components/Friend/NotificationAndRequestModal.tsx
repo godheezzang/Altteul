@@ -3,8 +3,8 @@ import FriendModal from '@components/Friend/FriendModal';
 import FriendRequestItem from '@components/Friend/FriendRequestItem';
 
 import SmallButton from '@components/Common/Button/SmallButton ';
-import { useFriendRequests } from 'Hooks/useFriendRequests';
-import { useGameInvites } from 'Hooks/useGameInvites';
+import { useFriendRequests } from 'hooks/useFriendRequests';
+import { useGameInvites } from 'hooks/useGameInvites';
 import useAuthStore from '@stores/authStore';
 
 type NotificationAndRequestModalProps = {

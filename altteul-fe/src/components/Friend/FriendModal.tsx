@@ -1,11 +1,11 @@
 // components/friend/FriendModal.tsx
 import React, { useState, ReactNode, useEffect } from 'react';
 
-import BaseModal from '@components/Friend/Friend_common/Basemodal';
+import BaseModal from '@components/Friend/friend_common/Basemodal';
 import SearchBar from '@components/Common/SearchBar';
-import Navigation from '@components/Friend/Friend_common/Navigation';
+import Navigation from '@components/Friend/friend_common/Navigation';
 import FriendListContent from '@components/Friend/FriendListContent';
-import ChatListContent from '@components/Friend/Chat/ChatListContent';
+import ChatListContent from '@components/Friend/chat/ChatListContent';
 import NotificationAndRequestModal from '@components/Friend/NotificationAndRequestModal';
 import FriendChatModal from '@components/Friend/FriendChatModal';
 

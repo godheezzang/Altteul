@@ -11,10 +11,13 @@ const MainGnb = () => {
   const location = useLocation();
   const { token, logout } = useAuthStore();
   const { openModal, closeModal, isOpen } = useModalStore();
-  const { disconnect } =  useSocketStore();
+  const { disconnect } = useSocketStore();
+  const { userId } = useAuthStore();
 
-  const userId = localStorage.getItem('userId');
-  const isSelectPage = location.pathname.startsWith('/match')
+  const isSelectPage = location.pathname.startsWith('/match');
+  const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
+    location.pathname
+  );
 
   // 게임 시작 버튼 클릭 시 유저 있냐없냐에 따라 다르게
   const handleGameStart = () => {
@@ -36,30 +39,31 @@ const MainGnb = () => {
 
   const handleLogout = () => {
     logout();
-    disconnect()
+    disconnect();
     navigate('/');
   };
 
   return (
     <>
-      <nav className="fixed top-0 w-full bg-primary-black z-50 px-8 text-sm">
+      <nav
+        className={`fixed top-0 w-full z-50 px-8 text-sm h-[3.5rem] ${transparentNavigation ? 'bg-gradient-to-b from-primary-black to-transparent' : 'bg-primary-black'}`}
+      >
         <div className="flex items-center justify-between h-[3.5rem]">
           {/* 좌측 영역 */}
           <div className="flex items-center mr-auto">
             <button onClick={() => navigate('/')} className="flex items-center">
               <img src={logo} alt="홈으로" className="w-5/6" />
             </button>
-            { !isSelectPage && (
+            {!isSelectPage && (
               <div className="flex space-x-2">
-              <button
-                onClick={handleGameStart}
-                className="px-3 py-1 bg-primary-orange text-primary-white rounded-lg hover:bg-secondary-orange hover:text-gray-01 transition-colors"
-              >
-                게임 시작
-              </button>
-            </div>
+                <button
+                  onClick={handleGameStart}
+                  className="px-3 py-1 bg-primary-orange text-primary-white rounded-lg hover:bg-secondary-orange hover:text-gray-01 transition-colors"
+                >
+                  게임 시작
+                </button>
+              </div>
             )}
-            
           </div>
 
           {/* 우측 영역 */}

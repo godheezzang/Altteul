@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SmallButton from '@components/Common/Button/SmallButton ';
-import { useFriendWebSocket } from 'Hooks/useFriendWebSocket';
+import { useFriendWebSocket } from 'hooks/useFriendWebSocket';
 
 type FriendListItemProps = {
   friendId: number;
