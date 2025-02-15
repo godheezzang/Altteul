@@ -1,12 +1,10 @@
-import useGameStore from '@stores/useGameStore';
 import { useNavigate, Link } from 'react-router-dom';
 import backgroundImage from '@assets/background/single_matching_bg.svg';
 import logo from '@assets/icon/Altteul.svg';
-import { Problem, TestCase, User } from 'types/types';
+import { User } from 'types/types';
 import { useMatchStore } from '@stores/matchStore';
 import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
-import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { singleOut } from '@utils/Api/matchApi';
