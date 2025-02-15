@@ -6,7 +6,6 @@ import { UserSearchProvider } from 'contexts/UserSearchContext';
 import { useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import { inviteResponse } from '@utils/Api/matchApi';
-import { useMatchStore } from '@stores/matchStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 
 const App = () => {
@@ -14,7 +13,6 @@ const App = () => {
   const isGamePage = location.pathname.startsWith('/game');
   const socket = useSocketStore();
   const navigate = useNavigate();
-  const { setMatchData } = useMatchStore();
 
   const checkAuthStatus = () => {
     const accessToken = sessionStorage.getItem('token');
