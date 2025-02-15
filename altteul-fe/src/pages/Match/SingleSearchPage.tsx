@@ -20,66 +20,70 @@ const SingleSearchPage = () => {
   const [facts] = useState<string[]>(tmi.facts);
   const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
   //waitUsers: 방장을 포함하지 않은 대기 유저
-  const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users.filter(user => user.userId !== leaderId));
-  const [headUser, setHeadUser] = useState<User>(matchStore.matchData.users.find(user => user.userId === leaderId));
+  const [waitUsers, setWaitUsers] = useState(
+    matchStore.matchData.users.filter(user => user.userId !== leaderId)
+  );
+  const [headUser, setHeadUser] = useState<User>(
+    matchStore.matchData.users.find(user => user.userId === leaderId)
+  );
   const roomId = matchStore.matchData.roomId;
   const currentUserId = Number(sessionStorage.getItem('userId'));
   const [isLeader, setIsLeader] = useState(currentUserId === leaderId);
 
+  //유저 퇴장 로직
+  const userOut = () => {
+    singleOut(roomId); //의도적으로 나간 경우에 서버에 나갔다고 알림, 새로고침시(언마운트)에는 서버에서 아직 방에 남아있다고 판단.
+    matchStore.clear(); //의도적으로 나간 경우 matchData remove
+    navigate('/match/select');
+  };
+
   //구독처리
   useEffect(() => {
-    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
+    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage);
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
-      console.log("singleSearchPage Out, 구독 취소 신청")
-      socket.unsubscribe(`/sub/single/room/${roomId}`)
-    }
-  }, [roomId])
-  
+      console.log('singleSearchPage Out');
+      socket.unsubscribe(`/sub/single/room/${roomId}`);
+    };
+  }, [roomId]);
+
   //소켓 응답 처리
-  const handleMessage = (message:socketResponseMessage) => {
-    console.log(message)
+  const handleMessage = (message: socketResponseMessage) => {
+    console.log(message);
     const { type, data } = message;
     if (type === 'ENTER' || type === 'LEAVE') {
       setLeaderId(data.leaderId);
-      setWaitUsers(data.users.filter(user => user.userId !== leaderId));
-      setHeadUser(data.users.find(user => user.userId === leaderId))
-      setIsLeader(currentUserId === leaderId)
-    }
-    
-    else if (type === 'COUNTING') {
+      setWaitUsers(data.users.filter(user => user.userId !== data.leaderId));
+      setHeadUser(data.users.find(user => user.userId === data.leaderId));
+      setIsLeader(currentUserId === data.leaderId);
+
+    } else if (type === 'COUNTING') {
       navigate('/match/single/final');
-    }
-    
-    else{
-      console.warn('예상하지 못한 소켓응답')
-      console.log(message)
     }
 
     // 대기 유저가 8명이 되면 자동으로 게임 시작
-      if (waitUsers.length >= 8) {
-        handleStartButton();
-      }
+    if (waitUsers.length >= 8) {
+      handleStartButton();
+    }
 
-    reset() //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
-  }
-
+    reset(); //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
+  };
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 60,  //TODO: 최종, 3분(?)으로 설정
+    initialSeconds: 60, //TODO: 최종, 3분(?)으로 설정
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
       //1. 혼자만 있으면 시작 x
       if (waitUsers.length === 0) {
-        alert('상대 유저가 입장하지 않아 종료합니다.')
-        userOut()
+        alert('상대 유저가 입장하지 않아 종료합니다.');
+        userOut();
         return;
       }
       //2. 방장 제외 1명 이상의 플레이어만 충족하면 시작
-      navigateFinalPage()
+      navigateFinalPage();
     },
   });
 
@@ -92,8 +96,8 @@ const SingleSearchPage = () => {
     }
 
     //8명이 됐는지 확인
-    if (waitUsers.length === 8 || confirm("바로 시작하시겠습니까?")) {
-      navigateFinalPage()
+    if (waitUsers.length === 8 || confirm('바로 시작하시겠습니까?')) {
+      navigateFinalPage();
     }
   };
 
@@ -104,19 +108,12 @@ const SingleSearchPage = () => {
       roomId: roomId,
       leaderId: leaderId,
       users: [headUser, ...waitUsers],
-    }
+    };
 
-    matchStore.setMatchData(matchData)
+    matchStore.setMatchData(matchData);
 
     //게임 시작 API 호출(For socket 응답 변환)
     await singleStart(roomId);
-  }
-
-  //유저 퇴장 로직
-  const userOut = () => {
-    singleOut(roomId);
-    socket.resetConnection();
-    navigate('/match/select');
   };
 
   // TMI: 첫 fact 생성 후 5초 간격으로 Rotation
@@ -143,9 +140,9 @@ const SingleSearchPage = () => {
 
         {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
-          nickname={""}
-          profileImg={headUser? headUser.profileImg : null}
-          tierId={headUser? headUser.tierId : null}
+          nickname={''}
+          profileImg={headUser ? headUser.profileImg : null}
+          tierId={headUser ? headUser.tierId : null}
           className="mb-4"
         />
 
