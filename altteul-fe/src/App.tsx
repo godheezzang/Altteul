@@ -15,29 +15,26 @@ const App = () => {
   const navigate = useNavigate();
 
   const checkAuthStatus = () => {
-    const accessToken = sessionStorage.getItem('token');
-    return !!accessToken;
+    return !!sessionStorage.getItem('token');
   };
 
   //로그인 시 소켓 연결 유지
   useEffect(() => {
     const wasConnected = sessionStorage.getItem('wsConnected') === 'true';
     if (wasConnected && checkAuthStatus()) {
-      try {
-        socket.connect(); //로그인 성공시 소켓 연결
-      } catch (error) {
-        console.error('소켓 연결 error:', error);
-      }
+      socket.connect(); //로그인 성공시 소켓 연결
     }
-  }, [socket]);
+  }, []);
 
   // 로그인 & 소켓 연결 성공 시 친구관련 구독 신청
   //TODO: App.tsx기 때문에 페이지에 따른 구독신청과 구독취소 관리 필요함(안하면 문제 풀다가 초대 요청 받을 수 있음)
   useEffect(() => {
-    console.log('소켓 연결상태: ', socket.connected);
+    // console.log('소켓 연결상태: ', socket.connected);
     const userId = sessionStorage.getItem('userId');
     if (socket.connected && userId) {
-      socket.subscribe(`/sub/invite/${userId}`, handleMessage); //친구 초대 구독
+      const destination = `/sub/invite/${userId}`;
+      socket.unsubscribe(destination);
+      socket.subscribe(destination, handleMessage);
     }
   }, [socket.connected]);
 
