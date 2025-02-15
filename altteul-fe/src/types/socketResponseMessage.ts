@@ -1,4 +1,4 @@
-import { Problem, SingleMatchData, TestCase, User } from "./types";
+import { MatchData, Problem, TestCase, User } from "./types";
 
 interface socketResponseMessage {
   type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START' | "COUNTING_CANCEL"
@@ -29,8 +29,8 @@ interface socketResponseMessage {
     matchId: string
 
     //팀전 게임 데이터(COUNTING_READY) message
-    team1: SingleMatchData
-    team2: SingleMatchData
+    team1: MatchData
+    team2: MatchData
   };
 };
 
