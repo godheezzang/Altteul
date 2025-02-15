@@ -17,6 +17,15 @@ pipeline {
                     cleanWhenFailure : true
                 )
             }
+
+            post {
+                failure {
+                    echo "❌ Clean Failed!"
+                }
+                success {
+                    echo "✅ Clean Success!"
+                }
+            }
         }
 
         stage('Git Clone') {
@@ -25,6 +34,16 @@ pipeline {
                     git branch: "${GIT_BRANCH}",
                     credentialsId: 'C203',
                     url: "${GIT_REPO}"
+                }
+            }
+
+
+            post {
+                failure {
+                    echo "❌ Checkout Failed!"
+                }
+                success {
+                    echo "✅ Checkout Success!"
                 }
             }
         }
