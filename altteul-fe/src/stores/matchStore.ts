@@ -1,43 +1,41 @@
 // src/stores/matchStore.ts
 import { create } from 'zustand'
-import { SingleMatchData, SingleEnterApiResponse } from "types/types";
+import { MatchData, SingleEnterApiResponse } from "types/types";
 
 interface MatchStore {
-  matchData: SingleMatchData;
-  message: string;
-  status: string;
+  matchData: MatchData;
   isLoading: boolean;
-  error: string;
   
-  setMatchData: (response: SingleEnterApiResponse) => void;
+  setMatchData: (response: MatchData) => void;
   clearMatchData: () => void;
-  setError: (error: string) => void;
   setLoading: (loading: boolean) => void;
 }
 
 export const useMatchStore = create<MatchStore>((set) => ({
   matchData: JSON.parse(sessionStorage.getItem("matchData")) || {users: [], roomId: 0, leaderId: 0},
-  message: null,
-  status: null,
+  message: sessionStorage.getItem("matchMessage"),
+  status: sessionStorage.getItem("matchStatus"),
   isLoading: false,
-  error: null,
+  error: sessionStorage.getItem("matchError"),
 
-  setMatchData: (response) => set({ 
-    matchData: response.data,
-    message: response.message,
-    status: response.status,
-    error: null 
-  }),
-  clearMatchData: () => set({ 
-    matchData: null,
-    message: null,
-    status: null 
-  }),
-  setError: (error) => set({ 
-    error,
-    matchData: null,
-    message: null,
-    status: null 
-  }),
+  setMatchData: (response) => {
+    sessionStorage.setItem("matchData", JSON.stringify(response));
+    set({ 
+      matchData: response,
+    });
+  },
+
+  clearMatchData: () => {
+    sessionStorage.removeItem("matchData");
+    sessionStorage.removeItem("matchMessage");
+    sessionStorage.removeItem("matchStatus");
+    sessionStorage.removeItem("matchError");
+    
+    set({ 
+      matchData: null,
+    });
+  },
+
+
   setLoading: (loading) => set({ isLoading: loading }),
 }));
