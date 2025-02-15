@@ -1,6 +1,6 @@
 // components/friend/friend_common/Basemodal.tsx
 import React from 'react';
-import ModalHeader from '@components/friend/ModalHeader';
+import ModalHeader from '@components/Friend/ModalHeader';
 
 type BaseModalProps = {
   isOpen: boolean;

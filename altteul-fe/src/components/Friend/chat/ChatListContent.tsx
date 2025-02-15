@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ChatListItem from '@components/Friend/Chat/ChatListItem';
+import ChatListItem from '@components/Friend/chat/ChatListItem';
 import { getChatRooms } from '@utils/Api/chatApi';
 import { ChatRoom } from 'types/types';
 

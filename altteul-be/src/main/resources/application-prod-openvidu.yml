@@ -3,5 +3,5 @@ spring:
     activate:
       on-profile: prod-openvidu
 openvidu:
-  url: ${DOMAIN_OR_PUBLIC_IP}
+  url: ${OPENVIDU_URL}
   secret: ${OPENVIDU_SECRET}

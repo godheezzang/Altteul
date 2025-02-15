@@ -1,8 +1,9 @@
 import backgroundImage from "@assets/background/matching_select_bg.svg";
 import userIcon from "@assets/icon/User.svg";
 import peopleIcon from "@assets/icon/People.svg";
+import logo from "@assets/icon/Altteul.svg";
+import "@styles/base/colors.css";
 import { useNavigate } from "react-router-dom";
-import "@styles/Base/colors.css";
 import { singleEnter, teamEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
@@ -21,7 +22,7 @@ const SelectPage = () => {
       if(type === 'single') {
         navigate("/match/single/search")
       }
-      
+
       //팀전 입장
       if(type === 'team') {
         navigate(`/match/team/composition`)
