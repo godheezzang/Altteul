@@ -26,7 +26,7 @@ const SingleFinalPage = () => {
   useEffect(() => {
     socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
 
-    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    //언마운트 시 구독에 대한 콜백함수(handleMessage)정리 및 나가기 처리
     return () => {
       console.log("singleFinalPage Out, 구독 취소")
       singleOut(roomId)
@@ -58,13 +58,13 @@ const SingleFinalPage = () => {
       gameStore.setTestcases(data.testcases)
 
       //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
-      matchStore.clearMatchData()
+      matchStore.clear()
 
       //페이지 이동
       setTimeout(() => {
         console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
-      }, 100); // 데이터 저장 후 안전하게 페이지 이동
+      }, 200); // 데이터 저장 후 안전하게 페이지 이동
     }
 
     //혼자 남게 됐을 때 로직
