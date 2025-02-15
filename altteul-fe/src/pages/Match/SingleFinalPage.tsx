@@ -9,6 +9,7 @@ import UserProfile from '@components/Match/UserProfile';
 import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
+import { singleOut } from '@utils/Api/matchApi';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -19,14 +20,7 @@ const SingleFinalPage = () => {
   // Store에 저장된 데이터로 초기 세팅
   const [waitUsers, setWaitUsers] = useState(store.matchData.users.filter((user) => user.userId !== leaderId));
   const [headUser, setHeadUser] = useState<User>(store.matchData.users.find(user => user.userId === leaderId));
-  // console.log("전달 받은 데이터::", store.matchData)
-  const { setGameInfo, setUsers, setProblem, setTestcases } = useGameStore();
-
-  // const { c_waitUsers, c_leaderId, count, isStart, gameData } = useMatchWebSocket(roomId);
-  const [isStart, setIsStart] = useState(false)
-  const [gameData, setGameData] = useState<{gameId:number, users:User[], problem:Problem, testcases:TestCase[]}>()
-
-  const [seconds, setSeconds] = useState<number>(10)
+  const [seconds, setSeconds] = useState<number>(10)  //응답 데이터로 렌더링 전 초기값(10) 설정
 
   //구독처리
   useEffect(() => {
@@ -35,6 +29,7 @@ const SingleFinalPage = () => {
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
       console.log("singleFinalPage Out, 구독 취소")
+      singleOut(roomId)
       socket.unsubscribe(`/sub/single/room/${roomId}`)
     }
   }, [roomId])
@@ -48,47 +43,37 @@ const SingleFinalPage = () => {
       setHeadUser(data.users.find(user => user.userId === leaderId))
     }
 
+    //카운팅 응답 수신
     if (type === 'COUNTING') {
       setSeconds(data.time);
     }
 
+    //게임 시작 응답 수신
     if (type === 'GAME_START') {
-      setGameData({
-        gameId: data.gameId,
-        users: data.users,
-        problem: data.problem,
-        testcases: data.testcases
-      })
-      setIsStart(true);
 
+      //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
+      sessionStorage.setItem("roomId", roomId.toString())
+      sessionStorage.setItem("gameId", data.gameId.toString())
+      sessionStorage.setItem("users", JSON.stringify(data.users))
+      sessionStorage.setItem("problem", JSON.stringify(data.problem))
+      sessionStorage.setItem("testcases", JSON.stringify(data.testcases))
+
+      //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
+      sessionStorage.removeItem("matchData")
+
+      //페이지 이동
       setTimeout(() => {
         console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
       }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
-  }
 
-  // GAME_START 수신 시 페이지 이동 처리
-  useEffect(() => {
-    if (isStart) {  //소켓에서 GAME_START 수신 시
-      // IDE에서 쓸 데이터 setting
-      setGameInfo(gameData.gameId, roomId);
-      setUsers(gameData.users);
-      setProblem(gameData.problem);
-      setTestcases(gameData.testcases);
-
+    //혼자 남게 됐을 때 로직
+    if(type === "COUNTING_CANCEL") {
+      alert("대기 중 상대 유저가 연결을 종료했습니다.\n메인페이지로 이동합니다.")
+      navigate('/match/select')
     }
-  }, [
-    isStart,
-    roomId,
-    gameData,
-    setGameInfo,
-    setProblem,
-    setTestcases,
-    setUsers,
-    navigate,
-  ]);
-
+  }
   return (
     <div
       className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
