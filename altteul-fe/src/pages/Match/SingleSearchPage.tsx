@@ -63,8 +63,8 @@ const SingleSearchPage = () => {
     }
 
     // 대기 유저가 8명이 되면 자동으로 게임 시작
-    if (waitUsers.length >= 8) {
-      handleStartButton();
+    if (data.users.length >= 8) {
+      navigateFinalPage();
     }
 
     reset(); //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
@@ -72,7 +72,7 @@ const SingleSearchPage = () => {
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 60, //TODO: 최종, 3분(?)으로 설정
+    initialSeconds: 90, //TODO: 최종, 3분(?)으로 설정
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
@@ -95,8 +95,8 @@ const SingleSearchPage = () => {
       return;
     }
 
-    //8명이 됐는지 확인
-    if (waitUsers.length === 8 || confirm('바로 시작하시겠습니까?')) {
+    //8명 상관없이 시작할건지 확인
+    if (confirm('바로 시작하시겠습니까?')) {
       navigateFinalPage();
     }
   };
