@@ -1,13 +1,11 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/team_matching_bg.svg';
-import logo from '@assets/icon/Altteul.svg';
 import { User } from 'types/types';
 import { useEffect, useState } from 'react';
 import { useMatchStore } from '@stores/matchStore';
 import { teamOut, teamStart } from '@utils/Api/matchApi';
-import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 
@@ -17,9 +15,9 @@ const TeamcompositionPage = () => {
   const socket = useSocketStore();
   const currentUserId = Number(sessionStorage.getItem('userId'));
   //waitUsers: 방장 포함 대기 유저
-  const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users);
+  const [alliance, setAlliance] = useState(matchStore.matchData.users);
   const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
-  const roomId = matchStore.matchData.roomId; //웹 소켓 연결 & 게임 초대 시(서버에서만) 필요
+  const roomId = Number(sessionStorage.getItem('roomId'));
   const [isLeader, setIsLeader] = useState(currentUserId === leaderId); //매칭 시작 버튼 렌더링을 위한 변수
 
   //구독처리
@@ -39,7 +37,7 @@ const TeamcompositionPage = () => {
     const { type, data } = message;
     if (type === 'ENTER' || type === 'LEAVE') {
       setLeaderId(data.leaderId);
-      setWaitUsers(data.users.filter(user => user.userId !== leaderId));
+      setAlliance(data.users);
       setIsLeader(currentUserId === leaderId);
     }
 
@@ -50,20 +48,20 @@ const TeamcompositionPage = () => {
     }
 
     // 대기 유저가 4명이 되면 자동으로 게임 시작
-    if (waitUsers.length >= 4) {
+    if (alliance.length >= 4) {
       handleStartButton();
     }
   };
 
   const handleStartButton = () => {
     //혼자만 있을 때
-    if (waitUsers.length === 0) {
+    if (alliance.length === 0) {
       alert('혼자서는 플레이 할 수 없습니다.');
       return;
     }
 
     //4명이 됐는지 확인
-    if (waitUsers.length === 4 || confirm('바로 시작하시겠습니까?')) {
+    if (alliance.length === 4 || confirm('바로 시작하시겠습니까?')) {
       navigateMatchPage();
     }
   };
@@ -74,7 +72,7 @@ const TeamcompositionPage = () => {
     const matchData = {
       roomId: roomId,
       leaderId: leaderId,
-      users: [...waitUsers],
+      users: [...alliance],
     };
 
     sessionStorage.setItem('matchData', JSON.stringify(matchData));
@@ -102,7 +100,7 @@ const TeamcompositionPage = () => {
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {waitUsers.map((user: User) => (
+          {alliance.map((user: User) => (
             <UserProfile
               key={user.userId}
               nickname={user.nickname}
