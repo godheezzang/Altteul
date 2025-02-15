@@ -2,11 +2,13 @@ package com.c203.altteulbe.game.web.controller;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,10 +20,13 @@ import com.c203.altteulbe.game.service.GameHistoryService;
 import com.c203.altteulbe.game.service.GameLeaveService;
 import com.c203.altteulbe.game.service.result.AIFeedbackService;
 import com.c203.altteulbe.game.service.result.GameResultService;
+import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
 import com.c203.altteulbe.game.web.dto.record.response.GameRecordResponseDto;
 import com.c203.altteulbe.game.web.dto.result.request.AIFeedbackRequestDto;
+import com.c203.altteulbe.game.web.dto.result.request.OpponentCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.result.response.AIFeedbackResponse;
 import com.c203.altteulbe.game.web.dto.result.response.GameResultResponseDto;
+import com.c203.altteulbe.game.web.dto.result.response.OpponentCodeResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +63,16 @@ public class GameController {
 	}
 
 	@PostMapping("/game/leave")
-	public ApiResponseEntity<Void> leaveGame(@AuthenticationPrincipal Long userId) {
-		gameLeaveService.leaveGame(userId);
+	public ApiResponseEntity<Void> leaveGame(@AuthenticationPrincipal Long userId,
+		@RequestBody GameLeaveRequestDto request) {
+		gameLeaveService.leaveGame(userId, request);
 		return ApiResponse.success();
+	}
+
+	@GetMapping("game/code/{roomId}")
+	public ApiResponseEntity<ResponseBody.Success<OpponentCodeResponseDto>> getOpponentCode(
+		@PathVariable(value = "roomId") Long roomId, OpponentCodeRequestDto request) {
+		OpponentCodeResponseDto response = gameResultService.getOpponentCode(roomId, request);
+		return ApiResponse.success(response, HttpStatus.OK);
 	}
 }
