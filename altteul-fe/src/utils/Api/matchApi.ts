@@ -47,8 +47,16 @@ export const teamEnter = async (userId: number) => {
 }
 
 //팀전 퇴장 api
-//싱글 매칭 퇴장시 사용 api
 export const teamOut = async (userId: number) => {
   const res = await teamApi.post("leave", { "userId": userId })
   return res.data.status
+}
+
+//팀전 초대 수락 api
+export const inviteResponse = async (nickname:string, roomId:number, accepted:boolean) => {
+  if (accepted) {
+    const data = {"nickname" : nickname, "roomId":roomId, "accepted":accepted}
+    const res = await teamApi.post('invite/reaction', data)
+    return res.data
+  }
 }

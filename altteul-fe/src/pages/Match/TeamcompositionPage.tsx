@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import UserProfile from "@components/Match/UserProfile";
 import Button from "@components/Common/Button/Button";
 import backgroundImage from "@assets/background/team_matching_bg.svg";
@@ -15,12 +15,12 @@ const TeamcompositionPage = () => {
   const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users);
   const [leaderId] = useState(matchStore.matchData.leaderId);
   const [headUser, setHeadUser] = useState<User>(matchStore.matchData.users.find(user => user.userId === leaderId));
-  const roomId = matchStore.matchData.roomId; //웹 소켓 연결 & 게임 초대 시 필요
+  // const roomId = matchStore.matchData.roomId; //웹 소켓 연결 & 게임 초대 시 필요
   const currentUserId = Number(localStorage.getItem('userId'));
   const [isLeader, setIsLeader] = useState(currentUserId === leaderId); //매칭 시작 버튼 렌더링을 위한 변수
-
-
-  const { isConnected, c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
+  const { roomId } = useParams();
+  
+  const { isConnected, c_waitUsers, c_leaderId } = useMatchWebSocket(Number(roomId));
 
   const userOut = () => {
     teamOut(currentUserId)
