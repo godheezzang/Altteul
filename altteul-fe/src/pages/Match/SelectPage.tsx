@@ -7,22 +7,21 @@ import { useMatchStore } from "@stores/matchStore";
 
 const SelectPage = () => {
   const navigate = useNavigate();
-  const { setLoading } = useMatchStore();
+  const matchStore = useMatchStore();
 
   const NextPage = async (type:string) => {
-    setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
+    matchStore.setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
     try {
-      //API로 방 입장 시의 응답값을 받아온 뒤 세션에 저장
+      //API로 방 입장 시의 응답값을 받아온 뒤 상태 update
       const res = await matchRoomEnter(type)
-      sessionStorage.setItem("roomId", res.data.roomId)
-      sessionStorage.setItem("matchData", JSON.stringify(res.data))
+      matchStore.setMatchData(res.data)
       type ==='single' ? navigate('/match/single/search') : navigate('/match/team/composition')
     }catch(error){
       console.log(error)
       // 에러페이지로 전환
       // navigate()
     } finally {
-      setLoading(false);
+      matchStore.setLoading(false);
     }
   }
 
