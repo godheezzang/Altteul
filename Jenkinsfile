@@ -14,7 +14,7 @@ pipeline {
             steps {
                 steps {
                     git branch: GIT_BRANCH
-                    credentialsId: 'C203',
+                    credentialsId: C203,
                     url: GIT_REPO
                 }
             }
