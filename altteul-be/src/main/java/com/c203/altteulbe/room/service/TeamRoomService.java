@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
@@ -525,13 +523,13 @@ public class TeamRoomService {
 	public RoomEnterResponseDto handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
 
 		User inviter = userRepository.findByNickname(requestDto.getNickname())
-								     .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 		Long userId = inviter.getUserId();
 		Long roomId = requestDto.getRoomId();
 		boolean accepted = requestDto.isAccepted();
 
 		String inviteKey = RedisKeys.inviteInfo(String.valueOf(roomId), String.valueOf(friendId));
-		String redisValue = (String) redisTemplate.opsForValue().get(inviteKey);
+		String redisValue = (String)redisTemplate.opsForValue().get(inviteKey);
 
 		if (redisValue == null) {
 			throw new AlreadyExpiredInviteException();

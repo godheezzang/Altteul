@@ -64,7 +64,7 @@ const router = createBrowserRouter([
             path: 'team',
             children: [
               {
-                path: 'composition',
+                path: 'composition/:roomId',
                 element: <TeamcompositionPage />,
               },
               {

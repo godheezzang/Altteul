@@ -16,7 +16,7 @@ interface MatchStore {
 }
 
 export const useMatchStore = create<MatchStore>((set) => ({
-  matchData: {users: [], roomId: 0, leaderId: 0},
+  matchData: JSON.parse(sessionStorage.getItem("matchData")) || {users: [], roomId: 0, leaderId: 0},
   message: null,
   status: null,
   isLoading: false,
