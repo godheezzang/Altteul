@@ -10,6 +10,15 @@ pipeline {
 
     stages {
 
+        stage("Clean") {
+            always {
+                cleanWs(
+                    deleteDirs: true,
+                    cleanWhenFailure : true
+                )
+            }
+        }
+
         stage('Git Clone') {
             steps {
                 steps {
