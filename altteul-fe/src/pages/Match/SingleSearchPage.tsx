@@ -32,7 +32,7 @@ const SingleSearchPage = () => {
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
-      console.log("singleSearchPage Out, 구독 취소")
+      console.log("singleSearchPage Out, 구독 취소 신청")
       socket.unsubscribe(`/sub/single/room/${roomId}`)
     }
   }, [roomId])
@@ -68,7 +68,7 @@ const SingleSearchPage = () => {
 
   // 타이머 설정
   const { seconds, reset } = useTimer({
-    initialSeconds: 60,  //TODO: 3분
+    initialSeconds: 60,  //TODO: 최종, 3분(?)으로 설정
 
     // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
@@ -99,14 +99,14 @@ const SingleSearchPage = () => {
 
   //Final 페이지 이동 조건 충족시
   const navigateFinalPage = async () => {
-    // Final 페이지로 넘어가기 전에 데이터 저장
-    matchStore.setMatchData({
-      data: {
-        roomId: roomId,
-        leaderId: leaderId,
-        users: [headUser, ...waitUsers],
-      },
-    });
+    // Final 페이지로 넘어가기 전, 마지막 상태 데이터 저장
+    const matchData = {
+      roomId: roomId,
+      leaderId: leaderId,
+      users: [headUser, ...waitUsers],
+    }
+    
+    sessionStorage.setItem("matchData", JSON.stringify(matchData))
 
     //게임 시작 API 호출(For socket 응답 변환)
     await singleStart(roomId);

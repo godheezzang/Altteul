@@ -117,6 +117,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   subscribe: (destination: string, callback: (data: socketResponseMessage) => void) => {
+    console.log("구독 신청 경로", destination)
     const { client, connected, subscriptions } = get();
 
     // 이미 구독중이면 종료
@@ -130,7 +131,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       console.warn('No active connection');
       return;
     }
-
+    
     // 구독 설정
     const subscription = client.subscribe(destination, (message: Message) => {
       try {
@@ -155,7 +156,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       sessionStorage.setItem('wsSubscriptions', JSON.stringify(activeSubscriptions));
     }
 
-    console.log('subScribe success', destination);
+    console.log('구독 신청 완료', destination);
   },
 
   unsubscribe: (destination: string) => {
@@ -175,7 +176,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       );
     }
 
-    console.log('unsubscribe', destination);
+    console.log('구독 취소 완료', destination);
   },
 
   sendMessage: (destination: string, message: any) => {
