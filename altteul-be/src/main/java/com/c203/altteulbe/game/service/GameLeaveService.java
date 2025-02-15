@@ -133,7 +133,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			game.getId().toString(),
 			"GAME_FINISH_LEAVE",
 			responseDto,
 			BattleType.S
@@ -226,7 +226,7 @@ public class GameLeaveService {
 		);
 
 		roomWebSocketService.sendWebSocketMessage(
-			roomId.toString(),
+			game.getId().toString(),
 			"GAME_LEAVE",
 			responseDto,
 			BattleType.S
@@ -242,7 +242,7 @@ public class GameLeaveService {
 			);
 
 			roomWebSocketService.sendWebSocketMessage(
-				roomId.toString(),
+				game.getId().toString(),
 				"GAME_END",
 				gameEndPayload,
 				BattleType.S
