@@ -56,17 +56,17 @@ pipeline {
                     script {
                         sh '''
                         # 백엔드 환경변수 파일 복사
-                        cp $BE_ENV_FILE altteul_be/.env
+                        cp $BE_ENV_FILE altteul-be/.env
                         cp $BE_ENV_FILE .env
 
                         # 프론트엔드 환경변수 파일 복사
-                        cp $FE_ENV_FILE altteul_fe/.env
+                        cp $FE_ENV_FILE altteul-fe/.env
 
                         # Redis 설정 파일 복사
-                        cp $REDIS_CONF_FILE resources/redis/redis.conf
+                        mkdir -p resources/redis && cp $REDIS_CONF_FILE resources/redis/redis.conf
 
                         # SQL 데이터 복사 (초기 데이터 로딩용)
-                        cp $MOCK_DATA_FILE altteul_be/src/main/resources/data.sql
+                        cp $MOCK_DATA_FILE altteul-be/src/main/resources/data.sql
                         '''
                     }
                 }
