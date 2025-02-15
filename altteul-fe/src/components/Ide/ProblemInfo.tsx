@@ -9,8 +9,6 @@ const ProblemInfo = () => {
     return null;
   }
 
-  console.log(problem.description);
-
   const options = {
     replace: (domNode: DOMNode, index: number) => {
       if (
