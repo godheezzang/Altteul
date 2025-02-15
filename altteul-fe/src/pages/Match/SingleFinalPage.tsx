@@ -1,32 +1,32 @@
-import useGameStore from '@stores/useGameStore';
 import { useNavigate, Link } from 'react-router-dom';
 import backgroundImage from '@assets/background/single_matching_bg.svg';
 import logo from '@assets/icon/Altteul.svg';
-import { Problem, TestCase, User } from 'types/types';
+import { User } from 'types/types';
 import { useMatchStore } from '@stores/matchStore';
 import { useState, useEffect } from 'react';
 import UserProfile from '@components/Match/UserProfile';
-import useMatchWebSocket from '@hooks/useMatchWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { singleOut } from '@utils/Api/matchApi';
+import useGameStore from '@stores/useGameStore';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
-  const store = useMatchStore();
+  const matchStore = useMatchStore();
+  const gameStore = useGameStore()
   const socket = useSocketStore()
-  const roomId = store.matchData.roomId;
-  const [leaderId] = useState(store.matchData.leaderId);
+  const roomId = matchStore.matchData.roomId;
+  const [leaderId] = useState(matchStore.matchData.leaderId);
   // Store에 저장된 데이터로 초기 세팅
-  const [waitUsers, setWaitUsers] = useState(store.matchData.users.filter((user) => user.userId !== leaderId));
-  const [headUser, setHeadUser] = useState<User>(store.matchData.users.find(user => user.userId === leaderId));
+  const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users.filter((user) => user.userId !== leaderId));
+  const [headUser, setHeadUser] = useState<User>(matchStore.matchData.users.find(user => user.userId === leaderId));
   const [seconds, setSeconds] = useState<number>(10)  //응답 데이터로 렌더링 전 초기값(10) 설정
 
   //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
 
-    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    //언마운트 시 구독에 대한 콜백함수(handleMessage)정리 및 나가기 처리
     return () => {
       console.log("singleFinalPage Out, 구독 취소")
       singleOut(roomId)
@@ -52,20 +52,19 @@ const SingleFinalPage = () => {
     if (type === 'GAME_START') {
 
       //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
-      sessionStorage.setItem("roomId", roomId.toString())
-      sessionStorage.setItem("gameId", data.gameId.toString())
-      sessionStorage.setItem("users", JSON.stringify(data.users))
-      sessionStorage.setItem("problem", JSON.stringify(data.problem))
-      sessionStorage.setItem("testcases", JSON.stringify(data.testcases))
+      gameStore.setGameInfo(data.gameId, roomId)
+      gameStore.setUsers(data.users)
+      gameStore.setProblem(data.problem)
+      gameStore.setTestcases(data.testcases)
 
       //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
-      sessionStorage.removeItem("matchData")
+      matchStore.clear()
 
       //페이지 이동
       setTimeout(() => {
         console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
-      }, 100); // 데이터 저장 후 안전하게 페이지 이동
+      }, 200); // 데이터 저장 후 안전하게 페이지 이동
     }
 
     //혼자 남게 됐을 때 로직

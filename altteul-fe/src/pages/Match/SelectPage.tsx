@@ -4,35 +4,26 @@ import peopleIcon from "@assets/icon/People.svg";
 import logo from "@assets/icon/Altteul.svg";
 import "@styles/base/colors.css";
 import { useNavigate } from "react-router-dom";
-import { singleEnter, teamEnter } from "@utils/Api/matchApi";
+import { matchRoomEnter } from "@utils/Api/matchApi";
 import { useMatchStore } from "@stores/matchStore";
 
 const SelectPage = () => {
   const navigate = useNavigate();
-  const userId = Number(localStorage.getItem("userId"));
-  const { setLoading } = useMatchStore();
+  const matchStore = useMatchStore();
 
   const NextPage = async (type:string) => {
-    setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
+    matchStore.setLoading(true); //개인전 버튼 눌렀을 때, finally로 가기 전까지 응답이 오래걸리면 스피너 효과 적용
     try {
-      //API로 방 입장 시의 응답값을 받아온 뒤 세션에 저장
-      sessionStorage.setItem("matchData", await singleEnter(userId))
-
-      //개인전 입장
-      if(type === 'single') {
-        navigate("/match/single/search")
-      }
-
-      //팀전 입장
-      if(type === 'team') {
-        navigate(`/match/team/composition`)
-      }
+      //API로 방 입장 시의 응답값을 받아온 뒤 상태 update
+      const res = await matchRoomEnter(type)
+      matchStore.setMatchData(res.data)
+      type ==='single' ? navigate('/match/single/search') : navigate('/match/team/composition')
     }catch(error){
       console.log(error)
       // 에러페이지로 전환
       // navigate()
     } finally {
-      setLoading(false);
+      matchStore.setLoading(false);
     }
   }
 
