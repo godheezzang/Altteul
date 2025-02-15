@@ -19,44 +19,44 @@ const SingleIdePage = () => {
   const [sideProblemResult, setSideProblemResult] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
   const [userProgress, setUserProgress] = useState<Record<number, number>>({});
-  
+
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<'python' | 'java'>('python');
   const [showModal, setShowModal] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
   const [output, setOutput] = useState<string>('');
+  const { token } = useAuthStore();
 
   useEffect(() => {
-    if (!connected) {
+    if (!connected && token) {
       console.log('소켓 연결 안됨, 재연결');
       connect();
+      window.location.reload();
     } else {
       console.log('소켓 연결 됨');
-      
     }
   }, [connected, connect]);
 
   useEffect(() => {
     if (!connected) return;
-    
 
     // 사이드 문제 구독
-    subscribe(`/sub/${gameId}/${roomId}/side-problem/receive`, (data) => {
+    subscribe(`/sub/${gameId}/${roomId}/side-problem/receive`, data => {
       console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
     });
 
     // 사이드 문제 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, (data) => {
+    subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
     });
 
     // 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/team-submission/result`, (data) => {
+    subscribe(`/sub/${gameId}/${roomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
-      setCompleteUsers((prev) => {
+      setCompleteUsers(prev => {
         const newSet = new Set(prev);
         if (data.status === 'P' && data.passCount === data.totalCount) {
           newSet.add(Number(localStorage.getItem('userId')));
@@ -64,14 +64,15 @@ const SingleIdePage = () => {
         return newSet;
       });
 
-      setUserProgress((prev) => ({
+      setUserProgress(prev => ({
         ...prev,
-        [Number(localStorage.getItem('userId'))]: data.status === 'F' ? Math.round((data.passCount / data.totalCount) * 100) : 100
+        [Number(localStorage.getItem('userId'))]:
+          data.status === 'F' ? Math.round((data.passCount / data.totalCount) * 100) : 100,
       }));
     });
 
     // 상대 팀 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, (data) => {
+    subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, data => {
       console.log('📩 상대 코드 채점 결과 수신:', data);
     });
 
@@ -82,9 +83,8 @@ const SingleIdePage = () => {
 
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
-    sendMessage(`/pub/side/receive`, { gameId, teamId: roomId });    
-    console.log('gameId:', gameId, 'teamId:',roomId);
-    
+    sendMessage(`/pub/side/receive`, { gameId, teamId: roomId });
+
     console.log('📨 사이드 문제 요청 전송');
   };
 
@@ -98,14 +98,17 @@ const SingleIdePage = () => {
   useEffect(() => {
     if (requestCount >= MAX_REQUESTS) return;
 
-    const interval = setInterval(() => {
-      if (requestCount < MAX_REQUESTS) {
-        requestSideProblem();
-        setRequestCount((prev) => prev + 1);
-      } else {
-        clearInterval(interval);
-      }
-    }, 10 * 5 * 1000);
+    const interval = setInterval(
+      () => {
+        if (requestCount < MAX_REQUESTS) {
+          requestSideProblem();
+          setRequestCount(prev => prev + 1);
+        } else {
+          clearInterval(interval);
+        }
+      },
+      10 * 5 * 1000
+    );
 
     return () => clearInterval(interval);
   }, [requestCount]);
@@ -129,14 +132,19 @@ const SingleIdePage = () => {
           <IdeFooter code={code} language={language} setOutput={setOutput} />
         </div>
       </div>
-      
+
       <div className="grow max-w-[15rem] min-w-[15rem]">
         <GameUserList users={users} completeUsers={completeUsers} userProgress={userProgress} />
       </div>
 
       {/* ✅ 사이드 문제 모달 */}
       {showModal && sideProblem && (
-        <SideProblemModal gameId={gameId} roomId={roomId} problem={sideProblem?.data} onClose={() => setShowModal(false)} />
+        <SideProblemModal
+          gameId={gameId}
+          roomId={roomId}
+          problem={sideProblem?.data}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   );
