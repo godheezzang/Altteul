@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         PROJECT_NAME = 'altteul'
-        BUILD_NUMBER = '${env.BUILD_NUMBER}'
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
         GIT_REPO = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C203.git'
         GIT_BRANCH = 'master'
     }
@@ -13,9 +13,9 @@ pipeline {
         stage('Git Clone') {
             steps {
                 steps {
-                    git branch: ${GIT_BRANCH}
+                    git branch: "${GIT_BRANCH}"
                     credentialsId: 'C203'
-                    url: ${GIT_REPO}
+                    url: "${GIT_REPO}"
                 }
             }
         }
