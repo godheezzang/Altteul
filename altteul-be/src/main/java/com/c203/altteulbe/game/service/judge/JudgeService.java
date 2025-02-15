@@ -125,7 +125,7 @@ public class JudgeService {
 				.build();
 
 		} else {
-			 opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
 				.passCount(null)
 				.totalCount(null)
 				.build();
@@ -341,7 +341,6 @@ public class JudgeService {
 
 		// 포인트 내역 저장
 		pointHistoryService.savePointHistory(pointHistories);
-		// Todo : 제출 시 후처리
 	}
 }
 
