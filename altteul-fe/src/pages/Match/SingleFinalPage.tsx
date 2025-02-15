@@ -13,34 +13,38 @@ import useGameStore from '@stores/useGameStore';
 const SingleFinalPage = () => {
   const navigate = useNavigate();
   const matchStore = useMatchStore();
-  const gameStore = useGameStore()
-  const socket = useSocketStore()
+  const gameStore = useGameStore();
+  const socket = useSocketStore();
   const roomId = matchStore.matchData.roomId;
   const [leaderId] = useState(matchStore.matchData.leaderId);
   // Store에 저장된 데이터로 초기 세팅
-  const [waitUsers, setWaitUsers] = useState(matchStore.matchData.users.filter((user) => user.userId !== leaderId));
-  const [headUser, setHeadUser] = useState<User>(matchStore.matchData.users.find(user => user.userId === leaderId));
-  const [seconds, setSeconds] = useState<number>(10)  //응답 데이터로 렌더링 전 초기값(10) 설정
+  const [waitUsers, setWaitUsers] = useState(
+    matchStore.matchData.users.filter(user => user.userId !== leaderId)
+  );
+  const [headUser, setHeadUser] = useState<User>(
+    matchStore.matchData.users.find(user => user.userId === leaderId)
+  );
+  const [seconds, setSeconds] = useState<number>(10); //응답 데이터로 렌더링 전 초기값(10) 설정
 
   //구독처리
   useEffect(() => {
-    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage)
+    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage);
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage)정리 및 나가기 처리
     return () => {
-      console.log("singleFinalPage Out, 구독 취소")
-      singleOut(roomId)
-      socket.unsubscribe(`/sub/single/room/${roomId}`)
-    }
-  }, [roomId])
+      console.log('singleFinalPage Out, 구독 취소');
+      // singleOut(roomId);
+      socket.unsubscribe(`/sub/single/room/${roomId}`);
+    };
+  }, [roomId]);
 
   //소켓 응답 처리
-  const handleMessage = (message:socketResponseMessage) => {
+  const handleMessage = (message: socketResponseMessage) => {
     const { type, data } = message;
-    console.log(message)
+    console.log(message);
     if (type === 'LEAVE') {
       setWaitUsers(data.users.filter(user => user.userId !== leaderId));
-      setHeadUser(data.users.find(user => user.userId === leaderId))
+      setHeadUser(data.users.find(user => user.userId === leaderId));
     }
 
     //카운팅 응답 수신
@@ -50,29 +54,27 @@ const SingleFinalPage = () => {
 
     //게임 시작 응답 수신
     if (type === 'GAME_START') {
-
       //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
-      gameStore.setGameInfo(data.gameId, roomId)
-      gameStore.setUsers(data.users)
-      gameStore.setProblem(data.problem)
-      gameStore.setTestcases(data.testcases)
-
-      //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
-      matchStore.clear()
+      gameStore.setGameInfo(data.gameId, roomId);
+      gameStore.setUsers(data.users);
+      gameStore.setProblem(data.problem);
+      gameStore.setTestcases(data.testcases);
 
       //페이지 이동
       setTimeout(() => {
         console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
+        //IDE 이동 후 match에서 쓰는 데이터 삭제(필요 없음)
+        matchStore.clear();
       }, 200); // 데이터 저장 후 안전하게 페이지 이동
     }
 
     //혼자 남게 됐을 때 로직
-    if(type === "COUNTING_CANCEL") {
-      alert("대기 중 상대 유저가 연결을 종료했습니다.\n메인페이지로 이동합니다.")
-      navigate('/match/select')
+    if (type === 'COUNTING_CANCEL') {
+      alert('대기 중 상대 유저가 연결을 종료했습니다.\n메인페이지로 이동합니다.');
+      navigate('/match/select');
     }
-  }
+  };
   return (
     <div
       className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
