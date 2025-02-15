@@ -1,42 +1,17 @@
 // socketStore.ts
 import { create } from 'zustand';
 import SockJS from 'sockjs-client';
-import { CompatClient, Stomp, Frame, Message } from '@stomp/stompjs';
+import { Stomp, Frame, Message } from '@stomp/stompjs';
 import socketResponseMessage from 'types/socketResponseMessage';
 import useAuthStore from '@stores/authStore';
+import { SocketStore } from 'types/types';
 
-interface Subscription {
-  id: string;
-  callback: (data: any) => void;
-}
-
-interface SocketStore {
-  // 상태
-  client: CompatClient | null;
-  connected: boolean;
-  subscriptions: Map<string, Subscription>;
-  reconnectAttempts: number;
-  maxReconnectAttempts: number;
-
-  // 메서드
-  connect: () => void;
-  disconnect: () => void;
-  resetConnection: () => void;
-  subscribe: (destination: string, callback: (data: any) => void) => void;
-  unsubscribe: (destination: string) => void;
-  sendMessage: (destination: string, message: any) => void;
-  restoreSubscriptions: () => void;
-}
-
-// const SOCKET_URL = /ws || 'http://localhost:8080/ws';
-const SOCKET_URL = 'http://localhost:8080/ws';
+const SOCKET_URL = import.meta.env.MODE === 'production'
+  ? import.meta.env.VITE_SOCKET_URL_PROD
+  : import.meta.env.VITE_SOCKET_URL_DEV;
+  
 const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
-
-// const checkAuthStatus = () => {
-//   const accessToken = sessionStorage.getItem('token');
-//   return !!accessToken;
-// };
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   client: null,
