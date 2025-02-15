@@ -25,12 +25,34 @@ export interface GameState {
   gameId: number | null;
   roomId: number | null;
   users: User[];
+  myTeam: MatchData,
+  opponent: MatchData,
   problem: Problem | null;
   testcases: TestCase[];
-  setGameInfo: (gameId: number, leaderId: number) => void;
+
+  setGameInfo: (gameId: number, roomId: number) => void;
+  setGameId: (gameId: number) => void;
+  setroomId: (roomId: number) => void;
   setUsers: (users: User[]) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
+}
+
+export interface MatchState {
+  matchData: MatchData;
+  isLoading: boolean;
+  myTeam: MatchData;
+  opponent: MatchData;
+  matchId: string;
+  
+  setMatchData: (data: MatchData) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
+  setMathId: (matchId: string) => void;
+  clear: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
 type Language = 'python' | 'java';
@@ -65,8 +87,8 @@ export interface UserInfo {
 }
 export interface MatchData {
   gameId?: number;
-  roomId: number;
-  leaderId: number;
+  roomId?: number;
+  leaderId?: number;
   users?: User[];
   remainingUsers?: User[];
   problem?: Problem;
