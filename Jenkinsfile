@@ -64,7 +64,6 @@ pipeline {
 
                         # Redis 설정 파일 복사
                         mkdir -p resources/redis
-                        chmod 644 $REDIS_CONF_FILE
                         cp $REDIS_CONF_FILE resources/redis/redis.conf
 
                         # SQL 데이터 복사 (초기 데이터 로딩용)
