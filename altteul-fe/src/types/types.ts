@@ -1,4 +1,4 @@
-import { CompatClient } from "@stomp/stompjs";
+import { CompatClient } from '@stomp/stompjs';
 
 export interface User {
   roomId?: number;
@@ -27,6 +27,7 @@ export interface GameState {
   gameId: number | null;
   roomId: number | null;
   userRoomId: number | null;
+  matchId: string | null;
   users: User[];
   myTeam: MatchData;
   opponent: MatchData;
@@ -37,6 +38,7 @@ export interface GameState {
   setGameId: (gameId: number) => void;
   setroomId: (roomId: number) => void;
   setUserRoomId: (userRoomId: number) => void;
+  setMatchId: (matchId: string) => void;
   setUsers: (users: User[]) => void;
   setMyTeam: (data: MatchData) => void;
   setOpponent: (data: MatchData) => void;
