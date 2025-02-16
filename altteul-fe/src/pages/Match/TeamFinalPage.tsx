@@ -16,7 +16,7 @@ const TeamFinalPage = () => {
   const matchId = matchStore.matchId
   const alliance = matchStore.myTeam.users
   const opponent = matchStore.opponent.users
-  const [problemTitle, setProblemTitle] = useState<string>("")
+  const [problemTitle] = gameStore.problem.problemTitle
   const [displayText, setDisplayText] = useState(''); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0); //타이핑 효과 추적 변수
   const [seconds, setSeconds] = useState<number>(10); //응답 데이터로 렌더링 전 초기값(10) 설정
@@ -48,15 +48,10 @@ const TeamFinalPage = () => {
     }
 
     if (type === 'GAME_START') {
-      //현제 페이지 내의 문제 정보 setting
-      setProblemTitle(data.problem.problemTitle)
-
       //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
       gameStore.setGameId(data.gameId)
       gameStore.setMyTeam(data.team1)
       gameStore.setOpponent(data.team2)
-      gameStore.setProblem(data.problem)
-      gameStore.setTestcases(data.testcases)
 
       //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
       matchStore.clear()
