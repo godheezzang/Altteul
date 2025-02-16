@@ -9,13 +9,14 @@ interface IdeFooterProps {
   code: string;
   language: 'python' | 'java';
   setOutput: (output: string) => void;
+  userRoomId: number;
 }
 
 const convertLangToServerFormat = (language: 'python' | 'java'): 'PY' | 'JV' => {
   return language === 'python' ? 'PY' : 'JV';
 };
 
-const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
+const IdeFooter = ({ code, language, setOutput, userRoomId }: IdeFooterProps) => {
   const { gameId, roomId, problem } = useGameStore();
   const { token } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +54,7 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
           const results = data.testCases
             .map(
               (test: { testCaseNumber: number; status: string; output: string; answer: string }) =>
-                `테스트 케이스 ${test.testCaseNumber}: ${test.status}\n출력: ${test.output}\n입력: ${test.answer}`
+                `테스트 케이스 ${test.testCaseNumber}: ${test.status}\n출력: ${test.output}\n정답: ${test.answer}`
             )
             .join('\n\n');
 
@@ -75,7 +76,7 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
 
     sendMessage(`/pub/judge/submition`, {
       gameId: gameId,
-      teamId: roomId,
+      teamId: userRoomId,
       problemId: problem.problemId,
       lang: serverLang,
       code: code,
@@ -83,7 +84,7 @@ const IdeFooter = ({ code, language, setOutput }: IdeFooterProps) => {
   };
 
   return (
-    <div className="flex justify-end items-center p-2 bg-primary-black border-t border-gray-04">
+    <div className="flex justify-end items-center p-2 gap-2 bg-primary-black border-t border-gray-04">
       <SmallButton onClick={executeCode} children="코드 실행" backgroundColor="gray-04" />
       <SmallButton onClick={handleSubmitCode} children="코드 제출" type="submit" />
     </div>
