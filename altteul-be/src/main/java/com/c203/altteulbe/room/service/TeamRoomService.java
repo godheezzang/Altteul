@@ -333,8 +333,8 @@ public class TeamRoomService {
 		}
 
 		// 게임 시작 시 음성 채팅 세션 생성
-		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
-		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
+		voiceChatService.createTeamVoiceSession(matchId, roomId1);
+		voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
 		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
 		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
