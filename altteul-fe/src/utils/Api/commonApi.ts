@@ -4,8 +4,7 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
   : import.meta.env.VITE_API_URL_DEV;
-console.log('BASE_URL:', BASE_URL);
-console.log('NODE_ENV:', import.meta.env.MODE); 
+  
 const BASE_PATH = import.meta.env.VITE_API_BASE_PATH;
 
 // 기본 API 설정
@@ -31,4 +30,5 @@ const createApiInstance = (additionalPath = '') => {
 export const api = createApiInstance(); // 기본 api 인스턴스
 export const sigleApi = createApiInstance('single');
 export const teamApi = createApiInstance('team');
+export const rankApi = createApiInstance('ranking');
 export const authApi = api; // auth는 기본 api 인스턴스 사용

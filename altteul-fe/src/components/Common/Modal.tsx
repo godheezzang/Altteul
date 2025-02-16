@@ -33,11 +33,11 @@ const Modal = ({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-55 flex justify-center items-center z-50"
-      onMouseDown={handleClose}
+      onClick={handleClose}
     >
       <div
         className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
-        onMouseDown={e => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
         style={{ width, height }}
       >
         {title && (

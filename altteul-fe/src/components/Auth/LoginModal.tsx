@@ -7,13 +7,15 @@ import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import gitHubLogo from '@assets/icon/github_logo.svg';
 import { useSocketStore } from '@stores/socketStore';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
-  const { connect, resetConnection } = useSocketStore();
+  const { connect } = useSocketStore();
+  const navigate = useNavigate();
 
   const handleSignUpClick = () => {
     closeModal();
@@ -34,17 +36,19 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     }
 
     try {
+      //로그인 처리
       const response = await loginUser(form.username, form.password);
       const token = response.headers?.authorization || response.headers?.['authorization'];
       const userId = response.headers?.userid || response.headers?.['userid'];
       const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
-      resetConnection()  // 연결 전 소켓 초기화
-      connect() //로그인 성공시 소켓 연결
+      connect();
       closeModal();
+      navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
+      setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.');
     }
   };
 
@@ -67,7 +71,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           name="username"
           placeholder="아이디를 입력해 주세요"
           value={form.username}
-          className="mt-2 w-[22rem] mt-9"
+          className="w-[22rem] mt-9"
           onChange={handleChange}
         />
         <Input
@@ -76,8 +80,9 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           placeholder="비밀번호를 입력해 주세요"
           value={form.password}
           onChange={handleChange}
+          showPasswordToggle={true}
         />
-        {error && <p>{error}</p>}
+        {error && <p className="text-primary-orange">{error}</p>}
 
         <Button type="submit" className="h-[2.8rem] w-full hover:brightness-90">
           로그인

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
@@ -260,8 +258,28 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", matchIdPayload, BattleType.T);
 		log.info("matchId = {}", matchId);
 
+		// 문제 및 테스트케이스 조회
+		List<Long> problemIds = problemRepository.findAllProblemIds();
+		if (problemIds.isEmpty()) {
+			throw new ProblemNotFoundException();
+		}
+		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
+		Problem problemEntity = problemRepository.findById(randomProblemId)
+			.orElseThrow(ProblemNotFoundException::new);
+
+		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+
+		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
+		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
+			.map(GameStartForTestcaseDto::from)
+			.collect(Collectors.toList());
+
+		// 이후 DB에 저장하기 위해 문제 pk를 redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomProblem(matchId), String.valueOf(randomProblemId));
+
 		// 각 팀의 유저 정보를 가져오는 메소드 호출
-		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2));
+		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2),
+			problem, testcases);
 
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
@@ -318,16 +336,12 @@ public class TeamRoomService {
 		voiceChatService.createTeamVoiceSession(matchId, roomId1);
 		voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
-		// 문제 및 테스트케이스 조회
-		List<Long> problemIds = problemRepository.findAllProblemIds();
-		if (problemIds.isEmpty()) {
-			throw new ProblemNotFoundException();
-		}
-		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
-		Problem problemEntity = problemRepository.findById(randomProblemId)
-			.orElseThrow(ProblemNotFoundException::new);
+		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
+		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
+		Problem problemEntity = problemRepository.findById(Long.valueOf(problemId))
+			.orElseThrow(() -> new ProblemNotFoundException());
 
-		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+		redisTemplate.delete(RedisKeys.TeamRoomProblem(matchId));
 
 		// DB에 Game 저장
 		Game game = Game.create(problemEntity, BattleType.T);
@@ -335,24 +349,19 @@ public class TeamRoomService {
 
 		// DB에 TeamRoom 저장
 		TeamRoom teamRoom1 = TeamRoom.create(game);
-		teamRoomRepository.save(teamRoom1);
+		TeamRoom savedTeam1 = teamRoomRepository.save(teamRoom1);
 		saveUserTeamRooms(roomId1, teamRoom1);
 
 		TeamRoom teamRoom2 = TeamRoom.create(game);
-		teamRoomRepository.save(teamRoom2);
+		TeamRoom savedTeam2 = teamRoomRepository.save(teamRoom2);
 		saveUserTeamRooms(roomId2, teamRoom2);
 
 		// websocket으로 전송할 데이터 준비
-		RoomEnterResponseDto team1Dto = getRoomEnterResponseDto(roomId1);
-		RoomEnterResponseDto team2Dto = getRoomEnterResponseDto(roomId2);
-
-		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
-		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
-			.map(GameStartForTestcaseDto::from)
-			.collect(Collectors.toList());
+		RoomEnterResponseDto team1Dto = getRoomEnterResponseDtoForDB(roomId1, savedTeam1.getId());
+		RoomEnterResponseDto team2Dto = getRoomEnterResponseDtoForDB(roomId2, savedTeam2.getId());
 
 		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(
-			game.getId(), team1Dto, team2Dto, problem, testcases);
+			game.getId(), team1Dto, team2Dto);
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
 
@@ -369,6 +378,7 @@ public class TeamRoomService {
 	public void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
 
 		redisTemplate.opsForValue().set(RedisKeys.getRoomDbId(roomId), teamRoom.getId().toString());
+		redisTemplate.opsForValue().set(RedisKeys.getRoomRedisId(teamRoom.getId()), roomId.toString());
 
 		// Redis에서 유저 ID 조회
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
@@ -522,20 +532,21 @@ public class TeamRoomService {
 	/*
 	 * 팀 초대 수락 및 거절 처리
 	 */
-	public void handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
+	public RoomEnterResponseDto handleInviteReaction(InviteTeamAnswerRequestDto requestDto, Long friendId) {
 
 		User inviter = userRepository.findByNickname(requestDto.getNickname())
-								     .orElseThrow(() -> new NotFoundUserException());
+			.orElseThrow(() -> new NotFoundUserException());
 		Long userId = inviter.getUserId();
 		Long roomId = requestDto.getRoomId();
 		boolean accepted = requestDto.isAccepted();
 
 		String inviteKey = RedisKeys.inviteInfo(String.valueOf(roomId), String.valueOf(friendId));
+		String redisValue = (String)redisTemplate.opsForValue().get(inviteKey);
 
-		// 초대 만료 여부 확인
-		if (!Boolean.TRUE.equals(redisTemplate.hasKey(inviteKey))) {
+		if (redisValue == null) {
 			throw new AlreadyExpiredInviteException();
 		}
+
 		// 초대 정보 삭제
 		redisTemplate.delete(inviteKey);
 
@@ -560,17 +571,20 @@ public class TeamRoomService {
 			// 초대한 유저에게 수락 사실 전송, 초대받은 유저에게 수락 정상 처리 사실 전송
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + userId, "INVITE_ACCEPTED",
 				"초대를 수락했습니다.");
-			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + friendId, "INVITE_ACCEPTED",
-				"초대 수락 요청이 정상 처리되었습니다.");
 
 			// 방에 있는 모든 유저들에게 websocket으로 유저 정보 전송 (+ 초대된 유저 정보 포함)
 			roomWebSocketService.sendWebSocketMessage(String.valueOf(roomId), "ENTER", responseDto, BattleType.T);
+
+			// 초대 받은 유저에게 방에 있는 유저들에 대한 정보 전송
+			return responseDto;
+
 		} else {
 			// 거절한 경우
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + userId, "INVITE_REJECTED",
 				"초대를 거절했습니다.");
 			roomWebSocketService.sendWebSocketMessageWithNote("/sub/invite/" + friendId, "INVITE_REJECTED",
 				"초대 거절 요청이 정상 처리되었습니다.");
+			return null;
 		}
 	}
 
@@ -579,20 +593,29 @@ public class TeamRoomService {
 	/**
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
 	 */
-	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2) {
+	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2,
+		GameStartForProblemDto problem,
+		List<GameStartForTestcaseDto> testcases) {
 		RoomEnterResponseDto responseDto1 = getRoomEnterResponseDto(roomId1);
 		RoomEnterResponseDto responseDto2 = getRoomEnterResponseDto(roomId2);
-		return TeamMatchResponseDto.toDto(responseDto1, responseDto2);
+		return TeamMatchResponseDto.toDto(responseDto1, responseDto2, problem, testcases);
 	}
 
-	/**
-	 * 특정 팀의 유저 정보를 조회하여 RoomEnterResponseDto로 변환하는 메소드
-	 */
 	private RoomEnterResponseDto getRoomEnterResponseDto(Long roomId) {
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
 		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
 		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		return teamRoomRedisRepository.convertToRoomEnterResponseDto(roomId, leaderId, userIds);
+	}
+
+	/**
+	 * 특정 팀의 유저 정보를 조회하여 RoomEnterResponseDto로 변환하는 메소드
+	 */
+	private RoomEnterResponseDto getRoomEnterResponseDtoForDB(Long roomId, Long savedId) {
+		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
+		String leaderId = redisTemplate.opsForList().index(roomUsersKey, 0);
+		List<String> userIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
+		return teamRoomRedisRepository.convertToRoomEnterResponseDto(savedId, leaderId, userIds);
 	}
 
 	/**

@@ -6,11 +6,14 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - "80:80"
+      - "443:443"
     environment:
       - NODE_ENV=production
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - backend
-    networks:  # 이 부분 추가
+    networks: # 이 부분 추가
       - altteul-ie-network  # backend와 같은 네트워크 사용
 
   backend:
@@ -21,7 +24,7 @@ services:
       dockerfile: dockerfile.be
     working_dir: /app
     ports:
-      - "9000:8080"
+      - "8081:8080"
     volumes:
       - gradle_cache:/home/gradle/.gradle
     environment:
@@ -96,13 +99,15 @@ services:
     tmpfs:
       - /tmp
     volumes:
-      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ${PROD_TESTCASE_ROOT}:/test_case:ro
       - ./resources/judge/data/judge_server/log:/log
       - ./resources/judge/data/judge_server/run:/judger
     environment:
       - SERVICE_URL=${PROD_JUDGE_SERVER_URL}
       - BACKEND_URL=${PROD_SERVER_URL}/api/judge/check
       - TOKEN=${SECRET_KEY}
+    networks: #사용할 네트워크 지정
+      - altteul-ie-network
 
 volumes:
   mysql_dev_data:

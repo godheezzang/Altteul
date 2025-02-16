@@ -1,9 +1,15 @@
 // src/components/common/Modal/AdditionalModal.tsx
-import React from "react";
-import Modal from "@components/Common/Modal";
-import Button from "@components/Common/Button/Button";
-import useModalStore from "@stores/modalStore";
-import { MODAL_TYPES, GAME_TYPES, COMMON_MODAL_TYPES, GameType, CommonModalType } from "types/modalTypes";
+import React from 'react';
+import Modal from '@components/Common/Modal';
+import Button from '@components/Common/Button/Button';
+import useModalStore from '@stores/modalStore';
+import {
+  MODAL_TYPES,
+  GAME_TYPES,
+  COMMON_MODAL_TYPES,
+  GameType,
+  CommonModalType,
+} from 'types/modalTypes';
 
 type AdditionalModalProps = {
   isOpen: boolean;
@@ -19,17 +25,17 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
   const getModalConfig = () => {
     if (modalType === COMMON_MODAL_TYPES.CODE) {
       return {
-        title: "상대 팀 코드",
+        title: '상대 팀 코드',
         content: `print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")
         print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")
-        print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")`
+        print("hello world")print("hello world")print("hello world")print("hello world")print("hello world")`,
       };
     } else {
       return {
-        title: "AI 코칭 결과",
+        title: 'AI 코칭 결과',
         content: `안녕하세요! 코드를 살펴보니, 현재 이중 for문을 이용해서 시간 복잡도가 O(n^2)에 해당하는 전형적인 LIS 알고리즘을 사용 중이네요.
         정확성: 로직 자체는 입력받은 배열 arr에 대해, 각 원소 앞쪽의 모든 원소와 비교하며 dp 값을 갱신하기 때문에 문제 요구사항에 맞게 동작할 것으로 보입니다.
-        효율성: n의 최댓값이 매우 클 경우, O(n^2) 알고리즘은 시간이 많이 걸릴 수 있습니다. 만약 더 빠른 해법이 필요하면 이분 탐색을 응용한 O(n log n) 알고리즘을 고려해볼 수도 있겠습니다. (정답 코드 제공은 생략합니다.)`
+        효율성: n의 최댓값이 매우 클 경우, O(n^2) 알고리즘은 시간이 많이 걸릴 수 있습니다. 만약 더 빠른 해법이 필요하면 이분 탐색을 응용한 O(n log n) 알고리즘을 고려해볼 수도 있겠습니다. (정답 코드 제공은 생략합니다.)`,
       };
     }
   };

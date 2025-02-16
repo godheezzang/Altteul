@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import FriendModal from '@components/Friend/FriendModal';
 import FriendListItem from '@components/Friend/FriendListItem';
 import { useUserSearch } from 'contexts/UserSearchContext';
-import { useFriendWebSocket } from 'Hooks/useFriendWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 
 type UserSearchModalProps = {
@@ -12,15 +11,6 @@ type UserSearchModalProps = {
 
 const UserSearchModal = ({ isOpen, onClose }: UserSearchModalProps) => {
   const { searchResults } = useUserSearch();
-  const { setKeepConnection } = useSocketStore();
-
-  // 모달이 열릴 때 소켓 연결 유지
-  useEffect(() => {
-    if (isOpen) {
-      setKeepConnection(true);
-    }
-    return () => setKeepConnection(false);
-  }, [isOpen]);
 
   return (
     <FriendModal isOpen={isOpen} onClose={onClose}>

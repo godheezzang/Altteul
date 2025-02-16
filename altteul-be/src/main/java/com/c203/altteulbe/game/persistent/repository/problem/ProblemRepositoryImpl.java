@@ -2,6 +2,7 @@ package com.c203.altteulbe.game.persistent.repository.problem;
 
 import static com.c203.altteulbe.game.persistent.entity.QLangLimit.*;
 import static com.c203.altteulbe.game.persistent.entity.problem.QProblem.*;
+import static com.c203.altteulbe.game.persistent.entity.problem.QTestcase.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,17 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom {
 				.selectFrom(problem)
 				.leftJoin(langLimit).on(problem.id.eq(langLimit.problem.id)).fetchJoin()
 				.where(problem.id.eq(problemId).and(langLimit.lang.eq(language)))
+				.fetchOne()
+		);
+	}
+
+	@Override
+	public Optional<Problem> findWithExamplesByProblemId(Long problemId) {
+		return Optional.ofNullable(
+			queryFactory
+				.selectFrom(problem)
+				.leftJoin(testcase).on(problem.id.eq(testcase.problem.id)).fetchJoin()
+				.where(problem.id.eq(problemId).and(testcase.number.in(1, 2)))
 				.fetchOne()
 		);
 	}

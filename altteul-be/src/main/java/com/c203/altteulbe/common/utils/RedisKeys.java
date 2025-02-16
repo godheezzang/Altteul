@@ -31,18 +31,20 @@ public class RedisKeys {
 
 	public static final String ROOM_DB_ID = "room:db_id";
 
+	public static final String ROOM_REDIS_ID = "room:redis_id";
+
 	public static String getRoomDbId(Long roomId) {
 		return ROOM_DB_ID + ":" + roomId;
 	}
 
 	// 팀 보이스 참가자 키
-	public static String getVoiceParticipantsKey(Long roomId) {
-		return VOICE_PARTICIPANTS + ":" + roomId;
+	public static String getVoiceParticipantsKey(Long roomUUID) {
+		return VOICE_PARTICIPANTS + ":" + roomUUID;
 	}
 
 	// 음성 채팅 세선 키
-	public static String getVoiceSessionKey(Long roomId) {
-		return VOICE_SESSION + ":" + roomId;
+	public static String getVoiceSessionKey(Long roomUUID) {
+		return VOICE_SESSION + ":" + roomUUID;
 	}
 
 	// 친구 요청 키
@@ -110,8 +112,17 @@ public class RedisKeys {
 		return "room:team:" + roomId + ":countdown";
 	}
 
+	// 특정 matchId를 가진 팀들이 풀어야 하는 문제 pk 관리
+	public static String TeamRoomProblem(String matchId) {
+		return "room:team:" + matchId + ":problem";
+	}
+
 	// 초대 정보 저장
 	public static String inviteInfo(String roomId, String friendId) {
 		return "invite:room:" + roomId + ":user:" + friendId;
+	}
+
+	public static String getRoomRedisId(Long roomId) {
+		return ROOM_REDIS_ID + ":" + roomId;
 	}
 }

@@ -1,13 +1,64 @@
 import useGameStore from '@stores/useGameStore';
+import { ReactNode } from 'react';
+import parse, { DOMNode, domToReact } from 'html-react-parser';
 
 const ProblemInfo = () => {
   const { problem, testcases } = useGameStore();
 
-  const htmlString = problem.description
-
   if (!problem || !testcases) {
     return null;
   }
+
+  const options = {
+    replace: (domNode: DOMNode, index: number) => {
+      if (
+        'type' in domNode &&
+        domNode.type === 'tag' &&
+        'name' in domNode &&
+        domNode.name === 'pre'
+      ) {
+        return (
+          <>
+            <h3
+              key={`h3-${index}`}
+              style={{
+                marginTop: '2rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </h3>
+            <p
+              key={`p-${index}`}
+              style={{
+                marginTop: '2rem',
+                marginBottom: '1rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </p>
+            <img
+              key={`img-${index}`}
+              style={{
+                marginBottom: '1rem',
+              }}
+            />
+            <pre
+              key={`pre-${index}`}
+              style={{
+                marginTop: '2rem',
+                backgroundColor: '#292F37',
+                padding: '1rem',
+                maxWidth: '100%',
+                textWrap: 'pretty',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </pre>
+          </>
+        );
+      }
+    },
+  };
 
   return (
     <div>
@@ -17,7 +68,9 @@ const ProblemInfo = () => {
       <div className="max-h-[30rem] min-h-[20rem] overflow-y-auto p-4 border-b border-gray-04">
         <p className="mb-3 text-sm font-semibold text-gray-02">문제 설명 </p>
         {/* <p className="text-md font-regular">{problem.description}</p> */}
-        <div className="text-md font-regular" dangerouslySetInnerHTML={{ __html: htmlString }} />
+        <div className="text-md font-regular">
+          {parse(problem.description, options) as ReactNode}
+        </div>
       </div>
 
       <div className="p-4">
