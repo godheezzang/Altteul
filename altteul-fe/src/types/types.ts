@@ -128,6 +128,15 @@ export interface Ranking {
   rate: number;
 }
 
+export interface RankApiFilter {
+  page: number | null;
+  size: number | null;
+  lang: string | null;
+  tierId: number | null;
+  nickname: string | null;
+}
+
+
 export interface UserGameRecordResponse {
   status: number;
   message: string;
