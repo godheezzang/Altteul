@@ -6,6 +6,7 @@ import Dropdown from "@components/Common/Dropdown";
 import RankingItem from "@components/Ranking/RankingItem";
 import { getRank } from "@utils/Api/rankApi";
 import type { RankApiFilter, RankingResponse } from "types/types";
+import { badges, BadgeFilter } from "@components/Ranking/BadgeFilter";
 
 // 메인 랭킹 페이지 컴포넌트
 const RankingPage = () => {
@@ -26,14 +27,6 @@ const RankingPage = () => {
     { id: 0, value: "", label: "전체" },
     { id: 1, value: "PY", label: "Python" },
     { id: 2, value: "JV", label: "Java" },
-  ];
-  
-  const badges = [
-    { id: 1, name: "bronze", src: "/src/assets/icon/Badge/1_bronze.svg" },
-    { id: 2, name: "silver", src: "/src/assets/icon/Badge/2_silver.svg" },
-    { id: 3, name: "gold", src: "/src/assets/icon/Badge/3_gold.svg" },
-    { id: 4, name: "platinum", src: "/src/assets/icon/Badge/4_platinum.svg" },
-    { id: 5, name: "diamond", src: "/src/assets/icon/Badge/5_diamond.svg" },
   ];
   
   const filter: RankApiFilter = useMemo(() => ({
@@ -123,12 +116,9 @@ const RankingPage = () => {
       <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
         <div className="flex justify-between items-center mb-2 mt-12">
           <div className="flex gap-3">
-          {badges.map((badge) => (
-            <img
-              key={badge.id}
-              src={badge.src}
-              alt={badge.name}
-              className="cursor-pointer hover:scale-110 transition-transform"
+          {badges.reverse().map((badge) => (
+            <BadgeFilter
+              tierId={badge.id}
               onClick={() => handleTier(badge.id)}
             />
           ))}
