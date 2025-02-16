@@ -3,6 +3,8 @@ package com.c203.altteulbe.game.web.dto.judge.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.c203.altteulbe.game.persistent.entity.problem.Problem;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +19,7 @@ public class CodeExecutionResponseDto {
 	private String message;
 	private boolean isNotCompileError;
 
-	public static CodeExecutionResponseDto from(JudgeResponse judgeResponse) {
+	public static CodeExecutionResponseDto from(JudgeResponse judgeResponse, Problem problem) {
 		String message = null;
 		boolean isNotCompileError = true;
 		List<ExampleResponseDto> testCaseResponses = null;
@@ -26,8 +28,8 @@ public class CodeExecutionResponseDto {
 		if (judgeResponse.isNotCompileError()) {
 			testCaseResponses = new ArrayList<>();
 			List<TestCaseResult> testCaseResults = judgeResponse.testDataGetter();
-			for (int i = 0; i < testCaseResults.size(); i++) {
-				TestCaseResult testCaseResult = testCaseResults.get(i);
+			for (int i = 1; i <= testCaseResults.size(); i++) {
+				TestCaseResult testCaseResult = testCaseResults.get(i-1);
 				String status = null;
 				switch (testCaseResult.getResultEnum()) {
 					case P -> status = "P";
@@ -38,11 +40,11 @@ public class CodeExecutionResponseDto {
 				}
 
 				testCaseResponses.add(ExampleResponseDto.builder()
-					.testCaseId((long) (i + 1))
-					.testCaseNumber(i + 1)
+					.testCaseId((long) (i))
+					.testCaseNumber(i)
 					.status(status)
-					.output(testCaseResult.getOutput())
-					.answer("asdf")
+					.output(testCaseResult.getOutput().stripTrailing()) // stripTrailing() : 문자열 끝의 공백 제거
+					.answer(problem.getTestcases().get(i-1).getOutput())
 					.build());
 			}
 		} else {

@@ -9,4 +9,6 @@ import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 public interface ProblemRepositoryCustom {
 	List<Long> findAllProblemIds();
 	Optional<Problem> findWithLangByProblemIdAndLang(Long problemId, Language language);
+
+	Optional<Problem> findWithExamplesByProblemId(Long problemId);
 }

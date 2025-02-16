@@ -15,7 +15,6 @@ import com.c203.altteulbe.game.web.dto.judge.request.GetHeartbeatRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.request.SubmitCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.judge.response.CodeExecutionResponseDto;
 import com.c203.altteulbe.game.web.dto.judge.response.GetHeartbeatResponse;
-import com.c203.altteulbe.game.web.dto.judge.response.JudgeResponse;
 import com.c203.altteulbe.game.web.dto.judge.response.PingResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -40,11 +39,6 @@ public class JudgeController {
 	@PostMapping("/judge/ping")
 	public ApiResponseEntity<ResponseBody.Success<PingResponse>> checkServerStatus() {
 		return ApiResponse.success(judgeService.getSystemInfo());
-	}
-
-	@PostMapping("/judge/submit")
-	public ApiResponseEntity<ResponseBody.Success<JudgeResponse>> submitCode(@RequestBody SubmitCodeRequestDto request) {
-		return ApiResponse.success(judgeService.submitToJudge(request, "problem_"));
 	}
 
 	@PostMapping("/judge/execution")
