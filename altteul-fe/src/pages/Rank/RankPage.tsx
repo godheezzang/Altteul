@@ -12,10 +12,9 @@ import { badges, BadgeFilter } from "@components/Ranking/BadgeFilter";
 const RankingPage = () => {
   const [searchNickname, setSearchNickname] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [tier, setTier] = useState(null);
+  const [tier, setTier] = useState<number | null>(null);
   const [rankings, setRankings] = useState([]);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
   const [last, setLast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [ref, inView] = useInView({
@@ -40,13 +39,11 @@ const RankingPage = () => {
   const resetPagination = () => {
     setPage(0);
     setRankings([]);
-    setTotalPages(1);
     setLast(false);
   };
 
 
   const rankListUpdate = async () => {
-    console.log(isLoading);
     if (isLoading || last) return;
     
     try {
@@ -54,7 +51,6 @@ const RankingPage = () => {
       const response: RankingResponse = await getRank(filter);
       
       // 백엔드로부터 받은 페이지네이션 정보 업데이트
-      setTotalPages(response.data.totalPages);
       setLast(response.data.last);
       
       if (page === 0) {
@@ -88,9 +84,12 @@ const RankingPage = () => {
   };
   
   const handleTier = (tierId: number) => {
-    setTier(tierId);
-    resetPagination();
-    rankListUpdate();
+    setTier(prevTier => {
+      const newTier = prevTier !== tierId ? tierId : null;
+      resetPagination();
+      rankListUpdate();
+      return newTier;
+    });
   };
   
   const handleSearch = () => {
@@ -118,9 +117,10 @@ const RankingPage = () => {
           <div className="flex gap-3">
           {badges.slice(1).reverse().map((badge) => (
             <BadgeFilter
-              key={badge.id} // 각 요소에 고유한 key를 추가해줘
-              tierId={badge.id}
-              onClick={() => handleTier(badge.id)}
+            key={badge.id}
+            tierId={badge.id}
+            onClick={handleTier}
+            selectedTier={tier}
             />
           ))}
           </div>

@@ -16,21 +16,24 @@ const badges = [
 
 interface BadgeFilterProps {
   tierId: number;
+  selectedTier: number;
   onClick: (tierId: number) => void;
 }
 
-const BadgeFilter = ({ tierId, onClick }: BadgeFilterProps) => {
+const BadgeFilter = ({ tierId, selectedTier, onClick }: BadgeFilterProps) => {
   const badge = badges[tierId];
 
-  if (!badge) return null; // 잘못된 tierId일 경우 아무것도 렌더링하지 않음.
+  if (!badge) return null;
 
   return (
     <img
       key={badge.id}
       src={badge.src}
       alt={badge.name}
-      className="cursor-pointer hover:scale-110 transition-transform"
-      onClick={() => onClick(tierId)} // onClick이 전달된 경우에만 실행
+      className={`cursor-pointer transition-transform ${
+        selectedTier === tierId ? 'scale-110' : 'hover:scale-110'
+      }`}
+      onClick={() => onClick(tierId)}
     />
   );
 };
