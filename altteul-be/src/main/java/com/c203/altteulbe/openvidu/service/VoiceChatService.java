@@ -129,7 +129,6 @@ public class VoiceChatService {
 			redisTemplate.delete(RedisKeys.getVoiceSessionKey(roomUUID));
 			redisTemplate.delete(RedisKeys.getVoiceParticipantsKey(roomUUID));
 
-			log.info("Team {} voice session terminated", roomUUID);
 		} catch (Exception e) {
 			log.error("Failed to terminate voice session for team {}", roomUUID, e);
 		}

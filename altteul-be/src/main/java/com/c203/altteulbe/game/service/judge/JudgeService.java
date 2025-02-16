@@ -227,6 +227,11 @@ public class JudgeService {
 			.count();
 		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
 
+		// 팀전의 경우 모든 팀의 결과가 나왔으므로 바로 게임 완료 처리
+		if (game.getBattleType() == BattleType.T) {
+			game.completeGame();
+		}
+
 		/**
 		 * 배틀 포인트 정산 (여기까지 왔다는 것은 FAIL이 없다는 뜻)
 		 * 1. BattleResult - 1 : 승리 포인트 50 + 클리어 포인트 100 + 사이드 문제 풀이 내역 조회 후 포인트 개당 20
