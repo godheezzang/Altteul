@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 import Input from '@components/Common/Input';
 import Modal from '@components/Common/Modal';
