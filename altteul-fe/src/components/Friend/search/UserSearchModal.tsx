@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react';
 import FriendModal from '@components/Friend/FriendModal';
 import FriendListItem from '@components/Friend/FriendListItem';
-
-import { useUserSearch } from 'Contexts/UserSearchContext';
-import { useFriendWebSocket } from 'Hooks/useFriendWebSocket';
-
+import { useUserSearch } from 'contexts/UserSearchContext';
 import { useSocketStore } from '@stores/socketStore';
 
 type UserSearchModalProps = {
@@ -27,8 +24,8 @@ const UserSearchModal = ({ isOpen, onClose }: UserSearchModalProps) => {
               nickname={user.nickname}
               profileImg={user.profileImage}
               isOnline={false}
-              // 친구가 아닌 경우에만 버튼 표시
-              showFriendRequest={!user.isFriend}
+              onInvite={undefined}
+              isInviting={false}
             />
           ))
         ) : (
@@ -38,5 +35,3 @@ const UserSearchModal = ({ isOpen, onClose }: UserSearchModalProps) => {
     </FriendModal>
   );
 };
-
-export default UserSearchModal;
