@@ -7,6 +7,7 @@ import IdeFooter from '@components/Ide/IdeFooter';
 import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import useAuthStore from '@stores/authStore';
+import resize from '@assets/icon/resize.svg';
 
 const MAX_REQUESTS = 5;
 
@@ -127,10 +128,10 @@ const TeamIdePage = () => {
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
-      <div className="flex grow mt-4 max-w-full">
+      <div className="flex grow mt-4 max-w-full box-border">
         <div
-          className="shrink-0 border-r pr-4 border-gray-04"
-          style={{ width: `${leftPanelWidth}%` }}
+          className="border-r pr-4 border-gray-04"
+          style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
           <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
@@ -145,12 +146,12 @@ const TeamIdePage = () => {
           </div>
         </div>
         <div
-          className="w-2 cursor-ew-resize bg-gray-03 hover:bg-gray-04 transition"
+          className="w-2 cursor-ew-resize bg-gray-03 hover:bg-gray-04 transition shrink-0 rounded-lg flex items-center justify-center"
           onMouseDown={handleResizeEditor}
         >
-          -
+          <img src={resize} alt="코드 너비 조정" />
         </div>
-        <div className="shrink-0" style={{ width: `${100 - leftPanelWidth}%` }}>
+        <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
           <CodeEditor code={opponentCode} setCode={() => {}} language={language} readOnly={true} />
         </div>
