@@ -31,9 +31,9 @@ const TeamIdePage = () => {
       <div className="flex-[50rem] max-w-[50rem] border-r border-gray-04">
         <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
         <Terminal output={output} />
-        <div className="text-center">
+        {/* <div className="text-center">
           <IdeFooter code={code} language={language} setOutput={setOutput} />
-        </div>
+        </div> */}
       </div>
 
       <div className="w-[50rem] border-l border-gray-04">

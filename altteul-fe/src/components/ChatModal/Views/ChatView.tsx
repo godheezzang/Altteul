@@ -26,7 +26,7 @@ const ChatView = ({ friendId, onBack }: ChatViewProps) => {
       try {
         setIsLoading(true);
         const response = await getChatRoom(friendId);
-        setChatRoom(response.data);
+        //setChatRoom(response.data);
       } catch (error) {
         console.error('채팅방 로드 실패:', error);
         setError('채팅방을 불러오는데 실패했습니다.');

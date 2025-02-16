@@ -3,10 +3,10 @@ import React, { useState, ReactNode, useEffect } from 'react';
 import BaseModal from '@components/Friend/friend_common/Basemodal';
 import SearchBar from '@components/Common/SearchBar';
 import Navigation from '@components/Friend/friend_common/Navigation';
-import FriendListContent from '@components/Friend/FriendListContent';
+// import FriendListContent from '@components/Friend/FriendListContent';
 import ChatListContent from '@components/Friend/chat/ChatListContent';
 import NotificationAndRequestModal from '@components/Friend/NotificationAndRequestModal';
-import FriendChatModal from '@components/Friend/FriendChatModal';
+// import FriendChatModal from '@components/Friend/FriendChatModal';
 
 type FriendModalProps = {
   isOpen: boolean;
@@ -56,8 +56,8 @@ const FriendModal = ({ isOpen, onClose, children, showSearch = true }: FriendMod
     }
 
     switch (currentTab) {
-      case 'friends':
-        return <FriendListContent searchQuery={searchQuery} />;
+      // case 'friends':
+      //   return <FriendListContent searchQuery={searchQuery} />;
       case 'chat':
         return (
           <ChatListContent

@@ -1,4 +1,4 @@
-import ModalHeader from '@components/Friend/Friend_common/ModalHeader';
+import ModalHeader from '@components/Friend/friend_common/ModalHeader';
 import React from 'react';
 
 type BaseModalProps = {

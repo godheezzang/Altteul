@@ -2,7 +2,7 @@ import GameGnb from '@components/Nav/GameGnb';
 import MainGnb from '@components/Nav/MainGnb';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ModalManager from '@components/Common/ModalManager';
-import { UserSearchProvider } from 'Contexts/UserSearchContext';
+import { UserSearchProvider } from 'contexts/UserSearchContext';
 import { useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import { inviteResponse } from '@utils/Api/matchApi';

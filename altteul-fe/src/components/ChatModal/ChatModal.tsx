@@ -1,7 +1,7 @@
 // 메인 모달 컴포넌트
 // src/components/Modal/Chat/ChatModal.tsx
 import { useEffect, useState } from 'react';
-import BaseModal from '@components/Friend/Friend_common/Basemodal';
+import BaseModal from '@components/Friend/friend_common/Basemodal';
 import Navigation from '@components/ChatModal/Shared/Navigation';
 import MainView from '@components/ChatModal/Views/MainView.tsx';
 import ChatView from '@components/ChatModal/Views/ChatView';
@@ -46,13 +46,13 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps) => {
         {/* Header: 검색바 (친구/채팅 탭에서만 표시) */}
         {currentView === 'main' && (currentTab === 'friends' || currentTab === 'chats') && (
           <div className="p-4">
-            <SearchBar
+            {/* <SearchBar
               onSearchResult={result => {
                 // API 결과를 받은 후 필요한 작업을 수행
                 console.log('검색 결과:', result);
               }}
               placeholder={currentTab === 'friends' ? '유저를 검색하세요.' : '채팅방을 검색하세요.'}
-            />
+            /> */}
           </div>
         )}
 

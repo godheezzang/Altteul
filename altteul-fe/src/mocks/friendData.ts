@@ -3,48 +3,48 @@ import PeopleIcon from '@assets/icon/People.svg';
 import { ChatMessage, ChatRoom, Friend, FriendRequest, NotificationItem } from 'types/types';
 
 export const mockFriends: Friend[] = [
-  {
-    userId: 1654,
-    nickname: '매리오',
-    profileImg: PeopleIcon,
-    isOnline: true,
-  },
-  {
-    userId: 1655,
-    nickname: '루이지',
-    profileImg: PeopleIcon,
-    isOnline: false,
-  },
-  {
-    userId: 1656,
-    nickname: '피치공주',
-    profileImg: PeopleIcon,
-    isOnline: true,
-  },
-  {
-    userId: 1657,
-    nickname: '요시',
-    profileImg: PeopleIcon,
-    isOnline: true,
-  },
-  {
-    userId: 1658,
-    nickname: '쿠파',
-    profileImg: PeopleIcon,
-    isOnline: false,
-  },
-  {
-    userId: 1659,
-    nickname: '도널드',
-    profileImg: PeopleIcon,
-    isOnline: true,
-  },
-  {
-    userId: 1660,
-    nickname: '미키',
-    profileImg: PeopleIcon,
-    isOnline: false,
-  },
+  // {
+  //   userId: 1654,
+  //   nickname: '매리오',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  // },
+  // {
+  //   userId: 1655,
+  //   nickname: '루이지',
+  //   profileImg: PeopleIcon,
+  //   isOnline: false,
+  // },
+  // {
+  //   userId: 1656,
+  //   nickname: '피치공주',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  // },
+  // {
+  //   userId: 1657,
+  //   nickname: '요시',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  // },
+  // {
+  //   userId: 1658,
+  //   nickname: '쿠파',
+  //   profileImg: PeopleIcon,
+  //   isOnline: false,
+  // },
+  // {
+  //   userId: 1659,
+  //   nickname: '도널드',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  // },
+  // {
+  //   userId: 1660,
+  //   nickname: '미키',
+  //   profileImg: PeopleIcon,
+  //   isOnline: false,
+  // },
 ];
 
 export const mockFriendRequests: FriendRequest[] = [
@@ -72,42 +72,42 @@ export const mockFriendRequests: FriendRequest[] = [
 ];
 
 export const mockChatRooms: ChatRoom[] = [
-  {
-    friendId: 1654,
-    nickname: '매리오',
-    profileImg: PeopleIcon,
-    isOnline: true,
-    recentMessage: '점프할 준비 됐어!',
-    isMessageRead: false,
-    createdAt: '2024.02.10 14:30:00',
-  },
-  {
-    friendId: 1655,
-    nickname: '루이지',
-    profileImg: PeopleIcon,
-    isOnline: false,
-    recentMessage: '오늘 같이 게임할래?',
-    isMessageRead: true,
-    createdAt: '2024.02.09 11:45:00',
-  },
-  {
-    friendId: 1656,
-    nickname: '피치공주',
-    profileImg: PeopleIcon,
-    isOnline: true,
-    recentMessage: '성에서 놀러와!',
-    isMessageRead: false,
-    createdAt: '2024.02.08 16:20:00',
-  },
-  {
-    friendId: 1659,
-    nickname: '도널드',
-    profileImg: PeopleIcon,
-    isOnline: true,
-    recentMessage: '디즈니랜드 언제 갈거야?',
-    isMessageRead: true,
-    createdAt: '2024.02.07 10:15:00',
-  },
+  // {
+  //   friendId: 1654,
+  //   nickname: '매리오',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  //   recentMessage: '점프할 준비 됐어!',
+  //   isMessageRead: false,
+  //   createdAt: '2024.02.10 14:30:00',
+  // },
+  // {
+  //   friendId: 1655,
+  //   nickname: '루이지',
+  //   profileImg: PeopleIcon,
+  //   isOnline: false,
+  //   recentMessage: '오늘 같이 게임할래?',
+  //   isMessageRead: true,
+  //   createdAt: '2024.02.09 11:45:00',
+  // },
+  // {
+  //   friendId: 1656,
+  //   nickname: '피치공주',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  //   recentMessage: '성에서 놀러와!',
+  //   isMessageRead: false,
+  //   createdAt: '2024.02.08 16:20:00',
+  // },
+  // {
+  //   friendId: 1659,
+  //   nickname: '도널드',
+  //   profileImg: PeopleIcon,
+  //   isOnline: true,
+  //   recentMessage: '디즈니랜드 언제 갈거야?',
+  //   isMessageRead: true,
+  //   createdAt: '2024.02.07 10:15:00',
+  // },
 ];
 
 export const mockChatMessages: ChatMessage[] = [
@@ -181,39 +181,39 @@ export const mockFriendRequestListResponse = {
 // 기존 mockFriends, mockFriendRequests 등은 그대로 유지
 
 export const mockNotifications: NotificationItem[] = [
-  {
-    id: 1,
-    type: 'friendRequest',
-    from: {
-      id: 1656,
-      nickname: '피치공주',
-      profileImg: PeopleIcon,
-      isOnline: true,
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    type: 'gameInvite',
-    from: {
-      id: 1657,
-      nickname: '요시',
-      profileImg: PeopleIcon,
-      isOnline: true,
-    },
-    roomId: 1, // 게임 초대의 경우 roomId 추가
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    type: 'gameInvite',
-    from: {
-      id: 1659,
-      nickname: '도널드',
-      profileImg: PeopleIcon,
-      isOnline: true,
-    },
-    roomId: 2, // 게임 초대의 경우 roomId 추가
-    createdAt: new Date().toISOString(),
-  },
+  // {
+  //   id: 1,
+  //   type: 'friendRequest',
+  //   from: {
+  //     id: 1656,
+  //     nickname: '피치공주',
+  //     profileImg: PeopleIcon,
+  //     isOnline: true,
+  //   },
+  //   createdAt: new Date().toISOString(),
+  // },
+  // {
+  //   id: 2,
+  //   type: 'gameInvite',
+  //   from: {
+  //     id: 1657,
+  //     nickname: '요시',
+  //     profileImg: PeopleIcon,
+  //     isOnline: true,
+  //   },
+  //   roomId: 1, // 게임 초대의 경우 roomId 추가
+  //   createdAt: new Date().toISOString(),
+  // },
+  // {
+  //   id: 3,
+  //   type: 'gameInvite',
+  //   from: {
+  //     id: 1659,
+  //     nickname: '도널드',
+  //     profileImg: PeopleIcon,
+  //     isOnline: true,
+  //   },
+  //   roomId: 2, // 게임 초대의 경우 roomId 추가
+  //   createdAt: new Date().toISOString(),
+  // },
 ];
