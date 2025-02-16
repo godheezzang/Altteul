@@ -62,8 +62,8 @@ public class JudgeService {
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
 
-	private final String PROBLEM_PREFIX = "problem_";
-	private final String EXAMPLE_PREFIX = "example_";
+	private static final String PROBLEM_PREFIX = "problem_";
+	private static final String EXAMPLE_PREFIX = "example_";
 
 	// 시스템 정보 조회
 	public PingResponse getSystemInfo() {
@@ -165,6 +165,9 @@ public class JudgeService {
 
 		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory);
 
+		// 실시간 게임 현황 전송
+		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
+
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);
@@ -227,7 +230,19 @@ public class JudgeService {
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
-		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+		BattleResult result = BattleResult.fromRank(finishedTeamCount + 1);
+		myRoom.updateStatusByGameClear(result);
+
+		// FAIL이 아닐 때만 사이드 문제 포인트 추가
+		if (result != BattleResult.FAIL && myRoom instanceof SingleRoom) {
+			List<SideProblemHistory> solvedSideProblemHistories =
+				sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(
+					((SingleRoom)myRoom).getUser(),
+					game,
+					SideProblemHistory.ProblemResult.P
+				);
+			myRoom.addSideProblemPoint(solvedSideProblemHistories.size());
+		}
 
 		// 팀전의 경우 모든 팀의 결과가 나왔으므로 바로 게임 완료 처리
 		if (game.getBattleType() == BattleType.T) {
