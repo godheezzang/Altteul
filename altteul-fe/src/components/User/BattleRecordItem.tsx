@@ -98,7 +98,6 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
 
   const renderMembers = () => {
     if (isTeam) {
-      const totalMembers = [...record.myTeam.members, ...record.opponents[0].members];
       return (
         <div className="flex w-full">
           <div className="flex flex-col w-1/2">
