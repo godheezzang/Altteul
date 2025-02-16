@@ -65,7 +65,7 @@ public class EditorController {
 		String roomUUID = redisTemplate.opsForValue().get(RedisKeys.getRoomRedisId(roomId));
 		String matchId = redisTemplate.opsForValue().get(RedisKeys.TeamMatchId(Long.parseLong(
 			Objects.requireNonNull(roomUUID))));
-		String opposingRoomUUID = matchId.replace(roomUUID.toString(), "").replace("-", "");
+		String opposingRoomUUID = matchId.replace(roomUUID, "").replace("-", "");
 		return redisTemplate.opsForValue().get(RedisKeys.getRoomDbId(Long.parseLong(opposingRoomUUID)));
 	}
 }
