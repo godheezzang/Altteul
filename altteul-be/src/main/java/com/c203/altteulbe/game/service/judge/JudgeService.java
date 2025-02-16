@@ -165,6 +165,9 @@ public class JudgeService {
 
 		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory);
 
+		// 실시간 게임 현황 전송
+		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
+
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);

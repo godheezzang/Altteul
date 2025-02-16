@@ -75,7 +75,7 @@ public class Room extends BaseCreatedEntity {
 		if (this.solvedTestcaseCount == null) {
 			this.solvedTestcaseCount = solvedTestcaseCount;
 		} else if (solvedTestcaseCount != null && this.solvedTestcaseCount != null) {
-			if (this.solvedTestcaseCount > solvedTestcaseCount) {
+			if (this.solvedTestcaseCount < solvedTestcaseCount) {
 				this.solvedTestcaseCount = solvedTestcaseCount;
 				this.lastExecuteTime = lastExecuteTime;
 				this.lastExecuteMemory = lastExecuteMemory;
