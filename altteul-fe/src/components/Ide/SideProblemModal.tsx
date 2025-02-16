@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import SmallButton from '@components/Common/Button/SmallButton ';
+import useAuthStore from '@stores/authStore';
 
 interface SideProblemModalProps {
   gameId: number;
@@ -16,6 +17,8 @@ interface SideProblemModalProps {
 type SideProblemResult = {
   data: {
     status: string;
+    // TODO: 사이드문제 결과에 userId 추가되면 ? 삭제
+    userId?: number | null;
     itemId: number | null;
     itemName: string | null;
     bonusPoint: number | null;
@@ -24,13 +27,15 @@ type SideProblemResult = {
 };
 
 const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModalProps) => {
+  const { userId } = useAuthStore();
+  const isTeam = location.pathname.includes('/game/team');
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<string | null>(null);
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
   const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
-
   const { subscribe, sendMessage, connected } = useSocketStore();
+  const [isMyAnswer, setIsMyAnswer] = useState(false);
 
   useEffect(() => {
     if (!connected) return;
@@ -39,6 +44,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
+
+      // TODO: 사이드문제 결과에 userId 추가되면 ? 삭제
+      setIsMyAnswer(data.data?.userId === Number(userId));
     });
   }, [connected, gameId, roomId, subscribe]);
 
@@ -74,7 +82,11 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
       if (sideProblemResult?.data.status === 'P') {
         setSubmissionResult(
-          `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트를 추가로 얻었어요!`
+          isTeam
+            ? isMyAnswer
+              ? `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.itemName} 아이템을 얻었어요!`
+              : `🎉 팀원이 사이드 문제를 풀었습니다! ${sideProblemResult?.data.itemName} 아이템을 얻었어요!`
+            : `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트를 추가로 얻었어요!`
         );
       } else {
         setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득에 실패했습니다.');
@@ -100,7 +112,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
         {showForfeitMessage ? (
           <div className="text-center mt-6">
             <p className="text-gray-02 font-semibold">
-              ❌ 사이드 문제를 풀지 못해 추가 점수 획득을 하지 못했어요.
+              ❌ 사이드 문제를 풀지 못해 추가 {isTeam ? '아이템' : '점수'} 획득을 못했어요.
             </p>
             <SmallButton onClick={onClose} className="mt-4 px-4 py-2">
               확인
