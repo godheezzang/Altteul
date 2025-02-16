@@ -9,7 +9,7 @@ import gitHubLogo from '@assets/icon/github_logo.svg';
 import { useSocketStore } from '@stores/socketStore';
 import { useNavigate } from 'react-router-dom';
 
-const LoginModal = ({ isOpen = false }) => {
+const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
@@ -48,6 +48,7 @@ const LoginModal = ({ isOpen = false }) => {
       navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
+      setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.');
     }
   };
 
@@ -80,7 +81,7 @@ const LoginModal = ({ isOpen = false }) => {
           value={form.password}
           onChange={handleChange}
         />
-        {error && <p>{error}</p>}
+        {error && <p className="text-primary-orange">{error}</p>}
 
         <Button type="submit" className="h-[2.8rem] w-full hover:brightness-90">
           로그인
