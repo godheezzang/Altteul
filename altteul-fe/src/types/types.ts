@@ -108,15 +108,37 @@ export interface SingleEnterApiResponse {
 }
 
 export interface RankingResponse {
+  status: number;
+  message: string;
+  data: {
+    curentPage: number;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    rankings: Ranking[];
+  }
+}
+
+export interface Ranking {
   userId?: number;
-  rank: number;
+  ranking: number;
   nickname: string;
-  mainLang: string;
-  rankPoint: number;
+  lang: string;
+  point: number;
   tierId: number;
   rankChange: number;
-  averagePassRate: number;
+  rate: number | null;
 }
+
+export interface RankApiFilter {
+  page: number | null;
+  size: number | null;
+  lang: string | null;
+  tierId: number | null;
+  nickname: string | null;
+}
+
+
 export interface UserGameRecordResponse {
   status: number;
   message: string;

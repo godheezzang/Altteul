@@ -1,13 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 import Input from '@components/Common/Input';
 import Modal from '@components/Common/Modal';
 import Button from '@components/Common/Button/Button';
 import SignUpDropdown from '@components/Auth/SignUpDropdown';
 
-import { checkUsername, registerUser, checkNickname } from '@utils/Api/auth';
+import { checkUsername, registerUser, checkNickname, loginUser } from '@utils/Api/auth';
 import { validateSignUpForm, SignUpFormData, ValidationErrors } from '@utils/validation';
 import ProfileUpload from '@components/Auth/ProfileUpload';
+
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '@stores/authStore';
+import { useSocketStore } from '@stores/socketStore';
 
 interface SignUpProps {
   isOpen: boolean;
@@ -15,6 +19,10 @@ interface SignUpProps {
 }
 
 const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
+  const navigate = useNavigate();
+  const { setToken, setUserId } = useAuthStore();
+  const { connect } = useSocketStore();
+
   const languageOptions = [
     { id: 1, value: 'PY', label: 'Python' },
     { id: 2, value: 'JV', label: 'Java' },
@@ -269,7 +277,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
     return '';
   };
 
-  // 폼 제출 핸들러
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -297,25 +304,28 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
 
       if (response?.status >= 200 && response?.status < 300) {
         console.log('회원가입 성공');
-        onClose();
 
-        setForm({
-          username: '',
-          password: '',
-          confirmPassword: '',
-          nickname: '',
-          mainLang: 'PY',
-          profileImg: null,
-        });
+        try {
+          const loginResponse = await loginUser(form.username, form.password);
+          const token =
+            loginResponse.headers?.authorization || loginResponse.headers?.['authorization'];
+          const userId = loginResponse.headers?.userid || loginResponse.headers?.['userid'];
+          const cleanToken = token.replace(/^Bearer\s+/i, '');
 
-        setErrors({
-          username: '',
-          password: '',
-          confirmPassword: '',
-          nickname: '',
-          mainLang: '',
-          profileImg: '',
-        });
+          setToken(cleanToken);
+          setUserId(userId.toString());
+          connect();
+
+          onClose();
+          navigate('/');
+        } catch (loginError) {
+          console.error('자동 로그인 실패:', loginError);
+          setApiError(
+            '회원가입은 완료되었으나 자동 로그인에 실패했습니다. 로그인을 다시 시도해주세요.'
+          );
+          resetForm(); // 모든 상태 초기화
+          onClose();
+        }
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -347,9 +357,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           onButtonClick={handleCheckUsername}
           className="w-[22rem] w-[16rem]"
         />
-        {errors.username && <p className="text-primary-orange text-sm">{errors.username}</p>}
+        {errors.username && <p className="text-gray-03 font-semibold text-sm">{errors.username}</p>}
         {isUsernameVerified && !isUsernameTaken && !errors.username && (
-          <p className="text-primary-green text-sm">사용 가능한 아이디입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm">사용 가능한 아이디입니다.</p>
         )}
 
         <Input
@@ -392,9 +402,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           buttonText={isCheckingNickname ? '확인중...' : '중복확인'}
           onButtonClick={handleCheckNickname}
         />
-        {errors.nickname && <p className="text-primary-orange text-sm">{errors.nickname}</p>}
+        {errors.nickname && <p className="text-gray-03 font-semibold text-sm">{errors.nickname}</p>}
         {isNicknameVerified && !isNicknameTaken && !errors.nickname && (
-          <p className="text-primary-green text-sm">사용 가능한 닉네임입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm">사용 가능한 닉네임입니다.</p>
         )}
 
         <SignUpDropdown

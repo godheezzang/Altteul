@@ -80,6 +80,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           placeholder="비밀번호를 입력해 주세요"
           value={form.password}
           onChange={handleChange}
+          showPasswordToggle={true}
         />
         {error && <p className="text-primary-orange">{error}</p>}
 
