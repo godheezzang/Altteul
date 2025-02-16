@@ -7,9 +7,8 @@ import { MODAL_TYPES } from 'types/modalTypes';
 import AdditionalModal from '@components/Result/AdditionalModal';
 import NavigateModal from '@components/Result/NavigateModal';
 import ResultDetailModal from '@components/Result/ResultDetailModal';
-import FriendModal from '@components/Friend/FriendModal';
-import { Children } from 'react';
-import ChatModal from '@components/ChatModal/ChatModal';
+// import FriendModal from '@components/Friend/FriendModal';
+// import ChatModal from '@components/ChatModal/ChatModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();
@@ -50,10 +49,10 @@ const ModalManager = () => {
       />
 
       {/* 채팅 모달 */}
-      <FriendModal isOpen={isOpen(MODAL_TYPES.FRIEND)} onClose={() => closeModal()} />
+      {/* <FriendModal isOpen={isOpen(MODAL_TYPES.FRIEND)} onClose={() => closeModal()} /> */}
 
       {/* 채팅모달 2 */}
-      <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} />
+      {/* <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} /> */}
     </>
   );
 };

@@ -1169,6 +1169,7 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.4.5"
     html-react-parser: "npm:^5.2.2"
     lodash: "npm:^4.17.21"
+    lucide-react: "npm:^0.475.0"
     monaco-editor: "npm:^0.52.2"
     postcss: "npm:^8.4.35"
     prettier: "npm:^3.2.5"
@@ -1176,12 +1177,14 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-intersection-observer: "npm:^9.15.1"
     react-router-dom: "npm:^6.22.0"
+    react-spinners: "npm:^0.15.0"
     sockjs-client: "npm:^1.6.1"
     tailwind-scrollbar: "npm:^3.0.0"
     tailwindcss: "npm:^3.4.1"
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.1"
     vite-tsconfig-paths: "npm:^4.3.1"
+    y-monaco: "npm:^0.1.6"
     y-websocket: "npm:^2.1.0"
     yjs: "npm:^13.6.23"
     zustand: "npm:^4.5.0"
@@ -3697,7 +3700,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lib0@npm:^0.2.31, lib0@npm:^0.2.52, lib0@npm:^0.2.85, lib0@npm:^0.2.99":
+"lib0@npm:^0.2.31, lib0@npm:^0.2.43, lib0@npm:^0.2.52, lib0@npm:^0.2.85, lib0@npm:^0.2.99":
   version: 0.2.99
   resolution: "lib0@npm:0.2.99"
   dependencies:
@@ -3785,6 +3788,15 @@ __metadata:
   version: 2.2.1
   resolution: "ltgt@npm:2.2.1"
   checksum: 10c0/60fdad732c3aa6acf37e927a5ef58c0d1776192321d55faa1f8775c134c27fbf20ef8ec542fb7f7f33033f79c2a2df75cac39b43e274b32e9d95400154cd41f3
+  languageName: node
+  linkType: hard
+
+"lucide-react@npm:^0.475.0":
+  version: 0.475.0
+  resolution: "lucide-react@npm:0.475.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/9cb17bd4e70da4db104874b6b2e9d9c7e2be9438e9d1c0b2565df0c4d0bdd1add41b7dff3cb60840699ecbd29870c453878b42b69a7c46480def0c9370a852a9
   languageName: node
   linkType: hard
 
@@ -4564,6 +4576,16 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: 10c0/0ad27b34e2ccb6db68ef124cd4492ba86b5422ea3e2af01c9de95e372eb3a36fb4727b40488ebc90e5e0cea41bc655c53569a754713554a465ca9423aa233df8
+  languageName: node
+  linkType: hard
+
+"react-spinners@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "react-spinners@npm:0.15.0"
+  peerDependencies:
+    react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/1915902dd231e60b3c7cc056434eea7920fbae49e60271ce5ca362e72f7a89510ced9a65f99a734a6485165ea2012425df50999b1906fec073775f95deb3bc38
   languageName: node
   linkType: hard
 
@@ -5825,6 +5847,18 @@ __metadata:
   peerDependencies:
     yjs: ^13.0.0
   checksum: 10c0/c1bc82a7ac31406c36b41dcb7a01273323f8b353dec289512c1116cc4df54673ee112c0546b49b6431be4918c8267a3aeb891ba727a7adef8638eb4baa83fa57
+  languageName: node
+  linkType: hard
+
+"y-monaco@npm:^0.1.6":
+  version: 0.1.6
+  resolution: "y-monaco@npm:0.1.6"
+  dependencies:
+    lib0: "npm:^0.2.43"
+  peerDependencies:
+    monaco-editor: ">=0.20.0"
+    yjs: ^13.3.1
+  checksum: 10c0/12fd9178b9d830321f6b4b7d3b707f5afd28da029f13d5f5d2d67da71740b504ab966561b00b7e8beb92c7fbc8eddd21a684f28e8ddb317b9da3e8466fe0371c
   languageName: node
   linkType: hard
 
