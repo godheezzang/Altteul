@@ -3,7 +3,6 @@ import FriendModal from '@components/Friend/FriendModal';
 import FriendRequestItem from '@components/Friend/FriendRequestItem';
 
 import SmallButton from '@components/Common/Button/SmallButton ';
-import { useFriendRequests } from 'hooks/useFriendRequests';
 import { useGameInvites } from 'hooks/useGameInvites';
 import useAuthStore from '@stores/authStore';
 
@@ -16,16 +15,6 @@ const NotificationAndRequestModal = ({ isOpen, onClose }: NotificationAndRequest
   const [activeTab, setActiveTab] = useState<'friendRequests' | 'gameInvites'>('friendRequests');
   const { userId } = useAuthStore();
 
-  const {
-    friendRequests,
-    isLoading: friendRequestsLoading,
-    error: friendRequestsError,
-    handleAcceptRequest,
-    handleRejectRequest,
-    fetchFriendRequests,
-    loadMore,
-    isLast,
-  } = useFriendRequests();
 
   const {
     gameInvites,
@@ -34,13 +23,6 @@ const NotificationAndRequestModal = ({ isOpen, onClose }: NotificationAndRequest
     handleAcceptInvite,
     handleRejectInvite,
   } = useGameInvites(Number(userId));
-
-  // 모달이 열릴 때 친구 요청 목록 가져오기
-  useEffect(() => {
-    if (isOpen) {
-      fetchFriendRequests();
-    }
-  }, [isOpen, fetchFriendRequests]);
 
   return (
     <FriendModal isOpen={isOpen} onClose={onClose} showSearch={false}>
@@ -69,40 +51,7 @@ const NotificationAndRequestModal = ({ isOpen, onClose }: NotificationAndRequest
           </button>
         </div>
         {/* 친구 요청 탭 */}
-        {activeTab === 'friendRequests' && (
-          <div>
-            {friendRequestsLoading ? (
-              <p className="text-center text-gray-03">로딩 중...</p>
-            ) : friendRequestsError ? (
-              <p className="text-center text-primary-orange">{friendRequestsError}</p>
-            ) : friendRequests.length > 0 ? (
-              <>
-                {friendRequests.map(request => (
-                  <FriendRequestItem
-                    key={request.friendRequestId}
-                    friendId={request.fromUserId}
-                    nickname={request.fromUserNickname}
-                    profileImg={request.fromUserProfileImg}
-                    isOnline={false}
-                    onAccept={() => handleAcceptRequest(request.friendRequestId)}
-                    onReject={() => handleRejectRequest(request.friendRequestId)}
-                  />
-                ))}
-                {!isLast && (
-                  <button
-                    onClick={loadMore}
-                    disabled={friendRequestsLoading}
-                    className="w-full text-gray-02 hover:text-gray-03 py-2 mt-4"
-                  >
-                    {friendRequestsLoading ? '불러오는 중...' : '더 보기'}
-                  </button>
-                )}
-              </>
-            ) : (
-              <p className="text-center text-gray-03">친구 요청이 없습니다.</p>
-            )}
-          </div>
-        )}
+
         {/* 게임 초대 탭 */}
         {activeTab === 'gameInvites' && (
           <div>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import SmallButton from '@components/Common/Button/SmallButton ';
-import { useFriendWebSocket } from 'hooks/useFriendWebSocket';
 
 type FriendListItemProps = {
   friendId: number;
@@ -21,13 +20,11 @@ const FriendListItem = ({
   onInvite,
   isInviting,
 }: FriendListItemProps) => {
-  const { sendFriendRequest } = useFriendWebSocket();
   const [isRequesting, setIsRequesting] = useState(false);
 
   const handleFriendRequest = async () => {
     try {
       setIsRequesting(true);
-      await sendFriendRequest(friendId);
       // 성공 시 처리 (예: 토스트 메시지)
     } catch (error) {
       console.error('친구 신청 실패:', error);
