@@ -82,13 +82,6 @@ const SingleFinalPage = () => {
     >
       <div className="absolute inset-0 bg-black/50"></div>
 
-      <Link
-        to="/"
-        className="z-20 absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-      >
-        <img src={logo} alt="홈으로" className="w-full h-full" />
-      </Link>
-
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         <UserProfile
           nickname={headUser.nickname}

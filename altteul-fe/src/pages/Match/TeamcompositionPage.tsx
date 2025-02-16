@@ -48,7 +48,7 @@ const TeamcompositionPage = () => {
     }
 
     // 대기 유저가 4명이 되면 자동으로 게임 시작
-    if (alliance.length >= 4) {
+    if (data.users.length >= 4) {
       handleStartButton();
     }
   };

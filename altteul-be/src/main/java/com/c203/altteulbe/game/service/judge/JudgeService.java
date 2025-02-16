@@ -72,13 +72,10 @@ public class JudgeService {
 	}
 
 	// 일반 채점 실행
-	public JudgeResponse submitToJudge(SubmitCodeRequestDto request, String prefix) {
+	public JudgeResponse submitToJudge(SubmitCodeRequestDto request, String prefix, Problem problem) {
 		// 채점 서버 url
 		String url = judgeServerUrl + "/judge";
 		String problemFolderName = prefix + request.getProblemId();
-
-		Problem problem = problemRepository.findById(request.getProblemId())
-			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
 
 		// 언어에 따른 설정 분리
 		LangDto langDto = switch (request.getLang()) {
@@ -107,9 +104,11 @@ public class JudgeService {
 	 * @param id : username
 	 */
 	public void submitCode(SubmitCodeRequestDto request, Long id) {
-		System.out.println(request.toString());
+		log.debug("코드 제출 요청 값: " + request.toString());
 		// 저지에게 코드 제출
-		JudgeResponse judgeResponse = submitToJudge(request, PROBLEM_PREFIX);
+		Problem problem = problemRepository.findById(request.getProblemId())
+			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
+		JudgeResponse judgeResponse = submitToJudge(request, PROBLEM_PREFIX, problem);
 
 		if (judgeResponse == null)
 			throw new NullPointerException();
@@ -117,7 +116,7 @@ public class JudgeService {
 		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse);
 		CodeSubmissionOpponentResponseDto opponentResponseDto;
 		if (judgeResponse.isNotCompileError()) {
-			log.debug(judgeResponse.toString());
+			log.debug("코드 제출 결과 값: " + judgeResponse);
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
 				.totalCount(teamResponseDto.getTotalCount())
 				.passCount(teamResponseDto.getPassCount())
@@ -172,19 +171,22 @@ public class JudgeService {
 	}
 
 	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request) {
-		// 저지에게 코드 제출
-		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX);
+		Problem problem = problemRepository.findWithExamplesByProblemId(request.getProblemId())
+			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
+		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX, problem);
 
 		if (judgeResponse == null)
 			throw new NullPointerException();
 
-		// request.problemId의 테스트케이스 1,2번 output 정보가 필요함
-		judgeWebsocketService.sendExecutionResult(CodeExecutionResponseDto.from(judgeResponse),
-			request.getGameId(),
-			request.getTeamId());
+		// request.problemId의 테스트케이스 1,2번 answer 정보가 필요함.
+		CodeExecutionResponseDto responseDto = CodeExecutionResponseDto.from(judgeResponse, problem);
 
-		// 없어도 되는데 걍 확인용으로 만듬
-		return CodeExecutionResponseDto.from(judgeResponse);
+		judgeWebsocketService.sendExecutionResult(
+			responseDto,
+			request.getGameId(),
+			request.getTeamId()
+		);
+		return responseDto;
 	}
 
 	// 함수 추출

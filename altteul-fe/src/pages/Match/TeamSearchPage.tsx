@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/team_matching_bg.svg';
@@ -9,12 +9,14 @@ import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { cancelTeamMatch } from '@utils/Api/matchApi';
+import useGameStore from '@stores/useGameStore';
 
 const TeamSearchPage = () => {
   const [fact, setFact] = useState<string>('');
   const [facts] = useState<string[]>(tmi.facts);
   const navigate = useNavigate();
   const matchStore = useMatchStore();
+  const gameStore = useGameStore();
   const socket = useSocketStore();
   const [alliance] = useState(matchStore.matchData.users);
   const roomId = matchStore.matchData.roomId;
@@ -48,12 +50,20 @@ const TeamSearchPage = () => {
       matchStore.setMyTeam(data.team1);
       matchStore.setOpponent(data.team2);
 
+      gameStore.setMyTeam(data.team1)
+      gameStore.setOpponent(data.team2)
+      gameStore.setProblem(data.problem)
+      gameStore.setTestcases(data.testcases)
+
       //페이지 이동
       navigate('/match/team/final');
     }
 
     //매칭 취소 버튼 클릭 이후 소켓 응답
     if (type === 'MATCH_CANCEL_SUCCESS') {
+      //넘어온 데이터로 myTeam 재설정
+      matchStore.setMyTeam(data)
+
       //매칭 페이지로 이동
       navigate('/match/team/composition');
     }
