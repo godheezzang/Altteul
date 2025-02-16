@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { Friend } from 'types/types';
 import { getFriends } from '@utils/Api/friendApi';
-import FriendItem from '@components/ChatModal/Items/FriendItem';
+import FriendItem from '@components/Modal/FriendChat/Items/FriendItem';
 
 interface FriendTabProps {
   searchQuery: string;

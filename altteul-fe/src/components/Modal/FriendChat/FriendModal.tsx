@@ -1,11 +1,11 @@
 // 메인 모달 컴포넌트
 // src/components/Modal/Chat/ChatModal.tsx
 import { useEffect, useState } from 'react';
-import BaseModal from '@components/Friend/Friend_common/Basemodal';
-import Navigation from '@components/ChatModal/Shared/Navigation';
-import MainView from '@components/ChatModal/Views/MainView.tsx';
-import ChatView from '@components/ChatModal/Views/ChatView';
-import SearchBar from '@components/ChatModal/Shared/SearchBar';
+import BaseModal from '@components/Modal/FriendChat/Shared/Basemodal';
+import Navigation from '@components/Modal/FriendChat/Shared/Navigation';
+import MainView from '@components/Modal/FriendChat/Views/MainView.tsx';
+import ChatView from '@components/Modal/FriendChat/Views/ChatView';
+import SearchBar from '@components/Modal/FriendChat/Shared/SearchBar';
 
 type MainTabType = 'friends' | 'chats' | 'notifications';
 type NotificationTabType = 'friendRequests' | 'gameInvites';
@@ -16,7 +16,7 @@ interface ChatModalProps {
   onClose: () => void;
 }
 
-const ChatModal = ({ isOpen, onClose }: ChatModalProps) => {
+const FriendModal = ({ isOpen, onClose }: ChatModalProps) => {
   // 모달의 핵심 상태들
   const [currentView, setCurrentView] = useState<ViewType>('main');
   const [currentTab, setCurrentTab] = useState<MainTabType>('friends');
@@ -81,4 +81,4 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps) => {
   );
 };
 
-export default ChatModal;
+export default FriendModal;

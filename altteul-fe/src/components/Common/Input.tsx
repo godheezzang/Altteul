@@ -34,7 +34,7 @@ const Input = ({
     <div className="flex items-center w-full">
       <div className="flex-grow" style={{ width: `calc(100% - ${buttonText ? '6rem' : '0rem'})` }}>
         <input
-          className={`${DEFAULT_INPUT_STYLE} w-full h-[${height}] ${className}`}
+          className={`${className || DEFAULT_INPUT_STYLE} w-full h-[${height}]`}
           type={type}
           placeholder={placeholder}
           value={value}

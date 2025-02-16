@@ -1,6 +1,6 @@
 /// 친구/채팅/알림 탭을 포함하는 메인 뷰
 // src/components/Modal/Chat/views/MainView.tsx
-import FriendTab from '@components/ChatModal/Tabs/FriendTab';
+import FriendTab from '@components/Modal/FriendChat/Tabs/FriendTab';
 
 interface MainViewProps {
   currentTab: 'friends' | 'chats' | 'notifications';

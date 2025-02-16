@@ -1,15 +1,13 @@
 // src/components/common/Modal/ModalManager.tsx
 import SignUpModal from '@components/Auth/SignUpModal';
 import LoginModal from '@components/Auth/LoginModal';
-import ResultModal from '@components/Result/ResultModal';
+import ResultModal from '@components/Modal/Result/ResultModal';
 import useModalStore from '@stores/modalStore';
 import { MODAL_TYPES } from 'types/modalTypes';
-import AdditionalModal from '@components/Result/AdditionalModal';
-import NavigateModal from '@components/Result/NavigateModal';
-import ResultDetailModal from '@components/Result/ResultDetailModal';
-import FriendModal from '@components/Friend/FriendModal';
-import { Children } from 'react';
-import ChatModal from '@components/ChatModal/ChatModal';
+import AdditionalModal from '@components/Modal/Result/AdditionalModal';
+import NavigateModal from '@components/Modal/Result/NavigateModal';
+import ResultDetailModal from '@components/Modal/Result/ResultDetailModal';
+import FriendModal from '@components/Modal/FriendChat/FriendModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();
@@ -53,7 +51,7 @@ const ModalManager = () => {
       <FriendModal isOpen={isOpen(MODAL_TYPES.FRIEND)} onClose={() => closeModal()} />
 
       {/* 채팅모달 2 */}
-      <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} />
+      {/* <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} /> */}
     </>
   );
 };
