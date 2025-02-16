@@ -9,11 +9,10 @@ const SOCKET_URL = USE_SSL ? import.meta.env.VITE_WSS_URL : import.meta.env.VITE
 
 export const useFriendWebSocket = () => {
   const stompClient = useRef<Client | null>(null);
-  const { keepConnection } = useSocketStore();
   const { userId } = useAuthStore();
 
   useEffect(() => {
-    if (!userId || !keepConnection) return;
+    if (!userId) return;
 
     const client = new Client({
       webSocketFactory: () => new SockJS(SOCKET_URL),
@@ -48,7 +47,7 @@ export const useFriendWebSocket = () => {
         client.deactivate();
       }
     };
-  }, [userId, keepConnection]);
+  }, [userId]);
 
   const sendFriendRequest = (toUserId: number) => {
     if (!stompClient.current?.connected) {

@@ -1,9 +1,10 @@
 // FriendListItem.tsx
 import React, { useState } from 'react';
-import SmallButton from '@components/common/Button/SmallButton ';
+import SmallButton from '@components/Common/Button/SmallButton ';
+import { useFriendWebSocket } from 'Hooks/useFriendWebSocket';
 import { useSocketStore } from '@stores/socketStore';
-import { getChatRoomDetail } from '@utils/Api/chatApi';
 import useAuthStore from '@stores/authStore';
+import { getChatRoomDetail } from '@utils/Api/chatApi';
 
 type FriendListItemProps = {
   friendId: number;

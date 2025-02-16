@@ -18,5 +18,7 @@ spring:
         - prod-redis
         - prod-oauth
         - prod-judge
+        - prod-batch
         - prod-openvidu
+        - prod-aws
     active: ${SPRING_PROFILES_ACTIVE}

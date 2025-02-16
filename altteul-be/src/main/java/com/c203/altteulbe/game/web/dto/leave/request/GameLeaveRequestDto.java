@@ -1,4 +1,4 @@
-package com.c203.altteulbe.editor.web.dto.response;
+package com.c203.altteulbe.game.web.dto.leave.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AwarenessResponseDto {
-
-	private Long roomUUID;
-
-	private String awareness;
+public class GameLeaveRequestDto {
+	private Long roomId;
 }

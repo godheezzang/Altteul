@@ -1,4 +1,6 @@
-package com.c203.altteulbe.editor.web.dto.response;
+package com.c203.altteulbe.game.web.dto.result.request;
+
+import com.c203.altteulbe.common.dto.BattleType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AwarenessResponseDto {
-
-	private Long roomUUID;
-
-	private String awareness;
+public class OpponentCodeRequestDto {
+	private BattleType type;
 }
