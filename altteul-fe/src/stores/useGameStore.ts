@@ -6,7 +6,7 @@ const useGameStore = create<GameState>(set => ({
   gameId: Number(sessionStorage.getItem('gameId')) || null,
   roomId: Number(sessionStorage.getItem('roomId')) || null,
   userRoomId: Number(sessionStorage.getItem('userRoomId')) || null,
-  matchId: JSON.parse(sessionStorage.getItem('matchId')) || null,
+  matchId: sessionStorage.getItem('matchId') || null,
   users: JSON.parse(sessionStorage.getItem('users') || null),
   myTeam: JSON.parse(sessionStorage.getItem('myTeam')) || null,
   opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
@@ -34,7 +34,7 @@ const useGameStore = create<GameState>(set => ({
   },
 
   setMatchId: (matchId: string) => {
-    sessionStorage.setItem('matchId', JSON.stringify(matchId));
+    sessionStorage.setItem('matchId', matchId);
     set({ matchId });
   },
 
