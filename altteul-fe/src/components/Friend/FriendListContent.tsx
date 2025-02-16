@@ -1,8 +1,9 @@
 // FriendListContent.tsx
 import React, { useEffect, useState } from 'react';
 import FriendListItem from '@components/Friend/FriendListItem';
-import { getFriends } from '@utils/Api/friendApi';
-import { Friend } from 'types/types';
+import { searchUsers } from '@utils/Api/friendApi';
+import { Friend, SearchedUser, UserSearchResponse } from 'types/types';
+import { api } from '@utils/Api/commonApi';
 
 interface FriendListContentProps {
   searchQuery: string;
@@ -10,10 +11,15 @@ interface FriendListContentProps {
 
 const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [searchResults, setSearchResults] = useState<UserSearchResponse['data']>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLast, setIsLast] = useState(false);
+
+  const handleChat = (friendId: number) => {
+    // 필요한 경우 추가 로직
+  };
 
   const fetchFriends = async () => {
     setIsLoading(true);
@@ -37,17 +43,46 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
     }
   };
 
+  // 사용자 검색 함수 추가
+  const searchUsers = async (nickname: string) => {
+    try {
+      const token = localStorage.getItem('jwtToken'); // jwt 토큰을 로컬스토리지나 다른 곳에서 가져온다고 가정
+      const { data } = await api.get<UserSearchResponse>('/user/search', {
+        params: { nickname },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (data.status === 200) {
+        setSearchResults(data.data); // 응답 받은 사용자 정보를 상태에 저장
+      } else {
+        setSearchResults([]); // 실패 시 검색 결과 비우기
+      }
+    } catch (error) {
+      console.error('유저 검색 실패:', error);
+      setSearchResults([]); // 오류가 발생하면 검색 결과 비우기
+    }
+  };
   useEffect(() => {
     fetchFriends();
   }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(0);
+
+    // 검색어가 있으면 사용자 검색 수행
+    if (searchQuery.trim()) {
+      searchUsers(searchQuery);
+    } else {
+      setSearchResults([]);
+    }
   }, [searchQuery]);
 
-  const filteredFriends = friends.filter(friend =>
-    friend.nickname.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleDeleteFriend = () => {
+    fetchFriends(); // 친구 삭제 후 목록을 다시 불러오기
+  };
 
   const handleLoadMore = () => {
     if (!isLoading && !isLast) {
@@ -55,21 +90,28 @@ const FriendListContent = ({ searchQuery }: FriendListContentProps) => {
     }
   };
 
+  // 검색 결과가 있으면 검색 결과 표시, 없으면 기존 친구 목록 필터링
+  const displayItems = searchQuery.trim()
+    ? searchResults
+    : friends.filter(friend => friend.nickname.toLowerCase().includes(searchQuery.toLowerCase()));
+
   return (
     <div className="flex flex-col gap-4">
       {isLoading && currentPage === 0 ? (
         <p className="text-center text-gray-03">로딩 중...</p>
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
-      ) : filteredFriends.length > 0 ? (
+      ) : displayItems.length > 0 ? (
         <>
-          {filteredFriends.map(friend => (
+          {displayItems.map(item => (
             <FriendListItem
-              key={friend.userId}
-              friendId={friend.userId}
-              nickname={friend.nickname}
-              profileImg={friend.profileImg}
-              isOnline={friend.isOnline}
+              key={'userId' in item ? item.userId : item.friendId}
+              friendId={'userId' in item ? item.userId : item.friendId}
+              nickname={'nickname' in item ? item.nickname : item.nickname}
+              profileImg={'profileImage' in item ? item.profileImage : item.profileImg}
+              isOnline={'isOnline' in item ? item.isOnline : item.isOnline}
+              onDeleteFriend={handleDeleteFriend}
+              showFriendRequest={'userId' in item} // 검색 결과일 경우 친구 신청 버튼 표시
             />
           ))}
           {!isLast && (
