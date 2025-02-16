@@ -35,14 +35,22 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   useEffect(() => {
     if (!connected) return;
 
-    // ✅ 사이드 문제 채점 결과 구독
+    // 사이드 문제 채점 결과 구독
     subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
     });
   }, [connected, gameId, roomId, subscribe]);
 
-  // ✅ 제출 버튼 클릭 시
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 60000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 사이드 문제 채점 요청
   const handleSubmit = () => {
     if (!answer.trim() || isSubmitting) return;
 
@@ -55,11 +63,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
       sideProblemId: problem.id,
       answer: upperCaseAnswer,
     });
-
-    console.log('📨 사이드 문제 채점 요청 전송');
   };
 
-  // ✅ 서버에서 결과를 받으면 정답 여부 확인
+  // 서버에서 결과를 받으면 정답 여부 확인
   useEffect(() => {
     if (sideProblemResult && isSubmitting) {
       setIsSubmitting(false);
@@ -68,15 +74,15 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
       if (sideProblemResult?.data.status === 'P') {
         setSubmissionResult(
-          `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트 추가!`
+          `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트를 추가로 얻었어요!`
         );
       } else {
-        setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득 실패');
+        setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득에 실패했습니다.');
       }
     }
   }, [sideProblemResult, isSubmitting]);
 
-  // ✅ 안풀래요 버튼 클릭 시
+  // 안풀래요 버튼 클릭 시
   const handleForfeit = () => {
     setShowForfeitMessage(true);
   };
@@ -87,6 +93,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
         <div className="text-center mb-6">
           <h1 className="text-xxl font-semibold mb-1">보너스 문제!</h1>
           <p className="text-primary-orange">추가 점수를 획득할 수 있습니다.</p>
+          <p className="text-gray-02">1분 뒤 자동으로 창이 닫힙니다! 빠르게 풀어보세요.</p>
         </div>
 
         {/* ✅ 안풀래요 버튼을 누른 경우 */}
