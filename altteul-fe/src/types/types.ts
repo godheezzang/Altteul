@@ -174,7 +174,7 @@ export type UserSearchContextType = {
 };
 
 export type Friend = {
-  userId: number;
+  userid: number;
   nickname: string;
   profileImg: string;
   isOnline: boolean;
@@ -188,7 +188,8 @@ export type FriendRequest = {
   requestStatus: 'P' | 'A' | 'R';
 };
 
-export type ChatRoom = {
+// 삭제할것
+export type ChatRooms = {
   friendId: number;
   nickname: string;
   profileImg: string;
@@ -196,6 +197,21 @@ export type ChatRoom = {
   recentMessage: string;
   isMessageRead: boolean;
   createdAt: string;
+};
+
+export type ChatRoom = {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  messages: ChatMessage[];
+  createdAt: string;
+};
+
+export type ChatRoomResponse = {
+  data: ChatRoom;
+  message: string;
+  status: number;
 };
 
 export type ChatMessage = {
@@ -261,7 +277,21 @@ export interface ChatRoomDetail {
 }
 
 export interface ChatRoomDetailResponse {
-  data: ChatRoomDetail;
+  data: {
+    friendId: number;
+    nickname: string;
+    profileImg: string;
+    isOnline: boolean;
+    messages: {
+      chatMessageId: number;
+      senderId: number;
+      senderNickname: string;
+      messageContent: string;
+      checked: boolean;
+      createdAt: string;
+    }[];
+    createdAt: string;
+  };
   message: string;
   status: number;
 }
@@ -288,7 +318,12 @@ export interface SearchedUser {
 export interface UserSearchResponse {
   status: number;
   message: string;
-  data: SearchedUser;
+  data: {
+    userId: number;
+    nickname: string;
+    profileImg: string;
+    isOnline: boolean;
+  };
 }
 
 export interface Subscription {

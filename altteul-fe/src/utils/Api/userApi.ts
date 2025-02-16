@@ -12,14 +12,22 @@ export const getUserRecord = async (userId: string): Promise<UserGameRecordRespo
 };
 
 // 유저 검색
-export const searchUser = async (nickname: string) => {
+export const searchUsers = async (nickname: string) => {
+  console.log('🔍 검색 시작:', nickname); // 검색 시작 시점
+
   try {
+    // console.log(`${sessionStorage.getItem('token')}`);
     const { data } = await api.get<UserSearchResponse>('/user/search', {
       params: { nickname },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+      },
     });
+    console.log('✅ 검색 결과:', data); // 성공적인 응답
     return data;
   } catch (error) {
-    console.error('Failed to search user:', error);
+    console.error('❌ 검색 에러:', error); // 에러 발생
     throw error;
   }
 };

@@ -1,5 +1,6 @@
-import React from 'react';
-import { useUserSearch } from 'contexts/UserSearchContext';
+import useAuthStore from '@stores/authStore';
+import { useSocketStore } from '@stores/socketStore';
+import React, { useState } from 'react';
 
 type SearchBarProps = {
   placeholder: string;
@@ -10,12 +11,40 @@ type SearchBarProps = {
 
 const UserSearchBar = ({ placeholder, value, onChange, onSearch }: SearchBarProps) => {
   const { searchQuery, handleSearch, searchResults, isLoading } = useUserSearch();
+  const { sendMessage } = useSocketStore();
+  const { userId } = useAuthStore();
+
+  // 친구 신청 중인 사용자 ID 추적
+  const [requestingUsers, setRequestingUsers] = useState<Set<number>>(new Set());
 
   const currentQuery = value ?? searchQuery;
   const currentHandleSearch = onChange
     ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e)
     : (e: React.ChangeEvent<HTMLInputElement>) => handleSearch(e.target.value);
 
+  // 친구 신청 핸들러
+  const handleFriendRequest = async (targetUserId: number, nickname: string) => {
+    try {
+      // 친구 신청 중 상태 업데이트
+      setRequestingUsers(prev => new Set(prev).add(targetUserId));
+
+      // 소켓으로 친구 신청 메시지 전송 //////////////////////////////////////
+      sendMessage('/pub/friend/request', {
+        fromUserId: userId,
+        toUserId: targetUserId,
+      });
+      console.log(`${nickname}에게 친구 신청 완료`);
+    } catch (error) {
+      console.error('친구 신청 실패:', error);
+    } finally {
+      // 친구 신청 중 상태 해제
+      setRequestingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(targetUserId);
+        return newSet;
+      });
+    }
+  };
   return (
     <div className="relative mb-5">
       <input
@@ -51,12 +80,22 @@ const UserSearchBar = ({ placeholder, value, onChange, onSearch }: SearchBarProp
             {searchResults.map(user => (
               <div
                 key={user.userId}
-                className="px-4 py-2 hover:bg-gray-04 cursor-pointer text-primary-white"
+                className="px-4 py-2 hover:bg-gray-04 cursor-pointer text-primary-white flex justify-between items-center"
               >
                 <div className="flex items-center gap-2">
                   <img src={user.profileImage} alt="프로필" className="w-8 h-8 rounded-full" />
                   <span>{user.nickname}</span>
                 </div>
+                {/* 친구가 아닌 경우에만 친구 신청 버튼 표시 */}
+                {!user.isFriend && (
+                  <button
+                    onClick={() => handleFriendRequest(user.userId, user.nickname)}
+                    disabled={requestingUsers.has(user.userId)}
+                    className="bg-primary-orange text-white px-2 py-1 rounded-md text-sm"
+                  >
+                    {requestingUsers.has(user.userId) ? '신청 중...' : '친구 신청'}
+                  </button>
+                )}
               </div>
             ))}
           </div>
