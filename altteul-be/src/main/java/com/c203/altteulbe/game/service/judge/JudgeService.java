@@ -227,7 +227,19 @@ public class JudgeService {
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
-		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+		BattleResult result = BattleResult.fromRank(finishedTeamCount + 1);
+		myRoom.updateStatusByGameClear(result);
+
+		// FAIL이 아닐 때만 사이드 문제 포인트 추가
+		if (result != BattleResult.FAIL && myRoom instanceof SingleRoom) {
+			List<SideProblemHistory> solvedSideProblemHistories =
+				sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(
+					((SingleRoom)myRoom).getUser(),
+					game,
+					SideProblemHistory.ProblemResult.P
+				);
+			myRoom.addSideProblemPoint(solvedSideProblemHistories.size());
+		}
 
 		/**
 		 * 배틀 포인트 정산 (여기까지 왔다는 것은 FAIL이 없다는 뜻)
