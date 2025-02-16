@@ -1,5 +1,8 @@
 package com.c203.altteulbe.user.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,12 +13,10 @@ import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
-import com.c203.altteulbe.user.service.exception.SelfSearchException;
 import com.c203.altteulbe.user.web.dto.request.UpdateProfileRequestDto;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
 import com.c203.altteulbe.user.web.dto.response.UserProfileResponseDto;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,14 +27,24 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final UserStatusService userStatusService;
 
-	public SearchUserResponseDto searchUser(Long userId, String nickname) {
-		User user = userRepository.findByNickname(nickname).orElseThrow(NotFoundUserException::new);
+	public List<SearchUserResponseDto> searchUser(Long userId, String nickname) {
+		List<User> users = userRepository.searchByNickname(nickname)
+			.stream() // 자기 자신은 검색에서 제외
+			.filter(user -> !userId.equals(user.getUserId()))
+			.toList();
 
-		if (userId.equals(user.getUserId())) {
-			throw new SelfSearchException();
-		}
-		Boolean isOnline = userStatusService.isUserOnline(userId);
-		return SearchUserResponseDto.from(user, isOnline);
+		// 모든 검색된 사용자의 ID 리스트 추출
+		List<Long> userIds = users.stream()
+			.map(User::getUserId)
+			.toList();
+
+		// 한 번에 모든 사용자의 온라인 상태 조회
+		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(userIds);
+
+		// DTO 변환 시 조회해둔 온라인 상태 맵 활용
+		return users.stream()
+			.map(user -> SearchUserResponseDto.from(user, onlineStatus.get(user.getUserId())))
+			.toList();
 	}
 
 	public UserProfileResponseDto getUserProfile(Long userId, Long currentUserId) {

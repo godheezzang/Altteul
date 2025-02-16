@@ -38,8 +38,8 @@ public class VoiceChatService {
 	private final RoomValidator roomValidator;
 
 	// 게임 시작 시 팀 음성 채팅 세션 설정
-	public void createTeamVoiceSession(String matchId, Long roomId) {
-		String sessionId = "team-" + roomId;
+	public void createTeamVoiceSession(String matchId, Long roomUUID) {
+		String sessionId = "team-" + roomUUID;
 		try {
 			SessionProperties properties = SessionProperties.fromJson(Map.of(
 				"customSessionId", sessionId,
@@ -48,24 +48,24 @@ public class VoiceChatService {
 			)).build();
 
 			openVidu.createSession(properties);
-			redisTemplate.opsForValue().set(RedisKeys.getVoiceSessionKey(roomId), sessionId);
+			redisTemplate.opsForValue().set(RedisKeys.getVoiceSessionKey(roomUUID), sessionId);
 
-			log.info("Team {} voice session created for match {}", roomId, matchId);
+			log.info("Team {} voice session created for match {}", roomUUID, matchId);
 		} catch (Exception e) {
-			log.error("Failed to create voice session for team {}", roomId, e);
+			log.error("Failed to create voice session for team {}", roomUUID, e);
 			throw new RuntimeException("음성 채팅 세션 생성 실패", e);
 		}
 	}
 
 	// 유저 음성 채팅 연결 초기화 (게임 참여 시)
-	public Connection initializeVoiceSession(Long roomId, String userId) throws
+	public Connection initializeVoiceSession(Long roomUUID, String userId) throws
 		OpenViduJavaClientException,
 		OpenViduHttpException {
-		if (!roomValidator.isRoomGaming(roomId)) {
+		if (!roomValidator.isRoomGaming(roomUUID)) {
 			throw new RoomNotInGamingStateException();
 		}
 		// 세션 ID 가져오거나 새로 생성
-		String sessionId = getOrCreateSessionId(roomId);
+		String sessionId = getOrCreateSessionId(roomUUID);
 		Session session = openVidu.getActiveSession(sessionId);
 
 		// 세선 예외 처리
@@ -80,26 +80,26 @@ public class VoiceChatService {
 
 		// 연결 생성 및 참가자 상태 업데이트
 		Connection connection = session.createConnection(properties);
-		updateParticipantStatus(roomId, userId, true);
+		updateParticipantStatus(roomUUID, userId, true);
 
 		// 팀원들에게 새 참가자 입장 알림
 		VoiceEventResponseDto response = VoiceEventResponseDto.builder()
 			.userId(userId)
-			.roomId(roomId)
+			.roomUUID(roomUUID)
 			.type(VoiceEventType.JOIN)
 			.status(true)
 			.build();
-		notifyTeam(roomId, response);
+		notifyTeam(roomUUID, response);
 		return connection;
 	}
 
 	// Redis에서 새션 ID 조회 또는 생성
-	private String getOrCreateSessionId(Long roomId) {
-		String voiceSessionKey = RedisKeys.getVoiceSessionKey(roomId);
+	private String getOrCreateSessionId(Long roomUUID) {
+		String voiceSessionKey = RedisKeys.getVoiceSessionKey(roomUUID);
 		String sessionId = redisTemplate.opsForValue().get(voiceSessionKey);
 
 		if (sessionId == null) {
-			sessionId = "team-" + roomId;
+			sessionId = "team-" + roomUUID;
 			redisTemplate.opsForValue().set(voiceSessionKey, sessionId);
 		}
 
@@ -107,38 +107,38 @@ public class VoiceChatService {
 	}
 
 	// 마이크 상태 업데이트 및 알림
-	public void updateMicStatus(Long roomId, String userId, boolean isMuted) {
-		updateParticipantStatus(roomId, userId, !isMuted);
+	public void updateMicStatus(Long roomUUID, String userId, boolean isMuted) {
+		updateParticipantStatus(roomUUID, userId, !isMuted);
 		VoiceEventResponseDto response = VoiceEventResponseDto.builder()
 			.userId(userId)
-			.roomId(roomId)
+			.roomUUID(roomUUID)
 			.type(VoiceEventType.MIC_STATUS)
 			.status(!isMuted)
 			.build();
-		notifyTeam(roomId, response);
+		notifyTeam(roomUUID, response);
 	}
 
 	// 게임 종료 시 팀 음성 채팅 세션 종료
-	public void terminateTeamVoiceSession(Long roomId) {
+	public void terminateTeamVoiceSession(Long roomUUID) {
 		try {
-			Session session = openVidu.getActiveSession("team-" + roomId);
+			Session session = openVidu.getActiveSession("team-" + roomUUID);
 			if (session != null) {
 				session.close();
 			}
 			// Redis 데이터 삭제
-			redisTemplate.delete(RedisKeys.getVoiceSessionKey(roomId));
-			redisTemplate.delete(RedisKeys.getVoiceParticipantsKey(roomId));
+			redisTemplate.delete(RedisKeys.getVoiceSessionKey(roomUUID));
+			redisTemplate.delete(RedisKeys.getVoiceParticipantsKey(roomUUID));
 
-			log.info("Team {} voice session terminated", roomId);
+			log.info("Team {} voice session terminated", roomUUID);
 		} catch (Exception e) {
-			log.error("Failed to terminate voice session for team {}", roomId, e);
+			log.error("Failed to terminate voice session for team {}", roomUUID, e);
 		}
 	}
 
 	// 게임 나가기 시 개별 유저 연결 종료
-	public void terminateUserVoiceConnection(Long roomId, String userId) {
+	public void terminateUserVoiceConnection(Long roomUUID, String userId) {
 		try {
-			Session session = openVidu.getActiveSession("team-" + roomId);
+			Session session = openVidu.getActiveSession("team-" + roomUUID);
 			if (session != null) {
 				session.getConnections().stream()
 					.filter(conn -> conn.getClientData().equals(userId))
@@ -150,17 +150,17 @@ public class VoiceChatService {
 						}
 					});
 			}
-			removeParticipant(roomId, userId);
+			removeParticipant(roomUUID, userId);
 
-			log.info("User {} voice connection terminated in team {}", userId, roomId);
+			log.info("User {} voice connection terminated in team {}", userId, roomUUID);
 		} catch (Exception e) {
-			log.error("Failed to terminate voice connection for user {} in team {}", userId, roomId, e);
+			log.error("Failed to terminate voice connection for user {} in team {}", userId, roomUUID, e);
 		}
 	}
 
 	// Redis에 참가자 상태 업데이트
-	private void updateParticipantStatus(Long roomId, String userId, boolean micEnabled) {
-		String key = RedisKeys.getVoiceParticipantsKey(roomId);
+	private void updateParticipantStatus(Long roomUUID, String userId, boolean micEnabled) {
+		String key = RedisKeys.getVoiceParticipantsKey(roomUUID);
 		HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
 
 		String status = micEnabled ? "ENABLED" : "DISABLED";
@@ -170,14 +170,14 @@ public class VoiceChatService {
 	}
 
 	// Redis에서 참가자 정보 삭제
-	private void removeParticipant(Long roomId, String userId) {
-		String key = RedisKeys.getVoiceParticipantsKey(roomId);
+	private void removeParticipant(Long roomUUID, String userId) {
+		String key = RedisKeys.getVoiceParticipantsKey(roomUUID);
 		redisTemplate.opsForHash().delete(key, userId);
 	}
 
 	// WebSocket을 통해 팀원들에게 상태 변경 요청
-	private void notifyTeam(Long roomId, VoiceEventResponseDto event) {
-		messagingTemplate.convertAndSend("/sub/team/" + roomId + "/voice/status",
+	private void notifyTeam(Long roomUUID, VoiceEventResponseDto event) {
+		messagingTemplate.convertAndSend("/sub/team/" + roomUUID + "/voice/status",
 			WebSocketResponse.withData(event.getType().toString(), event));
 	}
 }

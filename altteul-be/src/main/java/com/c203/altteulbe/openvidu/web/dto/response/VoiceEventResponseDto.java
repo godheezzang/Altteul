@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VoiceEventResponseDto {
 	private String userId; // 이벤트 발생 유저
-	private Long roomId; // 팀 roomId
+	private Long roomUUID; // 팀 roomId
 	private VoiceEventType type;
 	// true: 활성 상태 (입장, 마이크 켜짐)
 	// false: 비활성 상태 (퇴장, 마이크 꺼짐)

@@ -13,7 +13,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - backend
-    networks:  # 이 부분 추가
+    networks: # 이 부분 추가
       - altteul-ie-network  # backend와 같은 네트워크 사용
 
   backend:
@@ -108,6 +108,7 @@ services:
       - TOKEN=${SECRET_KEY}
     networks: #사용할 네트워크 지정
       - altteul-ie-network
+
 volumes:
   mysql_dev_data:
   mongodb_dev_data:

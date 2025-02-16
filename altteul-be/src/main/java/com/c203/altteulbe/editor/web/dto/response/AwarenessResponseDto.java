@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AwarenessResponseDto {
 
-	private Long roomId;
+	private Long roomUUID;
 
 	private String awareness;
 }

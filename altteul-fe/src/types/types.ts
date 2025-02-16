@@ -1,3 +1,5 @@
+import { CompatClient } from "@stomp/stompjs";
+
 export interface User {
   roomId?: number;
   userId: number;
@@ -25,12 +27,34 @@ export interface GameState {
   gameId: number | null;
   roomId: number | null;
   users: User[];
+  myTeam: MatchData,
+  opponent: MatchData,
   problem: Problem | null;
   testcases: TestCase[];
-  setGameInfo: (gameId: number, leaderId: number) => void;
+
+  setGameInfo: (gameId: number, roomId: number) => void;
+  setGameId: (gameId: number) => void;
+  setroomId: (roomId: number) => void;
   setUsers: (users: User[]) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
+}
+
+export interface MatchState {
+  matchData: MatchData;
+  isLoading: boolean;
+  myTeam: MatchData;
+  opponent: MatchData;
+  matchId: string;
+  
+  setMatchData: (data: MatchData) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
+  setMathId: (matchId: string) => void;
+  clear: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
 type Language = 'python' | 'java';
@@ -63,10 +87,10 @@ export interface UserInfo {
   rankChange: number;
   isOwner: boolean;
 }
-export interface SingleMatchData {
+export interface MatchData {
   gameId?: number;
-  roomId: number;
-  leaderId: number;
+  roomId?: number;
+  leaderId?: number;
   users?: User[];
   remainingUsers?: User[];
   problem?: Problem;
@@ -74,10 +98,9 @@ export interface SingleMatchData {
 }
 
 export interface SingleEnterApiResponse {
-  type?: string;
-  data: SingleMatchData;
-  message?: string;
-  status?: string;
+  data: MatchData;
+  message: string;
+  status: string;
 }
 
 export interface RankingResponse {
@@ -266,4 +289,27 @@ export interface UserSearchResponse {
   status: number;
   message: string;
   data: SearchedUser;
+}
+
+export interface Subscription {
+  id: string;
+  callback: (data: any) => void;
+}
+
+export interface SocketStore {
+  // 상태
+  client: CompatClient | null;
+  connected: boolean;
+  subscriptions: Map<string, Subscription>;
+  reconnectAttempts: number;
+  maxReconnectAttempts: number;
+
+  // 메서드
+  connect: () => void;
+  disconnect: () => void;
+  resetConnection: () => void;
+  subscribe: (destination: string, callback: (data: any) => void) => void;
+  unsubscribe: (destination: string) => void;
+  sendMessage: (destination: string, message: any) => void;
+  restoreSubscriptions: () => void;
 }

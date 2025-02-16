@@ -36,13 +36,13 @@ public class RedisKeys {
 	}
 
 	// 팀 보이스 참가자 키
-	public static String getVoiceParticipantsKey(Long roomId) {
-		return VOICE_PARTICIPANTS + ":" + roomId;
+	public static String getVoiceParticipantsKey(Long roomUUID) {
+		return VOICE_PARTICIPANTS + ":" + roomUUID;
 	}
 
 	// 음성 채팅 세선 키
-	public static String getVoiceSessionKey(Long roomId) {
-		return VOICE_SESSION + ":" + roomId;
+	public static String getVoiceSessionKey(Long roomUUID) {
+		return VOICE_SESSION + ":" + roomUUID;
 	}
 
 	// 친구 요청 키
@@ -108,6 +108,11 @@ public class RedisKeys {
 	// 팀전 방 카운팅 관리
 	public static String TeamRoomCountdown(String roomId) {
 		return "room:team:" + roomId + ":countdown";
+	}
+
+	// 특정 matchId를 가진 팀들이 풀어야 하는 문제 pk 관리
+	public static String TeamRoomProblem(String matchId) {
+		return "room:team:" + matchId + ":problem";
 	}
 
 	// 초대 정보 저장
