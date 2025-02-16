@@ -9,13 +9,13 @@ import gitHubLogo from '@assets/icon/github_logo.svg';
 import { useSocketStore } from '@stores/socketStore';
 import { useNavigate } from 'react-router-dom';
 
-const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
+const LoginModal = ({ isOpen = false }) => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
   const { connect } = useSocketStore();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSignUpClick = () => {
     closeModal();
@@ -43,9 +43,9 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
-      connect()
+      connect();
       closeModal();
-      navigate('/') //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
+      navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
     }
@@ -70,7 +70,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           name="username"
           placeholder="아이디를 입력해 주세요"
           value={form.username}
-          className="mt-2 w-[22rem] mt-9"
+          className="w-[22rem] mt-9"
           onChange={handleChange}
         />
         <Input
