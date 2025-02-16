@@ -70,7 +70,6 @@ const App = () => {
     '/match/team/final',
     '/match/single/search',
     '/match/single/final',
-    ,
   ].includes(location.pathname);
 
   const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
