@@ -1,3 +1,5 @@
+import { CompatClient } from "@stomp/stompjs";
+
 export interface User {
   roomId?: number;
   userId: number;
@@ -287,4 +289,27 @@ export interface UserSearchResponse {
   status: number;
   message: string;
   data: SearchedUser;
+}
+
+export interface Subscription {
+  id: string;
+  callback: (data: any) => void;
+}
+
+export interface SocketStore {
+  // 상태
+  client: CompatClient | null;
+  connected: boolean;
+  subscriptions: Map<string, Subscription>;
+  reconnectAttempts: number;
+  maxReconnectAttempts: number;
+
+  // 메서드
+  connect: () => void;
+  disconnect: () => void;
+  resetConnection: () => void;
+  subscribe: (destination: string, callback: (data: any) => void) => void;
+  unsubscribe: (destination: string) => void;
+  sendMessage: (destination: string, message: any) => void;
+  restoreSubscriptions: () => void;
 }

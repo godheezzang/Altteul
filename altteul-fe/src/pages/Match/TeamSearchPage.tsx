@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/team_matching_bg.svg';
