@@ -30,4 +30,5 @@ const createApiInstance = (additionalPath = '') => {
 export const api = createApiInstance(); // 기본 api 인스턴스
 export const sigleApi = createApiInstance('single');
 export const teamApi = createApiInstance('team');
+export const rankApi = createApiInstance('ranking');
 export const authApi = api; // auth는 기본 api 인스턴스 사용
