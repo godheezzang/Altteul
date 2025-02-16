@@ -62,8 +62,8 @@ public class JudgeService {
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
 
-	private final String PROBLEM_PREFIX = "problem_";
-	private final String EXAMPLE_PREFIX = "example_";
+	private static final String PROBLEM_PREFIX = "problem_";
+	private static final String EXAMPLE_PREFIX = "example_";
 
 	// 시스템 정보 조회
 	public PingResponse getSystemInfo() {
