@@ -96,6 +96,7 @@ const SingleIdePage = () => {
 
   // ✅ 10분마다 자동으로 사이드 문제 요청
   useEffect(() => {
+    if (!connected) return;
     if (requestCount >= MAX_REQUESTS) return;
 
     const interval = setInterval(
@@ -111,7 +112,7 @@ const SingleIdePage = () => {
     );
 
     return () => clearInterval(interval);
-  }, [requestCount]);
+  }, [connected, requestCount]);
 
   useEffect(() => {
     if (sideProblem) {
