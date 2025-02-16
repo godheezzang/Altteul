@@ -99,7 +99,7 @@ services:
     tmpfs:
       - /tmp
     volumes:
-      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ${ PROD_TESTCASE_ROOT }:/test_case:ro
       - ./resources/judge/data/judge_server/log:/log
       - ./resources/judge/data/judge_server/run:/judger
     environment:
