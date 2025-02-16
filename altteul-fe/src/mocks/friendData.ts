@@ -1,50 +1,6 @@
 // mocks/friendData.ts
 import PeopleIcon from '@assets/icon/People.svg';
-
-export type Friend = {
-  userId: number;
-  nickname: string;
-  profileImg: string;
-  isOnline: boolean;
-};
-
-export type FriendRequest = {
-  friendRequestId: number;
-  fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
-  requestStatus: 'P' | 'A' | 'R';
-};
-
-export type ChatRoom = {
-  friendId: number;
-  nickname: string;
-  profileImg: string;
-  isOnline: boolean;
-  recentMessage: string;
-  isMessageRead: boolean;
-  createdAt: string;
-};
-
-export type ChatMessage = {
-  chatMessageId: number;
-  senderId: number;
-  senderNickname: string;
-  messageContent: string;
-  checked: boolean;
-  createdAt: string;
-};
-
-export type Notification = {
-  id: number;
-  type: 'gameInvite' | 'friendRequest';
-  from: {
-    id: number;
-    nickname: string;
-    profileImg: string;
-  };
-  createdAt: string;
-};
+import { ChatMessage, ChatRoom, Friend, FriendRequest, NotificationItem } from 'types/types';
 
 export const mockFriends: Friend[] = [
   {
@@ -222,8 +178,9 @@ export const mockFriendRequestListResponse = {
     friendRequests: mockFriendRequests,
   },
 };
+// 기존 mockFriends, mockFriendRequests 등은 그대로 유지
 
-export const mockNotifications: Notification[] = [
+export const mockNotifications: NotificationItem[] = [
   {
     id: 1,
     type: 'friendRequest',
@@ -231,6 +188,7 @@ export const mockNotifications: Notification[] = [
       id: 1656,
       nickname: '피치공주',
       profileImg: PeopleIcon,
+      isOnline: true,
     },
     createdAt: new Date().toISOString(),
   },
@@ -241,7 +199,9 @@ export const mockNotifications: Notification[] = [
       id: 1657,
       nickname: '요시',
       profileImg: PeopleIcon,
+      isOnline: true,
     },
+    roomId: 1, // 게임 초대의 경우 roomId 추가
     createdAt: new Date().toISOString(),
   },
   {
@@ -251,7 +211,9 @@ export const mockNotifications: Notification[] = [
       id: 1659,
       nickname: '도널드',
       profileImg: PeopleIcon,
+      isOnline: true,
     },
+    roomId: 2, // 게임 초대의 경우 roomId 추가
     createdAt: new Date().toISOString(),
   },
 ];

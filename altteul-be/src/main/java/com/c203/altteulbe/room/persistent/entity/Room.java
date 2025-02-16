@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -35,7 +36,8 @@ public class Room extends BaseCreatedEntity {
 	@Enumerated(EnumType.STRING)
 	private BattleResult battleResult;
 
-	private Integer rewardPoint;
+	@Builder.Default
+	private Integer rewardPoint = 0;
 	private String lastExecuteTime;
 	private String lastExecuteMemory;
 
@@ -53,7 +55,8 @@ public class Room extends BaseCreatedEntity {
 		this.finishTime = LocalDateTime.now();
 	}
 
-	public void updateSubmissionRecord(Integer solvedTestcaseCount, String lastExecuteTime, String lastExecuteMemory, String code) {
+	public void updateSubmissionRecord(Integer solvedTestcaseCount, String lastExecuteTime, String lastExecuteMemory,
+		String code) {
 		if (this.solvedTestcaseCount == null) {
 			this.solvedTestcaseCount = solvedTestcaseCount;
 		} else if (solvedTestcaseCount != null && this.solvedTestcaseCount != null) {
@@ -64,5 +67,18 @@ public class Room extends BaseCreatedEntity {
 				this.code = code;
 			}
 		}
+	}
+
+	public void updateStatusByGameWinWithOutSolve(BattleResult battleResult) {
+		this.rewardPoint += 50;
+		this.battleResult = battleResult;
+		this.activation = false;
+		this.finishTime = LocalDateTime.now();
+	}
+
+	public void updateStatusByGameLose(BattleResult battleResult) {
+		this.battleResult = battleResult;
+		this.activation = false;
+		this.finishTime = LocalDateTime.now();
 	}
 }

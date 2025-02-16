@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { loginUser } from '@utils/api/auth';
+import { loginUser } from '@utils/Api/auth';
 import Modal from '@components/Common/Modal';
 import Input from '@components/Common/Input';
 import Button from '@components/Common/Button/Button';
-import axios from 'axios';
 import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import gitHubLogo from '@assets/icon/github_logo.svg';
+import { useSocketStore } from '@stores/socketStore';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
+  const { connect } = useSocketStore();
+  const navigate = useNavigate()
 
   const handleSignUpClick = () => {
     closeModal();
@@ -27,46 +30,24 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-
     if (!form.username.trim() || !form.password.trim()) {
       setError('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
     try {
+      //로그인 처리
       const response = await loginUser(form.username, form.password);
-
-      if (!response) {
-        throw new Error('서버 응답이 없습니다.');
-      }
-
       const token = response.headers?.authorization || response.headers?.['authorization'];
-      if (!token) {
-        throw new Error('토큰이 응답에 포함되지 않았습니다');
-      }
-
       const userId = response.headers?.userid || response.headers?.['userid'];
-      if (!userId) {
-        throw new Error('userId가 응답에 포함되지 않았습니다.');
-      }
-
       const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
-
+      connect()
       closeModal();
+      navigate('/') //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
-
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          setError(error.response.data?.message || '로그인 실패!');
-        } else {
-          setError(error.message);
-        }
-      } else {
-        setError('알 수 없는 오류 발생!');
-      }
     }
   };
 
@@ -79,7 +60,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     <Modal
       isOpen={isOpen}
       onClose={closeModal}
-      height="35rem"
+      height="29rem"
       title="알뜰 로그인"
       className="bg-primary-white"
     >
@@ -114,19 +95,19 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
         >
           회원가입
         </Button>
-
+        {/* 
         <a
           href="#"
           className="text-right text-gray-03 cursor-pointer underline hover:font-semibold"
         >
           비밀번호 재설정
-        </a>
+        </a> */}
 
         <Button
           onClick={handleGithubLogin}
           type="button"
           backgroundColor="primary-black"
-          className="h-[2.8rem] w-full mt-8 hover:brightness-110"
+          className="h-[2.8rem] w-[22rem]  hover:brightness-110"
           img={gitHubLogo}
         >
           github로 간편하게 시작하기

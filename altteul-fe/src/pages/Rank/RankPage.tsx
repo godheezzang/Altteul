@@ -4,7 +4,7 @@ import rank_page_bg from "@assets/background/rank_page_bg.svg";
 import SearchInput from "@components/Common/SearchInput";
 import Dropdown from "@components/Common/Dropdown";
 import RankingItem from "@components/Ranking/RankingItem";
-import { getRank } from "@utils/api/rankApi";
+import { getRank } from "@utils/Api/rankApi";
 import type { RankApiFilter, RankingResponse } from "types/types";
 
 // 메인 랭킹 페이지 컴포넌트

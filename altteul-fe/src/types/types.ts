@@ -1,3 +1,5 @@
+import { CompatClient } from "@stomp/stompjs";
+
 export interface User {
   roomId?: number;
   userId: number;
@@ -24,13 +26,37 @@ export interface Problem {
 export interface GameState {
   gameId: number | null;
   roomId: number | null;
+  userRoomId: number | null;
   users: User[];
+  myTeam: MatchData;
+  opponent: MatchData;
   problem: Problem | null;
   testcases: TestCase[];
-  setGameInfo: (gameId: number, leaderId: number) => void;
+
+  setGameInfo: (gameId: number, roomId: number) => void;
+  setGameId: (gameId: number) => void;
+  setroomId: (roomId: number) => void;
+  setUserRoomId: (userRoomId: number) => void;
   setUsers: (users: User[]) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
+}
+
+export interface MatchState {
+  matchData: MatchData;
+  isLoading: boolean;
+  myTeam: MatchData;
+  opponent: MatchData;
+  matchId: string;
+
+  setMatchData: (data: MatchData) => void;
+  setMyTeam: (data: MatchData) => void;
+  setOpponent: (data: MatchData) => void;
+  setMathId: (matchId: string) => void;
+  clear: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
 type Language = 'python' | 'java';
@@ -63,10 +89,10 @@ export interface UserInfo {
   rankChange: number;
   isOwner: boolean;
 }
-export interface SingleMatchData {
+export interface MatchData {
   gameId?: number;
-  roomId: number;
-  leaderId: number;
+  roomId?: number;
+  leaderId?: number;
   users?: User[];
   remainingUsers?: User[];
   problem?: Problem;
@@ -74,10 +100,9 @@ export interface SingleMatchData {
 }
 
 export interface SingleEnterApiResponse {
-  type?: string;
-  data: SingleMatchData;
-  message?: string;
-  status?: string;
+  data: MatchData;
+  message: string;
+  status: string;
 }
 
 export interface RankingResponse {
@@ -156,10 +181,185 @@ export interface CodeInfo {
   code: string;
 }
 
-export interface RankApiFilter {
-    page: number | null;
-    size: number | null;
-    lang: string | null;
-    tierId: number | null;
-    nickname: string | null;
+export type UserSearchContextType = {
+  searchQuery: string;
+  searchResults: Friend[];
+  handleSearch: (query: string) => void;
+  resetSearch: () => void; // 검색 초기화
+};
+
+export type Friend = {
+  userid: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+};
+
+export type FriendRequest = {
+  friendRequestId: number;
+  fromUserId: number;
+  fromUserNickname: string;
+  fromUserProfileImg: string;
+  requestStatus: 'P' | 'A' | 'R';
+};
+
+// 삭제할것
+export type ChatRooms = {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  recentMessage: string;
+  isMessageRead: boolean;
+  createdAt: string;
+};
+
+export type ChatRoom = {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  messages: ChatMessage[];
+  createdAt: string;
+};
+
+export type ChatRoomResponse = {
+  data: ChatRoom;
+  message: string;
+  status: number;
+};
+
+export type ChatMessage = {
+  chatMessageId: number;
+  senderId: number;
+  senderNickname: string;
+  messageContent: string;
+  checked: boolean;
+  createdAt: string;
+};
+
+export type Notification = {
+  id: number;
+  type: 'gameInvite' | 'friendRequest';
+  from: {
+    id: number;
+    nickname: string;
+    profileImg: string;
+  };
+  createdAt: string;
+};
+
+export interface NotificationUser {
+  id: number;
+  nickname: string;
+  profileImg: string;
+  isOnline?: boolean;
+}
+
+export interface NotificationItem {
+  id: number;
+  type: 'friendRequest' | 'gameInvite';
+  from: NotificationUser;
+  roomId?: number; // gameInvite일 때만 존재
+  createdAt: string;
+}
+
+export interface FriendsResponse {
+  status: number;
+  message: string;
+  data: {
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+    friends: Friend[];
+  };
+}
+
+export interface ChatRoomsResponse {
+  status: number;
+  message: string;
+  data: ChatRoom[];
+}
+
+export interface ChatRoomDetail {
+  friendId: number;
+  nickname: string;
+  profileImg: string;
+  isOnline: boolean;
+  messages: ChatMessage[];
+  createdAt: string;
+}
+
+export interface ChatRoomDetailResponse {
+  data: {
+    friendId: number;
+    nickname: string;
+    profileImg: string;
+    isOnline: boolean;
+    messages: {
+      chatMessageId: number;
+      senderId: number;
+      senderNickname: string;
+      messageContent: string;
+      checked: boolean;
+      createdAt: string;
+    }[];
+    createdAt: string;
+  };
+  message: string;
+  status: number;
+}
+
+export interface FriendRequestsResponse {
+  data: {
+    friendRequests: FriendRequest[];
+    isLast: boolean;
+    totalPages: number;
+    currentPage: number;
+    totalElements: number;
+  };
+  message: string;
+  status: string;
+}
+
+export interface SearchedUser {
+  userId: number;
+  nickname: string;
+  profileImage: string;
+  isOnline: boolean;
+}
+
+export interface UserSearchResponse {
+  status: number;
+  message: string;
+  data: {
+    userId: number;
+    nickname: string;
+    profileImg: string;
+    isOnline: boolean;
+  };
+}
+
+export interface Subscription {
+  id: string;
+  callback: (data: any) => void;
+}
+
+export interface SocketStore {
+  // 상태
+  client: CompatClient | null;
+  connected: boolean;
+  subscriptions: Map<string, Subscription>;
+  reconnectAttempts: number;
+  maxReconnectAttempts: number;
+
+  // 메서드
+  connect: () => void;
+  disconnect: () => void;
+  resetConnection: () => void;
+  subscribe: (destination: string, callback: (data: any) => void) => void;
+  unsubscribe: (destination: string) => void;
+  sendMessage: (destination: string, message: any) => void;
+  restoreSubscriptions: () => void;
 }

@@ -22,8 +22,6 @@ const UserInfo = () => {
 	const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const token = localStorage.getItem("token");
-	const loggedInUserId = localStorage.getItem("userId");
 
 	useEffect(() => {
 		const fetchUserInfo = async () => {
@@ -32,7 +30,6 @@ const UserInfo = () => {
 
 				const response = await getUserInfo(userId);
 				const data = response.data;
-
 				setUserInfo(data);
 			} catch (error) {
 				console.error(error);
@@ -42,7 +39,7 @@ const UserInfo = () => {
 		};
 
 		fetchUserInfo();
-	}, [userId, token, loggedInUserId]);
+	}, [userId]);
 
 	// TODO: 로딩 컴포넌트로 교체
 	if (isLoading)
@@ -65,7 +62,7 @@ const UserInfo = () => {
 		<div className="mb-10">
 			<div className="relative w-24 mx-auto">
 				<img
-					src={userInfo.profileImg.length === 0 ? people : userInfo.profileImg}
+					src={userInfo.profileImg}
 					alt="Profile"
 					className="w-24 h-24 rounded-full border-2 border-gray-03"
 				/>

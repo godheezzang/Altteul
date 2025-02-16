@@ -37,9 +37,48 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-			.setAllowedOriginPatterns("*")
-			// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
+			.setAllowedOriginPatterns(
+				"http://localhost:80",
+				"http://localhost:443",
+				"http://localhost:5173",
+				"http://frontend:80",
+				"http://frontend:443",
+				"http://frontend:5173",
+				"http://host.docker.internal:80",
+				"http://host.docker.internal:443",
+				"http://host.docker.internal:5173",
+				"https://localhost:80",
+				"https://localhost:443",
+				"https://localhost:5173",
+				"https://frontend:80",
+				"https://frontend:443",
+				"https://frontend:5173",
+				"https://host.docker.internal:80",
+				"https://host.docker.internal:443",
+				"https://host.docker.internal:5173",
+				"https://i12c203.p.ssafy.io",
+				"https://i12c203.p.ssafy.io:443"
+			)
+
 			.withSockJS();
+		registry.addEndpoint("/ws")
+			.setAllowedOriginPatterns(
+				"http://localhost:80",
+				"http://localhost:5173",
+				"http://frontend:80",
+				"http://frontend:5173",
+				"http://host.docker.internal:80",
+				"http://host.docker.internal:5173",
+				"https://localhost:80",
+				"https://localhost:5173",
+				"https://frontend:80",
+				"https://frontend:5173",
+				"https://host.docker.internal:80",
+				"https://host.docker.internal:5173"
+			);
+
+		// .setAllowedOrigins("http://localhost:3000", "http://localhost:80")
+
 	}
 
 	@Override

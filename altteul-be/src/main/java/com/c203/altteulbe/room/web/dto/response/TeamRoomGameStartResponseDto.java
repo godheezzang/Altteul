@@ -9,29 +9,25 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class TeamRoomGameStartResponseDto {
 	private Long gameId;
 	private RoomEnterResponseDto team1;
 	private RoomEnterResponseDto team2;
-	private GameStartForProblemDto problem;
-	private List<GameStartForTestcaseDto> testcases;
 
 	public static TeamRoomGameStartResponseDto from(Long gameId,
-											RoomEnterResponseDto team1,
-											RoomEnterResponseDto team2,
-											GameStartForProblemDto problem,
-											List<GameStartForTestcaseDto> testcase) {
+													RoomEnterResponseDto team1,
+													RoomEnterResponseDto team2) {
 		return TeamRoomGameStartResponseDto.builder()
 								.gameId(gameId)
 								.team1(team1)
 								.team2(team2)
-								.problem(problem)
-								.testcases(testcase)
 								.build();
 	}
 }

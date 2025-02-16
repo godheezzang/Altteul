@@ -1,6 +1,5 @@
-// components/friend/friend_common/Basemodal.tsx
+import ModalHeader from '@components/Friend/Friend_common/ModalHeader';
 import React from 'react';
-import ModalHeader from '@components/friend/ModalHeader';
 
 type BaseModalProps = {
   isOpen: boolean;
@@ -15,14 +14,14 @@ const BaseModal = ({ isOpen, onClose, children, showBackButton, onBack }: BaseMo
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-primary-black bg-opacity-50"
+      className="fixed right-4 bottom-4 flex  bg-primary-black bg-opacity-50 z-[9999]"
       onClick={onClose}
     >
       <div
         className="bg-gray-06 border-2 border-primary-orange rounded-lg w-[90vw] max-w-md h-[90vh] max-h-[80vh] p-4 shadow-lg relative flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <ModalHeader showBackButton={showBackButton} onBack={onBack} onClose={onClose} />
+        <ModalHeader showBackButton={true} onClose={onClose} />
         {children}
       </div>
     </div>

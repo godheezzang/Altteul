@@ -1,4 +1,4 @@
-package com.c203.altteulbe.room.web.dto.request;
+package com.c203.altteulbe.game.web.dto.result.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class RoomGameStartRequestDto {
+public class OpponentCodeResponseDto {
+	private String nickname;
 	private Long roomId;
-	private Long leaderId;
+	private String code;
 }

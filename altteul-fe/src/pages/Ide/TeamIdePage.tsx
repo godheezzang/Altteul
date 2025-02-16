@@ -1,83 +1,59 @@
-// TeamIdePage.tsx
-import React, { useEffect, MutableRefObject } from 'react';
+import { useEffect, useState } from 'react';
+import useGameWebSocket from '@hooks/useGameWebSocket';
+import useGameStore from '@stores/useGameStore';
 import CodeEditor from '@components/Ide/CodeEditor';
 import Terminal from '@components/Ide/Terminal';
 import IdeFooter from '@components/Ide/IdeFooter';
 import ProblemInfo from '@components/Ide/ProblemInfo';
+import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
-import { Cursor } from '@hooks/useIde';
-import * as monaco from 'monaco-editor';
-import { TeamInfo } from 'types/types';
+import VoiceChat from '@components/Ide/VoiceChat';
 
-interface TeamIdePageProps {
-  code: string;
-  setCode: (code: string) => void;
-  partnerCode: string;
-  language: 'python' | 'java';
-  setLanguage: (lang: 'python' | 'java') => void;
-  output: string;
-  editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>;
-  handleCodeExecution: () => void;
-  handleCursorChange: (cursor: Cursor) => void;
-  teamMembers: TeamInfo;
-  opponentMembers: TeamInfo;
-}
+const MAX_REQUESTS = 5;
 
-const TeamIdePage: React.FC<TeamIdePageProps> = ({
-  code,
-  setCode,
-  partnerCode,
-  language,
-  setLanguage,
-  output,
-  editorRef,
-  handleCodeExecution,
-  handleCursorChange,
-  teamMembers,
-  opponentMembers,
-}) => {
-  useEffect(() => {
-    // 게임 시작 후 소켓 연결
-    // TODO: Implement socket connection logic
-  }, []);
+const TeamIdePage = () => {
+  const { gameId, roomId, users, problem } = useGameStore();
+  const { sideProblem, requestSideProblem } = useGameWebSocket(gameId, roomId);
 
-  const handleCodeSubmit = () => {
-    // 코드 제출: socket
-    // TODO: Implement code submission logic
-  };
+  const [code, setCode] = useState('');
+  const [opponentCode, setOpponentCode] = useState('');
+  const [language, setLanguage] = useState<'python' | 'java'>('python');
+  const [showModal, setShowModal] = useState(false);
+  const [requestCount, setRequestCount] = useState(0);
+  const [output, setOutput] = useState<string>('');
 
   return (
     <div className="flex h-screen bg-primary-black border-t border-gray-04">
-      <div className="min-w-[23rem] border-r border-gray-04">
+      <div className="min-w-[23em] border-r border-gray-04 flex flex-col">
         <ProblemInfo />
       </div>
-      <div className="flex-1 flex">
-        <div className="w-1/2 flex flex-col">
-          <CodeEditor
-            code={code}
-            setCode={setCode}
-            language={language}
-            setLanguage={setLanguage}
-            onCursorChange={handleCursorChange}
-            ref={editorRef}
-          />
-          <Terminal output={output} />
-          <IdeFooter onExecute={handleCodeExecution} />
-        </div>
-        <div className="w-1/2 border-r border-gray-04">
-          <CodeEditor
-            code={partnerCode}
-            setCode={() => {}}
-            language={language}
-            setLanguage={() => {}}
-            onCursorChange={() => {}}
-            readonly
-          />
+
+      <div className="flex-[50rem] max-w-[50rem] border-r border-gray-04">
+        <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+        <Terminal output={output} />
+        <div className="text-center">
+          <IdeFooter code={code} language={language} setOutput={setOutput} />
         </div>
       </div>
-      <div className="min-w-[13rem] border-l border-gray-04">
-        <GameUserList teamMembers={teamMembers} opponentMembers={opponentMembers} />
+
+      <div className="w-[50rem] border-l border-gray-04">
+        <CodeEditor
+          code={opponentCode}
+          setCode={setOpponentCode}
+          language={language}
+          setLanguage={setLanguage}
+        />
+        <VoiceChat />
       </div>
+
+      {showModal && sideProblem && (
+        <SideProblemModal
+          gameId={gameId}
+          roomId={roomId}
+          problem={sideProblem?.data}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
