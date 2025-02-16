@@ -84,6 +84,13 @@ public class Room extends BaseCreatedEntity {
 		}
 	}
 
+	public void updateStatusByGameWinWithOutSolve(BattleResult battleResult) {
+		this.rewardPoint += 50;
+		this.battleResult = battleResult;
+		this.activation = false;
+		this.finishTime = LocalDateTime.now();
+	}
+
 	public void updateStatusByGameLose(BattleResult battleResult) {
 		this.battleResult = battleResult;
 		this.activation = false;

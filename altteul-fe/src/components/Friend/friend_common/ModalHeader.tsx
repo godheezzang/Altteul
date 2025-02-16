@@ -1,17 +1,29 @@
 // 닫기 버튼, 뒤로가기 버튼
 
-// components/friend/friend_common/ModalHeader.tsx
 import React from 'react';
 import backIcon from '@assets/icon/friend/back.svg';
 import exitlineIcon from '@assets/icon/friend/exit_line.svg';
 
 type ModalHeaderProps = {
   showBackButton?: boolean;
-  onBack?: () => void;
   onClose: () => void;
+  onBack?: () => void;
+  // setSelectedFriendId?: (id: number | null) => void;
+  // setCurrentTab?: (tab: string) => void;
 };
 
-const ModalHeader = ({ showBackButton, onBack, onClose }: ModalHeaderProps) => {
+const ModalHeader = ({
+  showBackButton,
+  onClose,
+  onBack,
+  // setSelectedFriendId,
+  // setCurrentTab,
+}: ModalHeaderProps) => {
+  // const handleBack = () => {
+  //   setSelectedFriendId(null);
+  //   setCurrentTab('chat');
+  // };
+
   return (
     <>
       {/* 뒤로가기 버튼 */}

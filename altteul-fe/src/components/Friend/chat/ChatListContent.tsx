@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ChatListItem from '@components/Friend/chat/ChatListItem';
+import ChatListItem from '@components/Friend/Chat/ChatListItem';
 import { getChatRooms } from '@utils/Api/chatApi';
 import { ChatRoom } from 'types/types';
 
@@ -16,14 +16,8 @@ const ChatListContent = ({ onChatSelect, searchQuery = '' }: ChatListContentProp
   const fetchChatRooms = async () => {
     setIsLoading(true);
     try {
-      const response = await getChatRooms();
-      console.log('채팅방 목록 응답:', response); // 개발 시 데이터 확인용
-
-      if (response.status === 200) {
-        setChatRooms(response.data);
-      } else {
-        throw new Error('서버 응답이 올바르지 않습니다.');
-      }
+      const data = await getChatRooms();
+      setChatRooms(data);
     } catch (error) {
       console.error('채팅방 목록 조회 실패:', error);
       setError(error instanceof Error ? error.message : '채팅방 목록을 불러오는데 실패했습니다.');
@@ -37,11 +31,15 @@ const ChatListContent = ({ onChatSelect, searchQuery = '' }: ChatListContentProp
   }, []);
 
   // 검색어로 채팅방 필터링
-  const filteredChats = chatRooms.filter(
-    chat =>
-      chat.nickname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat.recentMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChats = chatRooms.filter(chat => {
+    const searchLower = searchQuery.toLowerCase();
+    const latestMessage = chat.messages[chat.messages.length - 1]?.messageContent || '';
+
+    return (
+      chat.nickname.toLowerCase().includes(searchLower) ||
+      latestMessage.toLowerCase().includes(searchLower)
+    );
+  });
 
   if (isLoading) {
     return <div className="text-center text-gray-03">로딩 중...</div>;
@@ -54,16 +52,27 @@ const ChatListContent = ({ onChatSelect, searchQuery = '' }: ChatListContentProp
   return (
     <div className="chat-list space-y-2">
       {filteredChats.length > 0 ? (
-        filteredChats.map(chat => (
-          <ChatListItem
-            key={chat.friendId}
-            {...chat}
-            profileImg={chat.profileImg} // API 응답의 profileImage를 컴포넌트의 profileImg로 매핑
-            onSelect={onChatSelect}
-          />
-        ))
+        filteredChats.map(chat => {
+          const latestMessage = chat.messages[chat.messages.length - 1];
+
+          return (
+            <ChatListItem
+              key={chat.friendId}
+              friendId={chat.friendId}
+              nickname={chat.nickname}
+              profileImg={chat.profileImg}
+              isOnline={chat.isOnline}
+              recentMessage={latestMessage?.messageContent || '새로운 대화를 시작해보세요'}
+              isMessageRead={latestMessage?.checked ?? true}
+              createdAt={latestMessage?.createdAt || chat.createdAt}
+              onSelect={onChatSelect}
+            />
+          );
+        })
       ) : (
-        <p className="text-center text-gray-03">검색 결과가 없습니다.</p>
+        <p className="text-center text-gray-03">
+          {searchQuery ? '검색 결과가 없습니다.' : '채팅방이 없습니다.'}
+        </p>
       )}
     </div>
   );

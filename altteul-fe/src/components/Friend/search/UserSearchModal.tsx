@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import FriendModal from '@components/Friend/FriendModal';
 import FriendListItem from '@components/Friend/FriendListItem';
 import { useUserSearch } from 'contexts/UserSearchContext';
-import { useFriendWebSocket } from 'hooks/useFriendWebSocket';
 import { useSocketStore } from '@stores/socketStore';
 
 type UserSearchModalProps = {

@@ -1,24 +1,36 @@
-// 채팅 목록 조회
+// chatApi.ts
 import { api } from '@utils/Api/commonApi';
-import { ChatRoomDetailResponse, ChatRoomsResponse } from 'types/types';
+import useAuthStore from '@stores/authStore';
+import { ChatRoom } from 'types/types';
 
-export const getChatRooms = async () => {
+// 채팅방 목록 조회
+export const getChatRooms = async (): Promise<ChatRoom[]> => {
   try {
-    const { data } = await api.get<ChatRoomsResponse>('/chatroom');
+    const token = useAuthStore.getState().token;
+    const { data } = await api.get<ChatRoom[]>('/chatroom/list', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return data;
   } catch (error) {
-    console.error('채팅방을 가져오는 데 실패했습니다.:', error);
+    console.error('채팅방 목록 조회 에러:', error);
     throw error;
   }
 };
 
-// 단일 채팅 조회
-export const getChatRoomDetail = async (friendId: number) => {
+// 특정 친구와의 채팅방 조회
+export const getChatRoom = async (friendId: number): Promise<ChatRoom> => {
   try {
-    const { data } = await api.get<ChatRoomDetailResponse>(`/chatroom/friend/${friendId}`);
+    const token = useAuthStore.getState().token;
+    const { data } = await api.get<ChatRoom>(`/chatroom/friend/${friendId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return data;
   } catch (error) {
-    console.error('Failed to fetch chat room detail:', error);
+    console.error('채팅방 조회 에러:', error);
     throw error;
   }
 };

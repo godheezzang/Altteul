@@ -10,8 +10,7 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/fullchain1.pem:/etc/nginx/ssl/fullchain.pem:ro
-      - /etc/letsencrypt/archive/i12c203.p.ssafy.io/privkey1.pem:/etc/nginx/ssl/privkey.pem:ro
+      - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - backend
     networks: # 이 부분 추가
@@ -100,7 +99,7 @@ services:
     tmpfs:
       - /tmp
     volumes:
-      - ./resources/judge/data/backend/test_case:/test_case:ro
+      - ${PROD_TESTCASE_ROOT}:/test_case:ro
       - ./resources/judge/data/judge_server/log:/log
       - ./resources/judge/data/judge_server/run:/judger
     environment:

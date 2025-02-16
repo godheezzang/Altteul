@@ -1,4 +1,3 @@
-// ChatHeader.tsx
 // 채팅창 상단
 
 import React from 'react';
