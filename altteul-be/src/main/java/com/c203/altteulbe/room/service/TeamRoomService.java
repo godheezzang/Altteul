@@ -271,15 +271,15 @@ public class TeamRoomService {
 
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
-																  .map(GameStartForTestcaseDto::from)
-																  .collect(Collectors.toList());
+			.map(GameStartForTestcaseDto::from)
+			.collect(Collectors.toList());
 
 		// 이후 DB에 저장하기 위해 문제 pk를 redis에 저장
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomProblem(matchId), String.valueOf(randomProblemId));
 
 		// 각 팀의 유저 정보를 가져오는 메소드 호출
 		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2),
-																	problem, testcases);
+			problem, testcases);
 
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
@@ -333,8 +333,8 @@ public class TeamRoomService {
 		}
 
 		// 게임 시작 시 음성 채팅 세션 생성
-		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
-		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
+		voiceChatService.createTeamVoiceSession(matchId, roomId1);
+		voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
 		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
 		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
@@ -361,7 +361,7 @@ public class TeamRoomService {
 		RoomEnterResponseDto team2Dto = getRoomEnterResponseDtoForDB(roomId2, savedTeam2.getId());
 
 		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(
-																game.getId(), team1Dto, team2Dto);
+			game.getId(), team1Dto, team2Dto);
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
 
@@ -378,6 +378,7 @@ public class TeamRoomService {
 	public void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
 
 		redisTemplate.opsForValue().set(RedisKeys.getRoomDbId(roomId), teamRoom.getId().toString());
+		redisTemplate.opsForValue().set(RedisKeys.getRoomRedisId(teamRoom.getId()), roomId.toString());
 
 		// Redis에서 유저 ID 조회
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
@@ -593,8 +594,8 @@ public class TeamRoomService {
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
 	 */
 	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2,
-														 GameStartForProblemDto problem,
-														 List<GameStartForTestcaseDto> testcases) {
+		GameStartForProblemDto problem,
+		List<GameStartForTestcaseDto> testcases) {
 		RoomEnterResponseDto responseDto1 = getRoomEnterResponseDto(roomId1);
 		RoomEnterResponseDto responseDto2 = getRoomEnterResponseDto(roomId2);
 		return TeamMatchResponseDto.toDto(responseDto1, responseDto2, problem, testcases);
