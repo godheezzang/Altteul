@@ -12,11 +12,11 @@ interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
   language: 'python' | 'java';
-  setLanguage: (lang: 'python' | 'java') => void;
+  setLanguage?: (lang: 'python' | 'java') => void;
+  readOnly?: boolean;
 }
 
-const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) => {
-
+const CodeEditor = ({ code, setCode, language, setLanguage, readOnly }: CodeEditorProps) => {
   useEffect(() => {
     configureMonaco();
     setCode(DEFAULT_CODE[language]);
@@ -28,21 +28,27 @@ const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) =>
   ];
 
   return (
-    <div className="flex flex-col border-b border-gray-04 items-end">
+    <div
+      className={`flex flex-col border-b border-gray-04 items-end ${readOnly ? 'mt-[2.35rem]' : ''}`}
+    >
       {/* 언어 선택 드롭다운 */}
-      <Dropdown
-        options={languageOptions}
-        value={language}
-        onChange={newLang => {
-          setLanguage(newLang as typeof language);
-        }}
-        width="10rem"
-        height="3.7rem"
-        className='bg-gray-06 border-0 text-sm'
-        optionCustomName='bg-gray-05 border-0'
-        borderColor='border-gray-06'
-        fontSize='text-sm'
-      />
+      {readOnly ? (
+        ''
+      ) : (
+        <Dropdown
+          options={languageOptions}
+          value={language}
+          onChange={newLang => {
+            setLanguage(newLang as typeof language);
+          }}
+          width="10rem"
+          height="3.7rem"
+          className="bg-gray-06 border-0 text-sm"
+          optionCustomName="bg-gray-05 border-0"
+          borderColor="border-gray-06"
+          fontSize="text-sm"
+        />
+      )}
 
       <Editor
         height="55vh"
@@ -58,6 +64,7 @@ const CodeEditor= ({ code, setCode, language, setLanguage }: CodeEditorProps) =>
             vertical: 'auto',
             horizontal: 'auto',
           },
+          readOnly: readOnly ? true : false,
         }}
         loading="에디터를 불러오는 중입니다."
         onChange={value => setCode(value || '')}
