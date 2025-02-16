@@ -44,7 +44,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps) => {
     >
       <div className="flex flex-col h-full">
         {/* Header: 검색바 (친구/채팅 탭에서만 표시) */}
-        {currentView === 'main' && (currentTab === 'friends' || currentTab === 'chat') && (
+        {currentView === 'main' && (currentTab === 'friends' || currentTab === 'chats') && (
           <div className="p-4">
             <SearchBar
               onSearchResult={result => {
