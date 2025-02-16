@@ -10,6 +10,7 @@ type ChatListItemProps = {
   isMessageRead: boolean;
   createdAt: string;
   onSelect?: (friendId: number) => void;
+  isFriend?: boolean;
 };
 
 const ChatListItem = ({
@@ -21,7 +22,12 @@ const ChatListItem = ({
   isMessageRead,
   createdAt,
   onSelect,
+  isFriend = false,
 }: ChatListItemProps) => {
+  // const [isRequesting, setIsRequesting] = useState(false);
+  // const { sendMessage } = useSocketStore();
+  // const { userId } = useAuthStore();
+
   const handleClick = () => {
     onSelect?.(friendId);
   };

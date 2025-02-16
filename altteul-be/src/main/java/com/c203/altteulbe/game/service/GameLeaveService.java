@@ -112,7 +112,7 @@ public class GameLeaveService {
 
 	// 팀전 퇴장 처리
 	private void handleInProgressTeamGameLeave(Game game, User user, Long roomId) {
-		handleTeamGameLeave(game, user, roomId, "GAME_LEAVE", true);
+		handleTeamGameLeave(game, user, roomId, "GAME_IN_PROGRESS_LEAVE", true);
 	}
 
 	// 개인전 정상 종료 후 나가기 처리
@@ -122,7 +122,7 @@ public class GameLeaveService {
 
 	// 개인전 중간 퇴장 처리
 	private void handleInProgressSingleGameLeave(Game game, User user, Long roomId) {
-		handleSingleGameLeave(game, user, roomId, "GAME_LEAVE", true);
+		handleSingleGameLeave(game, user, roomId, "GAME_IN_PROGRESS_LEAVE", true);
 	}
 
 	// 남은 유저 정보 조회
@@ -279,6 +279,7 @@ public class GameLeaveService {
 		// 상태 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(Long.parseLong(redisRoomId)), TEAM_LEFT_STATUS);
 
+		// 상대팀이 이미 전부 나간 상태인 경우
 		if (TEAM_LEFT_STATUS.equals(opposingStatus)) {
 			// Redis 데이터 정리
 			cleanupGameRedisData(Long.parseLong(redisRoomId), BattleType.T);
@@ -302,7 +303,7 @@ public class GameLeaveService {
 		Long winningTeamId = remainingUsersByTeam.keySet().iterator().next();
 		TeamRoom winningTeam = teamRoomRepository.findById(winningTeamId)
 			.orElseThrow(RoomNotFoundException::new);
-		winningTeam.updateStatusByGameClear(BattleResult.FIRST);
+		winningTeam.updateStatusByGameWinWithOutSolve(BattleResult.FIRST);
 
 		TeamRoom losingTeam = teamRoomRepository.findById(roomId)
 			.orElseThrow(RoomNotFoundException::new);
@@ -334,10 +335,11 @@ public class GameLeaveService {
 		List<String> remainingUserIds = redisTemplate.opsForList().range(roomUsersKey, 0, -1);
 		List<UserInfoResponseDto> remainingUsers = getRemainingUsers(remainingUserIds);
 
-		// 중간 퇴장 시에만 수행하는 로직
-		if (isInProgress) {
-			SingleRoom singleRoom = singleRoomRepository.findById(roomId)
-				.orElseThrow(RoomNotFoundException::new);
+		SingleRoom singleRoom = singleRoomRepository.findById(roomId)
+			.orElseThrow(RoomNotFoundException::new);
+
+		// finishTime이 null이고 battleResult도 null이면 아직 문제를 못 푼 상태
+		if (isInProgress && singleRoom.getFinishTime() == null && singleRoom.getBattleResult() == null) {
 			singleRoom.updateStatusByGameLose(BattleResult.FAIL);
 		}
 

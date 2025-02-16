@@ -67,6 +67,10 @@ public class Game extends BaseCreatedEntity {
 			.build();
 	}
 
+	public void completeGame() {
+		this.completedAt = LocalDateTime.now();
+	}
+
 	public void cancelGame() {
 		this.completedAt = LocalDateTime.now();
 	}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { searchUser } from '@utils/Api/userApi';
-import type { SearchedUser } from 'types/types';
+
+import type { SearchedUser, UserSearchResponse } from 'types/types';
+import { searchUsers } from '@utils/Api/userApi';
 
 interface UserSearchContextType {
   searchQuery: string;
@@ -26,14 +27,11 @@ export const UserSearchProvider = ({ children }: { children: React.ReactNode }) 
     }
 
     setIsLoading(true);
+    setError(null);
     try {
-      const response = await searchUser(query);
-      if (response.status === 200) {
-        // 단일 사용자 응답을 배열로 변환
-        setSearchResults([response.data]);
-      } else {
-        throw new Error('검색 결과를 가져오는데 실패했습니다.');
-      }
+      // searchUsers 함수 그대로 사용
+      const response = await searchUsers(query);
+      setSearchResults(response);
     } catch (error) {
       console.error('사용자 검색 실패:', error);
       setError(error instanceof Error ? error.message : '검색에 실패했습니다.');

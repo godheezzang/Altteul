@@ -2,11 +2,17 @@ import GameGnb from '@components/Nav/GameGnb';
 import MainGnb from '@components/Nav/MainGnb';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ModalManager from '@components/Common/ModalManager';
-import { UserSearchProvider } from 'contexts/UserSearchContext';
+import { UserSearchProvider } from 'Contexts/UserSearchContext';
 import { useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import { inviteResponse } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
+import Button from '@components/Common/Button/Button';
+import { MODAL_TYPES } from 'types/modalTypes';
+import chatmodalimg from '@assets/icon/chatmodal.svg';
+
+// 임시 친구모달 버튼
+import useModalStore from '@stores/modalStore';
 
 const App = () => {
   const location = useLocation();
@@ -17,6 +23,7 @@ const App = () => {
   const checkAuthStatus = () => {
     return !!sessionStorage.getItem('token');
   };
+  const { openModal } = useModalStore(); // 친구
 
   //로그인 시 소켓 연결 유지
   useEffect(() => {
@@ -63,6 +70,7 @@ const App = () => {
     '/match/team/final',
     '/match/single/search',
     '/match/single/final',
+    ,
   ].includes(location.pathname);
 
   const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
@@ -70,7 +78,7 @@ const App = () => {
   );
 
   return (
-    <UserSearchProvider>
+    <>
       <div className="min-h-screen">
         {!hideNavigation && (isGamePage ? <GameGnb /> : <MainGnb />)}
         <main
@@ -80,7 +88,12 @@ const App = () => {
         </main>
         <ModalManager />
       </div>
-    </UserSearchProvider>
+      {/* // 임시버튼 - 친구 */}
+      <Button onClick={() => openModal(MODAL_TYPES.FRIEND)} children="임시채팅모달" />
+      <button onClick={() => openModal(MODAL_TYPES.CHAT)} className="fixed bottom-5 right-5 z-50">
+        <img src={chatmodalimg} alt="임시채팅모달" className="w-12 h-12 object-contain" />
+      </button>
+    </>
   );
 };
 
