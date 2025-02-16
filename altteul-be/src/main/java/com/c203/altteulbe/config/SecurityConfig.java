@@ -60,7 +60,7 @@ public class SecurityConfig {
 			@Override
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				CorsConfiguration configuration = new CorsConfiguration();
-				configuration.setAllowedOriginPatterns(
+				configuration.setAllowedOriginPatterns(Arrays.asList(
 					"http://localhost:80",
 					"http://localhost:443",
 					"http://localhost:5173",
@@ -81,7 +81,7 @@ public class SecurityConfig {
 					"https://host.docker.internal:5173",
 					"https://i12c203.p.ssafy.io",
 					"https://i12c203.p.ssafy.io:443"
-				);
+				));
 
 				configuration.setAllowedMethods(Collections.singletonList("*"));
 				configuration.setAllowCredentials(true);
