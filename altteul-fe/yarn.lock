@@ -1182,6 +1182,7 @@ __metadata:
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.1"
     vite-tsconfig-paths: "npm:^4.3.1"
+    y-monaco: "npm:^0.1.6"
     y-websocket: "npm:^2.1.0"
     yjs: "npm:^13.6.23"
     zustand: "npm:^4.5.0"
@@ -3697,7 +3698,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lib0@npm:^0.2.31, lib0@npm:^0.2.52, lib0@npm:^0.2.85, lib0@npm:^0.2.99":
+"lib0@npm:^0.2.31, lib0@npm:^0.2.43, lib0@npm:^0.2.52, lib0@npm:^0.2.85, lib0@npm:^0.2.99":
   version: 0.2.99
   resolution: "lib0@npm:0.2.99"
   dependencies:
@@ -5825,6 +5826,18 @@ __metadata:
   peerDependencies:
     yjs: ^13.0.0
   checksum: 10c0/c1bc82a7ac31406c36b41dcb7a01273323f8b353dec289512c1116cc4df54673ee112c0546b49b6431be4918c8267a3aeb891ba727a7adef8638eb4baa83fa57
+  languageName: node
+  linkType: hard
+
+"y-monaco@npm:^0.1.6":
+  version: 0.1.6
+  resolution: "y-monaco@npm:0.1.6"
+  dependencies:
+    lib0: "npm:^0.2.43"
+  peerDependencies:
+    monaco-editor: ">=0.20.0"
+    yjs: ^13.3.1
+  checksum: 10c0/12fd9178b9d830321f6b4b7d3b707f5afd28da029f13d5f5d2d67da71740b504ab966561b00b7e8beb92c7fbc8eddd21a684f28e8ddb317b9da3e8466fe0371c
   languageName: node
   linkType: hard
 
