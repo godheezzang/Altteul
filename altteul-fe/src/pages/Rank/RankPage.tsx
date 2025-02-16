@@ -116,8 +116,9 @@ const RankingPage = () => {
       <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
         <div className="flex justify-between items-center mb-2 mt-12">
           <div className="flex gap-3">
-          {badges.reverse().map((badge) => (
+          {badges.slice(1).reverse().map((badge) => (
             <BadgeFilter
+              key={badge.id} // 각 요소에 고유한 key를 추가해줘
               tierId={badge.id}
               onClick={() => handleTier(badge.id)}
             />

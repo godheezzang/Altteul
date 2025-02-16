@@ -20,7 +20,7 @@ interface BadgeFilterProps {
 }
 
 const BadgeFilter = ({ tierId, onClick }: BadgeFilterProps) => {
-  const badge = badges.find((b) => b.id === tierId);
+  const badge = badges[tierId];
 
   if (!badge) return null; // 잘못된 tierId일 경우 아무것도 렌더링하지 않음.
 
