@@ -78,8 +78,10 @@ public class SecurityConfig {
 					"https://frontend:5173",
 					"https://host.docker.internal:80",
 					"https://host.docker.internal:443",
-					"https://host.docker.internal:5173"
-				));
+					"https://host.docker.internal:5173",
+					"https://i12c203.p.ssafy.io",
+					"https://i12c203.p.ssafy.io:443"
+				);
 
 				// configuration.setAllowedOrigins(
 				// 	Arrays.asList(
