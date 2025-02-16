@@ -86,9 +86,7 @@ const App = () => {
     <>
       <div className="min-h-screen">
         {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
-        <main
-          className={`${transparentNavigation ? '' : 'mt-[3.5rem]'} bg-primary-black h-[calc(100vh-3.5rem)]`}
-        >
+        <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
           <Outlet />
         </main>
         <ModalManager />
