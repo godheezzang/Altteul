@@ -1,6 +1,7 @@
 package com.c203.altteulbe.openvidu.service;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -58,14 +59,15 @@ public class VoiceChatService {
 	}
 
 	// 유저 음성 채팅 연결 초기화 (게임 참여 시)
-	public Connection initializeVoiceSession(Long roomUUID, String userId) throws
+	public Connection initializeVoiceSession(Long roomId, String userId) throws
 		OpenViduJavaClientException,
 		OpenViduHttpException {
-		if (!roomValidator.isRoomGaming(roomUUID)) {
+		String roomUUID = redisTemplate.opsForValue().get(RedisKeys.getRoomRedisId(roomId));
+		if (!roomValidator.isRoomGaming(Long.parseLong(Objects.requireNonNull(roomUUID)))) {
 			throw new RoomNotInGamingStateException();
 		}
 		// 세션 ID 가져오거나 새로 생성
-		String sessionId = getOrCreateSessionId(roomUUID);
+		String sessionId = getOrCreateSessionId(Long.parseLong(Objects.requireNonNull(roomUUID)));
 		Session session = openVidu.getActiveSession(sessionId);
 
 		// 세선 예외 처리
@@ -80,16 +82,16 @@ public class VoiceChatService {
 
 		// 연결 생성 및 참가자 상태 업데이트
 		Connection connection = session.createConnection(properties);
-		updateParticipantStatus(roomUUID, userId, true);
+		updateParticipantStatus(Long.parseLong(Objects.requireNonNull(roomUUID)), userId, true);
 
 		// 팀원들에게 새 참가자 입장 알림
 		VoiceEventResponseDto response = VoiceEventResponseDto.builder()
 			.userId(userId)
-			.roomUUID(roomUUID)
+			.roomId(roomId)
 			.type(VoiceEventType.JOIN)
 			.status(true)
 			.build();
-		notifyTeam(roomUUID, response);
+		notifyTeam(roomId, response);
 		return connection;
 	}
 
@@ -107,15 +109,16 @@ public class VoiceChatService {
 	}
 
 	// 마이크 상태 업데이트 및 알림
-	public void updateMicStatus(Long roomUUID, String userId, boolean isMuted) {
-		updateParticipantStatus(roomUUID, userId, !isMuted);
+	public void updateMicStatus(Long roomId, String userId, boolean isMuted) {
+		String roomUUID = redisTemplate.opsForValue().get(RedisKeys.getRoomRedisId(roomId));
+		updateParticipantStatus(Long.parseLong(Objects.requireNonNull(roomUUID)), userId, !isMuted);
 		VoiceEventResponseDto response = VoiceEventResponseDto.builder()
 			.userId(userId)
-			.roomUUID(roomUUID)
+			.roomId(roomId)
 			.type(VoiceEventType.MIC_STATUS)
 			.status(!isMuted)
 			.build();
-		notifyTeam(roomUUID, response);
+		notifyTeam(roomId, response);
 	}
 
 	// 게임 종료 시 팀 음성 채팅 세션 종료
@@ -175,8 +178,8 @@ public class VoiceChatService {
 	}
 
 	// WebSocket을 통해 팀원들에게 상태 변경 요청
-	private void notifyTeam(Long roomUUID, VoiceEventResponseDto event) {
-		messagingTemplate.convertAndSend("/sub/team/" + roomUUID + "/voice/status",
+	private void notifyTeam(Long roomId, VoiceEventResponseDto event) {
+		messagingTemplate.convertAndSend("/sub/team/" + roomId + "/voice/status",
 			WebSocketResponse.withData(event.getType().toString(), event));
 	}
 }
