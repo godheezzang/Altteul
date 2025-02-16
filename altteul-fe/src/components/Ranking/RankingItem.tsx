@@ -4,7 +4,7 @@ import {Ranking} from "types/types";
 import { badges } from "./BadgeFilter";
 
 // 랭킹 행 컴포넌트
-const RankingItem = ({ data }: { data: Ranking }) => {
+const RankingItem = ({ data, className }: { data: Ranking, className: string }) => {
   const { userId, nickname, lang, ranking, point, tierId, rankChange } = data;
 
   const formatNumber = (num: number) => {
@@ -19,14 +19,14 @@ const RankingItem = ({ data }: { data: Ranking }) => {
     if (rankChange === 0) return <div>-</div>;
     if (rankChange > 0)
       return (
-        <div className="flex items-center">
+        <div className="flex justify-center">
           <div>(</div>
           <img src={rank_up} alt="상승" />
           <div>{rankChange})</div>
         </div>
       );
     return (
-      <div className="flex items-center">
+      <div className="flex justify-center">
         <div>(</div>
         <img src={rank_down} alt="하강" className="" />
         <div>{Math.abs(rankChange)})</div>
@@ -36,18 +36,20 @@ const RankingItem = ({ data }: { data: Ranking }) => {
 
   const getBadgeImage = () => {
     const badge = ranking === 1 ? badges[0] : badges[tierId];
-    return <img src={badge.src} alt={badge.name} className="w-6 h-6" />;
+    return <img src={badge.src} alt={badge.name} className="w-8 h-8" />;
   };
 
   return (
     // 한 행
-    <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr] py-4 px-6 bg-primary-black/60 text-primary-white text-center py-6">
+    <div className={className}>
       {/* 순위 */}
-      <div className="grid justify-items-start ml-5 text-center">{ranking}</div>
+      <div>{ranking}</div>
       {/* 뱃지&닉네임 */}
-      <div className="flex items-center">
-        <div>{getBadgeImage()}</div>
-          {nickname}
+      <div className="px-16 text-left">
+        <div className="flex gap-3">
+          <div>{getBadgeImage()}</div>
+          <div>{nickname}</div>
+        </div>
       </div>
       {/* 순위변동 */}
       <div>{getRankChangeDisplay()}</div>

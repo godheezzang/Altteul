@@ -125,7 +125,7 @@ export interface Ranking {
   point: number;
   tierId: number;
   rankChange: number;
-  rate: number;
+  rate: number | null;
 }
 
 export interface RankApiFilter {

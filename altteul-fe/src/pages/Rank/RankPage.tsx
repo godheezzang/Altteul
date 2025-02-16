@@ -5,7 +5,7 @@ import SearchInput from "@components/Common/SearchInput";
 import Dropdown from "@components/Common/Dropdown";
 import RankingItem from "@components/Ranking/RankingItem";
 import { getRank } from "@utils/Api/rankApi";
-import type { RankApiFilter, RankingResponse } from "types/types";
+import type { RankApiFilter, Ranking, RankingResponse } from "types/types";
 import { badges, BadgeFilter } from "@components/Ranking/BadgeFilter";
 
 // 메인 랭킹 페이지 컴포넌트
@@ -13,6 +13,7 @@ const RankingPage = () => {
   const [searchNickname, setSearchNickname] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [tier, setTier] = useState<number | null>(null);
+  const [myRanking, setMyRanking] = useState<Ranking | null>(null);
   const [rankings, setRankings] = useState([]);
   const [page, setPage] = useState(0);
   const [last, setLast] = useState(false);
@@ -41,23 +42,49 @@ const RankingPage = () => {
     setRankings([]);
     setLast(false);
   };
+  
+  /**
+   * TODO: 내 랭킹 조회하는 부분. rankResponse에서 한번에 불러온다면 필요없음
+   */
+  const fetchMyRank = async () => {
+    // try {
+    //   const userId = sessionStorage.getItem('userId');
+    //   if (!userId) return;
 
+    //   const userResponse: UserInfoResponse = await getUserInfo(userId);
+      
+      const myRanking: Ranking = {
+        nickname: "나다",
+        ranking: 11,
+        rankChange: 1,
+        tierId: 1,
+        point: 150, 
+        lang: "Python",
+        rate: 100
+      };
+      
+    setMyRanking(myRanking);
+    // } catch (error) {
+    //   console.error('Failed to fetch user ranking:', error);
+    // }
+  };
 
-  const rankListUpdate = async () => {
+  const fetchRankList = async () => {
     if (isLoading || last) return;
     
     try {
       setIsLoading(true);
-      const response: RankingResponse = await getRank(filter);
+      const rankingResponse: RankingResponse = await getRank(filter);
       
       // 백엔드로부터 받은 페이지네이션 정보 업데이트
-      setLast(response.data.last);
+      setLast(rankingResponse.data.last);
       
       if (page === 0) {
-        setRankings(response.data.rankings);
+        setRankings(rankingResponse.data.rankings);
       } else {
-        setRankings(prev => [...prev, ...response.data.rankings]);
+        setRankings(prev => [...prev, ...rankingResponse.data.rankings]);
       }
+      setPage(prevPage => prevPage + 1);
     } catch (error) {
       console.error('Failed to fetch rankings:', error);
     } finally {
@@ -67,16 +94,16 @@ const RankingPage = () => {
   
   // 초기 로딩
   useEffect(() => {
-    rankListUpdate();
+    fetchMyRank();
+    fetchRankList();
   }, []);
 
   
   useEffect(() => {
-    if (inView && !isLoading && !last) {
-      rankListUpdate();
-      setPage(prev => prev + 1);
+    if (inView && !isLoading && !last && page > 0) {
+      fetchRankList();
     }
-  }, [inView, isLoading, last]);
+  }, [inView, isLoading, last, page]);
   
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
@@ -87,14 +114,14 @@ const RankingPage = () => {
     setTier(prevTier => {
       const newTier = prevTier !== tierId ? tierId : null;
       resetPagination();
-      rankListUpdate();
+      fetchRankList();
       return newTier;
     });
   };
   
   const handleSearch = () => {
     resetPagination();
-    rankListUpdate();
+    fetchRankList();
   };
 
   return (
@@ -106,15 +133,13 @@ const RankingPage = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
+          opacity: 0.5, 
         }}
       />
 
-      {/* 배경 오버레이 */}
-      <div className="fixed inset-0 bg-black/30 min-h-screen mt-10"></div>
-
-      <div className="relative z-10 max-w-6xl mx-auto py-8 px-4 w-3/5">
+      <div className="relative z-10 max-w-6xl mx-auto py-[100px] px-4 w-3/5">
         <div className="flex justify-between items-center mb-2 mt-12">
-          <div className="flex gap-3">
+          <div className="flex justify-between items-center mb-2">
           {badges.slice(1).reverse().map((badge) => (
             <BadgeFilter
             key={badge.id}
@@ -140,19 +165,27 @@ const RankingPage = () => {
             />
           </div>
         </div>
-        <div className="">
+        <div className="rounded-md">
           {/* grid grid-cols-5 */}
-          <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr] rounded-md  py-4 px-6 bg-primary-black text-primary-white text-center">
-            <div className="grid justify-items-start ml-5 text-center">순위</div>
-            <div>플레이어</div>
-            <div>순위 변동</div>
-            <div>랭킹 점수</div>
-            <div>선호 언어</div>
+          <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black gray-01 text-center text-base">
+            <div>순위</div>
+            <div>Player</div>
+            <div>순위변동</div>
+            <div>랭킹점수</div>
+            <div>선호언어</div>
           </div>
-          {rankings.map((ranking) => (
+          {myRanking &&
             <RankingItem
-              key={`${ranking.userId}-${ranking.rank}`}
+                key={`${myRanking.userId}-${myRanking.ranking}`}
+                data={myRanking}
+                className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black/40 text-primary-orange text-center text-base"
+            />
+          }
+          {rankings.map((ranking: Ranking) => (
+            <RankingItem
+              key={`${ranking.userId}-${ranking.ranking}`}
               data={ranking}
+              className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black/40 gray-01 text-center text-base border-b-[1px]"
             />
           ))}
           
