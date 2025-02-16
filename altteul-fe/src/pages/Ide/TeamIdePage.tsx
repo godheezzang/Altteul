@@ -16,7 +16,6 @@ const TeamIdePage = () => {
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
-  const [sideProblemResult, setSideProblemResult] = useState(null); // 팀원이 풀었을 때 결과 저장
   const [code, setCode] = useState('');
   const [opponentCode, setOpponentCode] = useState(''); // 상대 팀 코드
   const [language, setLanguage] = useState<'python' | 'java'>('python');
@@ -37,17 +36,11 @@ const TeamIdePage = () => {
   useEffect(() => {
     if (!connected) return;
 
-    // ✅ 사이드 문제 구독 (팀원 중 누가 풀었는지 체크)
+    // ✅ 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
       console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
-    });
-
-    // ✅ 사이드 문제 결과 구독 (같은 팀원이 풀었을 경우 결과 공유)
-    subscribe(`/sub/${gameId}/${userRoomId}/side-problem/result`, data => {
-      console.log('📩 사이드 문제 결과 수신:', data);
-      setSideProblemResult(data);
     });
 
     // ✅ 코드 채점 결과 구독
@@ -92,7 +85,7 @@ const TeamIdePage = () => {
     return () => clearInterval(interval);
   }, [requestCount]);
 
-  const handleResizeEditor = e => {
+  const handleResizeEditor = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsResizing(true);
   };
@@ -100,7 +93,7 @@ const TeamIdePage = () => {
   useEffect(() => {
     if (!isResizing) return;
 
-    const handleMouseMove = moveEvent => {
+    const handleMouseMove = (moveEvent: MouseEvent) => {
       setLeftPanelWidth(prevWidth => {
         const deltaX = (moveEvent.movementX / window.innerWidth) * 100;
         const newWidth = prevWidth + deltaX;
@@ -153,7 +146,14 @@ const TeamIdePage = () => {
         </div>
         <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <CodeEditor code={opponentCode} setCode={() => {}} language={language} readOnly={true} />
+          <div>
+            <CodeEditor
+              code={opponentCode}
+              setCode={() => {}}
+              language={language}
+              readOnly={true}
+            />
+          </div>
         </div>
       </div>
 
@@ -165,14 +165,6 @@ const TeamIdePage = () => {
           problem={sideProblem?.data}
           onClose={() => setShowModal(false)}
         />
-      )}
-
-      {/* ✅ 팀원이 사이드 문제를 풀었을 경우 결과 표시 */}
-      {sideProblemResult && (
-        <div className="fixed bottom-10 right-10 bg-primary-black text-white p-4 rounded">
-          <h3 className="text-lg font-bold">팀원이 사이드 문제를 풀었습니다!</h3>
-          <p>아이템: {sideProblemResult.data.itemName || '없음'}</p>
-        </div>
       )}
     </div>
   );
