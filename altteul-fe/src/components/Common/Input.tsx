@@ -1,4 +1,5 @@
-import React from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+import React, { useState } from 'react';
 
 type InputProps = {
   type?: 'text' | 'password' | 'search';
@@ -11,6 +12,7 @@ type InputProps = {
   className?: string;
   buttonText?: string;
   onButtonClick?: (e: React.MouseEvent) => void;
+  showPasswordToggle?: boolean;
 };
 
 const DEFAULT_INPUT_STYLE =
@@ -29,18 +31,30 @@ const Input = ({
   className = '',
   buttonText,
   onButtonClick,
+  showPasswordToggle = false,
 }: InputProps) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
   return (
-    <div className="flex items-center w-full">
+    <div className="flex items-center w-full relative">
       <div className="flex-grow" style={{ width: `calc(100% - ${buttonText ? '6rem' : '0rem'})` }}>
         <input
-          className={`${DEFAULT_INPUT_STYLE} w-full h-[${height}] ${className}`}
-          type={type}
+          className={`${DEFAULT_INPUT_STYLE} ${showPasswordToggle ? 'pr-12' : ''} w-full h-[${height}] ${className}`}
+          type={showPasswordToggle ? (isPasswordVisible ? 'text' : 'password') : type}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           name={name}
         />
+        {showPasswordToggle && (
+          <button
+            type="button"
+            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-03 hover:text-gray-02"
+          >
+            {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+        )}
       </div>
       {buttonText && onButtonClick && (
         <button type="button" onClick={onButtonClick} className={BUTTON_STYLE}>
