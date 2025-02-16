@@ -347,9 +347,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           onButtonClick={handleCheckUsername}
           className="w-[22rem] w-[16rem]"
         />
-        {errors.username && <p className="text-primary-orange text-sm">{errors.username}</p>}
+        {errors.username && <p className="text-gray-03 font-semibold text-sm">{errors.username}</p>}
         {isUsernameVerified && !isUsernameTaken && !errors.username && (
-          <p className="text-primary-green text-sm">사용 가능한 아이디입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm">사용 가능한 아이디입니다.</p>
         )}
 
         <Input
@@ -392,9 +392,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           buttonText={isCheckingNickname ? '확인중...' : '중복확인'}
           onButtonClick={handleCheckNickname}
         />
-        {errors.nickname && <p className="text-primary-orange text-sm">{errors.nickname}</p>}
+        {errors.nickname && <p className="text-gray-03 font-semibold text-sm">{errors.nickname}</p>}
         {isNicknameVerified && !isNicknameTaken && !errors.nickname && (
-          <p className="text-primary-green text-sm">사용 가능한 닉네임입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm">사용 가능한 닉네임입니다.</p>
         )}
 
         <SignUpDropdown
