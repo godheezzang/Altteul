@@ -209,9 +209,10 @@ export type Friend = {
 export type FriendRequest = {
   friendRequestId: number;
   fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
+  toUserId: number;
   requestStatus: 'P' | 'A' | 'R';
+  fromUserProfileImg?: string;
+  fromUserNickname?: string;
 };
 
 // 삭제할것
@@ -229,8 +230,7 @@ export type ChatRoom = {
   chatRoomId: number;
   friendId: number;
   nickname: string;
-  profileImage?: string;
-  profileImg?: string;
+  profileImg: string;
   isOnline: boolean;
   recentMessage: string;
   isMessageRead: boolean;

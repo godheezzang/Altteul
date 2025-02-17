@@ -32,7 +32,7 @@ const Navigation = () => {
 
       <button
         onClick={() => changeView('chats')}
-        className="relative flex flex-col items-center px-4 py-2 hover:scale-110 rounded-lg"
+        className="relative flex flex-col items-center px-4 pt-1.5 hover:scale-110 rounded-lg"
       >
         <img
           src={fcStore.currentTab === 'chats' ? s_Chat_bubble : Chat_bubble}

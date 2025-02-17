@@ -13,6 +13,7 @@ type InputProps = {
   buttonText?: string;
   onButtonClick?: (e: React.MouseEvent) => void;
   showPasswordToggle?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 const DEFAULT_INPUT_STYLE =
@@ -32,6 +33,7 @@ const Input = ({
   buttonText,
   onButtonClick,
   showPasswordToggle = false,
+  onKeyDown
 }: InputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -45,6 +47,7 @@ const Input = ({
           value={value}
           onChange={onChange}
           name={name}
+          onKeyDown={onKeyDown}
         />
         {showPasswordToggle && (
           <button

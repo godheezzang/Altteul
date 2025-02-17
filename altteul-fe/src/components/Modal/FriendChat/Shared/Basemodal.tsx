@@ -16,7 +16,7 @@ const BaseModal = ({ isOpen, onClose, children }: BaseModalProps) => {
       onClick={onClose}
     >
       <div
-        className="bg-gray-06 border-2 border-primary-orange rounded-lg w-[32vw] min-w-[30rem] h-[85vh] p-4 relative"
+        className="bg-gray-06 border-2 border-primary-orange rounded-lg w-[25vw] min-w-[24rem] h-[85vh] p-4 relative"
         onClick={e => e.stopPropagation()}
       >
         
