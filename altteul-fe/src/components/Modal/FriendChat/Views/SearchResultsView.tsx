@@ -23,6 +23,9 @@ const SearchResultsView = () => {
 
   useEffect(() => {
     getSearchResult(fcStore.searchQuery);
+    if(fcStore.searchQuery === '') {
+      fcStore.setCurrentView('main')
+    }
   }, [fcStore.searchQuery]);
 
   //검색 결과 목록 생성
