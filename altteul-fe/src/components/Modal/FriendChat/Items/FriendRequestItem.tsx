@@ -1,42 +1,28 @@
 // src/components/Modal/FriendChat/Items/FriendRequestItem.tsx
 import useAuthStore from '@stores/authStore';
 import { useSocketStore } from '@stores/socketStore';
-
-export interface FriendRequest {
-  friendRequestId: number;
-  fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
-  requestStatus: string;
-}
+import { friendRequestResponse } from '@utils/Api/friendChatApi';
+import { FriendRequest } from 'types/types';
 
 interface FriendRequestItemProps {
   request: FriendRequest;
-  onRefresh: () => void;
+  onRefresh: (friendRequestId:number) => void;
 }
 
 const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
   const { sendMessage } = useSocketStore();
-  const currentUserId = useAuthStore().userId
+  const currentUserId = useAuthStore().userId;
 
-  const handleAccept = () => {
-    sendMessage('/pub/friend/request/process', {
-      friendRequestId : request.friendRequestId,
+  const handleResponse = (yn: "P" | "A" | "R") => {
+    const response = {
+      friendRequestId: request.friendRequestId,
       fromUserId: request.fromUserId, // 요청 보낸 사람 id
-      toUserId: currentUserId, // 요청 받은 사람 id
-      requestStatus : "A"
-    });
-    onRefresh();
-  };
-
-  const handleReject = () => {
-    sendMessage('/pub/friend/request/process', {
-      friendRequestId : request.friendRequestId,
-      fromUserId: request.fromUserId, // 요청 보낸 사람 id
-      toUserId: useAuthStore().userId, // 요청 받은 사람 id
-      requestStatus : "R"
-    });
-    onRefresh();
+      toUserId: Number(currentUserId), // 요청 받은 사람 id
+      requestStatus: yn,
+    };
+    friendRequestResponse(response);
+    sendMessage('/pub/friend/request/process', response);
+    onRefresh(request.friendRequestId);
   };
 
   return (
@@ -50,13 +36,13 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
       </div>
       <div className="flex gap-2">
         <button
-          onClick={handleAccept}
+          onClick={() => handleResponse('A')}
           className="px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80"
         >
           수락
         </button>
         <button
-          onClick={handleReject}
+          onClick={() => handleResponse('R')}
           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-500/80"
         >
           거절
