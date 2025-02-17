@@ -6,6 +6,7 @@ import { getFriendChatMessages } from '@utils/Api/friendChatApi';
 import { useEffect, useState, useRef } from 'react';
 import { ChatMessage, ChatRoom } from 'types/types';
 import socketResponseMessage from 'types/socketResponseMessage';
+import Input from '@components/Common/Input';
 
 const ChatView = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
@@ -78,6 +79,13 @@ const ChatView = () => {
     setMessage('');
   };
 
+    //엔터 눌렀을 때 이벤트
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleSendMessage();
+      }
+    };
+
   if (isLoading) return <div className="flex-1 flex items-center justify-center">로딩 중...</div>;
   if (error) return <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>;
   if (!chatRoom) return null;
@@ -98,7 +106,7 @@ const ChatView = () => {
       </div>
 
       {/* 메시지 목록 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 content-end">
         {speechBubble?.map(message => (
           <div
             key={message.chatMessageId}
@@ -127,10 +135,12 @@ const ChatView = () => {
       {/* 메시지 입력 */}
       <div className="border-t border-gray-700 p-4">
         <div className="flex gap-2">
-          <input
+          <Input
+            name="chatMessage"
             type="text"
             value={message}
             onChange={e => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
             placeholder="메시지를 입력하세요"
             className="flex-1 bg-gray-700 rounded-lg px-4 py-2 text-white"
           />
