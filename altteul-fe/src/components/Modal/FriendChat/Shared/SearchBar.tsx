@@ -14,6 +14,9 @@ const SearchBar = () => {
 
   useEffect(() => {
     setInputValue(fcStore.searchQuery)
+    if(fcStore.searchQuery !== '') {
+      fcStore.setCurrentView('search')
+    }
   }, [fcStore.searchQuery])
 
   const handleSearch = async () => {
@@ -21,6 +24,7 @@ const SearchBar = () => {
     fcStore.setCurrentView('search')
   };
 
+  //엔터 눌렀을 때 이벤트
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -40,11 +44,10 @@ const SearchBar = () => {
         <Input
           value={inputValue}
           onChange={handleInputChange}
-          // onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder = '유저를 검색하세요.'
           name="search"
           className="w-full px-4 py-2 bg-gray-700 rounded-lg text-white h-[2.5rem] pr-12 focus:ring-3 focus:ring-primary-orange focus:outline-none"
-          // disabled={isLoading}
         />
         <button
           onClick={handleSearch}

@@ -20,7 +20,7 @@ const SearchResultsView = () => {
   });
   const fcStore = useFriendChatStore();
   const [searchUser, setSearchUser] = useState<User[]>([]);
-
+  
   useEffect(() => {
     getSearchResult(fcStore.searchQuery);
     if(fcStore.searchQuery === '') {
