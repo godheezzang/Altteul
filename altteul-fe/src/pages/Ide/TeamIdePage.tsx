@@ -12,11 +12,12 @@ import resize from '@assets/icon/resize.svg';
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam, matchId, opponent } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
   const [code, setCode] = useState('');
+  const [opponentCode, setOpponentCode] = useState(''); // 상대 팀 코드
   const [language, setLanguage] = useState<'python' | 'java'>('python');
   const [showModal, setShowModal] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
@@ -25,7 +26,6 @@ const TeamIdePage = () => {
   const [isResizing, setIsResizing] = useState(false);
   const { userId } = useAuthStore();
   const userRoomId = myTeam.roomId;
-  const opponentRoomId = opponent.roomId;
 
   useEffect(() => {
     if (userRoomId) {
@@ -51,11 +51,7 @@ const TeamIdePage = () => {
     // ✅ 상대 팀 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
       console.log('📩 상대 팀 채점 결과 수신:', data);
-    });
-
-    // 퇴장하기 구독
-    subscribe(`/sub/single/room/${matchId}`, data => {
-      console.log('퇴장하기 구독 데이터:', data);
+      setOpponentCode(data.code);
     });
 
     return () => {
@@ -89,7 +85,7 @@ const TeamIdePage = () => {
     return () => clearInterval(interval);
   }, [requestCount]);
 
-  const handleResizeEditor = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleResizeEditor = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsResizing(true);
   };
@@ -131,7 +127,7 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor language={language} setLanguage={setLanguage} roomId={String(userRoomId)} />
+          <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
           <Terminal output={output} />
           <div className="text-center">
             <IdeFooter
@@ -148,10 +144,15 @@ const TeamIdePage = () => {
         >
           <img src={resize} alt="코드 너비 조정" />
         </div>
-        <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }} className="relative">
+        <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <div className="absolute inset-0 backdrop-blur-md bg-black/30 pointer-events-none">
-            <CodeEditor language={language} readOnly={true} roomId={String(opponentRoomId)} />
+          <div>
+            <CodeEditor
+              code={opponentCode}
+              setCode={() => {}}
+              language={language}
+              readOnly={true}
+            />
           </div>
         </div>
       </div>
