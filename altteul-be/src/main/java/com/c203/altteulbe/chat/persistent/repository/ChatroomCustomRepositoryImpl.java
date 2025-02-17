@@ -155,6 +155,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 		Boolean isOnline = userStatusService.isUserOnline(chatroomInfo.get(Q_USER.userId));
 
 		return Optional.of(ChatroomDetailResponseDto.builder()
+			.chatroomId(chatroomId)
 			.friendId(chatroomInfo.get(Q_USER.userId))
 			.nickname(chatroomInfo.get(Q_USER.nickname))
 			.profileImg(chatroomInfo.get(Q_USER.profileImg))
