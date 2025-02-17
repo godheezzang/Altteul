@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 	private final UserRepository userRepository;
 	private final TodayRankingRepository rankingRepository;
+
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) {
 		OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -31,6 +33,9 @@ public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 		// GitHub에서 사용자 정보 추출
 		String username = attributes.get("id").toString();
 		String nickname = attributes.get("login").toString();
+
+		String profileImgKey = S3Util.getDefaultImgKey();   // 기본 이미지 objectKey 저장
+
 
 		return userRepository.findByProviderAndUsername(User.Provider.GH, username)
 			.orElseGet(() -> {
@@ -42,7 +47,7 @@ public class Default0Auth2UserServiceImpl extends DefaultOAuth2UserService {
 					.mainLang(Language.PY)
 					.userStatus(User.UserStatus.A)
 					.tier(new Tier(1L, "BRONZE", 0, 200))
-					.profileImg("기본 이미지 URL")
+					.profileImg(profileImgKey)
 					.rankingPoint(0L)
 					.build();
 
