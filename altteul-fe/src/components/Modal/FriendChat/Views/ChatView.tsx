@@ -5,13 +5,16 @@ import useFriendChatStore from '@stores/friendChatStore';
 import { getFriendChatMessages } from '@utils/Api/friendChatApi';
 import { useEffect, useState, useRef } from 'react';
 import { ChatMessage, ChatRoom } from 'types/types';
+import socketResponseMessage from 'types/socketResponseMessage';
 
 const ChatView = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(''); //입력 메세지
+  const [speechBubble, setSpeechBubble] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const [chatRoomId,setChatRoomId] = useState();
 
   const { subscribe, unsubscribe, sendMessage } = useSocketStore();
   const { userId } = useAuthStore();
@@ -19,12 +22,14 @@ const ChatView = () => {
   const { activeChatId, setCurrentView } = useFriendChatStore();
 
   useEffect(() => {
-    subscribe(`/sub/room/${chatroomId}`, handleMessage)
     fetchMessages();
-    return () => {
-      unsubscribe(`/sub/room/${chatroomId}`)
+    if(chatRoomId) {
+      subscribe(`/sub/chat/room/${chatRoomId}`, handleMessage)
     }
-  }, [activeChatId]);
+    return () => {
+      unsubscribe(`/sub/chat/room/${chatRoomId}`)
+    }
+  }, [activeChatId, chatRoomId]);
 
   const fetchMessages = async () => {
     try {
@@ -32,6 +37,8 @@ const ChatView = () => {
       const response = await getFriendChatMessages(activeChatId);
       console.log(response)
       setChatRoom(response.data);
+      setChatRoomId(response.data.chatroomId)
+      setSpeechBubble(response.data.messages)
     } catch (error) {
       console.error('채팅방 로드 실패:', error);
       setError('채팅방을 불러오는데 실패했습니다.');
@@ -40,8 +47,21 @@ const ChatView = () => {
     }
   };
 
-  const handleMessage = () => {
+  const handleMessage = (message: socketResponseMessage) => {
+    console.log(message)
+    const { type, data } = message;
+    if(type==='새 메시지') {
+      const newChat = ({
+        chatMessageId: data.chatMessageId,
+        senderId: data.senderId,
+        senderNickname: data.senderNickname,
+        messageContent: data.messageContent,
+        checked: data.checked,
+        createdAt: data.createdAt
+      } as ChatMessage)
 
+      setSpeechBubble((prev) => [...prev, newChat]);
+    }
   }
 
   useEffect(() => {
@@ -50,12 +70,11 @@ const ChatView = () => {
 
   const handleSendMessage = () => {
     if (!message.trim() || !chatRoom || !activeChatId) return;
-
-    sendMessage(`/pub/room/${chatroomId}/message`, {
-      friendId: activeChatId,
+    sendMessage(`/pub/chat/room/${chatRoomId}/message`, {
+      chatroomId: chatRoomId,
+      senderId: userId,
       content: message.trim(),
     });
-
     setMessage('');
   };
 
@@ -80,7 +99,7 @@ const ChatView = () => {
 
       {/* 메시지 목록 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {chatRoom.messages.map(message => (
+        {speechBubble?.map(message => (
           <div
             key={message.chatMessageId}
             className={`flex ${message.senderId === Number(userId) ? 'justify-end' : 'justify-start'}`}
