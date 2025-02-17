@@ -884,11 +884,11 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:*":
-  version: 19.0.9
-  resolution: "@types/react@npm:19.0.9"
+  version: 19.0.10
+  resolution: "@types/react@npm:19.0.10"
   dependencies:
     csstype: "npm:^3.0.2"
-  checksum: 10c0/a0324890a7d9f3bae018b8735c8978cebea35bc00e7e5cdfcead110683a3b95aab550606abb2fe3189215d60dfcf7059335d206a5f20f41868c56daef60f62c1
+  checksum: 10c0/41884cca21850c8b2d6578b172ca0ca4fff6021251a68532b19f2031ac23dc5a9222470208065f8d9985d367376047df2f49ece8d927f7d04cdc94922b1eb34b
   languageName: node
   linkType: hard
 
@@ -913,6 +913,15 @@ __metadata:
   version: 1.5.4
   resolution: "@types/sockjs-client@npm:1.5.4"
   checksum: 10c0/fd016cb9c47fd0348be1ccb9c37123850e5c7ea4af0b8427eb35d82b4dfdaeb50407c013bb25ed65cdb8a67622f53aaceb070274463edd5b2581e912d6ac7148
+  languageName: node
+  linkType: hard
+
+"@types/ws@npm:^8":
+  version: 8.5.14
+  resolution: "@types/ws@npm:8.5.14"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/be88a0b6252f939cb83340bd1b4d450287f752c19271195cd97564fd94047259a9bb8c31c585a61b69d8a1b069a99df9dd804db0132d3359c54d3890c501416a
   languageName: node
   linkType: hard
 
@@ -1142,6 +1151,7 @@ __metadata:
     "@types/react-dom": "npm:^18.2.19"
     "@types/react-html-parser": "npm:^2"
     "@types/sockjs-client": "npm:^1.5.4"
+    "@types/ws": "npm:^8"
     "@typescript-eslint/eslint-plugin": "npm:^6.21.0"
     "@typescript-eslint/parser": "npm:^6.21.0"
     "@vitejs/plugin-react": "npm:^4.2.1"
@@ -1175,9 +1185,10 @@ __metadata:
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.1"
     vite-tsconfig-paths: "npm:^4.3.1"
-    y-monaco: "npm:^0.1.6"
-    y-websocket: "npm:^2.1.0"
-    yjs: "npm:^13.6.23"
+    ws: "npm:^8.18.0"
+    y-monaco: "npm:^0.1.5"
+    y-websocket: "npm:^2.0.3"
+    yjs: "npm:^13.6.16"
     zustand: "npm:^4.5.0"
   languageName: unknown
   linkType: soft
@@ -5928,6 +5939,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ws@npm:^8.18.0":
+  version: 8.18.0
+  resolution: "ws@npm:8.18.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 10c0/25eb33aff17edcb90721ed6b0eb250976328533ad3cd1a28a274bd263682e7296a6591ff1436d6cbc50fa67463158b062f9d1122013b361cec99a05f84680e06
+  languageName: node
+  linkType: hard
+
 "xtend@npm:^4.0.2, xtend@npm:~4.0.0":
   version: 4.0.2
   resolution: "xtend@npm:4.0.2"
@@ -5947,7 +5973,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"y-monaco@npm:^0.1.6":
+"y-monaco@npm:^0.1.5":
   version: 0.1.6
   resolution: "y-monaco@npm:0.1.6"
   dependencies:
@@ -5970,7 +5996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"y-websocket@npm:^2.1.0":
+"y-websocket@npm:^2.0.3":
   version: 2.1.0
   resolution: "y-websocket@npm:2.1.0"
   dependencies:
@@ -6023,7 +6049,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yjs@npm:^13.6.23":
+"yjs@npm:^13.6.16":
   version: 13.6.23
   resolution: "yjs@npm:13.6.23"
   dependencies:
