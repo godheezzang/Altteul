@@ -1,13 +1,13 @@
 // src/components/common/Modal/ModalManager.tsx
-import SignUpModal from '@components/Auth/SignUpModal';
-import LoginModal from '@components/Auth/LoginModal';
+import SignUpModal from '@components/Modal/Auth/SignUpModal';
+import LoginModal from '@components/Modal/Auth/LoginModal';
 import ResultModal from '@components/Modal/Result/ResultModal';
 import useModalStore from '@stores/modalStore';
 import { MODAL_TYPES } from 'types/modalTypes';
 import AdditionalModal from '@components/Modal/Result/AdditionalModal';
 import NavigateModal from '@components/Modal/Result/NavigateModal';
 import ResultDetailModal from '@components/Modal/Result/ResultDetailModal';
-import FriendModal from '@components/Modal/FriendChat/FriendModal';
+import MainModal from '@components/Modal/FriendChat/MainModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();
@@ -48,7 +48,7 @@ const ModalManager = () => {
       />
 
       {/* 채팅 모달 */}
-      <FriendModal isOpen={isOpen(MODAL_TYPES.FRIEND)} onClose={() => closeModal()} />
+      <MainModal isOpen={isOpen(MODAL_TYPES.MAIN)} onClose={() => closeModal()} />
 
       {/* 채팅모달 2 */}
       {/* <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} /> */}

@@ -3,7 +3,7 @@ import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import React from 'react';
 import logo from '@assets/icon/Altteul.svg';
-import LoginModal from '@components/Auth/LoginModal';
+import LoginModal from '@components/Modal/Auth/LoginModal';
 import { useSocketStore } from '@stores/socketStore';
 
 const MainGnb = () => {
