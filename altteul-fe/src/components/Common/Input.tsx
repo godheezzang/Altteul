@@ -39,7 +39,7 @@ const Input = ({
     <div className="flex items-center w-full relative">
       <div className="flex-grow" style={{ width: `calc(100% - ${buttonText ? '6rem' : '0rem'})` }}>
         <input
-          className={`${DEFAULT_INPUT_STYLE} ${showPasswordToggle ? 'pr-12' : ''} w-full h-[${height}] ${className}`}
+          className={`${className || DEFAULT_INPUT_STYLE} ${showPasswordToggle ? 'pr-12' : ''} w-full h-[${height}]`}
           type={showPasswordToggle ? (isPasswordVisible ? 'text' : 'password') : type}
           placeholder={placeholder}
           value={value}

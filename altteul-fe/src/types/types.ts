@@ -226,11 +226,15 @@ export type ChatRooms = {
 };
 
 export type ChatRoom = {
+  chatRoomId: number;
   friendId: number;
   nickname: string;
-  profileImg: string;
+  profileImage?: string;
+  profileImg?: string;
   isOnline: boolean;
-  messages: ChatMessage[];
+  recentMessage: string;
+  isMessageRead: boolean;
+  messages?: ChatMessage[];
   createdAt: string;
 };
 

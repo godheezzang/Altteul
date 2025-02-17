@@ -5,6 +5,7 @@ export const MODAL_TYPES = {
   COMMON: 'game-common',
   SIGNUP: 'signup',
   LOGIN: 'login',
+  MAIN: 'main',
   FRIEND: 'friend',
   CHAT: 'chat',
 } as const;
