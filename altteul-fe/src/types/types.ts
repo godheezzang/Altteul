@@ -209,9 +209,10 @@ export type Friend = {
 export type FriendRequest = {
   friendRequestId: number;
   fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
+  toUserId: number;
   requestStatus: 'P' | 'A' | 'R';
+  fromUserProfileImg?: string;
+  fromUserNickname?: string;
 };
 
 // 삭제할것
