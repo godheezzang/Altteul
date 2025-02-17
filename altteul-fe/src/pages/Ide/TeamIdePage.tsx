@@ -175,7 +175,7 @@ const TeamIdePage = () => {
         >
           <h2 className="text-center">우리 팀 코드</h2>
           <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
-          <Terminal output={output} />
+          <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
               code={code}
