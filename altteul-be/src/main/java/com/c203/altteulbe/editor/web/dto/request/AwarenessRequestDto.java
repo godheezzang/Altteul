@@ -1,6 +1,6 @@
 package com.c203.altteulbe.editor.web.dto.request;
 
-import com.c203.altteulbe.common.dto.BattleType;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AwarenessRequestDto {
-	private BattleType type;
 
-	private String awareness;
+	private Map<String, Object> awareness;
 }

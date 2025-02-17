@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.chat.persistent.entity.ChatMessage;
 import com.c203.altteulbe.chat.persistent.entity.Chatroom;
 import com.c203.altteulbe.chat.persistent.entity.QChatMessage;
@@ -99,7 +100,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.map(chatroom -> ChatroomListResponseDto.builder()
 				.friendId(chatroom.getFriendId())
 				.nickname(chatroom.getNickname())
-				.profileImg(chatroom.getProfileImg())
+				.profileImg(S3Util.getImgUrl(chatroom.getProfileImg()))
 				.isOnline(onlineStatus.getOrDefault(chatroom.getFriendId(), false))
 				.recentMessage(chatroom.getRecentMessage())
 				.isMessageRead(chatroom.getIsMessageRead())
@@ -143,7 +144,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.selectFrom(Q_CHATMESSAGE)
 			.join(Q_CHATMESSAGE.sender).fetchJoin()  // N+1 문제 방지
 			.where(Q_CHATMESSAGE.chatroom.chatroomId.eq(chatroomId))
-			.orderBy(Q_CHATMESSAGE.createdAt.desc())
+			.orderBy(Q_CHATMESSAGE.createdAt.asc())
 			.limit(60)
 			.fetch();
 
@@ -155,9 +156,10 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 		Boolean isOnline = userStatusService.isUserOnline(chatroomInfo.get(Q_USER.userId));
 
 		return Optional.of(ChatroomDetailResponseDto.builder()
+			.chatroomId(chatroomId)
 			.friendId(chatroomInfo.get(Q_USER.userId))
 			.nickname(chatroomInfo.get(Q_USER.nickname))
-			.profileImg(chatroomInfo.get(Q_USER.profileImg))
+			.profileImg(S3Util.getImgUrl(chatroomInfo.get(Q_USER.profileImg)))
 			.isOnline(isOnline)
 			.messages(messagesDtos)
 			.createdAt(chatroomInfo.get(Q_CHATROOM.createdAt))

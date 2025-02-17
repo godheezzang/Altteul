@@ -13,5 +13,7 @@ public class EditorResponseDto {
 
 	private Long roomId;
 
+	private Long userId;
+
 	private String content;
 }

@@ -1,5 +1,6 @@
 package com.c203.altteulbe.friend.web.dto.response;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 
 import lombok.AllArgsConstructor;
@@ -25,9 +26,18 @@ public class FriendResponseDto {
 		return FriendResponseDto.builder()
 			.userid(friendship.getFriend().getUserId())
 			.nickname(friendship.getFriend().getNickname())
-			.profileImg(friendship.getFriend().getProfileImg())
+			.profileImg(S3Util.getImgUrl(friendship.getFriend().getProfileImg()))
 			.isOnline(isOnline)
 			.build();
 
+	}
+
+	public FriendResponseDto updateOnlineStatus(Boolean isOnline) {
+		return new FriendResponseDto(
+			this.userid,
+			this.nickname,
+			this.profileImg,
+			isOnline // 새로운 온라인 상태
+		);
 	}
 }

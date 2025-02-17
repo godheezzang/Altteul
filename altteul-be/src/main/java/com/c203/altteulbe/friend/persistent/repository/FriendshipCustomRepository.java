@@ -9,6 +9,4 @@ public interface FriendshipCustomRepository {
 	Page<Friendship> findAllByUserIdWithFriend(long userId, Pageable pageable);
 
 	boolean existsByUserAndFriend(Long userId, Long friendId);
-
-	void deleteFriendRelation(Long user1, Long user2);
 }

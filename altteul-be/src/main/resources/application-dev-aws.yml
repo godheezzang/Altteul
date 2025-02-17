@@ -10,6 +10,9 @@ cloud:
       secretKey: ${AWS_SECRET_KEY}
 
 spring:
+  config:
+    activate:
+      on-profile: dev-aws
   servlet:
     multipart:
       max-file-size: 20MB

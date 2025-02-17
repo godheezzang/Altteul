@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { useSocketStore } from '@stores/socketStore';
+import useGameStore from '@stores/useGameStore';
 
 const SOCKET_URL =
   import.meta.env.NODE_ENV === 'development'
@@ -9,12 +10,16 @@ const SOCKET_URL =
     : import.meta.env.VITE_SOCKET_URL_DEV;
 
 const useGameWebSocket = (gameId: number, roomId: number) => {
+  const { users, setUsers } = useGameStore();
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [sideProblem, setSideProblem] = useState(null);
   const [sideProblemResult, setSideProblemResult] = useState(null);
   const [codeResult, setCodeResult] = useState(null);
   const [opponentCodeResult, setOpponentCodeResult] = useState(null);
+  const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set())
+  const [userProgress, setUserProgress] = useState<Record<number, number>>({})
   const socketStore = useSocketStore();
+  const [voiceActiveUsers, setVoiceActiveUsers] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const client = new Client({
@@ -35,11 +40,11 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     client.activate();
 
     return () => {
-      if (client.active && !socketStore.keepConnection) {
+      if (client.active) {
         client.deactivate();
       }
     };
-  }, [gameId, roomId, socketStore.keepConnection]);
+  }, [gameId, roomId]);
 
   /** ✅ stompClient가 변경될 때 구독 실행 */
   useEffect(() => {
@@ -48,6 +53,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
       subscribeToSideProblemResult();
       subscribeToCodeResult();
       subscribeToOpponentCodeResult();
+      subscribeToJoinVoice();
     } else {
       console.warn('⚠️ stompClient가 아직 연결되지 않음. 구독 보류');
     }
@@ -106,10 +112,13 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const submitCode = useCallback(
     (problemId: number, lang: string, code: string) => {
       if (stompClient?.connected) {
+        const payload = { gameId: gameId, teamId: roomId, problemId, lang, code }
         stompClient.publish({
           destination: `/pub/judge/submition`,
-          body: JSON.stringify({ gameId: gameId, teamId: roomId, problemId, lang, code }),
+          body: JSON.stringify({ gameId: gameId, teamId: roomId, problemId: 1, lang, code }),
         });
+        console.log(payload);
+        
         console.log('📨 알고리즘 코드 제출 요청 전송');
       }
     },
@@ -123,6 +132,18 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         const data = JSON.parse(message.body);
         console.log('📩 코드 채점 결과 수신:', data);
         setCodeResult(data);
+
+        // 정답을 다 맞췄을 때 
+        if (data.status === "P" && data.passCount === data.totalCount) {
+          const myUserId = Number(localStorage.getItem("userId"))
+          if (myUserId) updateUserStatus(myUserId)
+        }
+
+        // 일부만 정답을 맞췄을 때
+        if (data.status === "F" && data.passCount > 0) {
+          const myUserId = Number(localStorage.getItem("userId"))
+          updateUserProgress(myUserId, data.passCount, data.totalCount)
+        }
       });
     }
   };
@@ -134,9 +155,44 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         console.log('상대 코드 채점 결과 수신', data);
 
         setOpponentCodeResult(data);
+        
+        // 상대방이 다 맞았을 때
+        if (data.status === "P" && data.passCount === data.totalCount) {
+          users.forEach(user => {
+            if (user.roomId !== roomId) updateUserStatus(user.userId)
+          })
+        }
+
+        if (data.status === "F" && data.passCount > 0) {
+          users.forEach(user => {
+            if (user.roomId !== roomId) updateUserProgress(user.userId, data.passCount, data.totalCount)
+          })
+        }
       });
     }
   };
+
+  const subscribeToJoinVoice = () => {
+    if (stompClient?.connected) {
+      stompClient.subscribe(`/sub/team/${roomId}/voice/status`, message => {
+        const data = JSON.parse(message.body)
+        console.log(data);
+        
+        // data.status가 true -> 현재 보이스 활성화중인 애들
+      })
+    }
+  }
+
+  // 문제를 다 맞춘 유저는 완료된 유저 목록에 추가
+  const updateUserStatus = (userId: number) => {
+    setCompleteUsers(prev => new Set(prev).add(userId))
+  }
+
+  // 유저 진행율 업데이트
+  const updateUserProgress = (userId: number, passCount: number, totalCount: number) => {
+    const progress = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
+    setUserProgress(prev => ({...prev, [userId]: progress}))
+  }
 
   return {
     sideProblem,
@@ -146,6 +202,8 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     requestSideProblem,
     submitSideProblemAnswer,
     submitCode,
+    completeUsers,
+    userProgress
   };
 };
 

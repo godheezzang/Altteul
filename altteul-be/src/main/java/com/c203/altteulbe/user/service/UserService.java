@@ -1,14 +1,18 @@
 package com.c203.altteulbe.user.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.c203.altteulbe.aws.service.S3Service;
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
-import com.c203.altteulbe.user.service.exception.SelfSearchException;
 import com.c203.altteulbe.user.web.dto.request.UpdateProfileRequestDto;
 import com.c203.altteulbe.user.web.dto.response.SearchUserResponseDto;
 import com.c203.altteulbe.user.web.dto.response.UserProfileResponseDto;
@@ -19,31 +23,55 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
+	private final S3Service s3Service;
 	private final UserRepository userRepository;
 	private final UserStatusService userStatusService;
 
-	public SearchUserResponseDto searchUser(Long userId, String nickname) {
-		User user = userRepository.findByNickname(nickname).orElseThrow(NotFoundUserException::new);
+	public List<SearchUserResponseDto> searchUser(Long userId, String nickname) {
+		List<User> users = userRepository.searchByNickname(nickname)
+			.stream() // 자기 자신은 검색에서 제외
+			.filter(user -> !userId.equals(user.getUserId()))
+			.toList();
 
-		if (userId.equals(user.getUserId())) {
-			throw new SelfSearchException();
-		}
-		Boolean isOnline = userStatusService.isUserOnline(userId);
-		return SearchUserResponseDto.from(user, isOnline);
+		// 모든 검색된 사용자의 ID 리스트 추출
+		List<Long> userIds = users.stream()
+			.map(User::getUserId)
+			.toList();
+
+		// 한 번에 모든 사용자의 온라인 상태 조회
+		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(userIds);
+
+		// DTO 변환 시 조회해둔 온라인 상태 맵 활용
+		return users.stream()
+			.map(user -> SearchUserResponseDto.from(user, onlineStatus.get(user.getUserId())))
+			.toList();
 	}
 
 	public UserProfileResponseDto getUserProfile(Long userId, Long currentUserId) {
 		User user = userRepository.findWithRankingByUserId(userId)
 			.orElseThrow(NotFoundUserException::new);
 
-
 		Long totalCount = userRepository.count();
 		return UserProfileResponseDto.from(user, totalCount, currentUserId);
 	}
 
-	public void updateUserProfile(UpdateProfileRequestDto request, MultipartFile image, Long currentUserId) {
+	public void updateUserProfile(UpdateProfileRequestDto request, MultipartFile newImg, Long currentUserId) {
+		String defaultProfileImgKey = S3Util.getDefaultImgKey();
 		User user = userRepository.findById(currentUserId).orElseThrow(NotFoundUserException::new);
 		user.updateProfile(request.getNickname(), request.getMainLang());
-		// 이미지 로직 넣어주기
+
+		String currentProfileImg = user.getProfileImg();
+
+		if (newImg != null && !newImg.isEmpty()) {
+			// S3에 새 이미지 업로드
+			String newProfileImgKey = s3Service.uploadFiles(newImg, "uploads/");
+
+			// 기존 이미지가 기본 이미지가 아니면 S3에서 삭제
+			if (!defaultProfileImgKey.equals(currentProfileImg)) {
+				s3Service.deleteFile(currentProfileImg);
+			}
+			// 새로운 프로필 이미지 저장
+			user.updateProfileImage(newProfileImgKey);
+		}
 	}
 }

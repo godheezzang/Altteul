@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
+import com.c203.altteulbe.friend.persistent.entity.FriendId;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
 import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
@@ -40,33 +41,36 @@ public class FriendshipService {
 
 		// 캐시된 친구 리스트 조회
 		List<FriendResponseDto> cachedFriendList = friendRedisService.getCachedFriendList(userId);
-		if (!cachedFriendList.isEmpty()) {
-			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, pageable.getPageNumber(),
-				pageable.getPageSize());
-			return new PageResponse<>("friends", paginateResult);
+		List<FriendResponseDto> friendList;
+		if (cachedFriendList.isEmpty()) {
+			Page<Friendship> friendships = friendshipRepository.findAllByUserIdWithFriend(
+				userId,
+				PageRequest.of(pageable.getPageNumber(),
+					pageable.getPageSize())
+			);
+			friendList = friendships.stream()
+				.map(friendship -> FriendResponseDto.from(friendship, false)) // 초기 온라인 상태는 false로 설정
+				.toList();
+			// 친구 정보 캐싱
+			friendRedisService.setFriendList(userId, friendList);
+		} else {
+			friendList = cachedFriendList;
 		}
 
-		Page<Friendship> friendships = friendshipRepository.findAllByUserIdWithFriend(
-			userId,
-			PageRequest.of(pageable.getPageNumber(),
-				pageable.getPageSize())
-		);
 		// 친구 관계이 있는 유저의 id들을 리스트로 만들기
-		List<Long> friendIds = friendships.getContent().stream()
-			.map(friendship -> friendship.getFriend().getUserId())
+		List<Long> friendIds = friendList.stream()
+			.map(FriendResponseDto::getUserid)
 			.toList();
 		// 유저들의 온라인 상태 확인
 		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(friendIds);
 
-		List<FriendResponseDto> friendList = friendships.stream()
-			.map(friendship -> FriendResponseDto.from(
-				friendship, onlineStatus.get(friendship.getFriend().getUserId())
-			)).toList();
+		List<FriendResponseDto> responseList = friendList.stream()
+			.map(friend -> friend.updateOnlineStatus(onlineStatus.get(friend.getUserid())))
+			.toList();
 
 		// 친구 리스트 캐싱
-		friendRedisService.setFriendList(userId, friendList);
 
-		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(friendList, pageable.getPageNumber(),
+		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(responseList, pageable.getPageNumber(),
 			pageable.getPageSize());
 		return new PageResponse<>("friends", paginateResult);
 	}
@@ -77,7 +81,8 @@ public class FriendshipService {
 		if (!friendshipRepository.existsByUserAndFriend(userId, friendId)) {
 			throw new FriendRelationNotFoundException();
 		}
-		friendshipRepository.deleteFriendRelation(userId, friendId);
+		friendshipRepository.deleteById(new FriendId(userId, friendId));
+		friendshipRepository.deleteById(new FriendId(friendId, userId));
 		// redis에서도 친구 관계 삭제
 		// Redis 캐시 업데이트를 하나의 트랜잭션으로 처리
 		friendRedisService.invalidateCaches(userId, friendId);

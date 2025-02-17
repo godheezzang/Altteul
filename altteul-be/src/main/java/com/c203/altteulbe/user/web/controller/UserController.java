@@ -1,5 +1,7 @@
 package com.c203.altteulbe.user.web.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,14 +33,15 @@ public class UserController {
 	private final UserService userService;
 
 	@GetMapping("/{userId}")
-	public ApiResponseEntity<ResponseBody.Success<UserProfileResponseDto>> getUserProfile(@PathVariable("userId") Long userId, @AuthenticationPrincipal Long currentUserId) {
+	public ApiResponseEntity<ResponseBody.Success<UserProfileResponseDto>> getUserProfile(
+		@PathVariable("userId") Long userId, @AuthenticationPrincipal Long currentUserId) {
 		return ApiResponse.success(userService.getUserProfile(userId, currentUserId));
 	}
 
-	@PatchMapping(value = "/user",  consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	@PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ApiResponseEntity<Void> updateUserProfile(
-		@RequestPart(value="request") UpdateProfileRequestDto request,
-		@RequestPart(required = false, value="image") MultipartFile image,
+		@RequestPart(value = "request") UpdateProfileRequestDto request,
+		@RequestPart(required = false, value = "image") MultipartFile image,
 		@AuthenticationPrincipal Long currentUserId) {
 		userService.updateUserProfile(request, image, currentUserId);
 		return ApiResponse.success();
@@ -46,10 +49,10 @@ public class UserController {
 
 	@GetMapping("/search")
 	@PreAuthorize("isAuthenticated()")
-	public ApiResponseEntity<ResponseBody.Success<SearchUserResponseDto>> getCurrentUser(
+	public ApiResponseEntity<ResponseBody.Success<List<SearchUserResponseDto>>> getCurrentUser(
 		@AuthenticationPrincipal Long id,
 		@RequestParam(value = "nickname") String nickname) {
-		SearchUserResponseDto response = userService.searchUser(id, nickname);
+		List<SearchUserResponseDto> response = userService.searchUser(id, nickname);
 		return ApiResponse.success(response, HttpStatus.OK);
 	}
 }

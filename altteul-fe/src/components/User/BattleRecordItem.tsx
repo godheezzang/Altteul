@@ -1,5 +1,4 @@
-import { MemberInfo, UserGameRecord } from 'types/types';
-import baseImage from '@assets/icon/People.svg';
+import { UserGameRecord } from 'types/types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import bronze from '@assets/icon/badge/Badge_01.svg';
@@ -98,7 +97,6 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
 
   const renderMembers = () => {
     if (isTeam) {
-      const totalMembers = [...record.myTeam.members, ...record.opponents[0].members];
       return (
         <div className="flex w-full">
           <div className="flex flex-col w-1/2">
@@ -109,7 +107,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -123,7 +121,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               <p key={member.userId} className="flex gap-2 items-center mb-1">
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -145,7 +143,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -155,14 +153,14 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
             ))}
           </div>
           <div className="flex flex-col w-1/2">
-            {allPlayers.slice(4).map((member, index) => (
+            {allPlayers.slice(4).map(member => (
               <p
                 key={member.userId}
                 className={`flex gap-2 ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}
               >
                 <div className="p-1 rounded-full bg-gray-06">
                   <img
-                    src={member.profileImage ? member.profileImage : baseImage}
+                    src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
                     className="w-[1rem]"
                   />
@@ -292,7 +290,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                         >
                           <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
                             <img
-                              src={member.profileImage ? member.profileImage : baseImage}
+                              src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
                               className="w-[1.8rem]"
                             />
@@ -353,7 +351,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                         >
                           <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
                             <img
-                              src={member.profileImage ? member.profileImage : baseImage}
+                              src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
                               className="w-[1.8rem]"
                             />
@@ -409,7 +407,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       <div className="flex items-center mr-20">
                         <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2 mr-4">
                           <img
-                            src={member.profileImage ? member.profileImage : baseImage}
+                            src={`https://altteul-792301.s3.ap-northeast-2.amazonaws.com/${member.profileImage}`}
                             alt={member.nickname + ' 프로필 이미지'}
                             className="w-[1.8rem]"
                           />

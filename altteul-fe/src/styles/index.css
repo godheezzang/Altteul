@@ -15,6 +15,14 @@
   src: url('/fonts/FiraCode-VF.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'Press Start 2P';
+  /* font-weight: 400;
+  font-style: normal;
+  font-display: swap; */
+  src: url('/fonts/PressStart2P-Regular.woff2') format('woff2');
+}
+
 @layer base {
   html,
   body {
@@ -39,4 +47,9 @@
 
 .monaco-mouse-cursor-text {
   position: inherit;
+}
+
+/* 드롭다운 마지막 요소 border 지우기 */
+.dropdown-last:last-child {
+  border: 0;
 }

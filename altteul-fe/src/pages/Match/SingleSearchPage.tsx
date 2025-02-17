@@ -1,116 +1,119 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { formatTime } from "@utils/formatTime";
-import UserProfile from "@components/Match/UserProfile";
-import Button from "@components/Common/Button/Button";
-import backgroundImage from "@assets/background/single_matching_bg.svg";
-import logo from "@assets/icon/Altteul.svg";
-import tmi from "@assets/tmi.json";
-import { useTimer } from "@hooks/useTimer";
-import { User } from "types/types";
-import useMatchWebSocket from "@hooks/useMatchWebSocket";
-import { useMatchStore } from "@stores/matchStore";
-import { useSocketStore } from "@stores/socketStore";
-import { singleOut, singleStart } from "@utils/Api/matchApi";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { formatTime } from '@utils/formatTime';
+import UserProfile from '@components/Match/UserProfile';
+import Button from '@components/Common/Button/Button';
+import backgroundImage from '@assets/background/single_matching_bg.svg';
+import tmi from '@assets/tmi.json';
+import { useTimer } from '@hooks/useTimer';
+import { User } from 'types/types';
+import { useMatchStore } from '@stores/matchStore';
+import { useSocketStore } from '@stores/socketStore';
+import { singleOut, singleStart } from '@utils/Api/matchApi';
+import socketResponseMessage from 'types/socketResponseMessage';
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
-  const store = useMatchStore();
-  const socketStore = useSocketStore();
-  const [fact, setFact] = useState<string>("");
+  const matchStore = useMatchStore();
+  const socket = useSocketStore();
+  const [fact, setFact] = useState<string>('');
   const [facts] = useState<string[]>(tmi.facts);
-  const [waitUsers, setWaitUsers] = useState(store.matchData.users);
-  const [leaderId] = useState(store.matchData.leaderId);
-  const [headUser, setHeadUser] = useState<User>(
-    waitUsers.find((user) => user.userId === leaderId)
+  const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
+  //waitUsers: 방장을 포함하지 않은 대기 유저
+  const [waitUsers, setWaitUsers] = useState(
+    matchStore.matchData.users.filter(user => user.userId !== leaderId)
   );
-  const roomId = store.matchData.roomId;
-  const currentUserId = Number(localStorage.getItem("userId"));
-  const isLeader = currentUserId === leaderId;
-  
-  // 타이머 완료 여부를 추적하는 상태 추가
-  const [isTimeUp, setIsTimeUp] = useState(false);
-  
-  const { isConnected, error, c_waitUsers, c_leaderId } = useMatchWebSocket(roomId);
+  const [headUser, setHeadUser] = useState<User>(
+    matchStore.matchData.users.find(user => user.userId === leaderId)
+  );
+  const roomId = matchStore.matchData.roomId;
+  const currentUserId = Number(sessionStorage.getItem('userId'));
+  const [isLeader, setIsLeader] = useState(currentUserId === leaderId);
+
+  //유저 퇴장 로직
+  const userOut = () => {
+    singleOut(roomId); //의도적으로 나간 경우에 서버에 나갔다고 알림, 새로고침시(언마운트)에는 서버에서 아직 방에 남아있다고 판단.
+    matchStore.clear(); //의도적으로 나간 경우 matchData remove
+    navigate('/match/select');
+  };
+
+  //구독처리
+  useEffect(() => {
+    socket.subscribe(`/sub/single/room/${roomId}`, handleMessage);
+
+    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
+    return () => {
+      console.log('singleSearchPage Out');
+      socket.unsubscribe(`/sub/single/room/${roomId}`);
+    };
+  }, [roomId]);
+
+  //소켓 응답 처리
+  const handleMessage = (message: socketResponseMessage) => {
+    console.log(message);
+    const { type, data } = message;
+    if (type === 'ENTER' || type === 'LEAVE') {
+      setLeaderId(data.leaderId);
+      setWaitUsers(data.users.filter(user => user.userId !== data.leaderId));
+      setHeadUser(data.users.find(user => user.userId === data.leaderId));
+      setIsLeader(currentUserId === data.leaderId);
+
+    } else if (type === 'COUNTING') {
+      navigate('/match/single/final');
+    }
+
+    // 대기 유저가 8명이 되면 자동으로 게임 시작
+    if (data.users.length >= 8) {
+      navigateFinalPage();
+    }
+
+    reset(); //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
+  };
 
   // 타이머 설정
-  const { seconds } = useTimer({
-    initialSeconds: 10,
+  const { seconds, reset } = useTimer({
+    initialSeconds: 90, //TODO: 최종, 3분(?)으로 설정
+
+    // 타이머 완료 시 페이지 이동 처리
     onComplete: () => {
-      setIsTimeUp(true);
+      //1. 혼자만 있으면 시작 x
+      if (waitUsers.length === 0) {
+        alert('상대 유저가 입장하지 않아 종료합니다.');
+        userOut();
+        return;
+      }
+      //2. 방장 제외 1명 이상의 플레이어만 충족하면 시작
+      navigateFinalPage();
     },
   });
 
-  // 타이머 완료 시 페이지 이동 처리
-  useEffect(() => {
-    if (isTimeUp) {
-      store.setMatchData({
-        data: {
-          roomId: roomId,
-          leaderId: leaderId,
-          users: [headUser, ...waitUsers],
-        }
-      });
-
-      //게임 시작 API 호출
-      const res = singleStart(roomId, leaderId, "time");
-      if (res === 200) {
-        navigate("/match/single/final");
-      }
-
+  //게임 시작 버튼 클릭
+  const handleStartButton = async () => {
+    //혼자만 있을 때
+    if (waitUsers.length === 0) {
+      alert('상대 유저가 입장하지 않았습니다.');
+      return;
     }
-  }, [isTimeUp, roomId, leaderId, waitUsers, navigate]);
 
-  // Socket connection management
-  useEffect(() => {
-    socketStore.setKeepConnection(true);
-    return () => {
-      if (!socketStore.keepConnection) {
-        singleOut(currentUserId);
-        socketStore.resetConnection();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    console.log("연결 상태확인: ", isConnected);
-  }, [isConnected]);
-
-  // 유저 정보 업데이트
-  useEffect(() => {
-    if (c_waitUsers && c_leaderId) {
-      console.log("유저정보 Update");
-      console.log("대기 유저 정보: ", c_waitUsers);
-      console.log("방장 ID: ", c_leaderId);
-      setHeadUser(c_waitUsers.find((user) => user.userId === c_leaderId));
-      setWaitUsers(c_waitUsers.filter((user) => user.userId !== c_leaderId));
-    }
-  }, [c_waitUsers, c_leaderId]);
-
-  //타이머 전 게임 시작 호출
-  const userStart = () => {
-    if (confirm("아직 8명 안됐는데 시작할거임?")) {
-      if (waitUsers.length >= 2) {
-        store.setMatchData({
-          data: {
-            roomId: roomId,
-            leaderId: leaderId,
-            users: waitUsers,
-          }
-        });
-        navigate("/match/single/final");
-      } else {
-        alert("개인전이긴 한데... 너 혼자 게임 못함...");
-      }
+    //8명 상관없이 시작할건지 확인
+    if (confirm('바로 시작하시겠습니까?')) {
+      navigateFinalPage();
     }
   };
 
-  //유저(본인) 퇴장
-  const userOut = () => {
-    socketStore.resetConnection();
-    singleOut(currentUserId);
-    navigate("/match/select");
+  //Final 페이지 이동 조건 충족시
+  const navigateFinalPage = async () => {
+    // Final 페이지로 넘어가기 전, 마지막 상태 데이터 저장
+    const matchData = {
+      roomId: roomId,
+      leaderId: leaderId,
+      users: [headUser, ...waitUsers],
+    };
+
+    matchStore.setMatchData(matchData);
+
+    //게임 시작 API 호출(For socket 응답 변환)
+    await singleStart(roomId);
   };
 
   // TMI: 첫 fact 생성 후 5초 간격으로 Rotation
@@ -122,31 +125,13 @@ const SingleSearchPage = () => {
     return () => clearInterval(factRotation);
   }, [facts]);
 
-  // WebSocket 상태 모니터링
-  useEffect(() => {
-    if (error) {
-      console.error("WebSocket 연결 오류:", error);
-      alert("연결에 문제가 발생했습니다. 다시 시도해주세요.");
-      socketStore.resetConnection();
-      navigate("/match/select");
-    }
-  }, [error, navigate]);
-
   return (
     <div
-      className="relative min-h-screen w-full bg-cover bg-center"
+      className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
-
-      {/* 로고 링크 */}
-      <Link
-        to="/"
-        className="z-20 absolute top-8 left-8 transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-      >
-        <img src={logo} alt="홈으로" className="w-full h-full" />
-      </Link>
 
       {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
@@ -155,14 +140,14 @@ const SingleSearchPage = () => {
 
         {/* 방장: 리더아이디에 해당하는 유저 정보 넣어야 함*/}
         <UserProfile
-          nickname={headUser.nickname}
-          profileImg={headUser.profileImg}
-          tierId={headUser.tierId}
+          nickname={''}
+          profileImg={headUser ? headUser.profileImg : null}
+          tierId={headUser ? headUser.tierId : null}
           className="mb-4"
         />
 
         {/* 방장 이름 */}
-        <div className="text-white text-2xl mb-4">나는 방장</div>
+        <div className="text-white text-2xl mb-4">{headUser?.nickname}</div>
 
         {/* Status Message */}
         <div className="text-white text-xl mb-8 flex flex-col items-center">
@@ -181,7 +166,7 @@ const SingleSearchPage = () => {
           {isLeader && (
             <Button
               className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-              onClick={userStart}
+              onClick={handleStartButton}
             >
               게임 시작
             </Button>
@@ -197,7 +182,7 @@ const SingleSearchPage = () => {
         {/* 방장 제외 대기 유저 */}
         <div className="flex justify-center items-center gap-20">
           {waitUsers
-            .filter((user) => user.userId !== leaderId)
+            .filter(user => user.userId !== leaderId)
             .map((user: User) => (
               <UserProfile
                 key={user.userId}

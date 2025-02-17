@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         pretendard: ['Pretendard Variable', 'sans-serif'],
         firacode: ['Firacode', 'sans-serif'],
+        pressStart: ['Press Start 2P', 'sans-serif'],
       },
       colors: {
         'primary-black': '#242A32',
@@ -57,6 +58,7 @@ export default {
         '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
         side: '0 0 10px 3px rgba(0, 0, 0, 0.1)',
+        passProfile: '0 0 5px 2px rgba(224, 108, 45, 1)',
         inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
         none: 'none',
         orange: '0 0 15px 2px var(--primary-orange)',

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.utils.RedisKeys;
 import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
@@ -76,6 +77,7 @@ public class SingleRoomRedisRepository {
 	}
 
 	// 기존 대기방에 유저 추가
+	@DistributedLock(key = "#roomId")
 	public RoomEnterResponseDto insertUserToExistingRoom(Long roomId, User user) {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 
@@ -112,6 +114,7 @@ public class SingleRoomRedisRepository {
 		redisTemplate.delete(roomUsersKey);  // 방에 속한 유저 삭제
 		redisTemplate.delete(roomStatusKey); // 방 상태 삭제
 		redisTemplate.opsForZSet().remove(RedisKeys.SINGLE_WAITING_ROOMS, roomId.toString()); // 대기방 목록에서 제거
+		log.info("모든 유저들이 퇴장한 개인전 방의 데이터 삭제 : roomId = {}", roomId);
 	}
 
 	// roomId 생성 → DB 저장 시 game_id로 저장됨

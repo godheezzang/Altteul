@@ -29,22 +29,34 @@ public class RedisKeys {
 	// 팀 보이스 참가자
 	public static final String VOICE_PARTICIPANTS = "voice:participants";
 
-	// 팀 보이스 음소거 여부
-	public static final String VOICE_MUTE = "voice:mute";
+	public static final String ROOM_DB_ID = "room:db_id";
 
-	// 팀 보이스 음소거 여부 키
-	public static String getVoiceMuteKey(Long roomId, String userId) {
-		return VOICE_MUTE + ":" + roomId + ":" + userId;
+	public static final String ROOM_REDIS_ID = "room:redis_id";
+
+	public static final String EDITOR_AWARENESS = "editor:awareness";
+
+	public static final String EDITOR_CONTENT = "editor:content";
+
+	public static String getEditorAwareness(Long roomId) {
+		return EDITOR_AWARENESS + ":" + roomId;
+	}
+
+	public static String getEditorContent(Long roomId) {
+		return EDITOR_CONTENT + ":" + roomId;
+	}
+
+	public static String getRoomDbId(Long roomId) {
+		return ROOM_DB_ID + ":" + roomId;
 	}
 
 	// 팀 보이스 참가자 키
-	public static String getVoiceParticipantsKey(Long roomId) {
-		return VOICE_PARTICIPANTS + ":" + roomId;
+	public static String getVoiceParticipantsKey(Long roomUUID) {
+		return VOICE_PARTICIPANTS + ":" + roomUUID;
 	}
 
 	// 음성 채팅 세선 키
-	public static String getVoiceSessionKey(Long roomId) {
-		return VOICE_SESSION + ":" + roomId;
+	public static String getVoiceSessionKey(Long roomUUID) {
+		return VOICE_SESSION + ":" + roomUUID;
 	}
 
 	// 친구 요청 키
@@ -65,6 +77,11 @@ public class RedisKeys {
 	// 친구 리스트 키
 	public static String getFriendListKey(Long userId) {
 		return FRIEND_LIST_CACHE + ":" + userId;
+	}
+
+	// 게임 관련 키 추가
+	public static String TeamMatchId(Long roomId) {
+		return "room:team:" + roomId + ":match";
 	}
 
 	// 개인전 방 상태
@@ -107,8 +124,30 @@ public class RedisKeys {
 		return "room:team:" + roomId + ":countdown";
 	}
 
+	// 특정 matchId를 가진 팀들이 풀어야 하는 문제 pk 관리
+	public static String TeamRoomProblem(String matchId) {
+		return "room:team:" + matchId + ":problem";
+	}
+
 	// 초대 정보 저장
 	public static String inviteInfo(String roomId, String friendId) {
 		return "invite:room:" + roomId + ":user:" + friendId;
 	}
+
+	public static String getRoomRedisId(Long roomId) {
+		return ROOM_REDIS_ID + ":" + roomId;
+	}
+
+	// 유저의 웹소켓 해제 시간 저장 키
+	private static final String USER_DISCONNECT_TIME = "disconnect_time";
+
+	/**
+	 * 특정 유저의 웹소켓 해제 시간을 저장하는 키 반환
+	 * @param userId 유저 ID
+	 * @return "disconnect_time:{userId}"
+	 */
+	public static String getUserDisconnectTimeKey(Long userId) {
+		return USER_DISCONNECT_TIME + ":" + userId;
+	}
+
 }
