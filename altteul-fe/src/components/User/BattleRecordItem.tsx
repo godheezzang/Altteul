@@ -1,5 +1,4 @@
-import { MemberInfo, UserGameRecord } from 'types/types';
-import baseImage from '@assets/icon/People.svg';
+import { UserGameRecord } from 'types/types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import bronze from '@assets/icon/badge/Badge_01.svg';
@@ -98,7 +97,6 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
 
   const renderMembers = () => {
     if (isTeam) {
-      const totalMembers = [...record.myTeam.members, ...record.opponents[0].members];
       return (
         <div className="flex w-full">
           <div className="flex flex-col w-1/2">
@@ -155,7 +153,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
             ))}
           </div>
           <div className="flex flex-col w-1/2">
-            {allPlayers.slice(4).map((member, index) => (
+            {allPlayers.slice(4).map(member => (
               <p
                 key={member.userId}
                 className={`flex gap-2 ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}

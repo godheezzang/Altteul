@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserGameRecord } from 'types/types';
 import BattleRecordItem from './BattleRecordItem';
+import LoadingSpinner from '@components/Common/LoadingSpinner';
 
 const BattleRecord = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -29,7 +30,7 @@ const BattleRecord = () => {
   }, [userId]);
 
   if (isLoading) {
-    return <div>로딩 중...</div>;
+    return <LoadingSpinner loading={isLoading} />;
   }
 
   if (!records || records.length === 0) {

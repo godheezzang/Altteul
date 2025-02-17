@@ -7,16 +7,18 @@ import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import useGameStore from '@stores/useGameStore';
+import useAuthStore from '@stores/authStore';
 
 const TeamFinalPage = () => {
   const navigate = useNavigate();
   const matchStore = useMatchStore();
   const gameStore = useGameStore();
   const socket = useSocketStore();
-  const matchId = matchStore.matchId
-  const alliance = matchStore.myTeam.users
-  const opponent = matchStore.opponent.users
-  const [problemTitle] = gameStore.problem.problemTitle
+  const { userId } = useAuthStore();
+  const matchId = matchStore.matchId;
+  const alliance = matchStore.myTeam.users;
+  const opponent = matchStore.opponent.users;
+  const [problemTitle] = gameStore.problem.problemTitle;
   const [displayText, setDisplayText] = useState(''); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0); //타이핑 효과 추적 변수
   const [seconds, setSeconds] = useState<number>(10); //응답 데이터로 렌더링 전 초기값(10) 설정
@@ -48,13 +50,21 @@ const TeamFinalPage = () => {
     }
 
     if (type === 'GAME_START') {
+      const isUserInTeam1 = data.team1.users.some(user => user.userId === Number(userId));
+
+      if (isUserInTeam1) {
+        gameStore.setMyTeam(data.team1);
+        gameStore.setOpponent(data.team2);
+      } else {
+        gameStore.setMyTeam(data.team2);
+        gameStore.setOpponent(data.team1);
+      }
       //IDE에서 쓸 데이터 setting(소켓 응답데이터 전부)
-      gameStore.setGameId(data.gameId)
-      gameStore.setMyTeam(data.team1)
-      gameStore.setOpponent(data.team2)
+      gameStore.setGameId(data.gameId);
+      gameStore.setMatchId(matchId);
 
       //IDE 이동 시 match에서 쓰는 데이터 삭제(필요 없음)
-      matchStore.clear()
+      matchStore.clear();
 
       //페이지 이동
       setTimeout(() => {
@@ -95,7 +105,9 @@ const TeamFinalPage = () => {
         </div>
 
         {/* Message */}
-        <div className="text-white text-4xl mb-2 flex flex-col items-center">대전이 시작됩니다!</div>
+        <div className="text-white text-4xl mb-2 flex flex-col items-center">
+          대전이 시작됩니다!
+        </div>
 
         {/* 타이머 */}
         <div className="text-white text-3xl mb-8">{seconds}</div>

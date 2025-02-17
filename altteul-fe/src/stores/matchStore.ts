@@ -6,7 +6,7 @@ export const useMatchStore = create<MatchState>(set => ({
   matchData: JSON.parse(sessionStorage.getItem('matchData')) || null,
   myTeam: JSON.parse(sessionStorage.getItem('myTeam')) || null,
   opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
-  matchId: JSON.parse(sessionStorage.getItem('matchId')) || '',
+  matchId: sessionStorage.getItem('matchId') || '',
   isLoading: false,
 
   setMatchData: data => {
