@@ -143,7 +143,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.selectFrom(Q_CHATMESSAGE)
 			.join(Q_CHATMESSAGE.sender).fetchJoin()  // N+1 문제 방지
 			.where(Q_CHATMESSAGE.chatroom.chatroomId.eq(chatroomId))
-			.orderBy(Q_CHATMESSAGE.createdAt.desc())
+			.orderBy(Q_CHATMESSAGE.createdAt.asc())
 			.limit(60)
 			.fetch();
 
