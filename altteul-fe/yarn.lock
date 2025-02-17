@@ -1161,6 +1161,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     lucide-react: "npm:^0.475.0"
     monaco-editor: "npm:^0.52.2"
+    openvidu-browser: "npm:^2.31.0"
     postcss: "npm:^8.4.35"
     prettier: "npm:^3.2.5"
     react: "npm:^18.2.0"
@@ -2539,6 +2540,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"events@npm:3.3.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: 10c0/d6b6f2adbccbcda74ddbab52ed07db727ef52e31a61ed26db9feb7dc62af7fc8e060defa65e5f8af9449b86b52cc1a1f6a79f2eafcf4e62add2b7a1fa4a432f6
+  languageName: node
+  linkType: hard
+
 "eventsource@npm:^2.0.2":
   version: 2.0.2
   resolution: "eventsource@npm:2.0.2"
@@ -2703,6 +2711,15 @@ __metadata:
   version: 4.3.7
   resolution: "fraction.js@npm:4.3.7"
   checksum: 10c0/df291391beea9ab4c263487ffd9d17fed162dbb736982dee1379b2a8cc94e4e24e46ed508c6d278aded9080ba51872f1bc5f3a5fd8d7c74e5f105b508ac28711
+  languageName: node
+  linkType: hard
+
+"freeice@npm:2.2.2":
+  version: 2.2.2
+  resolution: "freeice@npm:2.2.2"
+  dependencies:
+    normalice: "npm:^1.0.0"
+  checksum: 10c0/b1657b3c54e7dd1484e07120b8a88f685f96aea7cbdb7cdc7c2b8cd9bb6f8101a39d72ec5af10a163cb60a92efa232660cfd851cce9cf9b3d293fd2d5a329358
   languageName: node
   linkType: hard
 
@@ -2931,6 +2948,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hark@npm:1.2.3":
+  version: 1.2.3
+  resolution: "hark@npm:1.2.3"
+  dependencies:
+    wildemitter: "npm:^1.2.0"
+  checksum: 10c0/237f787eed9422501dc3297b98467a3db7b95dbbb7400df9ee70bcf3df087121e637a588dedc85ac8abfbb9a983c61f586725bb27ff8568e6957ebdafae18e43
+  languageName: node
+  linkType: hard
+
 "has-bigints@npm:^1.0.2":
   version: 1.1.0
   resolution: "has-bigints@npm:1.1.0"
@@ -3119,7 +3145,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inherits@npm:2, inherits@npm:^2.0.3, inherits@npm:^2.0.4":
+"inherits@npm:2, inherits@npm:2.0.4, inherits@npm:^2.0.3, inherits@npm:^2.0.4":
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 10c0/4e531f648b29039fb7426fb94075e6545faa1eb9fe83c29f0b6d9e7263aceb4289d2d4557db0d428188eeb449cc7c5e77b0a0b2c4e248ff2a65933a0dee49ef2
@@ -3500,6 +3526,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsnlog@npm:2.30.0":
+  version: 2.30.0
+  resolution: "jsnlog@npm:2.30.0"
+  checksum: 10c0/5ab64faf3c254fb607398d4421b6072533a71dcbaa31514426156c810281d6823c9644c6214552b4f7706f3baff87f94c0df010a1af3e810b3bc9279c61f364c
+  languageName: node
+  linkType: hard
+
 "json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
@@ -3850,6 +3883,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mime@npm:3.0.0":
+  version: 3.0.0
+  resolution: "mime@npm:3.0.0"
+  bin:
+    mime: cli.js
+  checksum: 10c0/402e792a8df1b2cc41cb77f0dcc46472b7944b7ec29cb5bbcd398624b6b97096728f1239766d3fdeb20551dd8d94738344c195a6ea10c4f906eb0356323b0531
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:9.0.3":
   version: 9.0.3
   resolution: "minimatch@npm:9.0.3"
@@ -4074,6 +4116,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"normalice@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "normalice@npm:1.0.1"
+  checksum: 10c0/8be7faa9c38d6b3397def3b80ce6157adecf945363b27595263c80e9dcca63073cc099eee31147acbbeb02a2c830f325b32499b71b0ab9e3e540fb29bb0adc26
+  languageName: node
+  linkType: hard
+
 "normalize-path@npm:^3.0.0, normalize-path@npm:~3.0.0":
   version: 3.0.0
   resolution: "normalize-path@npm:3.0.0"
@@ -4182,6 +4231,24 @@ __metadata:
   dependencies:
     wrappy: "npm:1"
   checksum: 10c0/5d48aca287dfefabd756621c5dfce5c91a549a93e9fdb7b8246bc4c4790aa2ec17b34a260530474635147aeb631a2dcc8b32c613df0675f96041cbb8244517d0
+  languageName: node
+  linkType: hard
+
+"openvidu-browser@npm:^2.31.0":
+  version: 2.31.0
+  resolution: "openvidu-browser@npm:2.31.0"
+  dependencies:
+    events: "npm:3.3.0"
+    freeice: "npm:2.2.2"
+    hark: "npm:1.2.3"
+    inherits: "npm:2.0.4"
+    jsnlog: "npm:2.30.0"
+    mime: "npm:3.0.0"
+    platform: "npm:1.3.6"
+    semver: "npm:7.6.2"
+    uuid: "npm:9.0.1"
+    wolfy87-eventemitter: "npm:5.2.9"
+  checksum: 10c0/0a499fe3a92d5ff5985bee47ccf02ab8ac7b91a817491ce15b3875c170f83d49282b897b3d7c588fdbf5ac93c910021d039b1c30579c347e7def314286672eb1
   languageName: node
   linkType: hard
 
@@ -4321,6 +4388,13 @@ __metadata:
   version: 4.0.6
   resolution: "pirates@npm:4.0.6"
   checksum: 10c0/00d5fa51f8dded94d7429700fb91a0c1ead00ae2c7fd27089f0c5b63e6eca36197fe46384631872690a66f390c5e27198e99006ab77ae472692ab9c2ca903f36
+  languageName: node
+  linkType: hard
+
+"platform@npm:1.3.6":
+  version: 1.3.6
+  resolution: "platform@npm:1.3.6"
+  checksum: 10c0/69f2eb692e15f1a343dd0d9347babd9ca933824c8673096be746ff66f99f2bdc909fadd8609076132e6ec768349080babb7362299f2a7f885b98f1254ae6224b
   languageName: node
   linkType: hard
 
@@ -4885,6 +4959,15 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: 10c0/26383305e249651d4c58e6705d5f8425f153211aef95f15161c151f7b8de885f24751b377e4a0b3dd42cce09aad3f87a61dab7636859c0d89b7daf1a1e2a5c78
+  languageName: node
+  linkType: hard
+
+"semver@npm:7.6.2":
+  version: 7.6.2
+  resolution: "semver@npm:7.6.2"
+  bin:
+    semver: bin/semver.js
+  checksum: 10c0/97d3441e97ace8be4b1976433d1c32658f6afaff09f143e52c593bae7eef33de19e3e369c88bd985ce1042c6f441c80c6803078d1de2a9988080b66684cbb30c
   languageName: node
   linkType: hard
 
@@ -5611,6 +5694,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uuid@npm:9.0.1":
+  version: 9.0.1
+  resolution: "uuid@npm:9.0.1"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 10c0/1607dd32ac7fc22f2d8f77051e6a64845c9bce5cd3dd8aa0070c074ec73e666a1f63c7b4e0f4bf2bc8b9d59dc85a15e17807446d9d2b17c8485fbc2147b27f9b
+  languageName: node
+  linkType: hard
+
 "vary@npm:^1":
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
@@ -5774,6 +5866,20 @@ __metadata:
   bin:
     node-which: bin/which.js
   checksum: 10c0/e556e4cd8b7dbf5df52408c9a9dd5ac6518c8c5267c8953f5b0564073c66ed5bf9503b14d876d0e9c7844d4db9725fb0dcf45d6e911e17e26ab363dc3965ae7b
+  languageName: node
+  linkType: hard
+
+"wildemitter@npm:^1.2.0":
+  version: 1.2.1
+  resolution: "wildemitter@npm:1.2.1"
+  checksum: 10c0/614b1ff678b9114326963254994d0145d47aad6b816c0ee2b6f231ba2d245e25bb052ddd276190592e9c04ca154c3b8cd321ace404c4dbb7118e86fd512d65d4
+  languageName: node
+  linkType: hard
+
+"wolfy87-eventemitter@npm:5.2.9":
+  version: 5.2.9
+  resolution: "wolfy87-eventemitter@npm:5.2.9"
+  checksum: 10c0/dd218e3eb5fe2bbb7894d19b857ee7df1b711cadb6dfa177392d42b71522979d1883489057d13cf7af6785835b9807ab1f821d3dbf79ee9691ba27e72ad91c4d
   languageName: node
   linkType: hard
 
