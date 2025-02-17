@@ -95,7 +95,7 @@ const ChatView = () => {
   return (
     <div className="flex flex-col h-full">
       {/* 채팅방 헤더 */}
-      <div className="border-b border-gray-700 p-4 flex items-center gap-3 mt-5">
+      <div className="border-b border-gray-700 px-4 pb-3 flex items-center gap-3 mt-0.5">
         <div className="relative">
           <img src={chatRoom.profileImg} alt="프로필" className="w-10 h-10 rounded-full" />
           <div
@@ -104,7 +104,10 @@ const ChatView = () => {
             }`}
           />
         </div>
-        <span className="font-medium text-white">{chatRoom.nickname}</span>
+        <div className="flex items-end pt-3">
+          <div className="font-medium text-white">{chatRoom.nickname}</div>
+          <div className="ml-1 pb-0.5 text-xs">님과 채팅중</div>
+        </div>
       </div>
 
       {/* 메시지 목록 */}

@@ -20,19 +20,19 @@ const ModalHeader = ({
       {showBackButton && (
         <button
           onClick={onBack}
-          className="absolute top-3 left-3 text-primary-orange hover:opacity-80"
+          className="absolute top-7 right-5 text-primary-orange hover:opacity-80"
         >
           <img src={backIcon} alt="뒤로가기" className="w-6 h-6" />
         </button>
       )}
 
       {/* 닫기 버튼 */}
-      <button
+      {!showBackButton && <button
         onClick={onClose}
         className="absolute top-0 right-3 text-primary-orange hover:opacity-80"
       >
         <img src={exitlineIcon} alt="닫기" className="w-8 h-10" />
-      </button>
+      </button>}
     </>
   );
 };

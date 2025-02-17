@@ -1,6 +1,9 @@
 import { useSocketStore } from '@stores/socketStore';
 import { requestFriend } from '@utils/Api/friendChatApi';
 import { useState } from 'react';
+import freindRequest from "@assets/icon/friend/freindRequestIcon.svg"
+import success from "@assets/icon/friend/success.svg"
+import fail from "@assets/icon/friend/fail.svg"
 
 interface SearchResultItemProps {
   user: {
@@ -14,17 +17,21 @@ interface SearchResultItemProps {
 const SearchResultItem = ({ user }: SearchResultItemProps) => {
   const { sendMessage } = useSocketStore();
   const [isClick, setIsClick] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const handleRequestFriend = async () => {
+    
     try{
       const res = await requestFriend(user.userId);
-      setIsClick(true);
       sendMessage('/pub/friend/request', {
         toUserId: user.userId,
       });
     }catch(error){
+      setIsError(true)
       alert('친구 요청 목록을 확인해주세요')
     }
+
+    setIsClick(true);
   };
 
   return (
@@ -44,14 +51,11 @@ const SearchResultItem = ({ user }: SearchResultItemProps) => {
       <div className="flex gap-2">
         <button
           onClick={handleRequestFriend}
-          className={
-            !isClick
-              ? 'px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80'
-              : 'px-3 py-1 bg-gray text-white rounded border border-primary-orange'
-          }
           disabled={isClick}
         >
-          친구 신청
+          {!isClick && <img src={freindRequest} alt="초대" className='w-8 h-8' />}
+          {isClick && !isError && <img src={success} alt="성공" className='w-8 h-8' />}
+          {isClick && isError && <img src={fail} alt="실패" className='w-8 h-8' />}
         </button>
       </div>
     </div>

@@ -3,6 +3,8 @@ import useAuthStore from '@stores/authStore';
 import { useSocketStore } from '@stores/socketStore';
 import { friendRequestResponse } from '@utils/Api/friendChatApi';
 import { FriendRequest } from 'types/types';
+import requestAccept from '@assets/icon/friend/requestAccept.svg'
+import requestReject from '@assets/icon/friend/requestReject.svg'
 
 interface FriendRequestItemProps {
   request: FriendRequest;
@@ -26,7 +28,7 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
   };
 
   return (
-    <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg hover:bg-gray-03 transition-colors">
+    <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg">
       <div className="flex items-center gap-3">
         <img src={request.fromUserProfileImg} alt="프로필" className="w-10 h-10 rounded-full" />
         <div>
@@ -34,18 +36,18 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
           <p className="text-sm text-gray-400">친구 요청을 보냈습니다</p>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex">
         <button
           onClick={() => handleResponse('A')}
-          className="px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80"
+          className="px-2 py-1 "
         >
-          수락
+          <img src={requestAccept} alt="수락" className='w-8 h-8' />
         </button>
         <button
           onClick={() => handleResponse('R')}
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-500/80"
+          className="px-2 py-1 "
         >
-          거절
+          <img src={requestReject} alt="거절" className='w-8 h-8' />
         </button>
       </div>
     </div>
