@@ -57,8 +57,8 @@ public class FriendshipRepositoryImpl extends QuerydslRepositorySupport implemen
 		queryFactory
 			.delete(friendship)
 			.where(
-				friendship.user.userId.eq(user1).and(friendship.friend.userId.eq(user2))
-					.or(friendship.user.userId.eq(user2).and(friendship.friend.userId.eq(user1)))
+				(friendship.id.userId.eq(user1).and(friendship.id.userId.eq(user2)))
+					.or(friendship.id.userId.eq(user2).and(friendship.id.userId.eq(user1)))
 			)
 			.execute();
 	}
