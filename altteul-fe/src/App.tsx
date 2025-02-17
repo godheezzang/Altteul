@@ -2,7 +2,7 @@ import GameGnb from '@components/Nav/GameGnb';
 import MainGnb from '@components/Nav/MainGnb';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ModalManager from '@utils/ModalManager';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import { inviteResponse } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
@@ -14,12 +14,14 @@ import chatmodalimg from '@assets/icon/chatmodal.svg';
 import useModalStore from '@stores/modalStore';
 import { useMatchStore } from '@stores/matchStore';
 import useFriendChatStore from '@stores/friendChatStore';
+import useAuthStore from '@stores/authStore';
 
 const App = () => {
   const location = useLocation();
   const isGamePage = location.pathname.startsWith('/game');
   const socket = useSocketStore();
   const navigate = useNavigate();
+  const { userId } = useAuthStore();
   const matchStore = useMatchStore();
   const { openModal } = useModalStore();
   const fcStore = useFriendChatStore();
@@ -70,30 +72,32 @@ const App = () => {
     }
   };
 
-  const hideNavigation = [
-    '/match/team/composition',
-    '/match/team/search',
-    '/match/team/final',
-    '/match/single/search',
-    '/match/single/final',
-    ,
-  ].includes(location.pathname);
+  const hideNavigation = useMemo(
+    () =>
+      new Set([
+        '/match/team/composition',
+        '/match/team/search',
+        '/match/team/final',
+        '/match/single/search',
+        '/match/single/final',
+      ]),
+    []
+  );
 
   const showFriendChatModalButton = [
     '/', '/rank', '/match/select', '/match/single/search', '/match/team/composition'
   ].includes(location.pathname);
 
-  const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
-    location.pathname
+  const transparentNavigation = useMemo(
+    () => new Set(['/match/select', '/rank', `/users/${userId}`]),
+    [userId]
   );
 
   return (
     <>
       <div className="min-h-screen">
-        {!hideNavigation && (isGamePage ? <GameGnb /> : <MainGnb />)}
-        <main
-          className={`${transparentNavigation ? '' : 'mt-[3.5rem]'} bg-primary-black h-[calc(100vh-3.5rem)]`}
-        >
+        {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
+        <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
           <Outlet />
           {/* // 임시버튼 - 친구 */}
           {showFriendChatModalButton && <button

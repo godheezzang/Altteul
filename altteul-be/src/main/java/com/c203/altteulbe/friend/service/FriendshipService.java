@@ -40,33 +40,34 @@ public class FriendshipService {
 
 		// 캐시된 친구 리스트 조회
 		List<FriendResponseDto> cachedFriendList = friendRedisService.getCachedFriendList(userId);
-		if (!cachedFriendList.isEmpty()) {
-			Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(cachedFriendList, pageable.getPageNumber(),
-				pageable.getPageSize());
-			return new PageResponse<>("friends", paginateResult);
+		List<FriendResponseDto> friendList;
+		if (cachedFriendList.isEmpty()) {
+			Page<Friendship> friendships = friendshipRepository.findAllByUserIdWithFriend(
+				userId,
+				PageRequest.of(pageable.getPageNumber(),
+					pageable.getPageSize())
+			);
+			friendList = friendships.stream()
+				.map(friendship -> FriendResponseDto.from(friendship, false)) // 초기 온라인 상태는 false로 설정
+				.toList();
+		} else {
+			friendList = cachedFriendList;
 		}
 
-		Page<Friendship> friendships = friendshipRepository.findAllByUserIdWithFriend(
-			userId,
-			PageRequest.of(pageable.getPageNumber(),
-				pageable.getPageSize())
-		);
 		// 친구 관계이 있는 유저의 id들을 리스트로 만들기
-		List<Long> friendIds = friendships.getContent().stream()
-			.map(friendship -> friendship.getFriend().getUserId())
+		List<Long> friendIds = friendList.stream()
+			.map(FriendResponseDto::getUserid)
 			.toList();
 		// 유저들의 온라인 상태 확인
 		Map<Long, Boolean> onlineStatus = userStatusService.getBulkOnlineStatus(friendIds);
 
-		List<FriendResponseDto> friendList = friendships.stream()
-			.map(friendship -> FriendResponseDto.from(
-				friendship, onlineStatus.get(friendship.getFriend().getUserId())
-			)).toList();
+		List<FriendResponseDto> responseList = friendList.stream()
+			.map(friend -> friend.updateOnlineStatus(onlineStatus.get(friend.getUserid())))
+			.toList();
 
 		// 친구 리스트 캐싱
-		friendRedisService.setFriendList(userId, friendList);
 
-		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(friendList, pageable.getPageNumber(),
+		Page<FriendResponseDto> paginateResult = PaginateUtil.paginate(responseList, pageable.getPageNumber(),
 			pageable.getPageSize());
 		return new PageResponse<>("friends", paginateResult);
 	}

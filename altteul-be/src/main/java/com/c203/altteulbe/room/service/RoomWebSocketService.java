@@ -34,9 +34,9 @@ public class RoomWebSocketService {
 		sendMessage(destination, eventType, message);
 	}
 
-	public void sendWebSocketMessage(String destination, String eventType, Map<String, String> payload) {
+	public <T> void sendWebSocketMessage(String destination, String eventType, T payload) {
 		try {
-			String jsonPayload = objectMapper.writeValueAsString(payload);   // Map -> JSON 문자열 변환
+			String jsonPayload = objectMapper.writeValueAsString(payload);
 			sendMessage(destination, eventType, jsonPayload);
 		} catch (Exception e) {
 			log.error("WebSocket 메시지 변환 실패 (eventType: {}, destination: {}): {}", eventType, destination, e.getMessage());

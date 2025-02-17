@@ -15,7 +15,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
   const { connect } = useSocketStore();
-  const navigate = useNavigate();
+  const navigate = useNavigate();;
 
   const handleSignUpClick = () => {
     closeModal();
@@ -48,6 +48,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
+      setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.');
     }
   };
 
@@ -80,8 +81,9 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           placeholder="비밀번호를 입력해 주세요"
           value={form.password}
           onChange={handleChange}
+          showPasswordToggle={true}
         />
-        {error && <p>{error}</p>}
+        {error && <p className="text-primary-orange">{error}</p>}
 
         <Button type="submit" className="h-[2.8rem] w-full hover:brightness-90">
           로그인

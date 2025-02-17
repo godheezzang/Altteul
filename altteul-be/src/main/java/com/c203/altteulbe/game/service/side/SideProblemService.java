@@ -73,6 +73,7 @@ public class SideProblemService {
 				// 개인전
 				sideProblemWebsocketService.sendSubmissionResult(
 					SubmitSideProblemResponseDto.builder()
+						.userId(id)
 						.status(result)
 						.bonusPoint(50)
 						.build(),
@@ -92,6 +93,7 @@ public class SideProblemService {
 				// 결과 브로드 캐스트
 				sideProblemWebsocketService.sendSubmissionResult(
 					SubmitSideProblemResponseDto.builder()
+						.userId(id)
 						.status(result)
 						.itemId(item.getId())
 						.itemName(item.getItemName())

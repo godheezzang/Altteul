@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         pretendard: ['Pretendard Variable', 'sans-serif'],
         firacode: ['Firacode', 'sans-serif'],
+        pressStart: ['Press Start 2P', 'sans-serif'],
       },
       colors: {
         'primary-black': '#242A32',

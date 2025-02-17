@@ -1,3 +1,4 @@
+import ErrorPage from '@pages/Error/ErrorPage';
 import SingleIdePage from '@pages/Ide/SingleIdePage';
 import TeamIdePage from '@pages/Ide/TeamIdePage';
 import MainPage from '@pages/Main/MainPage';
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
         <App />
       </UserSearchProvider>
     ),
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
@@ -94,7 +96,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  
 ]);
 
 export default router;

@@ -49,9 +49,6 @@ const ModalManager = () => {
 
       {/* 채팅 모달 */}
       <MainModal isOpen={isOpen(MODAL_TYPES.MAIN)} onClose={() => closeModal()} />
-
-      {/* 채팅모달 2 */}
-      {/* <ChatModal isOpen={isOpen(MODAL_TYPES.CHAT)} onClose={() => closeModal()} /> */}
     </>
   );
 };

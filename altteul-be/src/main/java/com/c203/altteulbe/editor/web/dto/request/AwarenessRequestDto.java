@@ -1,5 +1,7 @@
 package com.c203.altteulbe.editor.web.dto.request;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,5 +13,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AwarenessRequestDto {
 
-	private String awareness;
+	private Map<String, Object> awareness;
 }

@@ -3,14 +3,13 @@ import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import React from 'react';
 import logo from '@assets/icon/Altteul.svg';
-import LoginModal from '@components/Modal/Auth/LoginModal';
 import { useSocketStore } from '@stores/socketStore';
 
 const MainGnb = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { token, logout } = useAuthStore();
-  const { openModal, closeModal, isOpen } = useModalStore();
+  const { openModal } = useModalStore();
   const { disconnect } = useSocketStore();
   const { userId } = useAuthStore();
 
@@ -107,7 +106,6 @@ const MainGnb = () => {
           </div>
         </div>
       </nav>
-      <LoginModal isOpen={isOpen('login')} onClose={() => closeModal()} />
     </>
   );
 };

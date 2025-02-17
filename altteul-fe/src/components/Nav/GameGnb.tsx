@@ -12,7 +12,7 @@ const GameGnb = () => {
   const location = useLocation();
   const socket = useSocketStore();
   const isTeam = location.pathname.includes('/game/team');
-  const { userRoomId } = useGameStore();
+  const { userRoomId, myTeam } = useGameStore();
 
   const problem = useGameStore(state => state.problem);
   const { token } = useAuthStore();
@@ -27,7 +27,7 @@ const GameGnb = () => {
       const response = await api.post(
         '/game/leave',
         {
-          roomId: userRoomId,
+          roomId: isTeam ? myTeam.roomId : userRoomId,
         },
         {
           headers: {
