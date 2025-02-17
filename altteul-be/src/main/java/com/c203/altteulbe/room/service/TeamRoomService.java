@@ -524,7 +524,7 @@ public class TeamRoomService {
 
 		// 초대 받은 유저에게 초대 관련 정보 전송
 		TeamRoomInviteResponseDto responseDto = TeamRoomInviteResponseDto.create(roomId,
-																				 invitee.getNickname());
+																				 inviter.getNickname());
 
 		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", responseDto);
 	}
