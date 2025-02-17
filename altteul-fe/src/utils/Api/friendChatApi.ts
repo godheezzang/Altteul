@@ -1,5 +1,6 @@
 import { api, friendApi, teamApi } from '@utils/Api/commonApi';
 import { chatApi } from '@utils/Api/commonApi';
+import { FriendRequest } from 'types/types';
 
 interface GetFriendsParams {
   page?: number;
@@ -38,14 +39,14 @@ export const searchFriends = async ({ query, page = 0, size = 10 }: GetFriendsPa
   }
 };
 
-export const getFriendRequests = async ({page = 0, size = 10}: GetFriendsParams) => {
-  try{
+export const getFriendRequests = async ({ page = 0, size = 10 }: GetFriendsParams) => {
+  try {
     const data = await friendApi.get('/request', {
       params: { page, size },
-    })
-    return data
-  }catch(error){
-    console.log('error: ', error)
+    });
+    return data;
+  } catch (error) {
+    console.log('error: ', error);
   }
 };
 
@@ -72,6 +73,22 @@ export const getFriendChatMessages = async (friendId: number) => {
 };
 
 //팀전 초대 api
-export const inviteFriend = async (payload:{inviteeId:number, roomId:number}) => {
-  const data = await teamApi.post('invite', payload)
-}
+export const inviteFriend = async (payload: { inviteeId: number; roomId: number }) => {
+  const data = await teamApi.post('invite', payload);
+};
+
+//친구 신청 api
+export const requestFriend = async (toUserId: number) => {
+  const res = await friendApi.post('request', { toUserId: toUserId });
+  return res;
+};
+
+//친구 신청 수락/거절 api
+export const friendRequestResponse = async (response: FriendRequest) => {
+  await friendApi.post('request/process', response);
+};
+
+//친구 삭제 api
+export const deleteFriend = async (userId: number, friendId: number) => {
+  await friendApi.delete('delete', { data: { userId: userId, friendId: friendId } });
+};
