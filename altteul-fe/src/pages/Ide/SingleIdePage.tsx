@@ -9,12 +9,15 @@ import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
 import { User } from 'types/types';
+import useModalStore from '@stores/modalStore';
+import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
   const { gameId, roomId, users, setUserRoomId } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
+  const { openModal } = useModalStore();
 
   const [sideProblem, setSideProblem] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
@@ -35,6 +38,8 @@ const SingleIdePage = () => {
     }
   }, [userId, users, roomId, setUserRoomId]);
 
+  useEffect(() => {}, [userProgress, completeUsers]);
+
   useEffect(() => {
     if (!connected) return;
 
@@ -48,72 +53,48 @@ const SingleIdePage = () => {
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
-      setCompleteUsers(prev => {
-        const newSet = new Set(prev);
-        if (data.status === 'P' && data.passCount === data.totalCount) {
-          newSet.add(Number(sessionStorage.getItem('userId')));
-        }
-        return newSet;
-      });
 
-      setUserProgress(prev => {
-        if (!data.testCases || data.testCases.length === 0) {
-          return {
-            ...prev,
-            [userId]: 0, // 테스트 케이스가 없는 경우 진행률 0%
-          };
-        }
+      const passedCount = data.data.passCount;
+      const totalCount = data.data.totalCount;
+      const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
 
-        // 테스트 케이스별 진행률 계산
-        const passedCount = data.testCases.filter(
-          (tc: {
-            executionMemory: string;
-            executionTime: string;
-            status: string;
-            testCaseId: number;
-            testCaseNumber: number;
-          }) => tc.status === 'P'
-        ).length;
-        const progress = Math.round((passedCount / data.testCases.length) * 100);
+      setUserProgress(prev => ({
+        ...prev,
+        [userId]: progress,
+      }));
 
-        return {
-          ...prev,
-          [userId]: progress,
-        };
-      });
+      if (data.data.status === 'P') {
+        setCompleteUsers(prev => {
+          const updatedSet = new Set(prev);
+          updatedSet.add(Number(userId));
+          return updatedSet;
+        });
+
+        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.SINGLE, result: RESULT_TYPES.SUCCESS });
+      }
     });
 
     // 상대 팀 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
       console.log('📩 상대 팀 코드 채점 결과 수신:', data);
 
-      setUserProgress(prev => {
-        const opponentId = data.userId; // 상대방 ID (백엔드에서 userId 포함해서 보내줘야 함)
+      const userId = data.data.userId;
+      const passedCount = data.data.passCount;
+      const totalCount = data.data.totalCount;
+      const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
 
-        if (!data.testCases || data.testCases.length === 0) {
-          return {
-            ...prev,
-            [opponentId]: 0, // 테스트 케이스가 없는 경우 진행률 0%
-          };
-        }
+      setUserProgress(prev => ({
+        ...prev,
+        [userId]: progress,
+      }));
 
-        // ✅ 테스트 케이스별 진행률 계산
-        const passedCount = data.testCases.filter(
-          (tc: {
-            executionMemory: string;
-            executionTime: string;
-            status: string;
-            testCaseId: number;
-            testCaseNumber: number;
-          }) => tc.status === 'P'
-        ).length;
-        const progress = Math.round((passedCount / data.testCases.length) * 100);
-
-        return {
-          ...prev,
-          [opponentId]: progress,
-        };
-      });
+      if (data.data.status === 'P') {
+        setCompleteUsers(prev => {
+          const updatedSet = new Set(prev);
+          updatedSet.add(Number(userId));
+          return updatedSet;
+        });
+      }
     });
 
     // 퇴장하기 구독
@@ -174,7 +155,7 @@ const SingleIdePage = () => {
 
       <div className="max-w-[65rem] flex-[46rem] border-r border-gray-04">
         <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
-        <Terminal output={output} />
+        <Terminal output={output} isTeam={false} />
         <div className="text-center">
           <IdeFooter
             code={code}

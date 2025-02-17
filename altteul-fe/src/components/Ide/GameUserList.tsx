@@ -14,7 +14,6 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
   const { userId } = useAuthStore();
 
   /** 진행 중인 유저 목록 */
-  /** 진행 중인 유저 목록 */
   const inProgressUsers = useMemo(
     () =>
       users.filter(
@@ -30,6 +29,9 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
     [users, completeUsers]
   );
 
+  console.log('gameUserList completeUsers:', completeUsers);
+  console.log('gameUserList completedUsers:', completedUsers);
+
   return (
     <div className="min-w-[8rem] w-full">
       <div className="p-4 border-b border-gray-04">
@@ -37,6 +39,8 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
         {inProgressUsers.length > 0 ? (
           <ul>
             {inProgressUsers.map(user => {
+              console.log('userProgress:', userProgress);
+
               const progress = userProgress[user.userId] || 0; // ✅ JSX 밖에서 변수 선언
               return (
                 <li key={user.userId} className="flex items-center space-x-2 mb-1 py-3 px-4 pl-2">
@@ -104,7 +108,7 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-gray-400">모든 유저가 게임에 참여 중입니다.</p>
+          <p className="text-sm text-gray-02 ml-4">👌 모두 게임에 참여 중입니다.</p>
         )}
       </div>
     </div>
