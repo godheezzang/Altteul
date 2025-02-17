@@ -3,6 +3,9 @@
 
 import { useSocketStore } from '@stores/socketStore';
 import useAuthStore from '@stores/authStore';
+import useFriendChatStore from '@stores/friendChatStore';
+import { inviteFriend } from '@utils/Api/friendChatApi';
+import { useMatchStore } from '@stores/matchStore';
 
 interface FriendItemProps {
   friend: {
@@ -11,29 +14,28 @@ interface FriendItemProps {
     profileImg: string;
     isOnline: boolean;
   };
-  onRefresh: () => void;
-  onStartChat: (friendId: number) => void;
+  onRefresh?: () => void;
 }
 
-const FriendItem = ({ friend, onRefresh, onStartChat }: FriendItemProps) => {
+const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
   const { sendMessage } = useSocketStore();
+  const fcStore = useFriendChatStore();
   const { userId } = useAuthStore();
+  const roomId = JSON.parse(sessionStorage.getItem('matchData'))?.roomId || null;
 
   // 게임 초대
   const handleGameInvite = () => {
     const payload = {
       inviteeId: friend.userid,
-      roomId: 3, // 임시 룸 ID
+      roomId: roomId,
     };
-
-    sendMessage('/pub/team/invite', payload);
-    console.log(`${friend.nickname} 게임 초대 요청 전송`, payload);
+    inviteFriend(payload)
   };
 
   // 친구 삭제
   const handleDeleteFriend = async () => {
     try {
-      const payload = { userId, friendId: friend.userid };
+      const payload = { userId: userId, friendId: friend.userid };
       sendMessage('/pub/friend/delete', payload);
       console.log('친구 삭제 요청 전송', payload);
       onRefresh(); // 친구 목록 새로고침
@@ -42,10 +44,14 @@ const FriendItem = ({ friend, onRefresh, onStartChat }: FriendItemProps) => {
     }
   };
 
-  const handleChat = () => {
-    console.log('111111111111111111', friend.userid);
-    onStartChat(friend.userid);
+  const handleChat = async () => {
+    fcStore.setActiveChatId(friend.userid)
+    fcStore.setCurrentView('chat')
   };
+
+  const showInviteButton = [
+    '/match/team/composition'
+  ].includes(location.pathname);
 
   return (
     <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg">
@@ -62,12 +68,12 @@ const FriendItem = ({ friend, onRefresh, onStartChat }: FriendItemProps) => {
       </div>
 
       <div className="flex gap-2">
-        <button
+        {showInviteButton && <button
           onClick={handleGameInvite}
           className="px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80"
         >
           게임 초대
-        </button>
+        </button>}
         <button
           onClick={handleChat}
           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-500/80"
