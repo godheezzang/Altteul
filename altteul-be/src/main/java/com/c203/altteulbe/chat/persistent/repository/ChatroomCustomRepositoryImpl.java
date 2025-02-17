@@ -55,18 +55,21 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				Q_USER.profileImg,
 				Expressions.constant(false), // 유저의 온라인 상태
 				Q_CHATMESSAGE.messageContent,
-				Expressions.cases()          // 내가 읽었는지 확인하는 로직
-					.when(
-						JPAExpressions
-							.selectOne()
-							.from(Q_CHATMESSAGE)
-							.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
-								.and(Q_CHATMESSAGE.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
-								.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
-							.exists()
-					)
-					.then(false)
-					.otherwise(true),
+				Expressions.as(
+					Expressions.cases()          // 내가 읽었는지 확인하는 로직
+						.when(
+							JPAExpressions
+								.selectOne()
+								.from(Q_CHATMESSAGE)
+								.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
+									.and(Q_CHATMESSAGE.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
+									.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
+								.exists()
+						)
+						.then(false)
+						.otherwise(true),
+					"isMessageRead"
+					),
 				Expressions.cases() // 메세지 보낸 시간
 					.when(Q_CHATMESSAGE.createdAt.isNotNull())
 					.then(Q_CHATMESSAGE.createdAt)
