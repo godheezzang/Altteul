@@ -46,7 +46,7 @@ const NotificationTab = () => {
   return (
     <div className="flex flex-col h-full">
       {/* 알림 타입 선택 탭 */}
-      <div className="flex border-b border-gray-700">
+      <div className="flex border-b border-gray-700 mt-3">
         <button
           onClick={() => setNotificationTab('friendRequests')}
           className={`flex-1 py-3 text-center transition-colors ${
@@ -57,7 +57,7 @@ const NotificationTab = () => {
         >
           친구 요청
         </button>
-        <button
+        {/* <button
           onClick={() => setNotificationTab('gameInvites')}
           className={`flex-1 py-3 text-center transition-colors ${
             notificationTab === 'gameInvites'
@@ -66,7 +66,7 @@ const NotificationTab = () => {
           }`}
         >
           게임 초대
-        </button>
+        </button> */}
       </div>
 
       {/* 알림 목록 */}
