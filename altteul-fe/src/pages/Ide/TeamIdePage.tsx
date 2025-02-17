@@ -8,6 +8,9 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import useAuthStore from '@stores/authStore';
 import resize from '@assets/icon/resize.svg';
+import VoiceChat from '@components/Ide/VoiceChat';
+import { teamApi } from '@utils/Api/commonApi';
+import { OpenVidu } from 'openvidu-browser';
 
 const MAX_REQUESTS = 5;
 
@@ -24,17 +27,52 @@ const TeamIdePage = () => {
   const [output, setOutput] = useState<string>('');
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
-  const { userId } = useAuthStore();
+  const { userId, token } = useAuthStore();
+  const [voiceToken, setVoiceToken] = useState(null);
   const userRoomId = myTeam.roomId;
+
+  const joinVoiceChat = async () => {
+    if (!userRoomId) return;
+
+    try {
+      const response = await teamApi.post(
+        `/${userRoomId}/voice/join`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const sessionToken = response.data.data.token;
+      setVoiceToken(sessionToken);
+
+      console.log('음성 채팅 세션 참여 성공:', sessionToken);
+    } catch (error) {
+      console.error('음성 채팅 세션 참여 실패:', error);
+    }
+  };
 
   useEffect(() => {
     if (userRoomId) {
       setUserRoomId(userRoomId);
+      joinVoiceChat();
     }
   }, [userId, users, setUserRoomId]);
 
   useEffect(() => {
     if (!connected) return;
+
+    // 음성 채팅 상태 변경 구독
+    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
+      console.log('음성 채팅 상태 변경: ', data);
+
+      if (data.status) {
+        console.log(`${data.userId} 음성 채팅 참여`);
+      }
+    });
 
     // ✅ 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
@@ -54,6 +92,14 @@ const TeamIdePage = () => {
       setOpponentCode(data.code);
     });
 
+    // 음성 채팅 세션 참여
+    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
+      console.log('음성 채팅 상태 변경:', data);
+
+      if (data.status) {
+        console.log(`${userId} 음성 채팅 참여`);
+      }
+    });
     return () => {
       // ✅ 구독 해제
     };
@@ -116,8 +162,9 @@ const TeamIdePage = () => {
 
   return (
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
-      <div className="min-w-[23em] max-w-[30rem] border-gray-04">
+      <div className="min-w-[23rem] max-w-[23rem] border-gray-04">
         <ProblemInfo />
+        <VoiceChat roomId={userRoomId} voiceToken={voiceToken} />
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
