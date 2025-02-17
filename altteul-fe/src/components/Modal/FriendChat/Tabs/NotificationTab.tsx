@@ -19,10 +19,11 @@ const NotificationTab = () => {
       if (notificationTab === 'friendRequests') {
         const response = await getFriendRequests({page:0, size:10});
         setFriendRequests(response.data.data.friendRequests);
-      } else {
-        const response = await getGameInvites();
-        setGameInvites(response.data);
-      }
+      } 
+      // else {
+      //   const response = await getGameInvites();
+      //   setGameInvites(response.data);
+      // }
     } catch (error) {
       console.error('알림 로드 실패:', error);
       setError('알림을 불러오는데 실패했습니다.');
