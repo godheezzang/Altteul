@@ -8,21 +8,13 @@ type ModalHeaderProps = {
   showBackButton?: boolean;
   onClose: () => void;
   onBack?: () => void;
-  // setSelectedFriendId?: (id: number | null) => void;
-  // setCurrentTab?: (tab: string) => void;
 };
 
 const ModalHeader = ({
   showBackButton,
   onClose,
   onBack,
-  // setSelectedFriendId,
-  // setCurrentTab,
 }: ModalHeaderProps) => {
-  // const handleBack = () => {
-  //   setSelectedFriendId(null);
-  //   setCurrentTab('chat');
-  // };
 
   return (
     <>
@@ -30,7 +22,7 @@ const ModalHeader = ({
       {showBackButton && (
         <button
           onClick={onBack}
-          className="absolute top-2 left-2 text-primary-orange hover:opacity-80"
+          className="absolute top-3 left-3 text-primary-orange hover:opacity-80"
         >
           <img src={backIcon} alt="뒤로가기" className="w-6 h-6" />
         </button>
@@ -39,7 +31,7 @@ const ModalHeader = ({
       {/* 닫기 버튼 */}
       <button
         onClick={onClose}
-        className="absolute top-2 right-2 text-primary-orange hover:opacity-80"
+        className="absolute top-3 right-3 text-primary-orange hover:opacity-80"
       >
         <img src={exitlineIcon} alt="닫기" className="w-6 h-6" />
       </button>
