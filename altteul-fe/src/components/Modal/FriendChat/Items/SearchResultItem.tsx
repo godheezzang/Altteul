@@ -1,4 +1,5 @@
 import { useSocketStore } from '@stores/socketStore';
+import { requestFriend } from '@utils/Api/friendChatApi';
 import { useState } from 'react';
 
 interface SearchResultItemProps {
@@ -14,11 +15,16 @@ const SearchResultItem = ({ user }: SearchResultItemProps) => {
   const { sendMessage } = useSocketStore();
   const [isClick, setIsClick] = useState(false);
 
-  const requestFriend = () => {
-    setIsClick(true);
-    sendMessage('/pub/friend/request', {
-      toUserId: user.userId,
-    });
+  const handleRequestFriend = async () => {
+    try{
+      const res = await requestFriend(user.userId);
+      setIsClick(true);
+      sendMessage('/pub/friend/request', {
+        toUserId: user.userId,
+      });
+    }catch(error){
+      alert('친구 요청 목록을 확인해주세요')
+    }
   };
 
   return (
@@ -37,13 +43,13 @@ const SearchResultItem = ({ user }: SearchResultItemProps) => {
 
       <div className="flex gap-2">
         <button
-          onClick={requestFriend}
+          onClick={handleRequestFriend}
           className={
             !isClick
               ? 'px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80'
               : 'px-3 py-1 bg-gray text-white rounded border border-primary-orange'
           }
-          disabled = {isClick}
+          disabled={isClick}
         >
           친구 신청
         </button>
