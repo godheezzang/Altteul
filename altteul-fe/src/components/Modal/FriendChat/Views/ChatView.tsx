@@ -11,11 +11,11 @@ import Input from '@components/Common/Input';
 const ChatView = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
   const [message, setMessage] = useState(''); //입력 메세지
-  const [speechBubble, setSpeechBubble] = useState<ChatMessage[]>([])
+  const [speechBubble, setSpeechBubble] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
-  const [chatRoomId,setChatRoomId] = useState();
+  const [chatRoomId, setChatRoomId] = useState();
 
   const { subscribe, unsubscribe, sendMessage } = useSocketStore();
   const { userId } = useAuthStore();
@@ -24,22 +24,22 @@ const ChatView = () => {
 
   useEffect(() => {
     fetchMessages();
-    if(chatRoomId) {
-      subscribe(`/sub/chat/room/${chatRoomId}`, handleMessage)
+    if (chatRoomId) {
+      subscribe(`/sub/chat/room/${chatRoomId}`, handleMessage);
     }
     return () => {
-      unsubscribe(`/sub/chat/room/${chatRoomId}`)
-    }
+      unsubscribe(`/sub/chat/room/${chatRoomId}`);
+    };
   }, [activeChatId, chatRoomId]);
 
   const fetchMessages = async () => {
     try {
       setIsLoading(true);
       const response = await getFriendChatMessages(activeChatId);
-      console.log(response)
+      console.log(response);
       setChatRoom(response.data);
-      setChatRoomId(response.data.chatroomId)
-      setSpeechBubble(response.data.messages)
+      setChatRoomId(response.data.chatroomId);
+      setSpeechBubble(response.data.messages);
     } catch (error) {
       console.error('채팅방 로드 실패:', error);
       setError('채팅방을 불러오는데 실패했습니다.');
@@ -49,25 +49,25 @@ const ChatView = () => {
   };
 
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message)
+    console.log(message);
     const { type, data } = message;
-    if(type==='새 메시지') {
-      const newChat = ({
+    if (type === '새 메시지') {
+      const newChat = {
         chatMessageId: data.chatMessageId,
         senderId: data.senderId,
         senderNickname: data.senderNickname,
         messageContent: data.messageContent,
         checked: data.checked,
-        createdAt: data.createdAt
-      } as ChatMessage)
+        createdAt: data.createdAt,
+      } as ChatMessage;
 
-      setSpeechBubble((prev) => [...prev, newChat]);
+      setSpeechBubble(prev => [...prev, newChat]);
     }
-  }
+  };
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatRoom?.messages]);
+  }, [speechBubble]);
 
   const handleSendMessage = () => {
     if (!message.trim() || !chatRoom || !activeChatId) return;
@@ -79,15 +79,16 @@ const ChatView = () => {
     setMessage('');
   };
 
-    //엔터 눌렀을 때 이벤트
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSendMessage();
-      }
-    };
+  //엔터 눌렀을 때 이벤트
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
 
   if (isLoading) return <div className="flex-1 flex items-center justify-center">로딩 중...</div>;
-  if (error) return <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>;
+  if (error)
+    return <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>;
   if (!chatRoom) return null;
 
   return (
@@ -95,7 +96,7 @@ const ChatView = () => {
       {/* 채팅방 헤더 */}
       <div className="border-b border-gray-700 p-4 flex items-center gap-3">
         <div className="relative">
-          <img src={chatRoom.profileImage} alt="프로필" className="w-10 h-10 rounded-full" />
+          <img src={chatRoom.profileImg} alt="프로필" className="w-10 h-10 rounded-full" />
           <div
             className={`absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 ${
               chatRoom.isOnline ? 'bg-green-500' : 'bg-gray-400'
@@ -110,8 +111,18 @@ const ChatView = () => {
         {speechBubble?.map(message => (
           <div
             key={message.chatMessageId}
-            className={`flex ${message.senderId === Number(userId) ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.senderId === Number(userId) ? 'justify-end' : 'justify-start'} items-end`}
           >
+            {/* 시간표시 */}
+            {message.senderId === Number(userId) && <p className="opacity-70 mr-1" style={{ fontSize: '0.6rem' }}>
+              {new Date(message.createdAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>}
+
+
+            {/* 말풍선 */}
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
                 message.senderId === Number(userId)
@@ -120,13 +131,16 @@ const ChatView = () => {
               }`}
             >
               <p>{message.messageContent}</p>
-              <p className="text-xs opacity-70 mt-1">
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </p>
             </div>
+
+            {/* 시간표시 */}
+            {message.senderId !== Number(userId) && <p className="opacity-70 ml-1" style={{ fontSize: '0.6rem' }}>
+              {new Date(message.createdAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>}
+
           </div>
         ))}
         <div ref={messageEndRef} />
