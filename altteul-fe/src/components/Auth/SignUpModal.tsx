@@ -368,6 +368,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           placeholder="비밀번호를 입력해 주세요."
           onChange={handleChange}
           value={form.password}
+          showPasswordToggle={true}
         />
         {errors.password && <p className="text-primary-orange text-sm">{errors.password}</p>}
 
@@ -377,6 +378,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           placeholder="비밀번호 확인"
           onChange={handleChange}
           value={form.confirmPassword}
+          showPasswordToggle={true}
         />
         {errors.confirmPassword && (
           <p className="text-primary-orange text-sm">{errors.confirmPassword}</p>
