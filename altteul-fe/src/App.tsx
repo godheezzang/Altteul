@@ -118,13 +118,13 @@ const App = () => {
         {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
         <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
           <Outlet />
-          {/* // 임시버튼 - 친구 */}
-          {showFriendChatModalButton && (
+          {/* 친구채팅모달 */}
+          {showFriendChatModalButton && !!sessionStorage.getItem('token') && (
             <button
               onClick={() => openModal(MODAL_TYPES.MAIN)}
               className="fixed bottom-5 right-5 z-50"
             >
-              <img src={chatmodalimg} alt="임시채팅모달" className="w-12 h-12 object-contain" />
+              <img src={chatmodalimg} alt="친구채팅모달" className="w-12 h-12 object-contain" />
             </button>
           )}
         </main>
