@@ -9,12 +9,15 @@ import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
 import { User } from 'types/types';
+import useModalStore from '@stores/modalStore';
+import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
   const { gameId, roomId, users, setUserRoomId } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
+  const { openModal } = useModalStore();
 
   const [sideProblem, setSideProblem] = useState(null);
   const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
@@ -66,6 +69,8 @@ const SingleIdePage = () => {
           updatedSet.add(Number(userId));
           return updatedSet;
         });
+
+        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.SINGLE, result: RESULT_TYPES.SUCCESS });
       }
     });
 
