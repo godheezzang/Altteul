@@ -59,6 +59,7 @@ import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamMatchResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamRoomGameStartResponseDto;
+import com.c203.altteulbe.room.web.dto.response.TeamRoomInviteResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -520,11 +521,10 @@ public class TeamRoomService {
 			"초대를 완료했습니다.");
 
 		// 초대 받은 유저에게 초대 관련 정보 전송
-		Map<String, String> payload = new HashMap<>();
-		payload.put("roomId", String.valueOf(roomId));
-		payload.put("nickname", invitee.getNickname());
+		TeamRoomInviteResponseDto responseDto = TeamRoomInviteResponseDto.create(roomId,
+																				 invitee.getNickname());
 
-		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
+		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", responseDto);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------
