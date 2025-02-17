@@ -15,7 +15,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
   const { connect } = useSocketStore();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSignUpClick = () => {
     closeModal();
@@ -43,9 +43,9 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       const cleanToken = token.replace(/^Bearer\s+/i, '');
       setToken(cleanToken);
       setUserId(userId.toString());
-      connect()
+      connect();
       closeModal();
-      navigate('/') //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
+      navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
       console.error('로그인 실패:', error);
     }
@@ -65,14 +65,15 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       className="bg-primary-white"
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="mt-2"></div>
         <Input
           type="text"
           name="username"
           placeholder="아이디를 입력해 주세요"
           value={form.username}
-          className="mt-2 w-[22rem] mt-9"
           onChange={handleChange}
         />
+
         <Input
           type="password"
           name="password"
