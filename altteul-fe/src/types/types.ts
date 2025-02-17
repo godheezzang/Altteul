@@ -230,8 +230,7 @@ export type ChatRoom = {
   chatRoomId: number;
   friendId: number;
   nickname: string;
-  profileImage?: string;
-  profileImg?: string;
+  profileImg: string;
   isOnline: boolean;
   recentMessage: string;
   isMessageRead: boolean;
