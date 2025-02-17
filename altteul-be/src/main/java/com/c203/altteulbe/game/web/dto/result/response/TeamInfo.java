@@ -37,6 +37,13 @@ public class TeamInfo {
 	private List<TeamMember> members;
 
 	public static TeamInfo fromTeamRoom(TeamRoom room, int totalCount) {
+		Integer solvedTestcaseCount = room.getSolvedTestcaseCount();
+		if (solvedTestcaseCount != null){
+			solvedTestcaseCount /= totalCount;
+			solvedTestcaseCount *= 100;
+		} else {
+			solvedTestcaseCount = 0;
+		}
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult() != null ? room.getBattleResult().getRank() : 0)
@@ -45,7 +52,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.point(room.getRewardPoint())
-			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
+			.passRate(solvedTestcaseCount)
 			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
@@ -57,6 +64,13 @@ public class TeamInfo {
 
 	// TeamRoom 변환 메서드
 	public static TeamInfo fromSingleRoom(SingleRoom room, int totalCount) {
+		Integer solvedTestcaseCount = room.getSolvedTestcaseCount();
+		if (solvedTestcaseCount != null){
+			solvedTestcaseCount /= totalCount;
+			solvedTestcaseCount *= 100;
+		} else {
+			solvedTestcaseCount = 0;
+		}
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult() != null ? room.getBattleResult().getRank() : 0)
@@ -65,7 +79,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.point(room.getRewardPoint())
-			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
+			.passRate(solvedTestcaseCount)
 			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
