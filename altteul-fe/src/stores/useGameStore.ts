@@ -12,6 +12,7 @@ const useGameStore = create<GameState>(set => ({
   opponent: JSON.parse(sessionStorage.getItem('opponent')) || null,
   problem: JSON.parse(sessionStorage.getItem('problem') || null),
   testcases: JSON.parse(sessionStorage.getItem('testcases') || null),
+  isFinish: false,
 
   setGameInfo: (gameId: number, roomId: number) => {
     sessionStorage.setItem('gameId', gameId.toString());
@@ -67,6 +68,10 @@ const useGameStore = create<GameState>(set => ({
     set({ testcases });
   },
 
+  setIsFinish: (value: boolean) => {
+    set({ isFinish: value });
+  },
+
   // 새로운 게임 시작 시 원래 게임 정보 초기화
   resetGameInfo: () => {
     sessionStorage.removeItem('gameId');
@@ -85,6 +90,7 @@ const useGameStore = create<GameState>(set => ({
       users: [],
       problem: null,
       testcases: [],
+      isFinish: false,
     });
   },
 }));
