@@ -49,20 +49,35 @@ const App = () => {
   const handleMessage = async (message: socketResponseMessage) => {
     const { type, data } = message;
     console.log(message)
+    //요청을 받은 경우
     if (type === 'INVITE_REQUEST_RECEIVED') {
       //TODO: confirm 말고 다른 방식의 요청 수락/거절 형식 필요
-      if (confirm(`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`)) {
+      const accepted = confirm(`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`)
+      
+      if (accepted) {   // 게임 초대 수락
         try {
           //TODO: 응답(res.status)에 따른 처리 필요
-          const res = await inviteResponse(data.nickname, data.roomId, true); //친구 초대 수락 api
+          const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 수락 api
           matchStore.setMatchData(res.data); //초대받은 방으로 이동 후 쓰일 data setting
-          navigate(`/match/team/composition`); //팀전 대기방으로 이동
         } catch (error) {
           console.error('초대 수락 중 오류 발생:', error);
         }
       }
-    }else{
-      console.log(message)
+      
+      if (!accepted) {    //게임 초대 거절
+        const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 거절 api
+      }
+    }
+
+    //초대 거절 응답
+    if(type === 'INVITE_REJECTED') {
+      alert(data.note)
+    }
+
+    //초대 수락 응답
+    if(type === "INVITE_ACCEPTED") {
+      alert(`${data.note} 대기방으로 이동합니다.`)
+      navigate(`/match/team/composition`); //팀전 대기방으로 이동
     }
 
     if (type === 'SEND_REQUEST') {
@@ -85,7 +100,11 @@ const App = () => {
   );
 
   const showFriendChatModalButton = [
-    '/', '/rank', '/match/select', '/match/single/search', '/match/team/composition'
+    '/',
+    '/rank',
+    '/match/select',
+    '/match/single/search',
+    '/match/team/composition',
   ].includes(location.pathname);
 
   const transparentNavigation = useMemo(
@@ -100,12 +119,14 @@ const App = () => {
         <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
           <Outlet />
           {/* // 임시버튼 - 친구 */}
-          {showFriendChatModalButton && <button
-            onClick={() => openModal(MODAL_TYPES.MAIN)}
-            className="fixed bottom-5 right-5 z-50"
-          >
-            <img src={chatmodalimg} alt="임시채팅모달" className="w-12 h-12 object-contain" />
-          </button>}
+          {showFriendChatModalButton && (
+            <button
+              onClick={() => openModal(MODAL_TYPES.MAIN)}
+              className="fixed bottom-5 right-5 z-50"
+            >
+              <img src={chatmodalimg} alt="임시채팅모달" className="w-12 h-12 object-contain" />
+            </button>
+          )}
         </main>
         <ModalManager />
       </div>
