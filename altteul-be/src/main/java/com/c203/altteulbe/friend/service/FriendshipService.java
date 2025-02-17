@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.c203.altteulbe.common.response.PageResponse;
 import com.c203.altteulbe.common.utils.PaginateUtil;
+import com.c203.altteulbe.friend.persistent.entity.FriendId;
 import com.c203.altteulbe.friend.persistent.entity.Friendship;
 import com.c203.altteulbe.friend.persistent.repository.FriendshipRepository;
 import com.c203.altteulbe.friend.service.exception.FriendRelationNotFoundException;
@@ -50,6 +51,8 @@ public class FriendshipService {
 			friendList = friendships.stream()
 				.map(friendship -> FriendResponseDto.from(friendship, false)) // 초기 온라인 상태는 false로 설정
 				.toList();
+			// 친구 정보 캐싱
+			friendRedisService.setFriendList(userId, friendList);
 		} else {
 			friendList = cachedFriendList;
 		}
@@ -78,7 +81,8 @@ public class FriendshipService {
 		if (!friendshipRepository.existsByUserAndFriend(userId, friendId)) {
 			throw new FriendRelationNotFoundException();
 		}
-		friendshipRepository.deleteFriendRelation(userId, friendId);
+		friendshipRepository.deleteById(new FriendId(userId, friendId));
+		friendshipRepository.deleteById(new FriendId(friendId, userId));
 		// redis에서도 친구 관계 삭제
 		// Redis 캐시 업데이트를 하나의 트랜잭션으로 처리
 		friendRedisService.invalidateCaches(userId, friendId);
