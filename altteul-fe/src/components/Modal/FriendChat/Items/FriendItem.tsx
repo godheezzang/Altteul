@@ -5,7 +5,6 @@ import { useSocketStore } from '@stores/socketStore';
 import useAuthStore from '@stores/authStore';
 import useFriendChatStore from '@stores/friendChatStore';
 import { inviteFriend } from '@utils/Api/friendChatApi';
-import { useMatchStore } from '@stores/matchStore';
 
 interface FriendItemProps {
   friend: {
