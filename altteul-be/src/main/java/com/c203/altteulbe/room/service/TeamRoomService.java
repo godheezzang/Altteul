@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
@@ -90,7 +91,9 @@ public class TeamRoomService {
 	private final RoomValidator validator;
 	private final VoiceChatService voiceChatService;
 
-	//@DistributedLock(key="#userId")
+	/**
+	 * 팀전 대기방 입장 처리
+	 */
 	public RoomEnterResponseDto enterTeamRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -126,9 +129,8 @@ public class TeamRoomService {
 	/**
 	 * 팀전 대기방 퇴장 처리
 	 */
-
 	// 정식으로 요청했을 경우의 퇴장 처리
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void leaveTeamRoom(Long roomId, Long userId) {
 		removeUserFromTeamRoom(roomId, userId, true);
 	}
@@ -202,7 +204,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 매칭 시작
 	 */
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void startTeamMatch(Long roomId, Long leaderId) {
 
 		userRepository.findByUserId(leaderId)
@@ -411,7 +413,7 @@ public class TeamRoomService {
 	/**
 	 * 매칭 취소 처리
 	 */
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void cancelTeamMatch(Long roomId, Long userId) {
 
 		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());

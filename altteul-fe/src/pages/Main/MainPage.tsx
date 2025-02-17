@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 // import GameGuide from '@components/Main/GameGuide';
 import SmallButton from '@components/Common/Button/SmallButton ';
 import { useNavigate } from 'react-router-dom';
-import LoginModal from '@components/Auth/LoginModal';
+import LoginModal from '@components/Modal/Auth/LoginModal';
 import useModalStore from '@stores/modalStore';
 
 const MainPage = () => {

@@ -28,8 +28,6 @@ export const singleStart = async (roomId: number) => {
   return res
 }
 
-//팀전 입장 api
-
 //팀전 퇴장 api
 export const teamOut = async (roomId: number) => {
   const res = await teamApi.post(`leave/${roomId}`)

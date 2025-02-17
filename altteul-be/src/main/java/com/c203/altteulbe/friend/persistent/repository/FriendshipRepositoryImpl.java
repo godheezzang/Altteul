@@ -51,15 +51,4 @@ public class FriendshipRepositoryImpl extends QuerydslRepositorySupport implemen
 				.and(friendship.friend.userId.eq(friendId)))
 			.fetchFirst() != null;
 	}
-
-	@Override
-	public void deleteFriendRelation(Long user1, Long user2) {
-		queryFactory
-			.delete(friendship)
-			.where(
-				friendship.user.userId.eq(user1).and(friendship.friend.userId.eq(user2))
-					.or(friendship.user.userId.eq(user2).and(friendship.friend.userId.eq(user1)))
-			)
-			.execute();
-	}
 }

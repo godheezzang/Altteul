@@ -33,6 +33,18 @@ public class RedisKeys {
 
 	public static final String ROOM_REDIS_ID = "room:redis_id";
 
+	public static final String EDITOR_AWARENESS = "editor:awareness";
+
+	public static final String EDITOR_CONTENT = "editor:content";
+
+	public static String getEditorAwareness(Long roomId) {
+		return EDITOR_AWARENESS + ":" + roomId;
+	}
+
+	public static String getEditorContent(Long roomId) {
+		return EDITOR_CONTENT + ":" + roomId;
+	}
+
 	public static String getRoomDbId(Long roomId) {
 		return ROOM_DB_ID + ":" + roomId;
 	}
@@ -125,4 +137,17 @@ public class RedisKeys {
 	public static String getRoomRedisId(Long roomId) {
 		return ROOM_REDIS_ID + ":" + roomId;
 	}
+
+	// 유저의 웹소켓 해제 시간 저장 키
+	private static final String USER_DISCONNECT_TIME = "disconnect_time";
+
+	/**
+	 * 특정 유저의 웹소켓 해제 시간을 저장하는 키 반환
+	 * @param userId 유저 ID
+	 * @return "disconnect_time:{userId}"
+	 */
+	public static String getUserDisconnectTimeKey(Long userId) {
+		return USER_DISCONNECT_TIME + ":" + userId;
+	}
+
 }

@@ -137,7 +137,7 @@ public class FriendRequestService {
 		// Redis 캐시 업데이트를 별도 서비스로 위임
 		friendRedisService.invalidateCaches(
 			userId, // 로그인한 유저 id
-			request.getTo().getUserId() // 친구 유저 id
+			request.getFrom().getUserId() // 친구 유저 id
 		);
 	}
 

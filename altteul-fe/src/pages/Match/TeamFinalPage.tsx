@@ -18,11 +18,11 @@ const TeamFinalPage = () => {
   const matchId = matchStore.matchId;
   const alliance = matchStore.myTeam.users;
   const opponent = matchStore.opponent.users;
-  const [problemTitle] = gameStore.problem.problemTitle;
+  const [problemTitle] = useState(gameStore.problem.problemTitle);
   const [displayText, setDisplayText] = useState(''); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0); //타이핑 효과 추적 변수
   const [seconds, setSeconds] = useState<number>(10); //응답 데이터로 렌더링 전 초기값(10) 설정
-
+  
   //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/team/room/${matchId}`, handleMessage);

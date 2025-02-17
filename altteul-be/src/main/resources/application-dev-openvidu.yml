@@ -4,4 +4,4 @@ spring:
       on-profile: dev-openvidu
 openvidu:
   url: ${DOMAIN_OR_PUBLIC_IP}
-  secret: ${OPENVIDU_SEC
+  secret: ${OPENVIDU_SECRET}
