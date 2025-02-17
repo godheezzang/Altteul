@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from 'react';
 import { ChatMessage, ChatRoom } from 'types/types';
 import socketResponseMessage from 'types/socketResponseMessage';
 import Input from '@components/Common/Input';
+import send from '@assets/icon/friend/Send.svg';
 
 const ChatView = () => {
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
@@ -94,7 +95,7 @@ const ChatView = () => {
   return (
     <div className="flex flex-col h-full">
       {/* 채팅방 헤더 */}
-      <div className="border-b border-gray-700 p-4 flex items-center gap-3">
+      <div className="border-b border-gray-700 p-4 flex items-center gap-3 mt-5">
         <div className="relative">
           <img src={chatRoom.profileImg} alt="프로필" className="w-10 h-10 rounded-full" />
           <div
@@ -114,13 +115,14 @@ const ChatView = () => {
             className={`flex ${message.senderId === Number(userId) ? 'justify-end' : 'justify-start'} items-end`}
           >
             {/* 시간표시 */}
-            {message.senderId === Number(userId) && <p className="opacity-70 mr-1" style={{ fontSize: '0.6rem' }}>
-              {new Date(message.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>}
-
+            {message.senderId === Number(userId) && (
+              <p className="opacity-70 mr-1" style={{ fontSize: '0.6rem' }}>
+                {new Date(message.createdAt).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            )}
 
             {/* 말풍선 */}
             <div
@@ -134,13 +136,14 @@ const ChatView = () => {
             </div>
 
             {/* 시간표시 */}
-            {message.senderId !== Number(userId) && <p className="opacity-70 ml-1" style={{ fontSize: '0.6rem' }}>
-              {new Date(message.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>}
-
+            {message.senderId !== Number(userId) && (
+              <p className="opacity-70 ml-1" style={{ fontSize: '0.6rem' }}>
+                {new Date(message.createdAt).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            )}
           </div>
         ))}
         <div ref={messageEndRef} />
@@ -148,7 +151,7 @@ const ChatView = () => {
 
       {/* 메시지 입력 */}
       <div className="border-t border-gray-700 p-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative">
           <Input
             name="chatMessage"
             type="text"
@@ -161,9 +164,10 @@ const ChatView = () => {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim()}
-            className="px-4 py-2 bg-primary-orange text-white rounded-lg disabled:opacity-50"
+            className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80 transition-opacity disabled:opacity-50"
+            aria-label="검색"
           >
-            전송
+            <img src={send} alt="검색" className="w-5 h-5" />
           </button>
         </div>
       </div>
