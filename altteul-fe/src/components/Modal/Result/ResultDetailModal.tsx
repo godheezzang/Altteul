@@ -1,8 +1,13 @@
-import React from "react";
-import Modal from "@components/Common/Modal";
-import SmallButton from "@components/Common/Button/Button";
-import useModalStore from "@stores/modalStore";
-import { MODAL_TYPES, GAME_TYPES, COMMON_MODAL_TYPES } from "types/modalTypes";
+import React, { useEffect, useState } from 'react';
+import Modal from '@components/Common/Modal';
+import SmallButton from '@components/Common/Button/Button';
+import useModalStore from '@stores/modalStore';
+import { MODAL_TYPES, GAME_TYPES } from 'types/modalTypes';
+import useGameStore from '@stores/useGameStore';
+import { api } from '@utils/Api/commonApi';
+import LoadingSpinner from '@components/Common/LoadingSpinner';
+import ResultList from '@components/Modal/Result/ResultList';
+
 type ResultDetailModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -10,6 +15,30 @@ type ResultDetailModalProps = {
 
 const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
   const { openModal } = useModalStore();
+  const { gameId, isFinish } = useGameStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState(null);
+
+  const fetchResultData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`game/${gameId}/result`);
+
+      if (response.status === 200) {
+        const data = response.data.data;
+        setResults(data);
+      }
+    } catch (error) {
+      // TODO: 데이터 불러오는데 실패하면 에러 페이지
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResultData();
+  }, [gameId, isFinish]);
 
   //TODO: 다음 버튼 클릭시 로직
   const handleContinue = () => {
@@ -17,57 +46,22 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
     openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.SINGLE });
   };
 
-  //TODO: 코드 확인 버튼 클릭시 로직
-  const handleOpponentCode = () => {
-    onClose();
-    openModal(MODAL_TYPES.COMMON, {
-      type: GAME_TYPES.SINGLE,
-      modalType: COMMON_MODAL_TYPES.CODE
-    });
-  };
-
-  //TODO: AI 코칭 버튼 클릭시 로직
-  const handleAiCoaching = () => {
-    onClose();
-    openModal(MODAL_TYPES.COMMON, {
-      type: GAME_TYPES.SINGLE,
-      modalType: COMMON_MODAL_TYPES.COACHING
-    });
-  };
+  if (isLoading) {
+    return <LoadingSpinner loading={isLoading} />;
+  }
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      width="26rem"
-      height="25rem"
-      title="게임결과"  //반영이 안되네
-      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange"
+      // height="50rem"
+      title="게임결과" //반영이 안되네 // 되게했지롱
+      titleColor="primary-white"
+      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange p-10 w-[72rem] justify-center items-center"
     >
       <div className="flex flex-col items-center justify-center h-full w-full">
-
         {/* WIN! text with glow */}
-        <div className="mb-2 text-4xl font-bold text-white">게임결과창 만들어야함</div>
-
-
-
-        {/* 코드 확인 버튼 */}
-        <SmallButton
-          onClick={handleOpponentCode}
-          backgroundColor="primary-orange"
-          className="px-8 py-2 relative"
-          children="코드 확인"
-        >
-        </SmallButton>
-
-        {/* AI 코칭 버튼 */}
-        <SmallButton
-          onClick={handleAiCoaching}
-          backgroundColor="primary-orange"
-          className="px-8 py-2 relative"
-          children="AI 코칭"
-        >
-        </SmallButton>
+        <ResultList results={results} />
 
         {/* 다음 버튼 */}
         <SmallButton
@@ -75,9 +69,7 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
           backgroundColor="primary-orange"
           className="px-8 py-2 relative"
           children="다음"
-        >
-        </SmallButton>
-
+        ></SmallButton>
       </div>
     </Modal>
   );
