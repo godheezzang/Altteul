@@ -53,7 +53,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				Q_USER.userId,
 				Q_USER.nickname,
 				Q_USER.profileImg,
-				Expressions.constant(false), // 유저의 온라인 상태
+				Expressions.constant(Boolean.FALSE), // 유저의 온라인 상태
 				Q_CHATMESSAGE.messageContent,
 				Expressions.as(
 					Expressions.cases()          // 내가 읽었는지 확인하는 로직
@@ -66,8 +66,8 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 									.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
 								.exists()
 						)
-						.then(false)
-						.otherwise(true),
+						.then(Boolean.FALSE)
+						.otherwise(Boolean.TRUE),
 					"isMessageRead"
 					),
 				Expressions.cases() // 메세지 보낸 시간
