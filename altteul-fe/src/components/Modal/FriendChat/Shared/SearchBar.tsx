@@ -3,15 +3,18 @@ import { useEffect, useState } from 'react';
 import Input from '@components/Common/Input';
 import useFriendChatStore from '@stores/friendChatStore';
 import Magnifier from '@assets/icon/friend/Search_orange.svg';
-import { searchUsers } from '@utils/Api/userApi';
 
 const SearchBar = () => {
   const fcStore = useFriendChatStore();
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(fcStore.searchQuery)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+    fcStore.setSearchQuery(e.target.value);
   };
+
+  useEffect(() => {
+    setInputValue(fcStore.searchQuery)
+  }, [fcStore.searchQuery])
 
   const handleSearch = async () => {
     fcStore.setSearchQuery(inputValue);
@@ -28,7 +31,6 @@ const SearchBar = () => {
   useEffect(() => {
     return () => {
       fcStore.setSearchQuery('');
-      setInputValue('');
     };
   }, []);
 
