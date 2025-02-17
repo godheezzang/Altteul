@@ -28,8 +28,6 @@ export const singleStart = async (roomId: number) => {
   return res
 }
 
-//팀전 입장 api
-
 //팀전 퇴장 api
 export const teamOut = async (roomId: number) => {
   const res = await teamApi.post(`leave/${roomId}`)
@@ -48,9 +46,7 @@ export const cancelTeamMatch = async (roomId: number) => {
 
 //팀전 초대 수락 api
 export const inviteResponse = async (nickname:string, roomId:number, accepted:boolean) => {
-  if (accepted) {
     const data = {"nickname" : nickname, "roomId":roomId, "accepted":accepted}
     const res = await teamApi.post('invite/reaction', data)
     return res.data
-  }
 }

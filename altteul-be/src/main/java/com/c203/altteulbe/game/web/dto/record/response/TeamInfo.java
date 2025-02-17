@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.room.persistent.entity.Room;
@@ -87,7 +88,7 @@ public class TeamInfo {
 			return TeamMember.builder()
 				.userId(userTeamRoom.getUser().getUserId())
 				.nickname(userTeamRoom.getUser().getNickname())
-				.profileImage(userTeamRoom.getUser().getProfileImg())
+				.profileImage(S3Util.getImgUrl(userTeamRoom.getUser().getProfileImg()))
 				.rank(userTeamRoom.getUser().getTodayRanking().getId())
 				.tierId(userTeamRoom.getUser().getTier().getId())
 				.build();
@@ -97,7 +98,7 @@ public class TeamInfo {
 			return TeamMember.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.profileImage(user.getProfileImg())
+				.profileImage(S3Util.getImgUrl(user.getProfileImg()))
 				.rank(user.getTodayRanking().getId())
 				.tierId(user.getTier().getId())
 				.build();

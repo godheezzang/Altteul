@@ -14,11 +14,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CodeSubmissionTeamResponseDto {
 	private String status; // 채점 전체 결과 (예: "P": 합격, "F": 떨어짐)
+	private Long userId;
 	private List<TestCaseResponseDto> testCases;
 	private Integer passCount;
 	private Integer totalCount;
 
-	public static CodeSubmissionTeamResponseDto from(JudgeResponse judgeResponse) {
+	public static CodeSubmissionTeamResponseDto from(JudgeResponse judgeResponse, Long id) {
 		int passCount = 0;
 
 		// 컴파일에러 아닌 경우 message : null, isNotCompileError : true, 테스트케이스 데이터 포함. 컴파일 에러인 경우 반대
@@ -42,6 +43,7 @@ public class CodeSubmissionTeamResponseDto {
 			}
 
 			return CodeSubmissionTeamResponseDto.builder()
+				.userId(id)
 				.passCount(passCount)
 				.totalCount(testCaseResults.size())
 				.testCases(testCaseResponses)
@@ -49,6 +51,7 @@ public class CodeSubmissionTeamResponseDto {
 				.build();
 		} else {
 			return CodeSubmissionTeamResponseDto.builder()
+				.userId(id)
 				.passCount(null)
 				.totalCount(null)
 				.testCases(null)

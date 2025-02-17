@@ -1,4 +1,4 @@
-import { CompatClient } from "@stomp/stompjs";
+import { CompatClient } from '@stomp/stompjs';
 
 export interface User {
   roomId?: number;
@@ -27,6 +27,7 @@ export interface GameState {
   gameId: number | null;
   roomId: number | null;
   userRoomId: number | null;
+  matchId: string | null;
   users: User[];
   myTeam: MatchData;
   opponent: MatchData;
@@ -37,6 +38,7 @@ export interface GameState {
   setGameId: (gameId: number) => void;
   setroomId: (roomId: number) => void;
   setUserRoomId: (userRoomId: number) => void;
+  setMatchId: (matchId: string) => void;
   setUsers: (users: User[]) => void;
   setMyTeam: (data: MatchData) => void;
   setOpponent: (data: MatchData) => void;
@@ -106,15 +108,37 @@ export interface SingleEnterApiResponse {
 }
 
 export interface RankingResponse {
+  status: number;
+  message: string;
+  data: {
+    curentPage: number;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    rankings: Ranking[];
+  }
+}
+
+export interface Ranking {
   userId?: number;
-  rank: number;
+  ranking: number;
   nickname: string;
-  mainLang: string;
-  rankPoint: number;
+  lang: string;
+  point: number;
   tierId: number;
   rankChange: number;
-  averagePassRate: number;
+  rate: number | null;
 }
+
+export interface RankApiFilter {
+  page: number | null;
+  size: number | null;
+  lang: string | null;
+  tierId: number | null;
+  nickname: string | null;
+}
+
+
 export interface UserGameRecordResponse {
   status: number;
   message: string;
@@ -185,9 +209,10 @@ export type Friend = {
 export type FriendRequest = {
   friendRequestId: number;
   fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
+  toUserId: number;
   requestStatus: 'P' | 'A' | 'R';
+  fromUserProfileImg?: string;
+  fromUserNickname?: string;
 };
 
 // 삭제할것
@@ -202,11 +227,14 @@ export type ChatRooms = {
 };
 
 export type ChatRoom = {
+  chatRoomId: number;
   friendId: number;
   nickname: string;
   profileImg: string;
   isOnline: boolean;
-  messages: ChatMessage[];
+  recentMessage: string;
+  isMessageRead: boolean;
+  messages?: ChatMessage[];
   createdAt: string;
 };
 

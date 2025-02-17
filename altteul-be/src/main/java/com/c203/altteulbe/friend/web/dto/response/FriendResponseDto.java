@@ -31,4 +31,13 @@ public class FriendResponseDto {
 			.build();
 
 	}
+
+	public FriendResponseDto updateOnlineStatus(Boolean isOnline) {
+		return new FriendResponseDto(
+			this.userid,
+			this.nickname,
+			this.profileImg,
+			isOnline // 새로운 온라인 상태
+		);
+	}
 }

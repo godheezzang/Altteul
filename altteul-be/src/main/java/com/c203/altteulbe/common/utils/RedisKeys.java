@@ -31,6 +31,20 @@ public class RedisKeys {
 
 	public static final String ROOM_DB_ID = "room:db_id";
 
+	public static final String ROOM_REDIS_ID = "room:redis_id";
+
+	public static final String EDITOR_AWARENESS = "editor:awareness";
+
+	public static final String EDITOR_CONTENT = "editor:content";
+
+	public static String getEditorAwareness(Long roomId) {
+		return EDITOR_AWARENESS + ":" + roomId;
+	}
+
+	public static String getEditorContent(Long roomId) {
+		return EDITOR_CONTENT + ":" + roomId;
+	}
+
 	public static String getRoomDbId(Long roomId) {
 		return ROOM_DB_ID + ":" + roomId;
 	}
@@ -119,4 +133,9 @@ public class RedisKeys {
 	public static String inviteInfo(String roomId, String friendId) {
 		return "invite:room:" + roomId + ":user:" + friendId;
 	}
+
+	public static String getRoomRedisId(Long roomId) {
+		return ROOM_REDIS_ID + ":" + roomId;
+	}
+
 }

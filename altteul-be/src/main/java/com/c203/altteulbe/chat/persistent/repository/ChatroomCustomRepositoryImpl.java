@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.chat.persistent.entity.ChatMessage;
 import com.c203.altteulbe.chat.persistent.entity.Chatroom;
 import com.c203.altteulbe.chat.persistent.entity.QChatMessage;
@@ -52,20 +53,23 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 				Q_USER.userId,
 				Q_USER.nickname,
 				Q_USER.profileImg,
-				Expressions.constant(false), // 유저의 온라인 상태
+				Expressions.constant(Boolean.FALSE), // 유저의 온라인 상태
 				Q_CHATMESSAGE.messageContent,
-				Expressions.cases()          // 내가 읽었는지 확인하는 로직
-					.when(
-						JPAExpressions
-							.selectOne()
-							.from(Q_CHATMESSAGE)
-							.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
-								.and(Q_CHATMESSAGE.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
-								.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
-							.exists()
-					)
-					.then(false)
-					.otherwise(true),
+				Expressions.as(
+					Expressions.cases()          // 내가 읽었는지 확인하는 로직
+						.when(
+							JPAExpressions
+								.selectOne()
+								.from(Q_CHATMESSAGE)
+								.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM)
+									.and(Q_CHATMESSAGE.sender.userId.ne(userId)) // 상대방이 보낸 메시지만 확인
+									.and(Q_CHATMESSAGE.checked.isFalse())) // 읽지 않은 메시지가 있는지 확인
+								.exists()
+						)
+						.then(Boolean.FALSE)
+						.otherwise(Boolean.TRUE),
+					"isMessageRead"
+					),
 				Expressions.cases() // 메세지 보낸 시간
 					.when(Q_CHATMESSAGE.createdAt.isNotNull())
 					.then(Q_CHATMESSAGE.createdAt)
@@ -99,7 +103,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.map(chatroom -> ChatroomListResponseDto.builder()
 				.friendId(chatroom.getFriendId())
 				.nickname(chatroom.getNickname())
-				.profileImg(chatroom.getProfileImg())
+				.profileImg(S3Util.getImgUrl(chatroom.getProfileImg()))
 				.isOnline(onlineStatus.getOrDefault(chatroom.getFriendId(), false))
 				.recentMessage(chatroom.getRecentMessage())
 				.isMessageRead(chatroom.getIsMessageRead())
@@ -143,7 +147,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 			.selectFrom(Q_CHATMESSAGE)
 			.join(Q_CHATMESSAGE.sender).fetchJoin()  // N+1 문제 방지
 			.where(Q_CHATMESSAGE.chatroom.chatroomId.eq(chatroomId))
-			.orderBy(Q_CHATMESSAGE.createdAt.desc())
+			.orderBy(Q_CHATMESSAGE.createdAt.asc())
 			.limit(60)
 			.fetch();
 
@@ -155,9 +159,10 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 		Boolean isOnline = userStatusService.isUserOnline(chatroomInfo.get(Q_USER.userId));
 
 		return Optional.of(ChatroomDetailResponseDto.builder()
+			.chatroomId(chatroomId)
 			.friendId(chatroomInfo.get(Q_USER.userId))
 			.nickname(chatroomInfo.get(Q_USER.nickname))
-			.profileImg(chatroomInfo.get(Q_USER.profileImg))
+			.profileImg(S3Util.getImgUrl(chatroomInfo.get(Q_USER.profileImg)))
 			.isOnline(isOnline)
 			.messages(messagesDtos)
 			.createdAt(chatroomInfo.get(Q_CHATROOM.createdAt))

@@ -28,6 +28,10 @@ const createApiInstance = (additionalPath = '') => {
 
 // API 인스턴스들
 export const api = createApiInstance(); // 기본 api 인스턴스
+export const authApi = api; // auth는 기본 api 인스턴스 사용
 export const sigleApi = createApiInstance('single');
 export const teamApi = createApiInstance('team');
-export const authApi = api; // auth는 기본 api 인스턴스 사용
+export const rankApi = createApiInstance('ranking');
+export const userApi = createApiInstance('user')
+export const friendApi = createApiInstance('friend')
+export const chatApi = createApiInstance('chatroom')

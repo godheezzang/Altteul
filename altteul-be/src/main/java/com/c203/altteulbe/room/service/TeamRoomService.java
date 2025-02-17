@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.c203.altteulbe.common.annotation.DistributedLock;
 import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.common.utils.RedisKeys;
@@ -59,6 +60,7 @@ import com.c203.altteulbe.room.web.dto.response.RoomEnterResponseDto;
 import com.c203.altteulbe.room.web.dto.response.RoomLeaveResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamMatchResponseDto;
 import com.c203.altteulbe.room.web.dto.response.TeamRoomGameStartResponseDto;
+import com.c203.altteulbe.room.web.dto.response.TeamRoomInviteResponseDto;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
@@ -89,7 +91,9 @@ public class TeamRoomService {
 	private final RoomValidator validator;
 	private final VoiceChatService voiceChatService;
 
-	//@DistributedLock(key="#userId")
+	/**
+	 * 팀전 대기방 입장 처리
+	 */
 	public RoomEnterResponseDto enterTeamRoom(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundUserException());
@@ -125,9 +129,8 @@ public class TeamRoomService {
 	/**
 	 * 팀전 대기방 퇴장 처리
 	 */
-
 	// 정식으로 요청했을 경우의 퇴장 처리
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void leaveTeamRoom(Long roomId, Long userId) {
 		removeUserFromTeamRoom(roomId, userId, true);
 	}
@@ -201,7 +204,7 @@ public class TeamRoomService {
 	/**
 	 * 팀전 매칭 시작
 	 */
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void startTeamMatch(Long roomId, Long leaderId) {
 
 		userRepository.findByUserId(leaderId)
@@ -271,15 +274,15 @@ public class TeamRoomService {
 
 		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
 		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
-																  .map(GameStartForTestcaseDto::from)
-																  .collect(Collectors.toList());
+			.map(GameStartForTestcaseDto::from)
+			.collect(Collectors.toList());
 
 		// 이후 DB에 저장하기 위해 문제 pk를 redis에 저장
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomProblem(matchId), String.valueOf(randomProblemId));
 
 		// 각 팀의 유저 정보를 가져오는 메소드 호출
 		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2),
-																	problem, testcases);
+			problem, testcases);
 
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
@@ -361,7 +364,7 @@ public class TeamRoomService {
 		RoomEnterResponseDto team2Dto = getRoomEnterResponseDtoForDB(roomId2, savedTeam2.getId());
 
 		TeamRoomGameStartResponseDto responseDto = TeamRoomGameStartResponseDto.from(
-																game.getId(), team1Dto, team2Dto);
+			game.getId(), team1Dto, team2Dto);
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId1), "gaming");
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(roomId2), "gaming");
 
@@ -378,6 +381,7 @@ public class TeamRoomService {
 	public void saveUserTeamRooms(Long roomId, TeamRoom teamRoom) {
 
 		redisTemplate.opsForValue().set(RedisKeys.getRoomDbId(roomId), teamRoom.getId().toString());
+		redisTemplate.opsForValue().set(RedisKeys.getRoomRedisId(teamRoom.getId()), roomId.toString());
 
 		// Redis에서 유저 ID 조회
 		String roomUsersKey = RedisKeys.TeamRoomUsers(roomId);
@@ -409,7 +413,7 @@ public class TeamRoomService {
 	/**
 	 * 매칭 취소 처리
 	 */
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public void cancelTeamMatch(Long roomId, Long userId) {
 
 		userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundUserException());
@@ -519,11 +523,10 @@ public class TeamRoomService {
 			"초대를 완료했습니다.");
 
 		// 초대 받은 유저에게 초대 관련 정보 전송
-		Map<String, String> payload = new HashMap<>();
-		payload.put("roomId", String.valueOf(roomId));
-		payload.put("nickname", invitee.getNickname());
+		TeamRoomInviteResponseDto responseDto = TeamRoomInviteResponseDto.create(roomId,
+																				 inviter.getNickname());
 
-		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", payload);
+		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", responseDto);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------
@@ -593,8 +596,8 @@ public class TeamRoomService {
 	 * 각 팀의 유저 정보를 조회하여 TeamMatchResponseDto로 변환하는 메소드
 	 */
 	private TeamMatchResponseDto getTeamMatchResponseDto(Long roomId1, Long roomId2,
-														 GameStartForProblemDto problem,
-														 List<GameStartForTestcaseDto> testcases) {
+		GameStartForProblemDto problem,
+		List<GameStartForTestcaseDto> testcases) {
 		RoomEnterResponseDto responseDto1 = getRoomEnterResponseDto(roomId1);
 		RoomEnterResponseDto responseDto2 = getRoomEnterResponseDto(roomId2);
 		return TeamMatchResponseDto.toDto(responseDto1, responseDto2, problem, testcases);

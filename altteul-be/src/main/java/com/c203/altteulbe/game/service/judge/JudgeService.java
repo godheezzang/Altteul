@@ -62,8 +62,8 @@ public class JudgeService {
 	@Value("${judge.server.url}")
 	private String judgeServerUrl;
 
-	private final String PROBLEM_PREFIX = "problem_";
-	private final String EXAMPLE_PREFIX = "example_";
+	private static final String PROBLEM_PREFIX = "problem_";
+	private static final String EXAMPLE_PREFIX = "example_";
 
 	// 시스템 정보 조회
 	public PingResponse getSystemInfo() {
@@ -113,11 +113,12 @@ public class JudgeService {
 		if (judgeResponse == null)
 			throw new NullPointerException();
 
-		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse);
+		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse, id);
 		CodeSubmissionOpponentResponseDto opponentResponseDto;
 		if (judgeResponse.isNotCompileError()) {
 			log.debug("코드 제출 결과 값: " + judgeResponse);
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.userId(id)
 				.totalCount(teamResponseDto.getTotalCount())
 				.passCount(teamResponseDto.getPassCount())
 				.status(teamResponseDto.getStatus())
@@ -125,6 +126,7 @@ public class JudgeService {
 
 		} else {
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.userId(id)
 				.passCount(null)
 				.totalCount(null)
 				.build();
@@ -165,12 +167,15 @@ public class JudgeService {
 
 		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory);
 
+		// 실시간 게임 현황 전송
+		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
+
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);
 	}
 
-	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request) {
+	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request, Long userId) {
 		Problem problem = problemRepository.findWithExamplesByProblemId(request.getProblemId())
 			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
 		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX, problem);
@@ -179,7 +184,7 @@ public class JudgeService {
 			throw new NullPointerException();
 
 		// request.problemId의 테스트케이스 1,2번 answer 정보가 필요함.
-		CodeExecutionResponseDto responseDto = CodeExecutionResponseDto.from(judgeResponse, problem);
+		CodeExecutionResponseDto responseDto = CodeExecutionResponseDto.from(judgeResponse, problem, userId);
 
 		judgeWebsocketService.sendExecutionResult(
 			responseDto,
@@ -227,7 +232,19 @@ public class JudgeService {
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
-		myRoom.updateStatusByGameClear(BattleResult.fromRank(finishedTeamCount + 1));
+		BattleResult result = BattleResult.fromRank(finishedTeamCount + 1);
+		myRoom.updateStatusByGameClear(result);
+
+		// FAIL이 아닐 때만 사이드 문제 포인트 추가
+		if (result != BattleResult.FAIL && myRoom instanceof SingleRoom) {
+			List<SideProblemHistory> solvedSideProblemHistories =
+				sideProblemHistoryRepository.findByUserIdAndGameIdAndResult(
+					((SingleRoom)myRoom).getUser(),
+					game,
+					SideProblemHistory.ProblemResult.P
+				);
+			myRoom.addSideProblemPoint(solvedSideProblemHistories.size());
+		}
 
 		// 팀전의 경우 모든 팀의 결과가 나왔으므로 바로 게임 완료 처리
 		if (game.getBattleType() == BattleType.T) {

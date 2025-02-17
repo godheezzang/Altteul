@@ -77,7 +77,7 @@ public class SingleRoomRedisRepository {
 	}
 
 	// 기존 대기방에 유저 추가
-	//@DistributedLock(key = "#roomId")
+	@DistributedLock(key = "#roomId")
 	public RoomEnterResponseDto insertUserToExistingRoom(Long roomId, User user) {
 		String roomUsersKey = RedisKeys.SingleRoomUsers(roomId);
 
