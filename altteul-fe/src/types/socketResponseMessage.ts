@@ -1,9 +1,10 @@
-import { MatchData, Problem, TestCase, User } from "./types";
+import { FriendRequest, MatchData, Problem, TestCase, User } from "./types";
 
 interface socketResponseMessage {
   type: 'ENTER' | 'LEAVE' | 'COUNTING' | 'GAME_START' | "COUNTING_CANCEL"
       | 'MATCHING' | 'MATCH_CANCEL_SUCCESS' | 'MATCHED' | 'COUNTING_READY'
-      | 'INVITE_REQUEST_RECEIVED';
+      | 'INVITE_REQUEST_RECEIVED'
+      | 'SEND_REQUEST';
   data: {
     //유저 입퇴장('ENTER/LEAVE') message
     leaderId?: number;
@@ -31,6 +32,10 @@ interface socketResponseMessage {
     //팀전 게임 데이터(COUNTING_READY) message
     team1: MatchData
     team2: MatchData
+
+    //친구 신청(SEND_REQUEST) message
+    friendRequests: FriendRequest
+
   };
 };
 
