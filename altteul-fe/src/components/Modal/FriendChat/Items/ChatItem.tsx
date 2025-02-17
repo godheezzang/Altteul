@@ -36,7 +36,7 @@ import { ChatRoom } from "types/types";
         className="flex items-center justify-between bg-gray-04 p-3 rounded-lg cursor-pointer hover:bg-gray-03 transition-colors"
       >
         {/* 왼쪽: 프로필 이미지와 채팅 정보 */}
-        <div className="flex items-center gap-3 flex-1">
+        <div className="flex items-center gap-3 flex-1 ml-1">
           {/* 프로필 이미지 & 온라인 상태 */}
           <div className="relative">
             <img 
@@ -62,7 +62,7 @@ import { ChatRoom } from "types/types";
             
             {/* 하단: 마지막 메시지와 안 읽은 메시지 수 */}
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-300 truncate pr-4">
+              <p className="text-sm text-gray-500 truncate pr-4">
                 {room.recentMessage}
               </p>
               {/* 미확인 메세지 개수 */}

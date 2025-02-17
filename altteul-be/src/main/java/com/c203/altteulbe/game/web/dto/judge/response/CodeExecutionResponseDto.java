@@ -16,10 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CodeExecutionResponseDto {
 	private List<ExampleResponseDto> testCases;
+	private Long userId;
 	private String message;
 	private boolean isNotCompileError;
 
-	public static CodeExecutionResponseDto from(JudgeResponse judgeResponse, Problem problem) {
+	public static CodeExecutionResponseDto from(JudgeResponse judgeResponse, Problem problem, Long userId) {
 		String message = null;
 		boolean isNotCompileError = true;
 		List<ExampleResponseDto> testCaseResponses = null;
@@ -52,6 +53,7 @@ public class CodeExecutionResponseDto {
 			isNotCompileError = false;
 		}
 		return CodeExecutionResponseDto.builder()
+			.userId(userId)
 			.testCases(testCaseResponses)
 			.message(message)
 			.isNotCompileError(isNotCompileError)

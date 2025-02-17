@@ -1,46 +1,34 @@
 // src/components/Modal/FriendChat/Items/FriendRequestItem.tsx
 import useAuthStore from '@stores/authStore';
 import { useSocketStore } from '@stores/socketStore';
-
-export interface FriendRequest {
-  friendRequestId: number;
-  fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
-  requestStatus: string;
-}
+import { friendRequestResponse } from '@utils/Api/friendChatApi';
+import { FriendRequest } from 'types/types';
+import requestAccept from '@assets/icon/friend/requestAccept.svg'
+import requestReject from '@assets/icon/friend/requestReject.svg'
 
 interface FriendRequestItemProps {
   request: FriendRequest;
-  onRefresh: () => void;
+  onRefresh: (friendRequestId:number) => void;
 }
 
 const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
   const { sendMessage } = useSocketStore();
-  const currentUserId = useAuthStore().userId
+  const currentUserId = useAuthStore().userId;
 
-  const handleAccept = () => {
-    sendMessage('/pub/friend/request/process', {
-      friendRequestId : request.friendRequestId,
+  const handleResponse = (yn: "P" | "A" | "R") => {
+    const response = {
+      friendRequestId: request.friendRequestId,
       fromUserId: request.fromUserId, // 요청 보낸 사람 id
-      toUserId: currentUserId, // 요청 받은 사람 id
-      requestStatus : "A"
-    });
-    onRefresh();
-  };
-
-  const handleReject = () => {
-    sendMessage('/pub/friend/request/process', {
-      friendRequestId : request.friendRequestId,
-      fromUserId: request.fromUserId, // 요청 보낸 사람 id
-      toUserId: useAuthStore().userId, // 요청 받은 사람 id
-      requestStatus : "R"
-    });
-    onRefresh();
+      toUserId: Number(currentUserId), // 요청 받은 사람 id
+      requestStatus: yn,
+    };
+    friendRequestResponse(response);
+    sendMessage('/pub/friend/request/process', response);
+    onRefresh(request.friendRequestId);
   };
 
   return (
-    <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg hover:bg-gray-03 transition-colors">
+    <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg">
       <div className="flex items-center gap-3">
         <img src={request.fromUserProfileImg} alt="프로필" className="w-10 h-10 rounded-full" />
         <div>
@@ -48,18 +36,18 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
           <p className="text-sm text-gray-400">친구 요청을 보냈습니다</p>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex">
         <button
-          onClick={handleAccept}
-          className="px-3 py-1 bg-primary-orange text-white rounded hover:bg-primary-orange/80"
+          onClick={() => handleResponse('A')}
+          className="px-2 py-1 "
         >
-          수락
+          <img src={requestAccept} alt="수락" className='w-8 h-8' />
         </button>
         <button
-          onClick={handleReject}
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-500/80"
+          onClick={() => handleResponse('R')}
+          className="px-2 py-1 "
         >
-          거절
+          <img src={requestReject} alt="거절" className='w-8 h-8' />
         </button>
       </div>
     </div>

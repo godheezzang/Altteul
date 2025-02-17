@@ -10,52 +10,51 @@ const FriendTab = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   
-  const fcStrore = useFriendChatStore();
+  const fcStore = useFriendChatStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
   });
 
   const getFriendsList = async () => {
-    if (fcStrore.isSearching || !fcStrore.hasMore) return;
+    if (!fcStore.hasMore) return;
 
     try {
-      fcStrore.setIsSearching(true);
+      fcStore.setIsSearching(true);
       const response = await getFriends();
       console.log(response)
       setFriends(prev => 
         currentPage === 0 ? response.data.friends : [...prev, ...response.data.friends]
       );
       
-      fcStrore.setHasMore(response.data.friends.length > 0);
-      fcStrore.setSearchError(null);
+      fcStore.setHasMore(response.data.friends.length > 0);
+      fcStore.setSearchError(null);
     } catch (error) {
       console.error('친구 목록 조회 실패:', error);
-      fcStrore.setSearchError('친구 목록을 불러오는데 실패했습니다.');
+      fcStore.setSearchError('친구 목록을 불러오는데 실패했습니다.');
     } finally {
-      fcStrore.setIsSearching(false);
+      fcStore.setIsSearching(false);
     }
   };
 
-  // 검색 결과를 초기화하고 친구 목록으로 돌아가는 함수
-  const handleCloseSearch = () => {
-    fcStrore.setSearchQuery('');
-  };
-
   useEffect(() => {
-    if (inView && !fcStrore.isSearching && fcStrore.hasMore && !fcStrore.searchQuery) {
+    if (inView && !fcStore.isSearching && fcStore.hasMore && !fcStore.searchQuery) {
       setCurrentPage(prev => prev + 1);
     }
   }, [inView]);
 
   useEffect(() => {
-    if (!fcStrore.searchQuery) {
-      getFriendsList();
-    }
-  }, [currentPage]);
+      if(fcStore.currentView === 'main' && fcStore.currentTab === 'friends') {
+        getFriendsList();
+      }
+  }, [fcStore.currentView, fcStore.currentTab]);
 
-  if (fcStrore.searchError) {
-    return <div className="text-center text-red-500 p-4">{fcStrore.searchError}</div>;
+  if (fcStore.searchError) {
+    return <div className="text-center text-red-500 p-4">{fcStore.searchError}</div>;
+  }
+
+  const updateFrinedList = (friendId:number) => {
+    setFriends((prev) => prev.filter((friend) => friend.userid !== friendId))
   }
 
   return (
@@ -64,17 +63,17 @@ const FriendTab = () => {
         <FriendItem
           key={friend.userid}
           friend={friend}
-          onRefresh={getFriendsList}
+          onRefresh={updateFrinedList}
         />
       ))}
 
       <div ref={ref} className="h-4">
-        {fcStrore.isSearching && (
+        {fcStore.isSearching && (
           <div className="text-center text-gray-400 py-2">로딩 중...</div>
         )}
       </div>
 
-      {!fcStrore.hasMore && friends.length === 0 && (
+      {!fcStore.hasMore && friends.length === 0 && (
         <div className="text-center text-gray-400 p-4">
           친구 목록이 비어있습니다.
         </div>
