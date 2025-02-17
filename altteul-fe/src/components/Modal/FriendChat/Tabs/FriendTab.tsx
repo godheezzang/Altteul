@@ -17,7 +17,7 @@ const FriendTab = () => {
   });
 
   const getFriendsList = async () => {
-    // if (fcStore.isSearching || !fcStore.hasMore) return;
+    if (!fcStore.hasMore) return;
 
     try {
       fcStore.setIsSearching(true);
@@ -53,13 +53,17 @@ const FriendTab = () => {
     return <div className="text-center text-red-500 p-4">{fcStore.searchError}</div>;
   }
 
+  const updateFrinedList = (friendId:number) => {
+    setFriends((prev) => prev.filter((friend) => friend.userid !== friendId))
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4">
       {friends.map(friend => (
         <FriendItem
           key={friend.userid}
           friend={friend}
-          onRefresh={getFriendsList}
+          onRefresh={updateFrinedList}
         />
       ))}
 
