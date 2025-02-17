@@ -4,7 +4,7 @@
 import { useSocketStore } from '@stores/socketStore';
 import useAuthStore from '@stores/authStore';
 import useFriendChatStore from '@stores/friendChatStore';
-import { inviteFriend } from '@utils/Api/friendChatApi';
+import { deleteFriend, inviteFriend } from '@utils/Api/friendChatApi';
 
 interface FriendItemProps {
   friend: {
@@ -13,13 +13,13 @@ interface FriendItemProps {
     profileImg: string;
     isOnline: boolean;
   };
-  onRefresh?: () => void;
+  onRefresh?: (friendId:number) => void;
 }
 
 const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
   const { sendMessage } = useSocketStore();
   const fcStore = useFriendChatStore();
-  const { userId } = useAuthStore();
+  const userId = useAuthStore().userId
   const roomId = JSON.parse(sessionStorage.getItem('matchData'))?.roomId || null;
 
   // 게임 초대
@@ -35,9 +35,10 @@ const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
   const handleDeleteFriend = async () => {
     try {
       const payload = { userId: userId, friendId: friend.userid };
+      deleteFriend(Number(userId), friend.userid)
       sendMessage('/pub/friend/delete', payload);
       console.log('친구 삭제 요청 전송', payload);
-      onRefresh(); // 친구 목록 새로고침
+      onRefresh(friend.userid); // 친구 목록 새로고침(해당 요소 제거)
     } catch (error) {
       console.error('친구 삭제 실패:', error);
     }
