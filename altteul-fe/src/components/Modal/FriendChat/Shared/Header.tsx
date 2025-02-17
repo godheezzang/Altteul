@@ -1,6 +1,4 @@
 // 닫기 버튼, 뒤로가기 버튼
-
-import React from 'react';
 import backIcon from '@assets/icon/friend/back.svg';
 import exitlineIcon from '@assets/icon/friend/exit_line.svg';
 
@@ -31,9 +29,9 @@ const ModalHeader = ({
       {/* 닫기 버튼 */}
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 text-primary-orange hover:opacity-80"
+        className="absolute top-0 right-3 text-primary-orange hover:opacity-80"
       >
-        <img src={exitlineIcon} alt="닫기" className="w-6 h-6" />
+        <img src={exitlineIcon} alt="닫기" className="w-8 h-10" />
       </button>
     </>
   );
