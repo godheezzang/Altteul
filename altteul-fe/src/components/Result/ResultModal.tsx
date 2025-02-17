@@ -1,18 +1,12 @@
 // src/components/common/Modal/ResultModal.tsx
-import React from "react";
-import Modal from "@components/Common/Modal";
-import SmallButton from "@components/Common/Button/Button";
-import winCrown from "@assets/icon/result/winCrown.svg";
-import LoseSceleton from "@assets/icon/result/LoseSceleton.svg";
-import useModalStore from "@stores/modalStore";
+import React from 'react';
+import Modal from '@components/Common/Modal';
+import SmallButton from '@components/Common/Button/Button';
+import win from '@assets/icon/result/win.svg';
+import lose from '@assets/icon/result/lose.svg';
+import useModalStore from '@stores/modalStore';
 
-import {
-  GAME_TYPES,
-  RESULT_TYPES,
-  GameType,
-  ResultType,
-  MODAL_TYPES,
-} from "types/modalTypes";
+import { GAME_TYPES, RESULT_TYPES, GameType, ResultType, MODAL_TYPES } from 'types/modalTypes';
 
 type ResultModalProps = {
   isOpen: boolean;
@@ -30,25 +24,28 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
   const getResultConfig = () => {
     const isSuccess = result === RESULT_TYPES.SUCCESS;
     return {
-      image: isSuccess ? winCrown : LoseSceleton,
-      imageAlt: isSuccess ? "Win Crown" : "Lose Skeleton",
-      glowColor: isSuccess ? "primary-orange" : "primary-blue",
-      borderColor: isSuccess ? "primary-orange" : "gray-01",
-      shadowClass: isSuccess ? "shadow-orange" : "shadow-blue",
+      image: isSuccess ? win : lose,
+      imageAlt: isSuccess ? '성공' : '실패',
+      glowColor: isSuccess ? 'primary-orange' : 'primary-blue',
+      borderColor: isSuccess ? 'primary-orange' : 'gray-01',
+      shadowClass: isSuccess ? 'shadow-orange' : 'shadow-blue',
 
       mainText: isSuccess
         ? type === GAME_TYPES.SINGLE
-          ? "SUCCESS!"
-          : "WIN!"
+          ? 'SUCCESS!'
+          : 'WIN!'
         : type === GAME_TYPES.SINGLE
-        ? "FAIL..."
-        : "LOSE...",
+          ? 'FAIL...'
+          : 'LOSE...',
 
-      subText: isSuccess ? type === GAME_TYPES.SINGLE ? "해결했습니다!" : "승리했습니다!"
+      subText: isSuccess
+        ? type === GAME_TYPES.SINGLE
+          ? '해결했습니다!'
+          : '승리했습니다!'
         : type === GAME_TYPES.SINGLE
-        ? "해결하지 못했습니다"
-        : "패배했습니다",
-      pointText: isSuccess ? "100 포인트를 얻었습니다." : null,
+          ? '해결하지 못했습니다'
+          : '패배했습니다',
+      pointText: isSuccess ? '100 포인트를 얻었습니다.' : null,
     };
   };
 
@@ -58,7 +55,7 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
     onClose();
     // 게임 타입에 따라 다른 모달 열기
     if (type === GAME_TYPES.SINGLE) {
-      openModal(MODAL_TYPES.LIST);  // 성공/실패 상관없이 결과 목록으로 이동
+      openModal(MODAL_TYPES.LIST); // 성공/실패 상관없이 결과 목록으로 이동
     } else {
       openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.TEAM });
     }
@@ -75,28 +72,18 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
       <div className="flex flex-col items-center justify-center h-full w-full">
         {/* 이미지 */}
         <div className="relative">
-          <img
-            src={config.image}
-            alt={config.imageAlt}
-            className="w-40 h-40 relative z-10"
-          />
-          <div
-            className={`absolute inset-0 bg-${config.glowColor} opacity-30 blur-xl`}
-          />
+          <img src={config.image} alt={config.imageAlt} className="w-40 h-40 relative z-10" />
+          <div className={`absolute inset-0 bg-${config.glowColor} opacity-30 blur-xl`} />
         </div>
 
         {/* 메인 텍스트 */}
-        <div className="mb-2 text-4xl font-bold text-white">
-          {config.mainText}
-        </div>
+        <div className="mb-2 text-4xl font-bold text-white">{config.mainText}</div>
 
         {/* 서브 텍스트 */}
         <div className="text-white text-xl">{config.subText}</div>
 
         {/* 포인트 텍스트 */}
-        {config.pointText && (
-          <div className="text-white text-sm mb-1">{config.pointText}</div>
-        )}
+        {config.pointText && <div className="text-white text-sm mb-1">{config.pointText}</div>}
 
         {/* 안내 텍스트 */}
         <div className="text-gray-02 text-sm mb-3">
