@@ -138,16 +138,4 @@ public class RedisKeys {
 		return ROOM_REDIS_ID + ":" + roomId;
 	}
 
-	// 유저의 웹소켓 해제 시간 저장 키
-	private static final String USER_DISCONNECT_TIME = "disconnect_time";
-
-	/**
-	 * 특정 유저의 웹소켓 해제 시간을 저장하는 키 반환
-	 * @param userId 유저 ID
-	 * @return "disconnect_time:{userId}"
-	 */
-	public static String getUserDisconnectTimeKey(Long userId) {
-		return USER_DISCONNECT_TIME + ":" + userId;
-	}
-
 }

@@ -1,8 +1,6 @@
-# 알뜰
-
-
-
 ## 💡 프로젝트 소개
+
+![main](README_assets/main.gif)
 
 ### ⚙ 개요
 
@@ -34,7 +32,14 @@
 
 ### ⚙ API 명세서
 
+![swagger](README_assets/swagger.gif)
+
+http://localhost:8080/swagger-ui/index.html#/
+
 ### ⚙ ERD
+![erd](README_assets/erd.png)
+
+https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 
 ### ⚙ 아키텍처
 
@@ -47,7 +52,20 @@
 ### ⚙ 회원가입
 
 
+|                                                   |                                                   |
+|---------------------------------------------------|---------------------------------------------------|
+| ![signup](README_assets/signup.gif)               | ![github-signup](README_assets/github-signup.gif) |
+| 일반 회원가입                                           | 깃허브 회원가입                                          |
+
+
+
+
+
+
 ### ⚙ 로그인
+
+![login](README_assets/login.gif)
+
 
 
 ### ⚙ 마이페이지
