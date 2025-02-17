@@ -1,9 +1,10 @@
 // src/components/Modal/Chat/tabs/NotificationTab.tsx
 import { useState, useEffect } from 'react';
 import useFriendChatStore from '@stores/friendChatStore';
-import FriendRequestItem, { FriendRequest } from '../Items/FriendRequestItem';
+import FriendRequestItem from '@components/Modal/FriendChat/Items/FriendRequestItem';
 import GameInviteItem, { GameInvite } from '../Items/GameInviteItem';
 import { getFriendRequests } from '@utils/Api/friendChatApi';
+import { FriendRequest } from 'types/types';
 
 const NotificationTab = () => {
   const { notificationTab, setNotificationTab } = useFriendChatStore();
@@ -36,6 +37,11 @@ const NotificationTab = () => {
   useEffect(() => {
     fetchNotifications();
   }, [notificationTab]);
+
+  //친구 요청 수락/거절시 리스트에서 제거
+  const updateNotifications = (friendRequestId:number) => {
+    setFriendRequests((prev) => prev.filter((friendRequest) => friendRequest.friendRequestId !== friendRequestId))
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -78,7 +84,7 @@ const NotificationTab = () => {
                   <FriendRequestItem
                     key={request.friendRequestId}
                     request={request}
-                    onRefresh={fetchNotifications}
+                    onRefresh={updateNotifications}
                   />
                 ))
               ) : (
