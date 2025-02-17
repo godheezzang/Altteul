@@ -13,8 +13,8 @@ const RankingPage = () => {
   const [searchNickname, setSearchNickname] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [tier, setTier] = useState<number | null>(null);
-  const [myRanking, setMyRanking] = useState<Ranking | null>(null);
-  const [rankings, setRankings] = useState([]);
+  const [selectedTier, setSelectedTier] = useState<number | null>(null);
+  const [rankings, setRankings] = useState<Array<Ranking>>([]);
   const [page, setPage] = useState(0);
   const [last, setLast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,44 +33,18 @@ const RankingPage = () => {
     page,
     size: 10,
     lang: selectedLanguage,
-    tierId: tier,
+    tierId: selectedTier,
     nickname: searchNickname
-  }), [page, selectedLanguage, tier, searchNickname]);
+  }), [page, selectedLanguage, selectedTier, searchNickname]);
 
   const resetPagination = () => {
     setPage(0);
     setRankings([]);
     setLast(false);
   };
-  
-  /**
-   * TODO: 내 랭킹 조회하는 부분. rankResponse에서 한번에 불러온다면 필요없음
-   */
-  const fetchMyRank = async () => {
-    // try {
-    //   const userId = sessionStorage.getItem('userId');
-    //   if (!userId) return;
-
-    //   const userResponse: UserInfoResponse = await getUserInfo(userId);
-      
-      const myRanking: Ranking = {
-        nickname: "나다",
-        ranking: 11,
-        rankChange: 1,
-        tierId: 1,
-        point: 150, 
-        lang: "Python",
-        rate: 100
-      };
-      
-    setMyRanking(myRanking);
-    // } catch (error) {
-    //   console.error('Failed to fetch user ranking:', error);
-    // }
-  };
 
   const fetchRankList = async () => {
-    if (isLoading || last) return;
+    if (isLoading) return;
     
     try {
       setIsLoading(true);
@@ -94,7 +68,6 @@ const RankingPage = () => {
   
   // 초기 로딩
   useEffect(() => {
-    fetchMyRank();
     fetchRankList();
   }, []);
 
@@ -104,6 +77,10 @@ const RankingPage = () => {
       fetchRankList();
     }
   }, [inView, isLoading, last, page]);
+
+  useEffect(() => {
+    fetchRankList();
+  }, [selectedTier]);
   
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
@@ -111,10 +88,9 @@ const RankingPage = () => {
   };
   
   const handleTier = (tierId: number) => {
-    setTier(prevTier => {
+    setSelectedTier(prevTier => {
       const newTier = prevTier !== tierId ? tierId : null;
       resetPagination();
-      fetchRankList();
       return newTier;
     });
   };
@@ -145,7 +121,7 @@ const RankingPage = () => {
             key={badge.id}
             tierId={badge.id}
             onClick={handleTier}
-            selectedTier={tier}
+            selectedTier={selectedTier}
             />
           ))}
           </div>
@@ -174,20 +150,18 @@ const RankingPage = () => {
             <div>랭킹점수</div>
             <div>선호언어</div>
           </div>
-          {myRanking &&
-            <RankingItem
-                key={`${myRanking.userId}-${myRanking.ranking}`}
-                data={myRanking}
-                className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black/40 text-primary-orange text-center text-base"
-            />
+          {
+            rankings.map((ranking: Ranking, index: number) => (
+              <RankingItem
+                key={`${ranking.userId}-${ranking.ranking}`}
+                data={ranking}
+                className={`grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black text-center text-base border-b-[1px] ${
+                  index === 0 ? "text-primary-orange" : "gray-1"
+                }`}
+              />
+            ))
           }
-          {rankings.map((ranking: Ranking) => (
-            <RankingItem
-              key={`${ranking.userId}-${ranking.ranking}`}
-              data={ranking}
-              className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr] py-4 bg-primary-black/40 gray-01 text-center text-base border-b-[1px]"
-            />
-          ))}
+
           
           {isLoading && (
             <div className="text-center py-4 text-primary-white">불러오는 중...</div>

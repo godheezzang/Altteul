@@ -33,7 +33,7 @@ const BadgeFilter = ({ tierId, selectedTier, onClick }: BadgeFilterProps) => {
       className={`cursor-pointer transition-transform ${
         selectedTier === tierId ? 'scale-110' : 'hover:scale-110'
       }`}
-      onClick={() => onClick(tierId)}
+      onClick={() => onClick(badge.id)}
     />
   );
 };
