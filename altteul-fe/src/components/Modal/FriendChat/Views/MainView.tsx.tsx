@@ -1,22 +1,20 @@
-/// 친구/채팅/알림 탭을 포함하는 메인 뷰
-// src/components/Modal/Chat/views/MainView.tsx
 import FriendTab from '@components/Modal/FriendChat/Tabs/FriendTab';
+import ChatTab from '@components/Modal/FriendChat/Tabs/ChatTab';
+import NotificationTab from '@components/Modal/FriendChat/Tabs/NotificationTab';
+import useFriendChatStore from '@stores/friendChatStore';
+import SearchResults from './SearchResultsView';
 
-interface MainViewProps {
-  currentTab: 'friends' | 'chats' | 'notifications';
-  searchQuery: string;
-  onStartChat: (friendId: number) => void;
-}
+const MainView = () => {
+  const { currentTab } = useFriendChatStore();
 
-const MainView = ({ currentTab, searchQuery, onStartChat }: MainViewProps) => {
   const renderTabContent = () => {
     switch (currentTab) {
       case 'friends':
-        return <FriendTab searchQuery={searchQuery} onStartChat={onStartChat} />;
+        return <FriendTab />;
       case 'chats':
-        return <div>Chat Tab</div>; // 임시
+        return <ChatTab />;
       case 'notifications':
-        return <div>Notification Tab</div>; // 임시
+        return <NotificationTab />;
       default:
         return null;
     }
