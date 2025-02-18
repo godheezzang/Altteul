@@ -916,15 +916,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^8":
-  version: 8.5.14
-  resolution: "@types/ws@npm:8.5.14"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/be88a0b6252f939cb83340bd1b4d450287f752c19271195cd97564fd94047259a9bb8c31c585a61b69d8a1b069a99df9dd804db0132d3359c54d3890c501416a
-  languageName: node
-  linkType: hard
-
 "@typescript-eslint/eslint-plugin@npm:^6.21.0":
   version: 6.21.0
   resolution: "@typescript-eslint/eslint-plugin@npm:6.21.0"
@@ -1151,7 +1142,6 @@ __metadata:
     "@types/react-dom": "npm:^18.2.19"
     "@types/react-html-parser": "npm:^2"
     "@types/sockjs-client": "npm:^1.5.4"
-    "@types/ws": "npm:^8"
     "@typescript-eslint/eslint-plugin": "npm:^6.21.0"
     "@typescript-eslint/parser": "npm:^6.21.0"
     "@vitejs/plugin-react": "npm:^4.2.1"
@@ -1185,7 +1175,6 @@ __metadata:
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.1"
     vite-tsconfig-paths: "npm:^4.3.1"
-    ws: "npm:^8.18.0"
     y-monaco: "npm:^0.1.5"
     y-websocket: "npm:^2.0.3"
     yjs: "npm:^13.6.16"
@@ -5936,21 +5925,6 @@ __metadata:
   dependencies:
     async-limiter: "npm:~1.0.0"
   checksum: 10c0/56a35b9799993cea7ce2260197e7879f21bbbb194a967f31acbbda6f7f46ecda4365951966fb062044c95197e19fb2f053be6f65c172435455186835f494de41
-  languageName: node
-  linkType: hard
-
-"ws@npm:^8.18.0":
-  version: 8.18.0
-  resolution: "ws@npm:8.18.0"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: 10c0/25eb33aff17edcb90721ed6b0eb250976328533ad3cd1a28a274bd263682e7296a6591ff1436d6cbc50fa67463158b062f9d1122013b361cec99a05f84680e06
   languageName: node
   linkType: hard
 
