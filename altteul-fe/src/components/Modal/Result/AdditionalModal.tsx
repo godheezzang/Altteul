@@ -9,14 +9,11 @@ import {
   GameType,
   CommonModalType,
 } from 'types/modalTypes';
-import useAuthStore from '@stores/authStore';
 import useGameStore from '@stores/useGameStore';
 import { useEffect, useState } from 'react';
 import LoadingSpinner from '@components/Common/LoadingSpinner';
-import axios from 'axios';
 import { api } from '@utils/Api/commonApi';
 import { useLocation } from 'react-router-dom';
-import { ContentType } from 'yjs';
 import ErrorPage from '@pages/Error/ErrorPage';
 
 type AdditionalModalProps = {
@@ -70,9 +67,9 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
           },
         });
 
-        console.log(response);
+        console.log('상대 팀 코드 불러오기:', response);
         setCode(response.data.code);
-        !isTeam && setOpponentName(response.data.nickname);
+        if (!isTeam) setOpponentName(response?.data.nickname);
       } catch (error) {
         console.error(error);
         <ErrorPage />;
@@ -84,6 +81,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
 
   useEffect(() => {
     fetchAiCoaching();
+    fetchUserCode();
   }, []);
 
   // 모달 타입에 따른 설정
