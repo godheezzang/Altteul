@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.c203.altteulbe.aws.service.S3Service;
 import com.c203.altteulbe.aws.util.S3Util;
-import com.c203.altteulbe.config.AWSConfig;
 import com.c203.altteulbe.ranking.persistent.entity.Tier;
 import com.c203.altteulbe.ranking.persistent.entity.TodayRanking;
 import com.c203.altteulbe.ranking.persistent.repository.today_ranking.TodayRankingRepository;
@@ -40,7 +39,7 @@ public class AuthService {
 
 		//일치하는 아이디, 닉네임이 존재하는가?
 		validateId(request.getUsername());
-		validateNickname(request.getNickname());
+		validateNickname(request.getNickname(), null);
 
 		String profileImgKey = (image == null || image.isEmpty())
 								? defaultProfileImgKey                            // 기본 이미지 objectKey 저장
@@ -77,9 +76,18 @@ public class AuthService {
 		}
 	}
 
-	public void validateNickname(String nickname) {
-		if (userRepository.existsByNickname(nickname)) {
-			throw new DuplicateNicknameException();
+	public void validateNickname(String nickname, Long userId) {
+		if (userId == null) {
+			if (userRepository.existsByNickname(nickname)) {
+				throw new DuplicateNicknameException();
+			}
+		} else {
+			userRepository.findByNickname(nickname)
+				.ifPresent(user -> {
+					if (!user.getUserId().equals(userId)) {
+						throw new DuplicateNicknameException();
+					}
+				});
 		}
 	}
 }

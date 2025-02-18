@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.c203.altteulbe.common.dto.BattleResult;
 import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.common.dto.PointType;
 import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.game.persistent.entity.Game;
@@ -165,7 +166,7 @@ public class JudgeService {
 		Game game = gameRepository.findWithAllMemberByGameId(request.getGameId())
 			.orElseThrow(() -> new BusinessException("게임 찾을 수 없음", HttpStatus.NOT_FOUND));
 
-		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory);
+		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory, Language.valueOf(request.getLang()));
 
 		// 실시간 게임 현황 전송
 		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
@@ -196,8 +197,7 @@ public class JudgeService {
 
 	// 함수 추출
 	private void updateRoomSubmission(Game game, Long teamId, TestHistory testHistory, String code,
-		int maxExecutionTime, int maxMemory) {
-
+		int maxExecutionTime, int maxMemory, Language lang) {
 		if (game.getBattleType() == BattleType.S) {
 			SingleRoom myRoom = singleRoomRepository.findById(teamId)
 				.orElseThrow(() -> new BusinessException("해당 팀의 방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
@@ -205,12 +205,14 @@ public class JudgeService {
 				testHistory.getSuccessCount(),
 				String.valueOf(maxExecutionTime),
 				String.valueOf(maxMemory),
-				code
+				code,
+				lang
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
 			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
 				finishGame(game, game.getSingleRooms(), myRoom);
 			}
+
 		} else {
 			TeamRoom myRoom = teamRoomRepository.findById(teamId)
 				.orElseThrow(() -> new BusinessException("해당 팀의 방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
@@ -218,7 +220,8 @@ public class JudgeService {
 				testHistory.getSuccessCount(),
 				String.valueOf(maxExecutionTime),
 				String.valueOf(maxMemory),
-				code
+				code,
+				lang
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
 			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
@@ -232,7 +235,7 @@ public class JudgeService {
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
-		BattleResult result = BattleResult.fromRank(finishedTeamCount); // 순위 틀리는 오류 수정
+		BattleResult result = BattleResult.fromRank(finishedTeamCount+1); // 순위 틀리는 오류 수정
 		myRoom.updateStatusByGameClear(result);
 
 		// FAIL이 아닐 때만 사이드 문제 포인트 추가

@@ -3,12 +3,14 @@ package com.c203.altteulbe.user.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.c203.altteulbe.aws.service.S3Service;
 import com.c203.altteulbe.aws.util.S3Util;
+import com.c203.altteulbe.common.exception.BusinessException;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.User;
 import com.c203.altteulbe.user.persistent.repository.UserRepository;
@@ -57,7 +59,22 @@ public class UserService {
 
 	public void updateUserProfile(UpdateProfileRequestDto request, MultipartFile newImg, Long currentUserId) {
 		String defaultProfileImgKey = S3Util.getDefaultImgKey();
+		System.out.println(currentUserId);
+		if (currentUserId == null) {
+			throw new BusinessException("로그인이 필요한 서비스입니다.", HttpStatus.BAD_REQUEST);
+		}
 		User user = userRepository.findById(currentUserId).orElseThrow(NotFoundUserException::new);
+		if (!user.getUserId().equals(currentUserId)) {
+			throw new BusinessException("본인의 프로필만 수정할 수 있습니다.", HttpStatus.BAD_REQUEST);
+		}
+
+		userRepository.findByNickname(request.getNickname())
+			.ifPresent(existUser -> {
+				if (!existUser.getUserId().equals(currentUserId)) {
+					throw new BusinessException("이미 사용중인 닉네임입니다.", HttpStatus.BAD_REQUEST);
+				}
+			});
+
 		user.updateProfile(request.getNickname(), request.getMainLang());
 
 		String currentProfileImg = user.getProfileImg();

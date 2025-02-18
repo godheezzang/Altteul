@@ -21,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -48,7 +49,7 @@ public class TestHistory extends BaseCreatedEntity {
 	@JoinColumn(name = "problem_id", nullable = false)
 	private Problem problem;
 
-	@Column(name = "code", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "code", nullable = false, columnDefinition = "LONGTEXT")
 	private String code;
 
 	@Column(name = "execute_time", columnDefinition = "VARCHAR(20)")
@@ -68,6 +69,7 @@ public class TestHistory extends BaseCreatedEntity {
 	private Integer failCount;
 
 	@OneToMany(mappedBy = "testHistory", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<TestResult> testResults = new ArrayList<>();
 
 	@Getter
@@ -101,6 +103,7 @@ public class TestHistory extends BaseCreatedEntity {
 	}
 
 	public void updateTestResults(List<TestResult> testResults) {
-		this.testResults = testResults;
+		this.testResults.clear();
+		this.testResults.addAll(testResults);
 	}
 }
