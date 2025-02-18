@@ -1,3 +1,4 @@
+import { useState } from "react";
 import bronze from "@assets/icon/badge/Badge_01.svg";
 import silver from "@assets/icon/badge/Badge_04.svg";
 import gold from "@assets/icon/badge/Badge_05.svg";
@@ -5,6 +6,7 @@ import platinum from "@assets/icon/badge/Badge_07.svg";
 import dia from "@assets/icon/badge/Badge_08.svg";
 import numberOne from "@assets/icon/badge/Badge_09.svg";
 
+// 뱃지 목록
 const badges = [
   { id: 0, name: "numberOne", src: numberOne },
   { id: 1, name: "bronze", src: bronze },
@@ -16,14 +18,16 @@ const badges = [
 
 interface BadgeFilterProps {
   tierId: number;
-  selectedTier: number;
+  selectedTier: number | null;
   onClick: (tierId: number) => void;
 }
 
+// 개별 뱃지 컴포넌트
 const BadgeFilter = ({ tierId, selectedTier, onClick }: BadgeFilterProps) => {
-  const badge = badges[tierId];
-
+  const badge = badges.find((b) => b.id === tierId);
   if (!badge) return null;
+
+  const isSelected = selectedTier === tierId;
 
   return (
     <img
@@ -31,9 +35,9 @@ const BadgeFilter = ({ tierId, selectedTier, onClick }: BadgeFilterProps) => {
       src={badge.src}
       alt={badge.name}
       className={`cursor-pointer transition-transform ${
-        selectedTier === tierId ? 'scale-110' : 'hover:scale-110'
+        isSelected ? "scale-110" : "hover:scale-110"
       }`}
-      onClick={() => onClick(badge.id)}
+      onClick={() => onClick(tierId)}
     />
   );
 };
