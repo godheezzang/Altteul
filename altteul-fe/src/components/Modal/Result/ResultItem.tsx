@@ -9,10 +9,6 @@ import Silver from '@assets/icon/badge/Badge_04.svg';
 import Gold from '@assets/icon/badge/Badge_05.svg';
 import Platinum from '@assets/icon/badge/Badge_07.svg';
 import Diamond from '@assets/icon/badge/Badge_08.svg';
-import useGameStore from '@stores/useGameStore';
-import { useState } from 'react';
-import { api } from '@utils/Api/commonApi';
-import ErrorPage from '@pages/Error/ErrorPage';
 
 interface ResultItemProps {
   player: SortedPlayer;
@@ -21,8 +17,6 @@ interface ResultItemProps {
 const ResultItem = ({ player, rank }: ResultItemProps) => {
   const { userId } = useAuthStore();
   const { openModal } = useModalStore();
-  const { gameId, userRoomId } = useGameStore();
-  const [isLoading, setIsLoading] = useState(false);
 
   // console.log(player);
 
