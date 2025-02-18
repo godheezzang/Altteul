@@ -55,7 +55,7 @@ const Input = ({
             onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-03 hover:text-gray-02"
           >
-            {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {isPasswordVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" /> }
           </button>
         )}
       </div>
