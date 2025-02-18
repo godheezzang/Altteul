@@ -31,7 +31,7 @@ export const UserSearchProvider = ({ children }: { children: React.ReactNode }) 
     try {
       // searchUsers 함수 그대로 사용
       const response = await searchUsers(query);
-      setSearchResults(response);
+      // setSearchResults(response);
     } catch (error) {
       console.error('사용자 검색 실패:', error);
       setError(error instanceof Error ? error.message : '검색에 실패했습니다.');

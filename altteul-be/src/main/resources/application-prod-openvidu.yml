@@ -3,7 +3,7 @@ spring:
     activate:
       on-profile: prod-openvidu
 openvidu:
-  url: ${OPENVIDU_URL}
+  url: ${DOMAIN_OR_PUBLIC_IP}
   secret: ${OPENVIDU_SECRET}
 livekit:
   api:
