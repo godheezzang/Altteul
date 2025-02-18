@@ -28,8 +28,8 @@ COPY ./nginx/nginx.prod.conf /etc/nginx/conf.d/nginx.conf
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+# Expose port 7080
+EXPOSE 7080
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
