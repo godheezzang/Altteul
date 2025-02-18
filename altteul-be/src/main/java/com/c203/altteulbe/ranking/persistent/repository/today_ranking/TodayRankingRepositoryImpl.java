@@ -50,6 +50,7 @@ public class TodayRankingRepositoryImpl extends QuerydslRepositorySupport implem
 
 		JPAQuery<TodayRankingListResponseDto> query = queryFactory
 			.select(Projections.constructor(TodayRankingListResponseDto.class,
+				user.userId,
 				user.nickname,
 				tier.id.as("tierId"),
 				todayRanking.ranking,

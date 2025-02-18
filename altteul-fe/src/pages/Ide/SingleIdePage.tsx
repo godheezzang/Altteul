@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useGameStore from '@stores/useGameStore';
 import { useSocketStore } from '@stores/socketStore';
-import CodeEditor from '@components/Ide/CodeEditor';
+import CodeEditor from '@components/Ide/SingleCodeEditor';
 import Terminal from '@components/Ide/Terminal';
 import IdeFooter from '@components/Ide/IdeFooter';
 import ProblemInfo from '@components/Ide/ProblemInfo';
@@ -169,7 +169,7 @@ const SingleIdePage = () => {
       </div>
 
       <div className="max-w-[65rem] flex-[46rem] border-r border-gray-04">
-        <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+        <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} roomId={String(userRoomId)} />
         <Terminal output={output} isTeam={false} />
         <div className="text-center">
           <IdeFooter

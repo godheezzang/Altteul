@@ -37,6 +37,10 @@
 
 http://localhost:8080/swagger-ui/index.html#/
 
+### ⚙ 기능 명세서
+
+https://jumbled-hexagon-bd2.notion.site/19d56f9141d380a0a351f11a57e5c701?pvs=4
+
 ### ⚙ ERD
 ![erd](README_assets/erd.png)
 
@@ -59,8 +63,6 @@ https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 |---------------------------------------------------|---------------------------------------------------|
 | ![signup](README_assets/signup.gif)               | ![github-signup](README_assets/github-signup.gif) |
 | 일반 회원가입                                           | 깃허브 회원가입                                          |
-
-
 
 
 

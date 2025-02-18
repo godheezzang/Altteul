@@ -28,9 +28,9 @@
     "react-spinners": "^0.15.0",
     "sockjs-client": "^1.6.1",
     "tailwind-scrollbar": "^3.0.0",
-    "y-monaco": "^0.1.6",
-    "y-websocket": "^2.1.0",
-    "yjs": "^13.6.23",
+    "y-monaco": "^0.1.5",
+    "y-websocket": "^2.0.3",
+    "yjs": "^13.6.16",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

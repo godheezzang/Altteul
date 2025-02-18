@@ -1,8 +1,9 @@
+import { toNumber } from "lodash";
 import { create } from "zustand";
 
 interface AuthState {
   token: string;
-  userId: string;
+  userId: number;
   setToken: (newToken: string) => void;
   setUserId: (newUserId: string) => void;
   logout: () => void;
@@ -10,7 +11,7 @@ interface AuthState {
 
 const useAuthStore = create<AuthState>((set) => ({
   token:sessionStorage.getItem("token") || "",
-  userId:sessionStorage.getItem("userId") || "",
+  userId:Number(sessionStorage.getItem("userId")) || 0,
 
   setToken: (newToken: string) => {
   sessionStorage.setItem("token", newToken); //로컬에 저장
@@ -19,13 +20,13 @@ const useAuthStore = create<AuthState>((set) => ({
 
   setUserId: (newUserId: string) => {
   sessionStorage.setItem("userId", newUserId);
-    set({ userId: newUserId.toString() });
+    set({ userId: Number(newUserId) });
   },
 
   logout: () => {
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("userId");
-    set({ token: "", userId: "" });
+    set({ token: "", userId: null });
   },
 }));
 
