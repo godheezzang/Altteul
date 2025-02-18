@@ -8,33 +8,71 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import useAuthStore from '@stores/authStore';
 import resize from '@assets/icon/resize.svg';
+import VoiceChat from '@components/Ide/VoiceChat';
+import { teamApi } from '@utils/Api/commonApi';
+import { OpenVidu } from 'openvidu-browser';
 
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam, matchId, opponent } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
   const [code, setCode] = useState('');
+  const [opponentCode, setOpponentCode] = useState(''); // 상대 팀 코드
   const [language, setLanguage] = useState<'python' | 'java'>('python');
   const [showModal, setShowModal] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
   const [output, setOutput] = useState<string>('');
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
-  const { userId } = useAuthStore();
+  const { userId, token } = useAuthStore();
+  const [voiceToken, setVoiceToken] = useState(null);
   const userRoomId = myTeam.roomId;
-  const opponentRoomId = opponent.roomId;
+
+  const joinVoiceChat = async () => {
+    if (!userRoomId) return;
+
+    try {
+      const response = await teamApi.post(
+        `/${userRoomId}/voice/join`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const sessionToken = response.data.data.token;
+      setVoiceToken(sessionToken);
+
+      console.log('음성 채팅 세션 참여 성공:', sessionToken);
+    } catch (error) {
+      console.error('음성 채팅 세션 참여 실패:', error);
+    }
+  };
 
   useEffect(() => {
     if (userRoomId) {
       setUserRoomId(userRoomId);
+      joinVoiceChat();
     }
   }, [userId, users, setUserRoomId]);
 
   useEffect(() => {
     if (!connected) return;
+
+    // 음성 채팅 상태 변경 구독
+    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
+      console.log('음성 채팅 상태 변경: ', data);
+
+      if (data.status) {
+        console.log(`${data.userId} 음성 채팅 참여`);
+      }
+    });
 
     // ✅ 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
@@ -51,13 +89,17 @@ const TeamIdePage = () => {
     // ✅ 상대 팀 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
       console.log('📩 상대 팀 채점 결과 수신:', data);
+      setOpponentCode(data.code);
     });
 
-    // 퇴장하기 구독
-    subscribe(`/sub/single/room/${matchId}`, data => {
-      console.log('퇴장하기 구독 데이터:', data);
-    });
+    // 음성 채팅 세션 참여
+    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
+      console.log('음성 채팅 상태 변경:', data);
 
+      if (data.status) {
+        console.log(`${userId} 음성 채팅 참여`);
+      }
+    });
     return () => {
       // ✅ 구독 해제
     };
@@ -89,7 +131,7 @@ const TeamIdePage = () => {
     return () => clearInterval(interval);
   }, [requestCount]);
 
-  const handleResizeEditor = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleResizeEditor = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsResizing(true);
   };
@@ -120,8 +162,9 @@ const TeamIdePage = () => {
 
   return (
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
-      <div className="min-w-[23em] max-w-[30rem] border-gray-04">
+      <div className="min-w-[23rem] max-w-[23rem] border-gray-04">
         <ProblemInfo />
+        <VoiceChat roomId={userRoomId} voiceToken={voiceToken} />
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
@@ -131,8 +174,8 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor language={language} setLanguage={setLanguage} roomId={String(userRoomId)} />
-          <Terminal output={output} />
+          <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+          <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
               code={code}
@@ -148,10 +191,15 @@ const TeamIdePage = () => {
         >
           <img src={resize} alt="코드 너비 조정" />
         </div>
-        <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }} className="relative">
+        <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <div className="absolute inset-0 backdrop-blur-md bg-black/30 pointer-events-none">
-            <CodeEditor language={language} readOnly={true} roomId={String(opponentRoomId)} />
+          <div>
+            <CodeEditor
+              code={opponentCode}
+              setCode={() => {}}
+              language={language}
+              readOnly={true}
+            />
           </div>
         </div>
       </div>

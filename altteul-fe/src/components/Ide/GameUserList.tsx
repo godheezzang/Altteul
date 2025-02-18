@@ -14,7 +14,6 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
   const { userId } = useAuthStore();
 
   /** 진행 중인 유저 목록 */
-  /** 진행 중인 유저 목록 */
   const inProgressUsers = useMemo(
     () =>
       users.filter(
@@ -104,7 +103,7 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-gray-400">모든 유저가 게임에 참여 중입니다.</p>
+          <p className="text-sm text-gray-02 ml-4">👌 모두 게임에 참여 중입니다.</p>
         )}
       </div>
     </div>

@@ -33,6 +33,7 @@ export interface GameState {
   opponent: MatchData;
   problem: Problem | null;
   testcases: TestCase[];
+  isFinish?: boolean;
 
   setGameInfo: (gameId: number, roomId: number) => void;
   setGameId: (gameId: number) => void;
@@ -44,6 +45,7 @@ export interface GameState {
   setOpponent: (data: MatchData) => void;
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
+  setIsFinish?: (isFinish: boolean) => void;
 }
 
 export interface MatchState {
@@ -116,7 +118,7 @@ export interface RankingResponse {
     totalElements: number;
     last: boolean;
     rankings: Ranking[];
-  }
+  };
 }
 
 export interface Ranking {
@@ -137,7 +139,6 @@ export interface RankApiFilter {
   tierId: number | null;
   nickname: string | null;
 }
-
 
 export interface UserGameRecordResponse {
   status: number;
@@ -172,7 +173,9 @@ export interface TeamInfo {
   totalHeadCount: number;
   executeTime: number | null;
   executeMemory: number | null;
-  bonusPoint: number | null;
+  point?: number | null;
+  bonusPoint?: number | null; // TODO: point와 bonusPoint 합칠 것
+  passRate?: number;
   duration: string | null;
   code: string | null;
   members: MemberInfo[];
@@ -182,8 +185,16 @@ export interface MemberInfo {
   userId: number;
   nickname: string;
   profileImage: string;
-  rank: number;
+  rank?: number;
   tierId: number;
+}
+
+export interface ResultData {
+  gameType: string;
+  myTeam: TeamInfo;
+  opponents: TeamInfo[];
+  status: number;
+  message: string;
 }
 
 export interface CodeInfo {
@@ -209,9 +220,10 @@ export type Friend = {
 export type FriendRequest = {
   friendRequestId: number;
   fromUserId: number;
-  fromUserNickname: string;
-  fromUserProfileImg: string;
+  toUserId: number;
   requestStatus: 'P' | 'A' | 'R';
+  fromUserProfileImg?: string;
+  fromUserNickname?: string;
 };
 
 // 삭제할것
@@ -226,11 +238,14 @@ export type ChatRooms = {
 };
 
 export type ChatRoom = {
+  chatRoomId: number;
   friendId: number;
   nickname: string;
   profileImg: string;
   isOnline: boolean;
-  messages: ChatMessage[];
+  recentMessage: string;
+  isMessageRead: boolean;
+  messages?: ChatMessage[];
   createdAt: string;
 };
 

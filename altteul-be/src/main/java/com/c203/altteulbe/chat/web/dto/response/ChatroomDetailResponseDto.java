@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatroomDetailResponseDto {
+	private Long chatroomId;
 
 	private Long friendId;            // 친구 ID
 

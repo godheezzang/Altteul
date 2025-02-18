@@ -113,11 +113,12 @@ public class JudgeService {
 		if (judgeResponse == null)
 			throw new NullPointerException();
 
-		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse);
+		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse, id);
 		CodeSubmissionOpponentResponseDto opponentResponseDto;
 		if (judgeResponse.isNotCompileError()) {
 			log.debug("코드 제출 결과 값: " + judgeResponse);
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.userId(id)
 				.totalCount(teamResponseDto.getTotalCount())
 				.passCount(teamResponseDto.getPassCount())
 				.status(teamResponseDto.getStatus())
@@ -125,6 +126,7 @@ public class JudgeService {
 
 		} else {
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
+				.userId(id)
 				.passCount(null)
 				.totalCount(null)
 				.build();
@@ -173,7 +175,7 @@ public class JudgeService {
 		testHistoryRepository.save(testHistory);
 	}
 
-	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request) {
+	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request, Long userId) {
 		Problem problem = problemRepository.findWithExamplesByProblemId(request.getProblemId())
 			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
 		JudgeResponse judgeResponse = submitToJudge(request, EXAMPLE_PREFIX, problem);
@@ -182,7 +184,7 @@ public class JudgeService {
 			throw new NullPointerException();
 
 		// request.problemId의 테스트케이스 1,2번 answer 정보가 필요함.
-		CodeExecutionResponseDto responseDto = CodeExecutionResponseDto.from(judgeResponse, problem);
+		CodeExecutionResponseDto responseDto = CodeExecutionResponseDto.from(judgeResponse, problem, userId);
 
 		judgeWebsocketService.sendExecutionResult(
 			responseDto,

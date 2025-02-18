@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.c203.altteulbe.aws.util.S3Util;
 import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.room.persistent.entity.Room;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
@@ -37,6 +38,13 @@ public class TeamInfo {
 	private List<TeamMember> members;
 
 	public static TeamInfo fromTeamRoom(TeamRoom room, int totalCount) {
+		Integer solvedTestcaseCount = room.getSolvedTestcaseCount();
+		if (solvedTestcaseCount != null){
+			solvedTestcaseCount /= totalCount;
+			solvedTestcaseCount *= 100;
+		} else {
+			solvedTestcaseCount = 0;
+		}
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult() != null ? room.getBattleResult().getRank() : 0)
@@ -45,7 +53,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.point(room.getRewardPoint())
-			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
+			.passRate(solvedTestcaseCount)
 			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
@@ -57,6 +65,13 @@ public class TeamInfo {
 
 	// TeamRoom 변환 메서드
 	public static TeamInfo fromSingleRoom(SingleRoom room, int totalCount) {
+		Integer solvedTestcaseCount = room.getSolvedTestcaseCount();
+		if (solvedTestcaseCount != null){
+			solvedTestcaseCount /= totalCount;
+			solvedTestcaseCount *= 100;
+		} else {
+			solvedTestcaseCount = 0;
+		}
 		return TeamInfo.builder()
 			.teamId(room.getId())
 			.gameResult(room.getBattleResult() != null ? room.getBattleResult().getRank() : 0)
@@ -65,7 +80,7 @@ public class TeamInfo {
 			.executeTime(room.getLastExecuteTime())
 			.executeMemory(room.getLastExecuteMemory())
 			.point(room.getRewardPoint())
-			.passRate(room.getSolvedTestcaseCount()/totalCount*100)
+			.passRate(solvedTestcaseCount)
 			.duration(getDuration(room))
 			.code(room.getCode())
 			.createdAt(room.getCreatedAt()) // 정렬용 필드
@@ -89,7 +104,7 @@ public class TeamInfo {
 			return TeamMember.builder()
 				.userId(userTeamRoom.getUser().getUserId())
 				.nickname(userTeamRoom.getUser().getNickname())
-				.profileImage(userTeamRoom.getUser().getProfileImg())
+				.profileImage(S3Util.getImgUrl(userTeamRoom.getUser().getProfileImg()))
 				.tierId(userTeamRoom.getUser().getTier().getId())
 				.build();
 		}
@@ -98,7 +113,7 @@ public class TeamInfo {
 			return TeamMember.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.profileImage(user.getProfileImg())
+				.profileImage(S3Util.getImgUrl(user.getProfileImg()))
 				.tierId(user.getTier().getId())
 				.build();
 		}

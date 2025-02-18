@@ -30,7 +30,7 @@ const IdeFooter = ({ code, language, setOutput, userRoomId }: IdeFooterProps) =>
         '/judge/execution',
         {
           gameId,
-          teamId: roomId,
+          teamId: userRoomId,
           problemId: problem.problemId,
           lang: serverLang,
           code,

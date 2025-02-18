@@ -1,31 +1,20 @@
 import MediumButton from '@components/Common/Button/MediumButton';
 import { useNavigate } from 'react-router-dom';
+import errorbg from '@assets/background/error_page.svg';
 
 const ErrorPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-primary-black flex items-center justify-center relative overflow-hidden">
-      {/* 좌측 상단 오렌지 링 */}
-      <div className="absolute -top-[10rem] -left-[10rem] w-96 h-96 border-[2rem] border-primary-orange rounded-full opacity-50"></div>
-
-      {/* 우측 상단 오렌지 링 */}
-      <div className="absolute top-[2rem] -right-[9rem] w-72 h-72 border-[2rem] border-primary-orange rounded-full opacity-50"></div>
-
-      {/* 점들 왼쪽 */}
-      <div className="absolute right-[65rem] top-[25rem] grid grid-cols-7 gap-4 opacity-50">
-        {[...Array(49)].map((_, index) => (
-          <div key={index} className="w-1 h-1 bg-primary-orange rounded-full"></div>
-        ))}
-      </div>
-
-      {/* 점들 오른쪽 */}
-      <div className="absolute right-[2rem] top-[33rem] grid grid-cols-7 gap-4 opacity-50">
-        {[...Array(49)].map((_, index) => (
-          <div key={index} className="w-1 h-1 bg-primary-orange rounded-full"></div>
-        ))}
-      </div>
-
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${errorbg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <div className="text-center">
         {/* 픽셀 스타일 404 */}
         <div className="text-[8rem] text-primary-white -mb-6">404</div>
@@ -57,6 +46,7 @@ const ErrorPage = () => {
         </div>
       </div>
     </div>
+    // </div>
   );
 };
 

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CodeSubmissionOpponentResponseDto {
+	private Long userId;
 	private String status;
 	private Integer passCount;
 	private Integer totalCount;
