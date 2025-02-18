@@ -5,7 +5,7 @@ import { badges } from "./BadgeFilter";
 
 // 랭킹 행 컴포넌트
 const RankingItem = ({ data, className }: { data: Ranking, className: string }) => {
-  const { userId, nickname, lang, ranking, point, tierId, rankChange } = data;
+  const { userId, nickname, lang, ranking, point, tierId, rankChange, rate } = data;
 
   const formatNumber = (num: number) => {
     return num ? num.toLocaleString() : '0';
@@ -57,6 +57,7 @@ const RankingItem = ({ data, className }: { data: Ranking, className: string }) 
       <div>{formatNumber(point)}</div>
       {/* 선호언어 */}
       <div>{getLanguageDisplay(lang)}</div>
+      <div>{rate}</div>
     </div>
   );
 };
