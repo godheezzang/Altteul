@@ -9,7 +9,8 @@
 
 ### ⚙ 기획 배경
 
-
+- 혼자 알고리즘 문제를 풀었을 때 느끼는 답답함을 누군가와 공유하고 싶다는 아이디어에서 착안
+- 단순히 코드만 공유할 수 있는 협업 툴이 아니라 함께 문제를 풀고 경쟁하며 성장할 수 있는 서비스로 구체화 
 
 
 
@@ -42,6 +43,8 @@ http://localhost:8080/swagger-ui/index.html#/
 https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 
 ### ⚙ 아키텍처
+
+![architecture](README_assets/architecture.png)
 
 
 
