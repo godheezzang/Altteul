@@ -89,7 +89,7 @@ public class JudgeService {
 		JudgeRequestDto judgeRequestDto = JudgeRequestDto.builder()
 			.src(request.getCode())
 			.language_config(langDto)
-			.max_cpu_time(1000L) // 기본 1초
+			.max_cpu_time(2000L) // 기본 1초
 			.max_memory(100 * 1024 * 1024L) // 기본 100MB
 			.test_case_id(problemFolderName)
 			.output(true)
