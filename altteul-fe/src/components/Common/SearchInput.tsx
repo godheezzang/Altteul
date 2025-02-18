@@ -8,6 +8,7 @@ type SearchInputProps = {
   onSearch: () => void;
   width?: string;
   height?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 const SearchInput = ({
@@ -17,6 +18,7 @@ const SearchInput = ({
   height,
   placeholder,
   onSearch,
+  onKeyDown,
 }: SearchInputProps) => {
   return (
     <div className="relative">
@@ -24,6 +26,7 @@ const SearchInput = ({
         type="text"
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         style={{ width, height }}
         placeholder={placeholder}
         className="pr-10 py-2 pl-4 border border-orange-500 rounded-md text-black"
