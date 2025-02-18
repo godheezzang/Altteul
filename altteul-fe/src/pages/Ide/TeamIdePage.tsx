@@ -11,11 +11,14 @@ import resize from '@assets/icon/resize.svg';
 import VoiceChat from '@components/Ide/VoiceChat';
 import { teamApi } from '@utils/Api/commonApi';
 import { OpenVidu } from 'openvidu-browser';
+import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
+import useModalStore from '@stores/modalStore';
+import { TeamInfo } from 'types/types';
 
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam, setIsFinish } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
@@ -30,6 +33,7 @@ const TeamIdePage = () => {
   const { userId, token } = useAuthStore();
   const [voiceToken, setVoiceToken] = useState(null);
   const userRoomId = myTeam.roomId;
+  const { openModal } = useModalStore();
 
   // const joinVoiceChat = async () => {
   //   if (!userRoomId) return;
@@ -81,14 +85,33 @@ const TeamIdePage = () => {
       setShowModal(true);
     });
 
-    // ✅ 코드 채점 결과 구독
+    // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
     });
 
-    // ✅ 상대 팀 채점 결과 구독
+    // 실시간 게임 현황 구독
+    subscribe(`/sub/game/${gameId}/submission/result`, data => {
+      console.log('📩 실시간 게임 현황 수신:', data);
+
+      const { myTeam, opponents } = data.data;
+
+      if (myTeam?.passRate === 100) {
+        setIsFinish('WIN');
+        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.SUCCESS });
+      }
+
+      opponents.forEach((opponent: TeamInfo) => {
+        if (opponent.passRate === 100) {
+          setIsFinish('LOSE');
+          openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.FAILURE });
+        }
+      });
+    });
+
+    // ✅ 상대 팀 코드 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
-      console.log('📩 상대 팀 채점 결과 수신:', data);
+      console.log('📩 상대 팀 코드 수신:', data);
       setOpponentCode(data.code);
     });
 
@@ -174,7 +197,13 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor roomId={String(gameId)} code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+          <CodeEditor
+            roomId={String(gameId)}
+            code={code}
+            setCode={setCode}
+            language={language}
+            setLanguage={setLanguage}
+          />
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter

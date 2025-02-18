@@ -8,14 +8,14 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
-import { User } from 'types/types';
+import { MemberInfo, TeamInfo, User } from 'types/types';
 import useModalStore from '@stores/modalStore';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, setUserRoomId, isFinish, setIsFinish } = useGameStore();
+  const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
   const { openModal } = useModalStore();
 
@@ -53,64 +53,53 @@ const SingleIdePage = () => {
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
-
-      const passedCount = data.data.passCount;
-      const totalCount = data.data.totalCount;
-      const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
-
-      setUserProgress(prev => ({
-        ...prev,
-        [userId]: progress,
-      }));
-
-      if (data.data.status === 'P') {
-        setCompleteUsers(prev => {
-          const updatedSet = new Set(prev);
-          updatedSet.add(Number(userId));
-          return updatedSet;
-        });
-      }
     });
 
-    users.forEach(user => {
-      const roomId = user.roomId;
-      if (roomId) {
-        subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, data => {
-          console.log(`${user.nickname}의 코드 채점 결과 수신`, data);
+    // 실시간 게임 현황 구독
+    subscribe(`/sub/game/${gameId}/submission/result`, data => {
+      console.log('📩 실시간 게임 현황 수신:', data);
 
-          const correctUserId = data.data.userId;
-          const passedCount = data.data.passCount;
-          const totalCount = data.data.totalCount;
-          const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+      const { myTeam, opponents } = data.data;
 
-          setUserProgress(prev => ({
-            ...prev,
-            [userId]: progress,
-          }));
+      // ✅ 내 팀 데이터 업데이트
+      if (myTeam?.members.some((member: MemberInfo) => member.userId === Number(userId))) {
+        const progress = myTeam.passRate ?? 0;
+        setUserProgress(prev => ({ ...prev, [userId]: progress }));
 
-          if (data.data.status === 'P') {
-            setCompleteUsers(prev => {
-              const updatedSet = new Set(prev);
-              updatedSet.add(Number(userId));
-              return updatedSet;
+        if (myTeam.passRate === 100) {
+          setCompleteUsers(prev => new Set([...prev, Number(userId)]));
+        }
+
+        if (myTeam.gameResult === 1) {
+          setIsFinish('WIN');
+          openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.SINGLE, result: RESULT_TYPES.SUCCESS });
+        }
+      }
+
+      // ✅ 상대 팀 데이터 업데이트
+      const updatedUserProgress = { ...userProgress };
+      const updatedCompleteUsers = new Set(completeUsers);
+
+      opponents.forEach((opponent: TeamInfo) => {
+        opponent.members.forEach(member => {
+          updatedUserProgress[member.userId] = opponent.passRate ?? 0;
+
+          if (opponent.passRate === 100) {
+            updatedCompleteUsers.add(member.userId);
+          }
+
+          if (opponent.gameResult === 1 && member.userId !== Number(userId)) {
+            setIsFinish('LOSE');
+            openModal(MODAL_TYPES.RESULT, {
+              type: GAME_TYPES.SINGLE,
+              result: RESULT_TYPES.FAILURE,
             });
-
-            if (correctUserId !== Number(userId)) {
-              openModal(MODAL_TYPES.RESULT, {
-                type: GAME_TYPES.SINGLE,
-                result: RESULT_TYPES.FAILURE,
-              });
-              setIsFinish(!isFinish);
-            } else {
-              openModal(MODAL_TYPES.RESULT, {
-                type: GAME_TYPES.SINGLE,
-                result: RESULT_TYPES.SUCCESS,
-              });
-              setIsFinish(true);
-            }
           }
         });
-      }
+      });
+
+      setUserProgress(updatedUserProgress);
+      setCompleteUsers(updatedCompleteUsers);
     });
 
     // 퇴장하기 구독
@@ -128,7 +117,7 @@ const SingleIdePage = () => {
     return () => {
       // 모든 구독 해제
     };
-  }, [gameId]);
+  }, [gameId, userProgress, completeUsers]);
 
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
