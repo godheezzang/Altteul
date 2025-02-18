@@ -7,15 +7,12 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.stereotype.Service;
 
 import com.c203.altteulbe.common.dto.BattleType;
-import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
-import com.c203.altteulbe.game.persistent.repository.problem.ProblemRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.web.dto.result.request.AIFeedbackRequestDto;
 import com.c203.altteulbe.game.web.dto.result.response.AIFeedbackResponse;
