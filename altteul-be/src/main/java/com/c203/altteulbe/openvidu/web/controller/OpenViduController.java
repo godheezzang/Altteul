@@ -22,7 +22,7 @@ import io.livekit.server.WebhookReceiver;
 import livekit.LivekitWebhook;
 
 @RestController
-@RequestMapping("/openvidu")
+@RequestMapping("/api")
 public class OpenViduController {
 
 	@Value("${livekit.api.key}")
@@ -31,7 +31,7 @@ public class OpenViduController {
 	@Value("${livekit.api.secret}")
 	private String LIVEKIT_API_SECRET;
 
-	@PostMapping(value = "/token")
+	@PostMapping(value = "/openvidu/token")
 	public ApiResponseEntity<?> createToken(@RequestBody Map<String, String> params) {
 		String roomName = params.get("roomName");
 		String participantName = params.get("participantName");
