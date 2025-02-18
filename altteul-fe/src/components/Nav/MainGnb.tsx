@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useAuthStore from '@stores/authStore';
 import useModalStore from '@stores/modalStore';
 import React from 'react';
@@ -8,13 +8,14 @@ import { useSocketStore } from '@stores/socketStore';
 const MainGnb = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams()
   const { token, logout } = useAuthStore();
   const { openModal } = useModalStore();
   const { disconnect } = useSocketStore();
   const { userId } = useAuthStore();
 
   const isSelectPage = location.pathname.startsWith('/match');
-  const transparentNavigation = ['/match/select', '/rank', '/users/:userId'].includes(
+  const transparentNavigation = ['/match/select', '/rank', `/users/${params.userId}`].includes(
     location.pathname
   );
 
