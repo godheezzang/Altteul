@@ -31,7 +31,7 @@ public class JudgeController {
 
 	@PostMapping("/judge/check")
 	public GetHeartbeatResponse handleHeartbeat(@RequestHeader("X-JUDGE-SERVER-TOKEN") String token, @RequestBody GetHeartbeatRequestDto request) {
-		log.info(token);
+		//log.info(token);
 		return GetHeartbeatResponse.builder()
 			.error(false)
 			.data(request)

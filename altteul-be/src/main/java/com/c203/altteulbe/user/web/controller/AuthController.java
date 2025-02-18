@@ -1,6 +1,7 @@
 package com.c203.altteulbe.user.web.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +15,6 @@ import com.c203.altteulbe.common.response.ApiResponseEntity;
 import com.c203.altteulbe.user.service.AuthService;
 import com.c203.altteulbe.user.web.dto.request.LoginRequestDto;
 import com.c203.altteulbe.user.web.dto.request.RegisterUserRequestDto;
-import com.c203.altteulbe.user.web.dto.request.ValidateIdRequestDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,8 +45,9 @@ public class AuthController {
 	}
 
 	@GetMapping("/api/nickname-check")
-	public ApiResponseEntity<Void> validateNickname(@RequestParam String nickname) {
-		authService.validateNickname(nickname);
+	public ApiResponseEntity<Void> validateNickname(@RequestParam String nickname,
+		@AuthenticationPrincipal Long userId) {
+		authService.validateNickname(nickname, userId);
 		return ApiResponse.success();
 	}
 
