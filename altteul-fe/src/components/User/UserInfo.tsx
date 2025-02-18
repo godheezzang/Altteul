@@ -58,7 +58,7 @@ const UserInfo = () => {
         <img
           src={userInfo.profileImg}
           alt="Profile"
-          className="w-24 h-24 rounded-full border-2 border-gray-03"
+          className="w-24 h-24 rounded-full border-2 border-gray-01"
         />
         {/* TODO: 유저 티어별로 이미지 설정해서 이미지 넣기 */}
         <div className="absolute -bottom-2 -right-2 rounded-full">
