@@ -15,7 +15,7 @@ import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
+  const { gameId, roomId, users, setUserRoomId, isFinish, setIsFinish } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
   const { openModal } = useModalStore();
 
@@ -100,6 +100,7 @@ const SingleIdePage = () => {
                 type: GAME_TYPES.SINGLE,
                 result: RESULT_TYPES.FAILURE,
               });
+              setIsFinish(!isFinish);
             } else {
               openModal(MODAL_TYPES.RESULT, {
                 type: GAME_TYPES.SINGLE,
@@ -169,7 +170,13 @@ const SingleIdePage = () => {
       </div>
 
       <div className="max-w-[65rem] flex-[46rem] border-r border-gray-04">
-        <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} roomId={String(userRoomId)} />
+        <CodeEditor
+          code={code}
+          setCode={setCode}
+          language={language}
+          setLanguage={setLanguage}
+          roomId={String(userRoomId)}
+        />
         <Terminal output={output} isTeam={false} />
         <div className="text-center">
           <IdeFooter
