@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TodayRankingListResponseDto {
+	private Long userId;
 	private String nickname;    // User.nickname
 	private Long tierId;        // User.Tier.tierId
 	private int ranking;        // TodayRanking.ranking
