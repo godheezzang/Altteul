@@ -15,7 +15,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
   const { setToken, setUserId } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
   const { connect } = useSocketStore();
-  const navigate = useNavigate();;
+  const navigate = useNavigate();
 
   const handleSignUpClick = () => {
     closeModal();
@@ -27,7 +27,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     if (!form.username.trim() || !form.password.trim()) {
@@ -57,6 +57,13 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
     window.location.href = 'http://localhost:8080/oauth2/authorization/github';
   };
 
+  //엔터 눌렀을 때 이벤트
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -72,6 +79,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           name="username"
           placeholder="아이디를 입력해 주세요"
           value={form.username}
+          onKeyDown={handleKeyPress}
           onChange={handleChange}
         />
 
@@ -81,6 +89,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
           placeholder="비밀번호를 입력해 주세요"
           value={form.password}
           onChange={handleChange}
+          onKeyDown={handleKeyPress}
           showPasswordToggle={true}
         />
         {error && <p className="text-primary-orange">{error}</p>}
