@@ -1,6 +1,6 @@
 import { api } from '@utils/Api/commonApi';
 
-export const createToken = async ({ roomId, userId }: { roomId: number; userId: number }) => {
+export const createToken = async (roomId: number, userId: number) => {
   try {
     const response = await api.post('openvidu/token', {
       roomName: roomId,
