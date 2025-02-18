@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useGameStore from '@stores/useGameStore';
 import { useSocketStore } from '@stores/socketStore';
-import CodeEditor from '@components/Ide/CodeEditor';
+import CodeEditor from '@components/Ide/TeamCodeEditor';
 import Terminal from '@components/Ide/Terminal';
 import IdeFooter from '@components/Ide/IdeFooter';
 import ProblemInfo from '@components/Ide/ProblemInfo';
@@ -31,36 +31,36 @@ const TeamIdePage = () => {
   const [voiceToken, setVoiceToken] = useState(null);
   const userRoomId = myTeam.roomId;
 
-  const joinVoiceChat = async () => {
-    if (!userRoomId) return;
+  // const joinVoiceChat = async () => {
+  //   if (!userRoomId) return;
 
-    try {
-      const response = await teamApi.post(
-        `/${userRoomId}/voice/join`,
-        {},
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  //   try {
+  //     const response = await teamApi.post(
+  //       `/${userRoomId}/voice/join`,
+  //       {},
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
 
-      const sessionToken = response.data.data.token;
-      setVoiceToken(sessionToken);
+  //     const sessionToken = response.data.data.token;
+  //     setVoiceToken(sessionToken);
 
-      console.log('음성 채팅 세션 참여 성공:', sessionToken);
-    } catch (error) {
-      console.error('음성 채팅 세션 참여 실패:', error);
-    }
-  };
+  //     console.log('음성 채팅 세션 참여 성공:', sessionToken);
+  //   } catch (error) {
+  //     console.error('음성 채팅 세션 참여 실패:', error);
+  //   }
+  // };
 
-  useEffect(() => {
-    if (userRoomId) {
-      setUserRoomId(userRoomId);
-      joinVoiceChat();
-    }
-  }, [userId, users, setUserRoomId]);
+  // useEffect(() => {
+  //   if (userRoomId) {
+  //     setUserRoomId(userRoomId);
+  //     joinVoiceChat();
+  //   }
+  // }, [userId, users, setUserRoomId]);
 
   useEffect(() => {
     if (!connected) return;
@@ -174,7 +174,7 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+          <CodeEditor roomId={String(gameId)} code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
@@ -195,6 +195,7 @@ const TeamIdePage = () => {
           <h2 className="text-center">상대 팀 코드</h2>
           <div>
             <CodeEditor
+              roomId={String(gameId)}
               code={opponentCode}
               setCode={() => {}}
               language={language}
