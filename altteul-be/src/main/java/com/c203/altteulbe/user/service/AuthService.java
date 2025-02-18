@@ -63,7 +63,7 @@ public class AuthService {
 			.tier(user.getTier())
 			.rankingPoint(user.getRankingPoint())
 			.rankingChange(0L)
-			.id(rankingRepository.count()+1)
+			.ranking((int) rankingRepository.count()+1)
 			.build();
 
 		user.hashPassword(passwordEncoder);
