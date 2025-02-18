@@ -11,6 +11,7 @@ type ModalProps = {
   titleColor?: string;
   onReset?: () => void;
   minWidth?: string;
+  minHeight?: string;
 };
 
 const Modal = ({
@@ -20,7 +21,8 @@ const Modal = ({
   children,
   minWidth = '28rem',
   width,
-  height = '34.5rem',
+  height,
+  minHeight = '34.5rem',
   className = '',
   titleColor = '',
   onReset,
@@ -40,7 +42,7 @@ const Modal = ({
       <div
         className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
         onClick={e => e.stopPropagation()}
-        style={{ minWidth }}
+        style={{ minWidth, minHeight }}
       >
         {title && (
           <h2 className={`text-xxl font-bold text-center mt-4 text-${titleColor}`}>{title}</h2>
