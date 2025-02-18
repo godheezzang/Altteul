@@ -43,6 +43,7 @@ public class SecurityConfig {
 	private final DefaultOAuth2UserService defaultOAuth2UserService;
 	private final JwtAuthenticationEntryPoint entryPoint;
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws
 		Exception {
@@ -64,6 +65,7 @@ public class SecurityConfig {
 					"http://localhost:80",
 					"http://localhost:443",
 					"http://localhost:5173",
+					"http://localhost:5080",
 					"http://frontend:80",
 					"http://frontend:443",
 					"http://frontend:5173",

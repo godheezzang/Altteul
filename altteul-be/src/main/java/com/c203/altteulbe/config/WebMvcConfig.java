@@ -26,6 +26,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				"http://localhost:80",
 				"http://localhost:443",
 				"http://localhost:5173",
+				"http://localhost:5080",
 				"http://frontend:80",
 				"http://frontend:443",
 				"http://frontend:5173",
