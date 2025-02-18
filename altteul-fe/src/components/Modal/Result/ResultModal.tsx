@@ -35,16 +35,16 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
           ? 'SUCCESS!'
           : 'WIN!'
         : type === GAME_TYPES.SINGLE
-          ? 'FAIL...'
-          : 'LOSE...',
+          ? 'FAIL'
+          : 'LOSE',
 
       subText: isSuccess
         ? type === GAME_TYPES.SINGLE
           ? '해결했습니다!'
           : '승리했습니다!'
         : type === GAME_TYPES.SINGLE
-          ? '해결하지 못했습니다'
-          : '패배했습니다',
+          ? '해결하지 못했습니다...'
+          : '패배했습니다...',
       pointText: isSuccess ? '100 포인트를 얻었습니다.' : null,
     };
   };
@@ -65,8 +65,8 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      width="26rem"
-      height="25rem"
+      // width="26rem"
+      // height="25rem"
       className={`bg-primary-black relative overflow-hidden border-2 border-${config.borderColor} ${config.shadowClass}`}
     >
       <div className="flex flex-col items-center justify-center h-full w-full">
@@ -77,27 +77,55 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
         </div>
 
         {/* 메인 텍스트 */}
-        <div className="mb-2 text-4xl font-bold text-white">{config.mainText}</div>
+        <div className="mb-1 mt-2 text-4xl font-semibold text-primary-white">{config.mainText}</div>
 
         {/* 서브 텍스트 */}
-        <div className="text-white text-xl">{config.subText}</div>
+        <div className="text-lg text-primary-white">{config.subText}</div>
 
         {/* 포인트 텍스트 */}
-        {config.pointText && <div className="text-white text-sm mb-1">{config.pointText}</div>}
+        {config.pointText && (
+          <div className="text-sm mb-1 text-primary-white">{config.pointText}</div>
+        )}
 
         {/* 안내 텍스트 */}
-        <div className="text-gray-02 text-sm mb-3">
-          계속하려면 Enter키나 다음 버튼을 눌러주세요.
-        </div>
+        {config.mainText === 'FAIL' ? (
+          ''
+        ) : (
+          <div className="text-gray-02 text-sm mb-3">
+            계속하려면 Enter키나 다음 버튼을 눌러주세요.
+          </div>
+        )}
 
+        {config.mainText === 'FAIL' ? (
+          <>
+            <div className="text-gray-02 text-center mb-3 text-md/5 mt-1">
+              <p>테스트 케이스 중 일부가 틀렸습니다.</p>
+              <p className="text-sm">계속해서 문제를 푸시겠어요?</p>
+              <p className="text-sm">끝까지 문제 풀이에 성공하면 100P를 얻을 수 있습니다.</p>
+            </div>
+            <div className="flex gap-2">
+              <SmallButton onClick={onClose} backgroundColor="gray-03" className="py-2 relative">
+                계속 문제 풀기
+              </SmallButton>
+              <SmallButton
+                onClick={handleContinue}
+                backgroundColor="gray-04"
+                className="py-2 relative"
+              >
+                끝내기
+              </SmallButton>
+            </div>
+          </>
+        ) : (
+          <SmallButton
+            onClick={handleContinue}
+            backgroundColor="primary-orange"
+            className="px-8 py-2 relative"
+          >
+            다음
+          </SmallButton>
+        )}
         {/* 다음 버튼 */}
-        <SmallButton
-          onClick={handleContinue}
-          backgroundColor="primary-orange"
-          className="px-8 py-2 relative"
-        >
-          다음
-        </SmallButton>
       </div>
     </Modal>
   );

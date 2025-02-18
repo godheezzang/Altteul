@@ -29,9 +29,6 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
     [users, completeUsers]
   );
 
-  console.log('gameUserList completeUsers:', completeUsers);
-  console.log('gameUserList completedUsers:', completedUsers);
-
   return (
     <div className="min-w-[8rem] w-full">
       <div className="p-4 border-b border-gray-04">
@@ -39,8 +36,6 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
         {inProgressUsers.length > 0 ? (
           <ul>
             {inProgressUsers.map(user => {
-              console.log('userProgress:', userProgress);
-
               const progress = userProgress[user.userId] || 0; // ✅ JSX 밖에서 변수 선언
               return (
                 <li key={user.userId} className="flex items-center space-x-2 mb-1 py-3 px-4 pl-2">

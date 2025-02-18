@@ -15,7 +15,7 @@ import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, setUserRoomId } = useGameStore();
+  const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
   const { openModal } = useModalStore();
 
@@ -69,30 +69,45 @@ const SingleIdePage = () => {
           updatedSet.add(Number(userId));
           return updatedSet;
         });
-
-        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.SINGLE, result: RESULT_TYPES.SUCCESS });
       }
     });
 
-    // 상대 팀 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
-      console.log('📩 상대 팀 코드 채점 결과 수신:', data);
+    users.forEach(user => {
+      const roomId = user.roomId;
+      if (roomId) {
+        subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, data => {
+          console.log(`${user.nickname}의 코드 채점 결과 수신`, data);
 
-      const userId = data.data.userId;
-      const passedCount = data.data.passCount;
-      const totalCount = data.data.totalCount;
-      const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+          const correctUserId = data.data.userId;
+          const passedCount = data.data.passCount;
+          const totalCount = data.data.totalCount;
+          const progress = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
 
-      setUserProgress(prev => ({
-        ...prev,
-        [userId]: progress,
-      }));
+          setUserProgress(prev => ({
+            ...prev,
+            [userId]: progress,
+          }));
 
-      if (data.data.status === 'P') {
-        setCompleteUsers(prev => {
-          const updatedSet = new Set(prev);
-          updatedSet.add(Number(userId));
-          return updatedSet;
+          if (data.data.status === 'P') {
+            setCompleteUsers(prev => {
+              const updatedSet = new Set(prev);
+              updatedSet.add(Number(userId));
+              return updatedSet;
+            });
+
+            if (correctUserId !== Number(userId)) {
+              openModal(MODAL_TYPES.RESULT, {
+                type: GAME_TYPES.SINGLE,
+                result: RESULT_TYPES.FAILURE,
+              });
+            } else {
+              openModal(MODAL_TYPES.RESULT, {
+                type: GAME_TYPES.SINGLE,
+                result: RESULT_TYPES.SUCCESS,
+              });
+              setIsFinish(true);
+            }
+          }
         });
       }
     });
