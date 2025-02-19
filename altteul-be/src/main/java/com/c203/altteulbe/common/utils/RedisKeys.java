@@ -23,12 +23,6 @@ public class RedisKeys {
 	// 개인전 대기 중인 방 목록
 	public static final String SINGLE_WAITING_ROOMS = "room:single:waiting_rooms";
 
-	// 음성 채팅 세션
-	public static final String VOICE_SESSION = "voice:session";
-
-	// 팀 보이스 참가자
-	public static final String VOICE_PARTICIPANTS = "voice:participants";
-
 	public static final String ROOM_DB_ID = "room:db_id";
 
 	public static final String ROOM_REDIS_ID = "room:redis_id";
@@ -47,16 +41,6 @@ public class RedisKeys {
 
 	public static String getRoomDbId(Long roomId) {
 		return ROOM_DB_ID + ":" + roomId;
-	}
-
-	// 팀 보이스 참가자 키
-	public static String getVoiceParticipantsKey(Long roomUUID) {
-		return VOICE_PARTICIPANTS + ":" + roomUUID;
-	}
-
-	// 음성 채팅 세선 키
-	public static String getVoiceSessionKey(Long roomUUID) {
-		return VOICE_SESSION + ":" + roomUUID;
 	}
 
 	// 친구 요청 키

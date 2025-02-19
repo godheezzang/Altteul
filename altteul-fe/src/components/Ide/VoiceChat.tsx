@@ -1,142 +1,177 @@
 import UserProfileImg from '@components/Common/UserProfileImg';
-import useAuthStore from '@stores/authStore';
-import { useSocketStore } from '@stores/socketStore';
+import { useEffect, useState } from 'react';
+
+import {
+  createLocalAudioTrack,
+  LocalAudioTrack,
+  RemoteParticipant,
+  RemoteTrack,
+  RemoteTrackPublication,
+  Room,
+  RoomEvent,
+} from 'livekit-client';
 import useGameStore from '@stores/useGameStore';
-import { OpenVidu, Publisher, Session, Subscriber } from 'openvidu-browser';
-import { useEffect, useRef, useState } from 'react';
-import { User } from 'types/types';
-import { JL } from 'jsnlog';
+import useAuthStore from '@stores/authStore';
+import VideoComponent from '@components/Ide/VideoComponent';
+import AudioComponent from '@components/Ide/AudioComponent';
+import { createToken } from '@utils/openVidu';
 
-JL.setOptions({ enabled: false });
+type TrackInfo = {
+  trackPublication: RemoteTrackPublication;
+  participantIdentity: string;
+};
 
-interface VoiceChatProps {
-  roomId: number;
-  voiceToken: string;
+let APPLICATION_SERVER_URL = 'https://i12c203.p.ssafy.io:8443/';
+let LIVEKIT_URL = 'wss://i12c203.p.ssafy.io:8443/';
+configureUrls();
+
+function configureUrls() {
+  if (!APPLICATION_SERVER_URL) {
+    if (window.location.hostname === 'localhost') {
+      APPLICATION_SERVER_URL = 'http://localhost:8443/';
+    } else {
+      APPLICATION_SERVER_URL = 'https://' + window.location.hostname + ':8443/';
+    }
+  }
+
+  if (!LIVEKIT_URL) {
+    if (window.location.hostname === 'localhost') {
+      LIVEKIT_URL = 'ws://localhost:8443/';
+    } else {
+      LIVEKIT_URL = 'wss://' + window.location.hostname + ':8443/';
+    }
+  }
 }
 
-const VoiceChat = ({ roomId, voiceToken }: VoiceChatProps) => {
-  const { gameId, myTeam, opponent } = useGameStore();
-  const { userId, token } = useAuthStore();
-  const { subscribe, sendMessage } = useSocketStore();
+const VoiceChat = () => {
+  const { userRoomId, myTeam } = useGameStore();
+  const { userId } = useAuthStore();
+  const [room, setRoom] = useState<Room | undefined>(undefined);
+  const [localTrack, setLocalTrack] = useState<LocalAudioTrack | undefined>(undefined);
+  const [remoteTracks, setRemoteTracks] = useState<TrackInfo[]>([]);
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [publisher, setPublisher] = useState<Publisher | null>(null);
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [userMicStatus, setUserMicStatus] = useState<{ [key: string]: boolean }>({});
-
-  const audioRefs = useRef<{ [key: string]: HTMLAudioElement | null }>({});
-
-  // const initializeSession = async () => {
-  //   if (!voiceToken) return;
-
-  //   const OV = new OpenVidu();
-  //   const newSession = OV.initSession();
-
-  //   newSession.on('streamCreated', event => handleStreamCreated(newSession, event));
-  //   newSession.on('streamDestroyed', handleStreamDestroyed);
-
-  //   try {
-  //     await newSession.connect(voiceToken, { clientData: userId });
-
-  //     const newPublisher = OV.initPublisher(undefined, {
-  //       audioSource: undefined,
-  //       videoSource: false,
-  //       publishAudio: true,
-  //       resolution: '640x480',
-  //       frameRate: 30,
-  //       insertMode: 'APPEND',
-  //       mirror: false,
-  //     });
-
-  //     newSession.publish(newPublisher);
-  //     setPublisher(newPublisher);
-  //     setSession(newSession);
-  //   } catch (error) {
-  //     console.error('오디오 세션 연결 실패:', error);
-  //   }
-  // };
-
-  // const handleStreamCreated = (newSession: Session, event: any) => {
-  //   const subscriber = newSession.subscribe(event.stream, undefined);
-  //   setSubscribers(prev => [...prev, subscriber]);
-
-  //   subscriber.on('streamPlaying', () => {
-  //     const userId = event.stream.connection.data;
-  //     if (!audioRefs.current[userId]) {
-  //       const audioElement = new Audio();
-  //       audioElement.srcObject = subscriber.stream.getMediaStream();
-  //       audioElement.autoplay = true;
-  //       audioRefs.current[userId] = audioElement;
-  //     }
-  //   });
-  // };
-
-  // const handleStreamDestroyed = (event: any) => {
-  //   setSubscribers(prev => prev.filter(sub => sub !== event.stream.streamManager));
-  // };
-
-  // useEffect(() => {
-  //   initializeSession();
-
-  //   // JSNLog 관련 에러 무시
-  //   window.onerror = () => false;
-  //   window.onunhandledrejection = () => false;
-
-  //   return () => {
-  //     if (session) {
-  //       session.disconnect();
-  //     }
-  //     setSession(null);
-  //     setSubscribers([]);
-  //     setPublisher(null);
-  //   };
-  // }, [voiceToken]);
+  const [participantName, setParticipantName] = useState(
+    () => `${userId}-${Math.floor(Math.random() * 100)}`
+  );
+  const [roomName, setRoomName] = useState('Test Room');
 
   useEffect(() => {
-    subscribe(`/sub/team/${roomId}/voice/status`, data => {
-      if (data.type === 'JOIN') {
-        console.log('음성 채널 참가 구독:', data.data);
-
-        setUsers(prev => [...prev, data.data]);
-      }
-
-      if (data.type === 'MIC_STATUS') {
-        console.log('마이크 상태 구독:', data.data);
-
-        setUserMicStatus(prev => ({
-          ...prev,
-          [data.data.userId]: data.data.status,
-        }));
-      }
-    });
-
-    return () => {};
-  }, [roomId]);
-
-  const toggleMic = (userId: string) => {
-    const newStatus = !userMicStatus[userId];
-    setUserMicStatus(prev => ({
-      ...prev,
-      [userId]: newStatus,
-    }));
-
-    if (publisher) {
-      publisher.publishAudio(newStatus);
+    if (userRoomId && userId) {
+      joinRoom();
     }
+  }, [userRoomId, userId]);
 
-    sendMessage(`/pub/team/${roomId}/voice/mic-status`, {
-      userId,
-      isMuted: !newStatus,
-    });
-  };
+  async function joinRoom() {
+    try {
+      // Initialize a new Room object
+      const room = new Room();
+      setRoom(room);
+
+      // Specify the actions when events take place in the room
+      // On every new Track received...
+      room.on(
+        RoomEvent.TrackSubscribed,
+        (
+          _track: RemoteTrack,
+          publication: RemoteTrackPublication,
+          participant: RemoteParticipant
+        ) => {
+          if (myTeam.users.some(user => String(user.userId) === participant.identity)) {
+            setRemoteTracks(prev => [
+              ...prev,
+              { trackPublication: publication, participantIdentity: participant.identity },
+            ]);
+
+            console.log('remoteTracks:', remoteTracks);
+          }
+        }
+      );
+
+      // On every Track destroyed...
+      room.on(
+        RoomEvent.TrackUnsubscribed,
+        (_track: RemoteTrack, publication: RemoteTrackPublication) => {
+          setRemoteTracks(prev =>
+            prev.filter(track => track.trackPublication.trackSid !== publication.trackSid)
+          );
+        }
+      );
+
+      // Get a token from your application server with the room name and participant name
+      const token = await createToken(userRoomId, userId);
+      // console.log('token:', token);
+
+      // Connect to the room with the LiveKit URL and the token
+      await room.connect(LIVEKIT_URL, token);
+
+      // Publish your camera and microphone
+
+      const audioTrack = await createLocalAudioTrack();
+      await room.localParticipant.publishTrack(audioTrack);
+      // await room.localParticipant.enableCameraAndMicrophone();
+      // setLocalTrack(room.localParticipant.videoTrackPublications.values().next().value.videoTrack);
+      setLocalTrack(audioTrack);
+    } catch (error) {
+      console.log('There was an error connecting to the room:', (error as Error).message);
+      await leaveRoom();
+    }
+  }
+
+  async function leaveRoom() {
+    // Leave the room by calling 'disconnect' method over the Room object
+    await room?.disconnect();
+
+    // Reset the state
+    setRoom(undefined);
+    setLocalTrack(undefined);
+    setRemoteTracks([]);
+  }
+
+  console.log('remoteTracks:', remoteTracks);
+  console.log('localTrack:', localTrack);
+
+  /**
+   * --------------------------------------------
+   * GETTING A TOKEN FROM YOUR APPLICATION SERVER
+   * --------------------------------------------
+   * The method below request the creation of a token to
+   * your application server. This prevents the need to expose
+   * your LiveKit API key and secret to the client side.
+   *
+   * In this sample code, there is no user control at all. Anybody could
+   * access your application server endpoints. In a real production
+   * environment, your application server must identify the user to allow
+   * access to the endpoints.
+   */
+
+  return (
+    <div id="room">
+      <h2>{roomName}</h2>
+      <button onClick={leaveRoom}>Leave Room</button>
+      <div id="layout-container">
+        {/* 🔥 로컬 오디오 트랙만 표시 */}
+        {localTrack && <AudioComponent track={localTrack} />}
+
+        {/* 🔥 원격 오디오 트랙만 표시 */}
+        {remoteTracks.map(remoteTrack => (
+          <AudioComponent
+            key={remoteTrack.trackPublication.trackSid}
+            participantIdentity={remoteTrack.participantIdentity}
+            track={remoteTrack.trackPublication.audioTrack!}
+            handleMuted={remoteTrack.trackPublication.handleMuted}
+            handleUnmuted={remoteTrack.trackPublication.handleUnmuted}
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex gap-2 border-t border-gray-04 py-6 px-4">
       <div className="grow">
         <p className="text-gray-02 font-semibold text-sm mb-2">우리 팀</p>
         <div className="flex gap-2">
-          {myTeam.users.map(user => {
+          {/* {myTeam.users.map(user => {
             const isMicOn = userMicStatus[user.userId] !== false; // false는 마이크 꺼짐 상태
             return (
               <div key={user.userId} className="user">
@@ -150,13 +185,13 @@ const VoiceChat = ({ roomId, voiceToken }: VoiceChatProps) => {
                 </button>
               </div>
             );
-          })}
+          })} */}
         </div>
       </div>
       <div className="grow">
         <p className="text-gray-02 font-semibold text-sm mb-2">상대 팀</p>
         <div className="flex gap-2">
-          {opponent.users.map(user => {
+          {/* {opponent.users.map(user => {
             return (
               <div key={user.userId} className="user">
                 <UserProfileImg
@@ -167,7 +202,7 @@ const VoiceChat = ({ roomId, voiceToken }: VoiceChatProps) => {
                 <span>{user.nickname}</span>
               </div>
             );
-          })}
+          })} */}
         </div>
       </div>
     </div>

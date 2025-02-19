@@ -5,6 +5,7 @@ export const MODAL_TYPES = {
   COMMON: 'game-common',
   SIGNUP: 'signup',
   LOGIN: 'login',
+  EDIT: 'edit-profile',
   MAIN: 'main',
   FRIEND: 'friend',
   CHAT: 'chat',
@@ -34,4 +35,6 @@ export interface ModalInfo {
   type?: GameType;
   result?: ResultType;
   modalType?: CommonModalType;
+  nickname?: string;
+  profileImg?: string;
 }

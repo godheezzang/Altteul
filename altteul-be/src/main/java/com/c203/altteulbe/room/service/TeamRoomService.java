@@ -33,7 +33,6 @@ import com.c203.altteulbe.game.service.exception.NotEnoughUserException;
 import com.c203.altteulbe.game.service.exception.ProblemNotFoundException;
 import com.c203.altteulbe.game.web.dto.response.GameStartForProblemDto;
 import com.c203.altteulbe.game.web.dto.response.GameStartForTestcaseDto;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.entity.UserTeamRoom;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
@@ -88,7 +87,6 @@ public class TeamRoomService {
 	private final GameRepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
-	private final VoiceChatService voiceChatService;
 
 	/**
 	 * 팀전 대기방 입장 처리
@@ -334,10 +332,6 @@ public class TeamRoomService {
 			return;
 		}
 
-		// 게임 시작 시 음성 채팅 세션 생성
-		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
-		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
-
 		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
 		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
 		Problem problemEntity = problemRepository.findById(Long.valueOf(problemId))
@@ -523,7 +517,7 @@ public class TeamRoomService {
 
 		// 초대 받은 유저에게 초대 관련 정보 전송
 		TeamRoomInviteResponseDto responseDto = TeamRoomInviteResponseDto.create(roomId,
-																				 inviter.getNickname());
+			inviter.getNickname());
 
 		roomWebSocketService.sendWebSocketMessage("/sub/invite/" + friendId, "INVITE_REQUEST_RECEIVED", responseDto);
 	}

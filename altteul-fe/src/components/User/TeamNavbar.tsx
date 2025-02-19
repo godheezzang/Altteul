@@ -38,7 +38,7 @@ const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps
 				) : (
 					<div className="flex gap-4">
 						<div className="flex-1">
-							<p className="text-center mb-4 text-sm">우리팀 코드</p>
+						<p className="text-center mb-1 text-sm text-primary-orange">우리팀이 제출한 코드</p>
 							{teamCodeInfo.code ? (
 								<pre className=" bg-gray-05 p-4 text-sm rounded-md overflow-auto min-h-[20rem]">{teamCodeInfo.code}</pre>
 							) : (
@@ -63,7 +63,7 @@ const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps
 							</div>
 						</div>
 						<div className="flex-1">
-							<p className="text-center mb-4 text-sm">상대팀 코드</p>
+							<p className="text-center mb-1 text-sm text-primary-orange">상대팀이 제출한 코드</p>
 							{opponentCodeInfo.code ? (
 								<pre className=" bg-gray-05 p-4 text-sm rounded-md overflow-auto min-h-[20rem]">{opponentCodeInfo.code}</pre>
 							) : (

@@ -104,6 +104,15 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
       setIsUsernameVerified(false);
       setIsUsernameTaken(false);
     }
+    
+    // password나 confirmPassword가 변경될 때 confirmPassword 에러 초기화
+    if (name === 'password' || name === 'confirmPassword') {
+      setErrors(prev => ({
+        ...prev,
+        confirmPassword: '',
+      }));
+    }
+    
     // 비밀번호 실시간 유효성 검사
     if (name === 'password') {
       let passwordError = '';
@@ -131,6 +140,8 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       setForm(prev => ({ ...prev, profileImg: e.target.files![0] }));
+    } else if (e.target.name === 'profileImg' && e.target.value === null) {
+      setForm(prev => ({ ...prev, profileImg: null }));
     }
   };
 
@@ -181,7 +192,6 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   };
 
   // 닉네임 중복확인
-
   const handleCheckNickname = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -230,46 +240,55 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
   // 폼 유효성 검사
   const validateForm = () => {
     const validationResult = validateSignUpForm(form);
+    const newErrors = { ...errors };
+    let isValid = true;
 
     // 순차적으로 에러 체크
     if (validationResult.errors.username) {
-      setErrors({ ...errors, username: validationResult.errors.username });
-      return false;
-    }
-    if (!isUsernameVerified) {
+      newErrors.username = validationResult.errors.username;
+      isValid = false;
+    } else if (!isUsernameVerified) {
       setApiError('아이디 중복확인이 필요합니다.');
-      return false;
-    }
-    if (!isNicknameVerified) {
-      setApiError('닉네임 중복확인이 필요합니다.');
       return false;
     }
 
     if (validationResult.errors.password) {
-      setErrors({ ...errors, password: validationResult.errors.password });
-      return false;
+      newErrors.password = validationResult.errors.password;
+      isValid = false;
     }
+
     if (form.password !== form.confirmPassword) {
-      setErrors(prev => ({
-        ...prev,
-        confirmPassword: '비밀번호가 일치하지 않습니다.',
-      }));
-      return false;
+      newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
+      isValid = false;
     }
+
     if (validationResult.errors.nickname) {
-      setErrors({ ...errors, nickname: validationResult.errors.nickname });
+      newErrors.nickname = validationResult.errors.nickname;
+      isValid = false;
+    } else if (!isNicknameVerified) {
+      setApiError('닉네임 중복확인이 필요합니다.');
       return false;
     }
 
-    return true;
+    setErrors(newErrors);
+    return isValid;
   };
 
-  // 비밀번호 일치여부 확인
-  const checkPasswordMatch = () => {
+  // 비밀번호 일치여부 확인 및 메시지 표시 여부 결정
+  const shouldShowPasswordMatchMessage = () => {
+    return (
+      form.password && 
+      form.confirmPassword && 
+      !errors.password && 
+      !errors.confirmPassword
+    );
+  };
+
+  const getPasswordMatchMessage = () => {
     if (form.password && form.confirmPassword) {
       if (form.password !== form.confirmPassword) {
         return '비밀번호가 일치하지 않습니다.';
-      }
+      } 
       if (!errors.password) {
         return '비밀번호가 일치합니다.';
       }
@@ -356,9 +375,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           buttonText={isCheckingUsername ? '확인중...' : '중복확인'}
           onButtonClick={handleCheckUsername}
         />
-        {errors.username && <p className="text-gray-03 font-semibold text-sm">{errors.username}</p>}
+        {errors.username && <p className="text-gray-03 font-semibold text-sm -my-3 ml-1">{errors.username}</p>}
         {isUsernameVerified && !isUsernameTaken && !errors.username && (
-          <p className="text-primary-orange font-semibold text-sm">사용 가능한 아이디입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm -my-3 ml-1">사용 가능한 아이디입니다.</p>
         )}
 
         <Input
@@ -369,7 +388,7 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           value={form.password}
           showPasswordToggle={true}
         />
-        {errors.password && <p className="text-primary-orange text-sm">{errors.password}</p>}
+        {errors.password && <p className="text-primary-orange text-sm -my-3 ml-1">{errors.password}</p>}
 
         <Input
           name="confirmPassword"
@@ -379,18 +398,18 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           value={form.confirmPassword}
           showPasswordToggle={true}
         />
-        {errors.confirmPassword && (
-          <p className="text-primary-orange text-sm">{errors.confirmPassword}</p>
+        {errors.confirmPassword && !shouldShowPasswordMatchMessage() && (
+          <p className="text-primary-orange text-sm -my-2 ml-1 font-semibold">{errors.confirmPassword}</p>
         )}
-        {!errors.password && checkPasswordMatch() && (
+        {shouldShowPasswordMatchMessage() && (
           <p
             className={`text-sm ${
               form.password === form.confirmPassword
-                ? 'text-primary-orange font-semibold'
-                : 'text-gray-03 font-semibold'
+                ? 'text-primary-orange font-semibold -my-3 ml-1'
+                : 'text-gray-03 font-semibold -my-3 ml-1'
             }`}
           >
-            {checkPasswordMatch()}
+            {getPasswordMatchMessage()}
           </p>
         )}
 
@@ -403,9 +422,9 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           buttonText={isCheckingNickname ? '확인중...' : '중복확인'}
           onButtonClick={handleCheckNickname}
         />
-        {errors.nickname && <p className="text-gray-03 font-semibold text-sm">{errors.nickname}</p>}
+        {errors.nickname && <p className="text-gray-03 font-semibold text-sm -my-3 ml-1">{errors.nickname}</p>}
         {isNicknameVerified && !isNicknameTaken && !errors.nickname && (
-          <p className="text-primary-orange font-semibold text-sm">사용 가능한 닉네임입니다.</p>
+          <p className="text-primary-orange font-semibold text-sm -my-3 ml-1">사용 가능한 닉네임입니다.</p>
         )}
 
         <SignUpDropdown
@@ -414,11 +433,11 @@ const SignUpModal = ({ isOpen, onClose }: SignUpProps) => {
           onChange={handleSelectChange}
           className="bg-primary-white border rounded-xl"
         />
-        {errors.mainLang && <p className="text-primary-orange text-sm">{errors.mainLang}</p>}
+        {errors.mainLang && <p className="text-primary-orange text-sm -my-3 ml-1">{errors.mainLang}</p>}
 
         <ProfileUpload onChange={handleFileChange} currentImage={form.profileImg} />
 
-        {apiError && <p className="text-primary-orange text-sm">{apiError}</p>}
+        {apiError && <p className="text-primary-orange text-sm -my-3 ml-1">{apiError}</p>}
 
         <Button type="submit" className="h-[3rem]">
           {isSubmitting ? '처리중...' : '가입하기'}

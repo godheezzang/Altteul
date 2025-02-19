@@ -3,10 +3,7 @@ package com.c203.altteulbe.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.c203.altteulbe.openvidu.interceptor.VoiceChatInterceptor;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 @EnableAspectJAutoProxy
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-
-	private final VoiceChatInterceptor voiceChatInterceptor;
 
 	private static final long MAX_AGE_SECS = 3600;
 
@@ -54,11 +49,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			.exposedHeaders("Authorization", "userid")
 			.allowCredentials(true)
 			.maxAge(MAX_AGE_SECS);
-	}
-
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(voiceChatInterceptor)
-			.addPathPatterns("/**");
 	}
 }

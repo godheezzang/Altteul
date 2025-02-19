@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import arrowIcon from '@assets/icon/friend/arrow.svg';
 
 type DropdownProps = {
@@ -13,7 +13,7 @@ type DropdownProps = {
   fontSize?: string;
 };
 
-const Dropdown = ({ options, value, onChange, width = '', height, className, optionCustomName, borderColor, fontSize }: DropdownProps) => {
+const Dropdown = ({ options, value, onChange, width = '', className, optionCustomName, borderColor, fontSize }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = options.find(opt => opt.value === value);
 

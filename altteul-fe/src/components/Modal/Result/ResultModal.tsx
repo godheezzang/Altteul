@@ -67,7 +67,7 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
       onClose={onClose}
       // width="26rem"
       // height="25rem"
-      className={`bg-primary-black relative overflow-hidden border-2 border-${config.borderColor} ${config.shadowClass}`}
+      className={`bg-primary-black relative overflow-hidden border-2 border-${config.borderColor} ${config.shadowClass} z-999`}
     >
       <div className="flex flex-col items-center justify-center h-full w-full">
         {/* 이미지 */}

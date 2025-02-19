@@ -24,7 +24,6 @@ import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
 import com.c203.altteulbe.game.web.dto.leave.response.SingleGameLeaveResponseDto;
 import com.c203.altteulbe.game.web.dto.leave.response.TeamGameLeaveResponseDto;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -52,7 +51,6 @@ public class GameLeaveService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final RoomWebSocketService roomWebSocketService;
-	private final VoiceChatService voiceChatService;
 
 	private static final String TEAM_LEFT_STATUS = "TEAM_LEFT";
 
@@ -237,9 +235,6 @@ public class GameLeaveService {
 
 		removeUserRedisData(user, roomUsersKey, BattleType.T);
 
-		// 음성 채팅 연결 종료
-		voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
-
 		// 남은 유저 정보 조회 및 팀별 그룹화
 		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
 			user.getUserId());
@@ -291,9 +286,6 @@ public class GameLeaveService {
 			handleInProgressTeamAllLeft(game, roomId, matchId, remainingUsersByTeam);
 		}
 
-		// voice session 종료
-		voiceChatService.terminateTeamVoiceSession(Long.parseLong(redisRoomId));
-		voiceChatService.terminateTeamVoiceSession(Long.parseLong(opposingRoomId));
 	}
 
 	private void handleInProgressTeamAllLeft(Game game, Long roomId, String matchId,

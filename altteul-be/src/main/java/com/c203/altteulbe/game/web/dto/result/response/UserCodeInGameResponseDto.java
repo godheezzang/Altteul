@@ -1,4 +1,4 @@
-package com.c203.altteulbe.openvidu.web.dto.reqeust;
+package com.c203.altteulbe.game.web.dto.result.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MicStatusUpdateRequestDto {
-	private Boolean isMuted;
+public class UserCodeInGameResponseDto {
+	private String code;
+	private String nickname;
 }
