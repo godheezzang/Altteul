@@ -1,16 +1,11 @@
 package com.c203.altteulbe.game.web.controller;
 
+import com.c203.altteulbe.common.dto.BattleType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.c203.altteulbe.common.response.ApiResponse;
 import com.c203.altteulbe.common.response.ApiResponseEntity;
@@ -71,8 +66,8 @@ public class GameController {
 
 	@GetMapping("game/code/{roomId}")
 	public ApiResponseEntity<ResponseBody.Success<OpponentCodeResponseDto>> getOpponentCode(
-		@PathVariable(value = "roomId") Long roomId, OpponentCodeRequestDto request) {
-		OpponentCodeResponseDto response = gameResultService.getOpponentCode(roomId, request);
+		@PathVariable(value = "roomId") Long roomId, @RequestParam BattleType type) {
+		OpponentCodeResponseDto response = gameResultService.getOpponentCode(roomId, type);
 		return ApiResponse.success(response, HttpStatus.OK);
 	}
 }
