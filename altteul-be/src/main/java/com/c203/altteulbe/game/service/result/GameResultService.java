@@ -68,9 +68,9 @@ public class GameResultService {
 	}
 
 	// 배틀 결과에서 상대팀이 제출한 코드 보기
-	public OpponentCodeResponseDto getOpponentCode(Long roomId, OpponentCodeRequestDto request) {
+	public OpponentCodeResponseDto getOpponentCode(Long roomId, BattleType type) {
 		Room room;
-		if (request.getType() == BattleType.S) {
+		if (type == BattleType.S) {
 			room = singleRoomRepository.findById(roomId).orElseThrow(RoomNotFoundException::new);
 			return getOpponentCodeResponseDto(roomId, room);
 		} else {

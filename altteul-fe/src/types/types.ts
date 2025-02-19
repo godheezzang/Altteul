@@ -33,7 +33,7 @@ export interface GameState {
   opponent: MatchData;
   problem: Problem | null;
   testcases: TestCase[];
-  isFinish?: boolean;
+  isFinish?: 'WIN' | 'LOSE' | 'PENDING';
 
   setGameInfo: (gameId: number, roomId: number) => void;
   setGameId: (gameId: number) => void;
@@ -45,7 +45,7 @@ export interface GameState {
   setOpponent: (data: MatchData) => void;
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
-  setIsFinish?: (isFinish: boolean) => void;
+  setIsFinish?: (isFinish: 'WIN' | 'LOSE' | 'PENDING') => void;
 }
 
 export interface MatchState {
@@ -168,7 +168,7 @@ export interface Item {
 }
 
 export interface TeamInfo {
-  gameResult: string;
+  gameResult: string | number;
   lang: string;
   totalHeadCount: number;
   executeTime: number | null;
@@ -178,6 +178,7 @@ export interface TeamInfo {
   passRate?: number;
   duration: string | null;
   code: string | null;
+  createdAt?: string;
   members: MemberInfo[];
 }
 
