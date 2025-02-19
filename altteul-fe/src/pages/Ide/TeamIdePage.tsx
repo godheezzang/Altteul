@@ -15,9 +15,8 @@ import { OpenVidu } from 'openvidu-browser';
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam, opponent  } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
-
   const [sideProblem, setSideProblem] = useState(null);
   const [code, setCode] = useState('');
   const [opponentCode, setOpponentCode] = useState(''); // 상대 팀 코드
@@ -164,7 +163,7 @@ const TeamIdePage = () => {
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
       <div className="min-w-[23rem] max-w-[23rem] border-gray-04">
         <ProblemInfo />
-        <VoiceChat roomId={userRoomId} voiceToken={voiceToken} />
+        {/* <VoiceChat roomId={userRoomId} voiceToken={voiceToken} /> */}
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
@@ -174,7 +173,14 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor roomId={String(gameId)} code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+          <CodeEditor 
+            roomId={String(userRoomId)} 
+            code={code} 
+            setCode={setCode} 
+            language={language} 
+            setLanguage={setLanguage} 
+            myRoomId={String(userRoomId)}
+          />
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
@@ -193,13 +199,14 @@ const TeamIdePage = () => {
         </div>
         <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <div>
+          <div className="blur-sm">
             <CodeEditor
-              roomId={String(gameId)}
+              roomId={String(opponent.roomId)}
               code={opponentCode}
               setCode={() => {}}
               language={language}
               readOnly={true}
+              myRoomId={String(userRoomId)}
             />
           </div>
         </div>
@@ -209,7 +216,7 @@ const TeamIdePage = () => {
       {showModal && sideProblem && (
         <SideProblemModal
           gameId={gameId}
-          roomId={userRoomId}
+          roomId={userRoomId }
           problem={sideProblem?.data}
           onClose={() => setShowModal(false)}
         />
