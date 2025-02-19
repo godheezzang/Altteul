@@ -18,27 +18,26 @@ public class GameResultResponseDto {
 	private BattleType gameType;
 	private String startedAt;
 	private int totalHeadCount;
-	private TeamInfo myTeam;
-	private List<TeamInfo> opponents;
+	private TeamInfo submittedTeam;
+	private List<TeamInfo> restTeam;
 
-	public static GameResultResponseDto from(Game game, TeamInfo myTeam, List<TeamInfo> opponents) {
+	public static GameResultResponseDto from(Game game, TeamInfo submittedTeam, List<TeamInfo> restTeam) {
 		if (game.getBattleType() == BattleType.S) {
 			return GameResultResponseDto.builder()
-					.gameType(game.getBattleType())
-					.totalHeadCount(opponents.size()+1)
-					.startedAt(String.valueOf(game.getCreatedAt()))
-					.myTeam(myTeam)
-					.opponents(opponents)
-					.build();
-		}
-		else {
+				.gameType(game.getBattleType())
+				.totalHeadCount(restTeam.size() + 1)
+				.startedAt(String.valueOf(game.getCreatedAt()))
+				.submittedTeam(submittedTeam)
+				.restTeam(restTeam)
+				.build();
+		} else {
 			return GameResultResponseDto.builder()
-					.gameType(game.getBattleType())
-					.totalHeadCount(myTeam.getTotalHeadCount() + opponents.get(0).getTotalHeadCount())
-					.startedAt(String.valueOf(game.getCreatedAt()))
-					.myTeam(myTeam)
-					.opponents(opponents)
-					.build();
+				.gameType(game.getBattleType())
+				.totalHeadCount(submittedTeam.getTotalHeadCount() + restTeam.get(0).getTotalHeadCount())
+				.startedAt(String.valueOf(game.getCreatedAt()))
+				.submittedTeam(submittedTeam)
+				.restTeam(restTeam)
+				.build();
 		}
 	}
 }

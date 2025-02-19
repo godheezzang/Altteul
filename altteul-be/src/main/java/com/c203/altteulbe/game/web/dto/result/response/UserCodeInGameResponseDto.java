@@ -1,6 +1,4 @@
-package com.c203.altteulbe.game.web.dto.result.request;
-
-import com.c203.altteulbe.common.dto.BattleType;
+package com.c203.altteulbe.game.web.dto.result.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OpponentCodeRequestDto {
-	private BattleType type;
+public class UserCodeInGameResponseDto {
+	private String code;
+	private String nickname;
 }
