@@ -6,10 +6,11 @@ import socketResponseMessage from 'types/socketResponseMessage';
 import useAuthStore from '@stores/authStore';
 import { SocketStore } from 'types/types';
 
-const SOCKET_URL = import.meta.env.MODE === 'production'
-  ? import.meta.env.VITE_SOCKET_URL_PROD
-  : import.meta.env.VITE_SOCKET_URL_DEV;
-  
+const SOCKET_URL =
+  import.meta.env.MODE === 'production'
+    ? import.meta.env.VITE_SOCKET_URL_PROD
+    : import.meta.env.VITE_SOCKET_URL_DEV;
+
 const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
@@ -164,6 +165,28 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       body: JSON.stringify(message),
     });
     console.log('메시지 전송 요청');
+  },
+
+  unsubscribeAll: () => {
+    const { subscriptions, client } = get();
+
+    if (!client) {
+      console.warn('No active connection');
+      return;
+    }
+
+    // 현재 저장된 모든 구독을 순회하며 구독 해제
+    subscriptions.forEach((_, destination) => {
+      client.unsubscribe(subscriptions.get(destination)?.id);
+    });
+
+    // 상태 초기화
+    set({ subscriptions: new Map() });
+
+    // sessionStorage에서도 모든 구독 제거
+    sessionStorage.removeItem('wsSubscriptions');
+
+    console.log('모든 구독 취소 완료');
   },
 
   restoreSubscriptions: () => {
