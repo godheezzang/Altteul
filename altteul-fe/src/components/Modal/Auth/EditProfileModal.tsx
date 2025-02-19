@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Input from '@components/Common/Input';
 import Modal from '@components/Common/Modal';
 import Button from '@components/Common/Button/Button';
@@ -38,32 +38,6 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     { id: 2, value: 'JV', label: 'Java' },
   ];
 
-  // 폼 초기화 함수
-  const resetForm = () => {
-    setForm({
-      nickname: modalInfo?.nickname || '',
-      mainLang: 'PY',
-      profileImg: modalInfo?.profileImg || null,
-    });
-
-    setErrors({
-      nickname: '',
-      mainLang: '',
-      profileImg: '',
-    });
-
-    setIsNicknameVerified(false);
-    setIsNicknameTaken(false);
-    setApiError('');
-  };
-
-  // 폼 상태
-  const [form, setForm] = useState<EditProfileFormData>({
-    nickname: modalInfo?.nickname || '',
-    mainLang: 'PY',
-    profileImg: modalInfo?.profileImg || null,
-  });
-
   // 에러 상태
   const [errors, setErrors] = useState<ValidationErrors>({
     nickname: '',
@@ -77,6 +51,58 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
   const [isNicknameTaken, setIsNicknameTaken] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isNicknameVerified, setIsNicknameVerified] = useState(false);
+  const [nicknameChanged, setNicknameChanged] = useState(false);
+
+  // 폼 상태 - modalInfo가 변경될 때마다 업데이트
+  const [form, setForm] = useState<EditProfileFormData>({
+    nickname: '',
+    mainLang: 'PY',
+    profileImg: null,
+  });
+
+  // modalInfo가 변경될 때마다 form 상태 업데이트
+  useEffect(() => {
+    if (modalInfo) {
+      setForm({
+        nickname: modalInfo.nickname || '',
+        mainLang: 'PY', // 기본값 설정
+        profileImg: modalInfo.profileImg || null,
+      });
+      // 기존 닉네임이면 자동으로 검증 완료 처리
+      setIsNicknameVerified(true);
+      setNicknameChanged(false);
+    }
+  }, [modalInfo]);
+
+  // 폼 초기화 함수
+  const resetForm = () => {
+    if (modalInfo) {
+      setForm({
+        nickname: modalInfo.nickname || '',
+        mainLang: 'PY',
+        profileImg: modalInfo.profileImg || null,
+      });
+      setIsNicknameVerified(true);
+      setNicknameChanged(false);
+    } else {
+      setForm({
+        nickname: '',
+        mainLang: 'PY',
+        profileImg: null,
+      });
+      setIsNicknameVerified(false);
+      setNicknameChanged(false);
+    }
+
+    setErrors({
+      nickname: '',
+      mainLang: '',
+      profileImg: '',
+    });
+    
+    setIsNicknameTaken(false);
+    setApiError('');
+  };
 
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,8 +112,17 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     setApiError('');
 
     if (name === 'nickname') {
-      setIsNicknameVerified(false);
-      setIsNicknameTaken(false);
+      const isOriginalNickname = value === modalInfo?.nickname;
+      
+      setNicknameChanged(!isOriginalNickname);
+      
+      if (isOriginalNickname) {
+        setIsNicknameVerified(true);
+        setIsNicknameTaken(false);
+      } else {
+        setIsNicknameVerified(false);
+        setIsNicknameTaken(false);
+      }
     }
   };
 
@@ -98,10 +133,15 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
 
   // 이미지 파일 업로드 처리
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e)
-    console.log(e.target.files![0])
     if (e.target.files?.length) {
+      // 새 파일 업로드
       setForm(prev => ({ ...prev, profileImg: e.target.files![0] }));
+    } else if (e.target.name === 'profileImg' && e.target.value && typeof e.target.value === 'string') {
+      // 취소 시 기존 이미지 복원
+      setForm(prev => ({ ...prev, profileImg: e.target.value }));
+    } else if (e.target.files === null) {
+      // 초기화 시 기본 이미지로
+      setForm(prev => ({ ...prev, profileImg: modalInfo?.profileImg || null }));
     }
   };
 
@@ -158,7 +198,8 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isNicknameVerified) {
+    // 닉네임이 변경되지 않았거나 이미 인증된 경우에만 진행
+    if (form.nickname !== modalInfo?.nickname && !isNicknameVerified) {
       setApiError('닉네임 중복확인이 필요합니다.');
       return;
     }
@@ -180,9 +221,8 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
 
     try {
       setIsSubmitting(true);
-      // TODO: API 호출 구현
       const response = await updateProfile(formData);
-      alert('정보가 수정되었습니다.')
+      alert('정보가 수정되었습니다.');
       onClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -192,6 +232,11 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // 닉네임 상태 메시지 표시 여부 결정
+  const shouldShowNicknameVerificationMessage = () => {
+    return nicknameChanged && isNicknameVerified && !isNicknameTaken && !errors.nickname;
   };
 
   return (
@@ -212,9 +257,10 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
           value={form.nickname}
           buttonText={isCheckingNickname ? '확인중...' : '중복확인'}
           onButtonClick={handleCheckNickname}
+          buttonDisabled={form.nickname === modalInfo?.nickname}
         />
         {errors.nickname && <p className="text-gray-03 font-semibold text-sm">{errors.nickname}</p>}
-        {isNicknameVerified && !isNicknameTaken && !errors.nickname && (
+        {shouldShowNicknameVerificationMessage() && (
           <p className="text-primary-orange font-semibold text-sm -my-2.5 ml-1">사용 가능한 닉네임입니다.</p>
         )}
 
