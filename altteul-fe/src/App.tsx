@@ -6,7 +6,6 @@ import { useEffect, useMemo } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import { inviteResponse } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
-import Button from '@components/Common/Button/Button';
 import { MODAL_TYPES } from 'types/modalTypes';
 import chatmodalimg from '@assets/icon/chatmodal.svg';
 
@@ -15,6 +14,10 @@ import useModalStore from '@stores/modalStore';
 import { useMatchStore } from '@stores/matchStore';
 import useFriendChatStore from '@stores/friendChatStore';
 import useAuthStore from '@stores/authStore';
+
+//react-Toastify
+import 'react-toastify/dist/ReactToastify.css';
+import {ToastContainer} from 'react-toastify';
 
 const App = () => {
   const location = useLocation();
@@ -48,13 +51,14 @@ const App = () => {
   //전체 소켓 응답 메세지 핸들러
   const handleMessage = async (message: socketResponseMessage) => {
     const { type, data } = message;
-    console.log(message)
+    console.log(message);
     //요청을 받은 경우
     if (type === 'INVITE_REQUEST_RECEIVED') {
       //TODO: confirm 말고 다른 방식의 요청 수락/거절 형식 필요
-      const accepted = confirm(`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`)
-      
-      if (accepted) {   // 게임 초대 수락
+      const accepted = confirm(`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`);
+
+      if (accepted) {
+        // 게임 초대 수락
         try {
           //TODO: 응답(res.status)에 따른 처리 필요
           const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 수락 api
@@ -63,20 +67,21 @@ const App = () => {
           console.error('초대 수락 중 오류 발생:', error);
         }
       }
-      
-      if (!accepted) {    //게임 초대 거절
+
+      if (!accepted) {
+        //게임 초대 거절
         const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 거절 api
       }
     }
 
     //초대 거절 응답
-    if(type === 'INVITE_REJECTED') {
-      alert(data.note)
+    if (type === 'INVITE_REJECTED') {
+      alert(data.note);
     }
 
     //초대 수락 응답
-    if(type === "INVITE_ACCEPTED") {
-      alert(`${data.note} 대기방으로 이동합니다.`)
+    if (type === 'INVITE_ACCEPTED') {
+      alert(`${data.note} 대기방으로 이동합니다.`);
       navigate(`/match/team/composition`); //팀전 대기방으로 이동
     }
 
@@ -114,6 +119,7 @@ const App = () => {
 
   return (
     <>
+      <ToastContainer />
       <div className="min-h-screen">
         {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
         <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
@@ -124,7 +130,11 @@ const App = () => {
               onClick={() => openModal(MODAL_TYPES.MAIN)}
               className="fixed bottom-5 right-5 z-50"
             >
-              <img src={chatmodalimg} alt="친구채팅모달" className="w-[4rem] h-[4rem] object-contain" />
+              <img
+                src={chatmodalimg}
+                alt="친구채팅모달"
+                className="w-[4rem] h-[4rem] object-contain"
+              />
             </button>
           )}
         </main>
