@@ -60,7 +60,7 @@ const AnimatedCodeEditor = (): JSX.Element => {
 
   return (
     <div className="relative w-full h-[calc(100vh-3.5rem)] overflow-hidden">
-      <div className="absolute inset-0 z-20 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black overflow-hidden" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black overflow-hidden" />
       <MonacoEditor
         height="100%"
         defaultLanguage="java"
