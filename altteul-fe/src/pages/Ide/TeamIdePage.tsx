@@ -150,7 +150,7 @@ const TeamIdePage = () => {
 
   return (
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
-      <div className="min-w-[23rem] max-w-[23rem] border-gray-04">
+      <div className="min-w-[23rem] max-w-[30rem] border-gray-04">
         <ProblemInfo />
         <VoiceChat />
       </div>
