@@ -15,7 +15,7 @@ const GameGnb = () => {
   const socket = useSocketStore();
   const isTeam = location.pathname.includes('/game/team');
   const { userRoomId, myTeam } = useGameStore();
-  const { openModal } = useModalStore();
+  const { openModal, closeModal } = useModalStore();
 
   const problem = useGameStore(state => state.problem);
   const { token } = useAuthStore();
@@ -41,11 +41,13 @@ const GameGnb = () => {
 
       if (response.status === 200) {
         if (isTeam) {
+          closeModal();
           openModal(MODAL_TYPES.RESULT, {
             type: GAME_TYPES.TEAM,
             result: RESULT_TYPES.FAILURE,
           });
         } else {
+          closeModal();
           openModal(MODAL_TYPES.RESULT, {
             type: GAME_TYPES.SINGLE,
             result: RESULT_TYPES.FAILURE,
