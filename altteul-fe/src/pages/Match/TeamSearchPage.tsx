@@ -18,7 +18,7 @@ const TeamSearchPage = () => {
   const matchStore = useMatchStore();
   const gameStore = useGameStore();
   const socket = useSocketStore();
-  const [alliance] = useState(matchStore.matchData.users);
+  const alliance = matchStore.matchData.users;
   const roomId = matchStore.matchData.roomId;
 
   //구독처리
