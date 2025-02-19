@@ -127,6 +127,9 @@ const VoiceChat = () => {
     setRemoteTracks([]);
   }
 
+  console.log('remoteTracks:', remoteTracks);
+  console.log('localTrack:', localTrack);
+
   /**
    * --------------------------------------------
    * GETTING A TOKEN FROM YOUR APPLICATION SERVER
@@ -153,7 +156,10 @@ const VoiceChat = () => {
         {remoteTracks.map(remoteTrack => (
           <AudioComponent
             key={remoteTrack.trackPublication.trackSid}
+            participantIdentity={remoteTrack.participantIdentity}
             track={remoteTrack.trackPublication.audioTrack!}
+            handleMuted={remoteTrack.trackPublication.handleMuted}
+            handleUnmuted={remoteTrack.trackPublication.handleUnmuted}
           />
         ))}
       </div>
