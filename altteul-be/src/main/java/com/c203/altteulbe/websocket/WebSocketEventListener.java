@@ -10,7 +10,6 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.c203.altteulbe.friend.service.UserStatusService;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
@@ -30,7 +29,7 @@ public class WebSocketEventListener {
 	private final SingleRoomService singleRoomService;
 	private final TeamRoomService teamRoomService;
 	private final RedisTemplate<String, String> redisTemplate;
-	private final VoiceChatService voiceChatService;
+	// private final VoiceChatService voiceChatService;
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectEvent event) {

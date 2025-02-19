@@ -24,7 +24,6 @@ import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
 import com.c203.altteulbe.game.web.dto.leave.response.SingleGameLeaveResponseDto;
 import com.c203.altteulbe.game.web.dto.leave.response.TeamGameLeaveResponseDto;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.entity.SingleRoom;
 import com.c203.altteulbe.room.persistent.entity.TeamRoom;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
@@ -52,7 +51,7 @@ public class GameLeaveService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final RoomWebSocketService roomWebSocketService;
-	private final VoiceChatService voiceChatService;
+	// private final VoiceChatService voiceChatService;
 
 	private static final String TEAM_LEFT_STATUS = "TEAM_LEFT";
 

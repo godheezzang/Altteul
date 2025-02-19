@@ -64,7 +64,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT'
-    implementation 'io.openvidu:openvidu-java-client:2.31.0'
+//    implementation 'io.openvidu:openvidu-java-client:2.31.0'
 
     // https://mvnrepository.com/artifact/io.livekit/livekit-server
     implementation 'io.livekit:livekit-server:0.8.4'
