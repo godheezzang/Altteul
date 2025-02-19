@@ -1,8 +1,6 @@
 import SmallButton from '@components/Common/Button/SmallButton ';
 import { SortedPlayer } from '@components/Modal/Result/ResultList';
 import useAuthStore from '@stores/authStore';
-import useModalStore from '@stores/modalStore';
-import { COMMON_MODAL_TYPES, GAME_TYPES, MODAL_TYPES } from 'types/modalTypes';
 import checkbox from '@assets/icon/result/checkbox.svg';
 import Bronze from '@assets/icon/badge/Badge_01.svg';
 import Silver from '@assets/icon/badge/Badge_04.svg';
@@ -19,19 +17,17 @@ interface ResultItemProps {
   player: SortedPlayer;
   rank: number;
 }
+
 const ResultItem = ({ player, rank }: ResultItemProps) => {
   const { userId } = useAuthStore();
-  const { openModal, closeModal } = useModalStore();
   const { gameId, userRoomId } = useGameStore();
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [opponentName, setOpponentName] = useState('');
   const isTeam = location.pathname.includes('game/team');
-  const [code, setCode] = useState('');
   const [modalType, setModalType] = useState<'Feedback' | 'OpponentCode' | null>(null);
+  const [userCodes, setUserCodes] = useState<{ nickname: string; code: string }[]>([]);
 
-  //TODO: 코드 확인 버튼 클릭시 로직
   const handleOpponentCode = async () => {
     setShowModal(true);
     setModalType('OpponentCode');
@@ -41,12 +37,11 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
       const response = await api.get(`/game/code/${userRoomId}`, {
         params: {
           type: isTeam ? 'T' : 'S',
+          gameId: gameId,
         },
       });
 
-      console.log('상대 팀 코드 불러오기:', response);
-      setCode(response.data.data.code);
-      if (!isTeam) setOpponentName(response?.data.data.nickname);
+      setUserCodes(response.data.data.userCodes || []);
     } catch (error) {
       console.error(error);
       <ErrorPage />;
@@ -99,9 +94,6 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
     return <LoadingSpinner loading={isLoading} />;
   }
 
-  console.log('code:', code);
-  console.log('feedback:', feedback);
-
   return (
     <>
       <li className="flex text-primary-white justify-between items-center  mb-4 ">
@@ -119,7 +111,9 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
               />
               <img src={tier} alt="Tier" className="absolute -bottom-1 -right-1 w-6 h-6" />
             </div>
-            {player.nickname}
+            <p className={player.userId === userId ? 'text-primary-orange' : ''}>
+              {player.nickname}
+            </p>
           </div>
           <p className="w-16 text-center">{player.point}</p>
           <p className="w-16 text-center">{player.duration}</p>
@@ -156,23 +150,34 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
           style={{ zIndex: 999 }}
         >
           <div
-            className="bg-primary-black p-8 rounded-md shadow-side min-w-[30rem] max-w-[50rem] shadow-gray-03 text-center min-h-[20rem]"
+            className="bg-primary-black p-8 rounded-md shadow-side min-w-[30rem] max-w-[50rem] shadow-gray-03 text-center min-h-[20rem] flex flex-col"
             style={{ zIndex: 60 }}
           >
-            <h2 className="text-lg font-semibold text-primary-white mb-8">
-              {modalType === 'Feedback' ? 'AI 코칭 결과' : `${opponentName}님의 코드`}
-            </h2>
-            <div className="bg-primary-black text-primary-white overflow-auto text-left">
-              {modalType === 'Feedback' ? (
-                <p className="min-h-[10rem] max-h-[30rem] text-center">
-                  {feedback ? feedback : '코칭 정보가 없습니다.'}
-                </p>
-              ) : (
-                <pre className="min-h-[10rem] max-h-[30rem]">
-                  <code>{code ? code : '코드 정보가 없습니다.'}</code>
-                </pre>
-              )}
-            </div>
+            {modalType === 'Feedback' ? (
+              <>
+                <h2 className="text-lg font-semibold text-primary-white mb-8">AI 코칭 결과</h2>
+                <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1">
+                  <p className="min-h-[10rem] max-h-[30rem] text-center">
+                    {feedback ? feedback : '코칭 정보가 없습니다.'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-primary-white mb-8">
+                  {player.nickname}님의 코드
+                </h2>
+                <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1">
+                  {userCodes
+                    .filter(code => code.nickname === player.nickname)
+                    .map((code, index) => (
+                      <pre key={index} className="bg-gray-06 min-h-full">
+                        <code>{code.code || '코드 정보가 없습니다.'}</code>
+                      </pre>
+                    ))}
+                </div>
+              </>
+            )}
             <div>
               <button
                 onClick={handleClose}
