@@ -96,10 +96,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
   const result = isTeam ? (isWin ? '승리' : '패배') : isWin ? '해결' : '미해결';
 
   const renderMembers = () => {
+    // 팀전
     if (isTeam) {
       return (
         <div className="flex w-full">
-          <div className="flex flex-col w-1/2">
+          <div className="flex flex-col w-1/2 gap-0.5 mr-3">
             {record.myTeam.members.map(member => (
               <p
                 key={member.userId}
@@ -116,7 +117,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               </p>
             ))}
           </div>
-          <div className="flex flex-col w-1/2">
+          <div className="flex flex-col w-1/2 gap-0.5">
             {record.opponents[0].members.map(member => (
               <p key={member.userId} className="flex gap-2 items-center mb-1">
                 <div className="p-1 rounded-full bg-gray-06">
@@ -133,11 +134,12 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
         </div>
       );
     } else {
+      // 개인전
       return (
-        <div className="flex w-full">
-          <div className="flex flex-col w-1/2">
-            {allPlayers.slice(0, 4).map((member, index) => (
-              <p
+        <div className="flex w-full justify-end">
+          <div className="flex flex-col max-h-[8rem] flex-wrap gap-0.5">
+            {allPlayers.map((member, index) => (
+              <div
                 key={member.userId}
                 className={`flex gap-2 ${index === 0 ? 'font-semibold' : 'font-regular'} ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}
               >
@@ -148,25 +150,10 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                     className="w-[1rem]"
                   />
                 </div>
-                {member.nickname}
-              </p>
-            ))}
-          </div>
-          <div className="flex flex-col w-1/2">
-            {allPlayers.slice(4).map(member => (
-              <p
-                key={member.userId}
-                className={`flex gap-2 ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}
-              >
-                <div className="p-1 rounded-full bg-gray-06">
-                  <img
-                    src={`${member.profileImage}`}
-                    alt={member.nickname + ' 프로필 이미지'}
-                    className="w-[1rem]"
-                  />
-                </div>
-                {member.nickname}
-              </p>
+                <p className={` ${(allPlayers.length > 4 && index < 3) ? 'mr-4' : '' }`}>
+                  {member.nickname}
+                </p>
+              </div>
             ))}
           </div>
         </div>
@@ -177,15 +164,15 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
   return (
     <>
       <div
-        className={`${isWin ? 'border-primary-orange' : 'border-gray-03'} flex gap-2 rounded-md border-l-8 p-4 bg-gray-05 mb-4 min-h-[10rem] min-w-[50rem]`}
+        className={`${isWin ? 'border-primary-orange' : 'border-gray-03'} flex gap-2 rounded-md border-l-8 p-4 bg-gray-05 mb-5 min-h-[10rem] min-w-[50rem] shadow-white`}
       >
         <div className="min-w-[11rem]">
           <div className="after:content-[''] after:block after:w-[50px] after:h-[1px] after:bg-gray-03 after:mt-4 after:mb-4">
-            <p className="text-sm">
+            <p className="font-semibold text-primary-orange">
               <span>{isTeam ? '팀전 ' : '개인전'} / </span>
               <span>{isTeam ? `${record.myTeam.members.length}인` : '8인'}</span>
             </p>
-            <p>{formattedDate}</p>
+            <p className='text-xs'>{formattedDate}</p>
           </div>
           <div className="text-sm">
             <p>
@@ -253,7 +240,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
           </div>
         </div>
 
-        <div className="min-w-[10rem] max-w-[10rem]">{renderMembers()}</div>
+        <div className="min-w-[10rem] mr-7" style={{alignContent:"center"}}>{renderMembers()}</div>
         <div className="my-auto">
           <button className="text-primary-orange" onClick={() => setIsOpen(prev => !prev)}>
             {isOpen ? (
@@ -307,13 +294,13 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                             <p
                               className={
                                 member.userId === Number(userId)
-                                  ? 'text-primary-orange font-semibold'
-                                  : ''
+                                  ? 'text-primary-orange font-semibold text-base'
+                                  : 'text-base'
                               }
                             >
                               {member.nickname}
                             </p>
-                            <p className="text-gray-02">현재 순위 {member.rank}위</p>
+                            <p className="text-gray-02 text-xs">현재 순위 {member.rank}위</p>
                           </div>
                           {member.userId !== Number(userId) ? (
                             <div className="ml-auto">
@@ -368,13 +355,13 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                             <p
                               className={
                                 member.userId === Number(userId)
-                                  ? 'text-primary-orange font-semibold'
-                                  : ''
+                                  ? 'text-primary-orange font-semibold text-base'
+                                  : 'text-base'
                               }
                             >
                               {member.nickname}
                             </p>
-                            <p className="text-gray-02">현재 순위 {member.rank}위</p>
+                            <p className="text-gray-02 text-xs">현재 순위 {member.rank}위</p>
                           </div>
                           {member.userId !== Number(userId) ? (
                             <div className="ml-auto">
@@ -423,19 +410,19 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                           <p
                             className={
                               Number(userId) === member.userId
-                                ? 'text-primary-orange font-semibold'
-                                : ''
+                                ? 'text-primary-orange font-semibold text-base'
+                                : 'text-base'
                             }
                           >
                             {member.nickname}
                           </p>
-                          <p className="text-gray-02">현재 순위 {member.rank}위</p>
+                          <p className="text-gray-02 text-xs">현재 순위 {member.rank}위</p>
                         </div>
                       </div>
                       <div className="flex grow justify-between items-center">
                         <p>{member.lang}</p>
-                        <p>{member.executeTime}초</p>
-                        <p>{member.executeMemory}MB</p>
+                        <p>{member.executeTime? member.executeTime + '초': '-'}</p>
+                        <p>{member.executeTime? member.executeTime + 'MB': '-'}</p>
                         <SmallButton onClick={() => handleCodeClick(member.code, member.nickname)}>
                           코드
                         </SmallButton>

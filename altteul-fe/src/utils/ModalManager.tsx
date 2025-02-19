@@ -8,6 +8,7 @@ import AdditionalModal from '@components/Modal/Result/AdditionalModal';
 import NavigateModal from '@components/Modal/Result/NavigateModal';
 import ResultDetailModal from '@components/Modal/Result/ResultDetailModal';
 import MainModal from '@components/Modal/FriendChat/MainModal';
+import EditProfileModal from '@components/Modal/Auth/editProfileModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();
@@ -20,6 +21,9 @@ const ModalManager = () => {
       {/* 인증 관련 모달 */}
       <SignUpModal isOpen={isOpen(MODAL_TYPES.SIGNUP)} onClose={() => closeModal()} />
       <LoginModal isOpen={isOpen(MODAL_TYPES.LOGIN)} onClose={() => closeModal()} />
+
+      {/* 회원정보 수정 모달 */}
+      <EditProfileModal isOpen={isOpen(MODAL_TYPES.EDIT)} onClose={() => closeModal()} />
 
       {/* 게임 결과 관련 모달 */}
       <ResultModal

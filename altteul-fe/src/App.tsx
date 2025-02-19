@@ -124,7 +124,7 @@ const App = () => {
               onClick={() => openModal(MODAL_TYPES.MAIN)}
               className="fixed bottom-5 right-5 z-50"
             >
-              <img src={chatmodalimg} alt="친구채팅모달" className="w-12 h-12 object-contain" />
+              <img src={chatmodalimg} alt="친구채팅모달" className="w-[4rem] h-[4rem] object-contain" />
             </button>
           )}
         </main>
