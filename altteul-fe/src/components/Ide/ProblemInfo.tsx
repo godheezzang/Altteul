@@ -61,7 +61,7 @@ const ProblemInfo = () => {
   };
 
   return (
-    <div>
+    <div className="h-[50rem] overflow-auto mb-12">
       <h2 className="text-lg font-semibold border-b border-gray-04 p-4">
         {problem.problemId}. {problem.problemTitle}
       </h2>

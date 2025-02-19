@@ -150,7 +150,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                     className="w-[1rem]"
                   />
                 </div>
-                <p className={` ${(allPlayers.length > 4 && index < 3) ? 'mr-4' : '' }`}>
+                <p className={` ${allPlayers.length > 4 && index < 3 ? 'mr-4' : ''}`}>
                   {member.nickname}
                 </p>
               </div>
@@ -172,7 +172,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
               <span>{isTeam ? '팀전 ' : '개인전'} / </span>
               <span>{isTeam ? `${record.myTeam.members.length}인` : '8인'}</span>
             </p>
-            <p className='text-xs'>{formattedDate}</p>
+            <p className="text-xs">{formattedDate}</p>
           </div>
           <div className="text-sm">
             <p>
@@ -240,7 +240,9 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
           </div>
         </div>
 
-        <div className="min-w-[10rem] mr-7" style={{alignContent:"center"}}>{renderMembers()}</div>
+        <div className="min-w-[10rem] mr-7" style={{ alignContent: 'center' }}>
+          {renderMembers()}
+        </div>
         <div className="my-auto">
           <button className="text-primary-orange" onClick={() => setIsOpen(prev => !prev)}>
             {isOpen ? (
@@ -394,7 +396,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       <div className="flex items-center mr-20">
                         <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2 mr-4">
                           <img
-                            src={`${member.profileImg}`}
+                            src={`${member.profileImage}`}
                             alt={member.nickname + ' 프로필 이미지'}
                             className="w-[1.8rem]"
                           />
@@ -421,8 +423,8 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       </div>
                       <div className="flex grow justify-between items-center">
                         <p>{member.lang}</p>
-                        <p>{member.executeTime? member.executeTime + '초': '-'}</p>
-                        <p>{member.executeTime? member.executeTime + 'MB': '-'}</p>
+                        <p>{member.executeTime ? member.executeTime + '초' : '-'}</p>
+                        <p>{member.executeTime ? member.executeTime + 'MB' : '-'}</p>
                         <SmallButton onClick={() => handleCodeClick(member.code, member.nickname)}>
                           코드
                         </SmallButton>
