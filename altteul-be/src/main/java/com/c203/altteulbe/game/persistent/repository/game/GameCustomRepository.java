@@ -7,7 +7,7 @@ import com.c203.altteulbe.common.dto.BattleType;
 import com.c203.altteulbe.game.persistent.entity.Game;
 
 public interface GameCustomRepository {
-	List<Game> findWithItemAndProblemAndAllMemberByUserId(Long userId);
+	List<Game>  findWithItemAndProblemAndAllMemberByUserId(Long userId);
 
 	Optional<Game> findWithAllMemberByGameId(Long gameId);
 

@@ -49,7 +49,7 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 					.select(teamRoom.game)  // teamRoom과 관련된 game을 가져옴
 					.from(userTeamRoom)
 					.join(userTeamRoom.teamRoom, teamRoom)  // `userTeamRoom`을 통해 `teamRoom`을 가져옴
-					.where(userTeamRoom.user.userId.eq(userId))
+					.where(userTeamRoom.user.userId.eq(userId).and(teamRoom.activation.eq(false)))
 			));
 
 		JPAQuery<Game> singleRoomQuery = queryFactory
@@ -63,7 +63,7 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 				JPAExpressions
 					.select(singleRoom.game)
 					.from(singleRoom)
-					.where(singleRoom.user.userId.eq(userId))
+					.where(singleRoom.user.userId.eq(userId).and(singleRoom.activation.eq(false)))
 			));
 
 		List<Game> teamRoomGames = teamRoomQuery.fetch();
