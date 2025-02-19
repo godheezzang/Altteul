@@ -43,15 +43,6 @@ const TeamIdePage = () => {
   useEffect(() => {
     if (!connected) return;
 
-    // 음성 채팅 상태 변경 구독
-    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
-      console.log('음성 채팅 상태 변경: ', data);
-
-      if (data.status) {
-        console.log(`${data.userId} 음성 채팅 참여`);
-      }
-    });
-
     // ✅ 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
       console.log('📩 사이드 문제 수신:', data);
