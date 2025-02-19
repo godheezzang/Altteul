@@ -88,6 +88,8 @@ const SingleFinalPage = () => {
           profileImg={headUser.profileImg}
           tierId={headUser.tierId}
           className="mb-4"
+          headUser="w-24 h-24"
+          headTier="!w-10 !h-10"
         />
 
         <div className="text-white text-2xl mb-4">나는 방장</div>

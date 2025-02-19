@@ -53,3 +53,9 @@
 .dropdown-last:last-child {
   border: 0;
 }
+
+.Toastify__toast--info {
+  background: #242A32;
+  border: #E06C2D;
+  border-color: #E06C2D;
+}

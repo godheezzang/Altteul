@@ -34,16 +34,16 @@ const SelectPage = () => {
       <div className="absolute inset-0 bg-black/50"></div>
 
       {/* 컨텐츠 */}
-      <div className="relative flex gap-x-[40vh] items-center">
+      <div className="relative flex gap-x-[20rem] items-center">
         {/* 개인전 버튼 링크 */}
-        <button className="flex flex-col items-center w-[150px] h-[150px] rounded-full transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-orange)]"
+        <button className="flex flex-col items-center w-[10rem] h-[10rem] rounded-full transition-all duration-500 hover:shadow-orange"
         onClick={() => NextPage('single')}>
           <img src={userIcon} alt="개인전" className="w-full h-full" />
           <span className="mt-4 text-white text-[32px] font-bold">개인전</span>
         </button>
 
         {/* 팀전 버튼 링크 */}
-        <button className="flex flex-col items-center w-[150px] h-[150px] rounded-full transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-orange)]"
+        <button className="flex flex-col items-center w-[10rem] h-[10rem] rounded-full transition-all duration-500 hover:shadow-orange"
         onClick={() => NextPage('team')}>
           <img src={peopleIcon} alt="팀전" className="w-full h-full" />
           <span className="mt-4 text-white text-[32px] font-bold">팀전</span>

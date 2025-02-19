@@ -11,6 +11,7 @@ import { useMatchStore } from '@stores/matchStore';
 import { useSocketStore } from '@stores/socketStore';
 import { singleOut, singleStart } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
+import { PacmanLoader } from 'react-spinners';
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
@@ -143,7 +144,9 @@ const SingleSearchPage = () => {
           nickname={''}
           profileImg={headUser ? headUser.profileImg : null}
           tierId={headUser ? headUser.tierId : null}
-          className="mb-4"
+          className="mb-1"
+          headUser="w-24 h-24"
+          headTier="!w-10 !h-10"
         />
 
         {/* 방장 이름 */}
@@ -152,11 +155,10 @@ const SingleSearchPage = () => {
         {/* Status Message */}
         <div className="text-white text-xl mb-8 flex flex-col items-center">
           같이 플레이 할 상대를 찾고 있어요. 🧐
-          <div className="flex text-base">
+          <div className="flex text-base pt-1.5">
             조금만 기다려 주세요
             <div className="ml-2">
-              {/* TODO: 스피너 제대로 된걸로 수정 */}
-              <div className="animate-bounce">...</div>
+              <PacmanLoader color="#ffffff" size={12}  />
             </div>
           </div>
         </div>
