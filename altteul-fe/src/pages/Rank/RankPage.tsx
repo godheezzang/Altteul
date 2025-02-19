@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useInView } from "react-intersection-observer";
-import rank_page_bg from "@assets/background/rank_page_bg.svg";
-import SearchInput from "@components/Common/SearchInput";
-import Dropdown from "@components/Common/Dropdown";
-import RankingItem from "@components/Ranking/RankingItem";
-import { getRank } from "@utils/Api/rankApi";
-import type { RankApiFilter, Ranking, RankingResponse } from "types/types";
-import { badges, BadgeFilter } from "@components/Ranking/BadgeFilter";
-import useAuthStore from "@stores/authStore";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useInView } from 'react-intersection-observer';
+import rank_page_bg from '@assets/background/rank_page_bg.svg';
+import Dropdown from '@components/Common/Dropdown';
+import RankingItem from '@components/Ranking/RankingItem';
+import { getRank } from '@utils/Api/rankApi';
+import type { RankApiFilter, Ranking, RankingResponse } from 'types/types';
+import { badges, BadgeFilter } from '@components/Ranking/BadgeFilter';
+import Input from '@components/Common/Input';
 
 // 메인 랭킹 페이지 컴포넌트
 const RankingPage = () => {
-  const [searchNickname, setSearchNickname] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [userRanking, setUserRanking] = useState<Ranking | null>(null);
+  const [searchNickname, setSearchNickname] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [rankings, setRankings] = useState<Array<Ranking>>([]);
   const [page, setPage] = useState(0);
@@ -31,12 +29,12 @@ const RankingPage = () => {
   ];
 
   const filter: RankApiFilter = {
-      page,
-      size: 10,
-      lang: selectedLanguage,
-      tierId: selectedTier,
-      nickname: searchNickname,
-  }
+    page,
+    size: 10,
+    lang: selectedLanguage,
+    tierId: selectedTier,
+    nickname: searchNickname,
+  };
 
   const resetPagination = () => {
     setPage(0);
@@ -45,57 +43,38 @@ const RankingPage = () => {
   };
 
   const fetchRankList = async () => {
-    if (isLoading) return;
+    if (isLoading || last) return;
     try {
       setIsLoading(true);
       const rankingResponse: RankingResponse = await getRank(filter);
+      console.log(rankingResponse);
       setLast(rankingResponse.data.last);
-      if (page === 0) {
-        setRankings(rankingResponse.data.rankings);
-      } else {
-        setRankings((prev) => [...prev, ...rankingResponse.data.rankings]);
-      }
-      setPage((prevPage) => prevPage + 1);
+      setRankings(prev => [...prev, ...rankingResponse.data.rankings]);
+      setPage(prevPage => prevPage + 1);
     } catch (error) {
-      console.error("Failed to fetch rankings:", error);
+      console.error('Failed to fetch rankings:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-
-  // 초기 로딩
-  useEffect(() => {
-    fetchRankList();
-  }, []);
-
   // 무한 스크롤
-
   useEffect(() => {
-    if (inView && !isLoading && !last && page > 0) {
+    if (inView) {
       fetchRankList();
     }
-  }, [inView, isLoading, last, page]);
-  
-  useEffect(() => {
-    if (page === 0) {
-        fetchRankList();
-    }
-  }, [page]);
+  }, [inView]);
+
   // 티어 선택 핸들러
   const handleTier = (tierId: number) => {
-    console.log(tierId)
-    setSelectedTier((prev) => (prev === tierId ? null : tierId));
-
-  const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language);
+    console.log(tierId);
+    setSelectedTier(prev => (prev === tierId ? null : tierId));
     resetPagination();
   };
 
   const handleSearch = () => {
     console.log(searchNickname);
     resetPagination();
-    fetchRankList();
   };
 
   //엔터 눌렀을 때 이벤트
@@ -105,10 +84,6 @@ const RankingPage = () => {
     }
   };
 
-  const userId = useAuthStore.getState().userId;
-  const firstRanking = rankings[0]; // 첫 번째 랭킹 데이터
-  const isUser = firstRanking?.userId === userId; // 첫 번째가 로그인 유저인지 확인
-  console.log(userId+" "+firstRanking?.userId);
   return (
     <div className="relative min-h-screen">
       {/* 배경 이미지 */}
@@ -123,13 +98,13 @@ const RankingPage = () => {
         }}
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto py-[100px] px-4 w-3/5">
+      <div className="relative z-10 max-w-6xl mx-auto pt-[2.5rem] w-[50vw] pl-10">
         <div className="flex justify-between items-center mb-2 mt-12">
           <div className="flex space-x-3">
             {badges
               .slice(1)
               .reverse()
-              .map((badge) => (
+              .map(badge => (
                 <BadgeFilter
                   key={badge.id}
                   tierId={badge.id}
@@ -140,27 +115,29 @@ const RankingPage = () => {
           </div>
 
           {/* 언어 및 닉네임 검색 */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 pb-1">
             <Dropdown
               options={languageOptions}
               value={selectedLanguage}
               onChange={setSelectedLanguage}
-              width="6.5vw"
+              width="7rem"
             />
-            <SearchInput
+            <Input
               value={searchNickname}
-              onChange={(e) => setSearchNickname(e.target.value)}
-              onClick={handleSearch}
-              placeholder="닉네임 검색"
-              width="12vw"
+              onChange={e => setSearchNickname(e.target.value)}
               onKeyDown={handleKeyPress}
+              onButtonClick={handleSearch}
+              showMagnifier={true}
+              placeholder="닉네임 검색"
+              name="userRank"
+              className="!w-[13rem] px-4 bg-gray-03 !border border-gray-01 rounded-lg !h-[2.42rem]"
             />
           </div>
         </div>
 
         {/* 랭킹 리스트 */}
-        <div className="rounded-md">
-          <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr] py-4 bg-primary-black gray-01 text-center text-base">
+        <div>
+          <div className="rounded-t-lg grid grid-cols-[0.8fr_1.7fr_0.8fr_1fr_1fr_1fr] py-4 bg-primary-black gray-01 text-center text-balance">
             <div>순위</div>
             <div>Player</div>
             <div>순위변동</div>
@@ -169,32 +146,16 @@ const RankingPage = () => {
             <div>평균통과율</div>
           </div>
           <>
-            {/* 첫 번째 아이템 */}
-            {firstRanking && (
-              <RankingItem
-                key={`${firstRanking.userId}-${firstRanking.ranking}`}
-                data={firstRanking}
-                className={`grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr] py-4 text-center text-base border-b-[1px] ${
-                  isUser ? "bg-primary-black text-primary-orange" : "bg-primary-black gray-1"
-                }`}
-              />
-            )}
-
-            {/* 나머지 아이템들 */}
-            {rankings.slice(1).map((ranking: Ranking) => (
+            {rankings.map((ranking: Ranking) => (
               <RankingItem
                 key={`${ranking.userId}-${ranking.ranking}`}
                 data={ranking}
-                className={`grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr] py-4 bg-primary-black gray-1 text-center text-base border-b-[1px]`}
+                className={`grid grid-cols-[0.8fr_1.7fr_0.8fr_1fr_1fr_1fr] py-4 bg-primary-black/40 text-center text-balance border-b-[1px]`}
               />
             ))}
           </>
 
-          {isLoading && (
-            <div className="text-center py-4 text-primary-white">
-              불러오는 중...
-            </div>
-          )}
+          {isLoading && <div className="text-center py-4 text-primary-white">불러오는 중...</div>}
         </div>
 
         {!last && <div ref={ref} className="h-20" />}
