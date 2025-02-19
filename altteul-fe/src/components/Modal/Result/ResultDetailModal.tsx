@@ -40,7 +40,7 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
     if (gameId) {
       fetchResultData();
     }
-  }, [gameId, isFinish]);
+  }, [gameId, isFinish, setResults]);
 
   //TODO: 다음 버튼 클릭시 로직
   const handleContinue = () => {
@@ -56,11 +56,11 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      minWidth="50rem"
+      minWidth="67rem"
       title="게임결과" //반영이 안되네 // 되게했지롱
       minHeight="30rem"
       titleColor="primary-white"
-      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange p-12 items-center justify-between"
+      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange p-12 items-center justify-center"
     >
       {/* WIN! text with glow */}
       <ResultList results={results} />
