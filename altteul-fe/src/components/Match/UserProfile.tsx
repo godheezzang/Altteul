@@ -24,7 +24,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   isNameShow = true,
   headUser = '',
   headTier = '',
-}) => {
+}: UserProfileProps) => {
   const userImg = profileImg ? profileImg : userIcon;
   const tier =
     tierId == 1

@@ -158,7 +158,6 @@ const SingleSearchPage = () => {
           <div className="flex text-base pt-1.5">
             조금만 기다려 주세요
             <div className="ml-2">
-              {/* TODO: 스피너 제대로 된걸로 수정 */}
               <PacmanLoader color="#ffffff" size={12}  />
             </div>
           </div>
