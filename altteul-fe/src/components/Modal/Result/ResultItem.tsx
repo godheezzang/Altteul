@@ -9,6 +9,11 @@ import Silver from '@assets/icon/badge/Badge_04.svg';
 import Gold from '@assets/icon/badge/Badge_05.svg';
 import Platinum from '@assets/icon/badge/Badge_07.svg';
 import Diamond from '@assets/icon/badge/Badge_08.svg';
+import { useState } from 'react';
+import { api } from '@utils/Api/commonApi';
+import useGameStore from '@stores/useGameStore';
+import ErrorPage from '@pages/Error/ErrorPage';
+import LoadingSpinner from '@components/Common/LoadingSpinner';
 
 interface ResultItemProps {
   player: SortedPlayer;
@@ -16,24 +21,65 @@ interface ResultItemProps {
 }
 const ResultItem = ({ player, rank }: ResultItemProps) => {
   const { userId } = useAuthStore();
-  const { openModal } = useModalStore();
-
-  // console.log(player);
+  const { openModal, closeModal } = useModalStore();
+  const { gameId, userRoomId } = useGameStore();
+  const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [opponentName, setOpponentName] = useState('');
+  const isTeam = location.pathname.includes('game/team');
+  const [code, setCode] = useState('');
+  const [modalType, setModalType] = useState<'Feedback' | 'OpponentCode' | null>(null);
 
   //TODO: 코드 확인 버튼 클릭시 로직
-  const handleOpponentCode = () => {
-    openModal(MODAL_TYPES.COMMON, {
-      type: GAME_TYPES.SINGLE,
-      modalType: COMMON_MODAL_TYPES.CODE,
-    });
+  const handleOpponentCode = async () => {
+    setShowModal(true);
+    setModalType('OpponentCode');
+
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/game/code/${userRoomId}`, {
+        params: {
+          type: isTeam ? 'T' : 'S',
+        },
+      });
+
+      console.log('상대 팀 코드 불러오기:', response);
+      setCode(response.data.data.code);
+      if (!isTeam) setOpponentName(response?.data.data.nickname);
+    } catch (error) {
+      console.error(error);
+      <ErrorPage />;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   //TODO: AI 코칭 버튼 클릭시 로직
-  const handleAiCoaching = () => {
-    openModal(MODAL_TYPES.COMMON, {
-      type: GAME_TYPES.SINGLE,
-      modalType: COMMON_MODAL_TYPES.COACHING,
-    });
+  const handleAiCoaching = async () => {
+    setShowModal(true);
+    setModalType('Feedback');
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/game/result/feedback`, {
+        params: {
+          gameId: gameId,
+          teamId: userRoomId, // TODO: gameId만 보낼 때 삭제
+        },
+      });
+
+      console.log('ai 코칭 결과:', response);
+      setFeedback(JSON.parse(response?.data.data.content));
+    } catch (error) {
+      console.error(error);
+      <ErrorPage />;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
   };
 
   const tier =
@@ -48,6 +94,13 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
             : player.tierId == 5
               ? Diamond
               : '';
+
+  if (isLoading) {
+    return <LoadingSpinner loading={isLoading} />;
+  }
+
+  console.log('code:', code);
+  console.log('feedback:', feedback);
 
   return (
     <>
@@ -97,6 +150,40 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
           )}
         </div>
       </li>
+      {showModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          style={{ zIndex: 999 }}
+        >
+          <div
+            className="bg-primary-black p-8 rounded-md shadow-side min-w-[30rem] max-w-[50rem] shadow-gray-03 text-center min-h-[20rem]"
+            style={{ zIndex: 60 }}
+          >
+            <h2 className="text-lg font-semibold text-primary-white mb-8">
+              {modalType === 'Feedback' ? 'AI 코칭 결과' : `${opponentName}님의 코드`}
+            </h2>
+            <div className="bg-primary-black text-primary-white overflow-auto text-left">
+              {modalType === 'Feedback' ? (
+                <p className="min-h-[10rem] max-h-[30rem] text-center">
+                  {feedback ? feedback : '코칭 정보가 없습니다.'}
+                </p>
+              ) : (
+                <pre className="min-h-[10rem] max-h-[30rem]">
+                  <code>{code ? code : '코드 정보가 없습니다.'}</code>
+                </pre>
+              )}
+            </div>
+            <div>
+              <button
+                onClick={handleClose}
+                className="px-4 py-2 bg-primary-orange text-primary-white rounded-md hover:bg-secondary-orange transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
