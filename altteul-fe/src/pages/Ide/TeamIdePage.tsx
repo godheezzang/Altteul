@@ -188,7 +188,7 @@ const TeamIdePage = () => {
         </div>
         <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <div className="blur-sm">
+          <div className="blur-sm pointer-events-none">
             <CodeEditor
               roomId={String(opponent.roomId)}
               code={opponentCode}
