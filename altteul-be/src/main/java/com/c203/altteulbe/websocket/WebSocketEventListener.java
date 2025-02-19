@@ -8,13 +8,14 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+
 import com.c203.altteulbe.friend.service.UserStatusService;
-import com.c203.altteulbe.openvidu.service.VoiceChatService;
 import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRedisRepository;
 import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRedisRepository;
 import com.c203.altteulbe.room.service.SingleRoomService;
 import com.c203.altteulbe.room.service.TeamRoomService;
 import com.c203.altteulbe.user.service.exception.NotFoundUserException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,7 @@ public class WebSocketEventListener {
 	private final SingleRoomService singleRoomService;
 	private final TeamRoomService teamRoomService;
 	private final RedisTemplate<String, String> redisTemplate;
-	private final VoiceChatService voiceChatService;
+	// private final VoiceChatService voiceChatService;
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -63,10 +64,10 @@ public class WebSocketEventListener {
 				Long singleRoomId = singleRoomRedisRepository.getRoomIdByUser(userId);
 				Long teamRoomId = teamRoomRedisRepository.getRoomIdByUser(userId);
 
-				if (userId != null && teamId != null) {
-					log.info("{} 팀 유저 {} 연결 해제 되었습니다.", teamId, userId);
-					voiceChatService.terminateUserVoiceConnection(teamId, userId.toString());
-				}
+				// if (userId != null && teamId != null) {
+				// 	log.info("{} 팀 유저 {} 연결 해제 되었습니다.", teamId, userId);
+				// 	voiceChatService.terminateUserVoiceConnection(teamId, userId.toString());
+				// }
 				if (userId != null && singleRoomId != null) {
 					log.info("유저 {}가 개인전 대기방 {}에서 연결 해제 되었습니다.", userId, singleRoomId);
 					singleRoomService.webSocketDisconnectLeave(singleRoomId, userId);
