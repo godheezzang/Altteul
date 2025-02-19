@@ -31,8 +31,8 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
 
   return (
     <div className="min-w-[8rem] w-full">
-      <div className="p-4 border-b border-gray-04">
-        <h3 className="text-sm font-semibold mb-2 text-gray-02">진행 중</h3>
+      <div className="px-8 py-6 border-b border-gray-04">
+        <h3 className="text-sm font-semibold mb-4 text-gray-02">진행 중</h3>
         {inProgressUsers.length > 0 ? (
           <ul>
             {inProgressUsers.map(user => {
@@ -59,8 +59,8 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="text-sm font-semibold mb-2 text-gray-02">완료</h3>
+      <div className="px-8 py-6 border-b border-gray-04">
+        <h3 className="text-sm font-semibold mb-4 text-gray-02">완료</h3>
         {completedUsers.length > 0 ? (
           <ul>
             {completedUsers.map(user => (
@@ -83,8 +83,8 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
           <p className="text-sm text-gray-02 ml-4">🧐 아직 완료한 유저가 없습니다.</p>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="text-sm font-semibold mb-2 text-gray-02">미해결</h3>
+      <div className="px-8 py-6">
+        <h3 className="text-sm font-semibold mb-6 text-gray-02">미해결</h3>
         {leftUsers.length > 0 ? (
           <ul>
             {leftUsers.map(user => (
