@@ -1,87 +1,83 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/team_matching_bg.svg';
-import { User } from 'types/types';
-import { useEffect, useState } from 'react';
-import { useMatchStore } from '@stores/matchStore';
-import { teamOut, teamStart } from '@utils/Api/matchApi';
+import { useMatchStore } from '@stores/matchStore'; // ← Zustand Store
 import { useSocketStore } from '@stores/socketStore';
+import { teamOut, teamStart } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
+import { User } from 'types/types';
 
 const TeamcompositionPage = () => {
   const navigate = useNavigate();
-  const matchStore = useMatchStore();
   const socket = useSocketStore();
-  const currentUserId = Number(sessionStorage.getItem('userId'));
-  //매칭관련 데이터
-  const [alliance, setAlliance] = useState(matchStore.matchData.users);
-  const [leaderId, setLeaderId] = useState(matchStore.matchData.leaderId);
-  const roomId = matchStore.matchData.roomId;
-  const [isLeader, setIsLeader] = useState(currentUserId === leaderId); //매칭 시작 버튼 렌더링을 위한 변수
 
-  //구독처리
+  // Store에서 matchData와 setter를 직접 구독
+  const { matchData, setMatchData } = useMatchStore((state) => ({
+    matchData: state.matchData,
+    setMatchData: state.setMatchData,
+  }));
+
+  // matchData 구조 분해할당
+  const { roomId, leaderId, users } = matchData;
+  const currentUserId = Number(sessionStorage.getItem('userId'));
+  const isLeader = currentUserId === leaderId;
+
+  // 소켓 구독 처리
   useEffect(() => {
     socket.subscribe(`/sub/team/room/${roomId}`, handleMessage);
 
-    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
-      console.log('teamComposition Out, 콜백함수 정리');
+      console.log('TeamcompositionPage unmount. Unsubscribe socket.');
       socket.unsubscribe(`/sub/team/room/${roomId}`);
     };
   }, [roomId]);
 
-  //소켓 응답 처리
+  // 소켓 메시지 핸들러
   const handleMessage = (message: socketResponseMessage) => {
     console.log(message);
     const { type, data } = message;
+
+    // ENTER or LEAVE 이벤트가 들어오면 store의 matchData 갱신
     if (type === 'ENTER' || type === 'LEAVE') {
-      setLeaderId(data.leaderId);
-      setAlliance(data.users);
-      setIsLeader(currentUserId === data.leaderId);
+      setMatchData({
+        roomId: roomId,
+        leaderId: data.leaderId,
+        users: data.users,
+      });
     }
 
-    //teamStart API 요청 후 매칭 시작 소켓 응답
+    // 매칭이 시작되면 TeamSearchPage로 이동
     if (type === 'MATCHING') {
-      //매칭 페이지로 이동
       navigate('/match/team/search');
     }
 
-    // 대기 유저가 4명이 되면 자동으로 게임 시작
+    // 4명이 되면 자동 매칭 시작
     if (data.users.length >= 4) {
-      handleStartButton();
-    }
-  };
-
-  const handleStartButton = () => {
-    //혼자만 있을 때
-    if (alliance.length === 1) {
-      alert('혼자서는 플레이 할 수 없습니다.');
-      return;
-    }
-
-    //4명이 됐는지 확인
-    if (alliance.length === 4 || confirm('바로 시작하시겠습니까?')) {
       navigateMatchPage();
     }
   };
 
-  //매칭 조건 충족 시
-  const navigateMatchPage = async () => {
-    // Search 페이지로 넘어가기 전, 마지막 상태 데이터 저장
-    const matchData = {
-      roomId: roomId,
-      leaderId: leaderId,
-      users: [...alliance],
-    };
+  // 매칭 시작 버튼 핸들러
+  const handleStartButton = () => {
+    if (users.length === 1) {
+      alert('혼자서는 플레이 할 수 없습니다.');
+      return;
+    }
 
-    matchStore.setMatchData(matchData)
-
-    //게임 시작 API 호출(For socket 응답 변환)
-    await teamStart(roomId);
+    if (users.length === 4 || confirm('바로 시작하시겠습니까?')) {
+      navigateMatchPage();
+    }
   };
 
-  //나가기(퇴장) 버튼 로직
+  // 매칭 조건 충족 시 다음 페이지로 이동 & API 호출
+  const navigateMatchPage = async () => {
+    await teamStart(roomId);
+    // teamStart() 후 소켓 응답(MATCHING)에서 실제 이동 처리
+  };
+
+  // 팀 나가기 버튼
   const userOut = () => {
     teamOut(roomId);
     socket.unsubscribe(`/sub/team/room/${roomId}`);
@@ -93,14 +89,12 @@ const TeamcompositionPage = () => {
       className="relative -mt-[3.5rem] min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full z-10 flex flex-col items-center justify-center">
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {alliance.map((user: User) => (
+          {users.map((user: User) => (
             <UserProfile
               key={user.userId}
               nickname={user.nickname}
@@ -113,17 +107,11 @@ const TeamcompositionPage = () => {
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
           {isLeader && (
-            <Button
-              className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-              onClick={handleStartButton}
-            >
+            <Button onClick={handleStartButton}>
               매칭 시작
             </Button>
           )}
-          <Button
-            className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-            onClick={userOut}
-          >
+          <Button onClick={userOut}>
             나가기
           </Button>
         </div>
