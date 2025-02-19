@@ -26,16 +26,16 @@ type AdditionalModalProps = {
 const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalProps) => {
   const location = useLocation();
   const { openModal } = useModalStore();
-  const { gameId, userRoomId } = useGameStore();
+  const { gameId, userRoomId, isFinish } = useGameStore();
   const [isLoading, setIsLoading] = useState(false);
   const [coachResult, setCoachResult] = useState('');
   const isTeam = location.pathname.includes('game/team');
   const [code, setCode] = useState('');
   const [opponentName, setOpponentName] = useState('');
-
+  const finish = isFinish === 'WIN' || isFinish === 'LOSE';
   // ai 코칭
   const fetchAiCoaching = async () => {
-    if (userRoomId && gameId) {
+    if (userRoomId && gameId && finish) {
       try {
         setIsLoading(true);
         const response = await api.get(`/game/result/feedback`, {
@@ -46,7 +46,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
         });
 
         console.log('ai 코칭 결과:', response);
-        setCoachResult(response.data.content);
+        setCoachResult(JSON.parse(response?.data.data.content));
       } catch (error) {
         console.error(error);
         <ErrorPage />;
@@ -58,7 +58,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
 
   // 상대 팀 코드 불러오기
   const fetchUserCode = async () => {
-    if (userRoomId && gameId) {
+    if (userRoomId && gameId && finish) {
       try {
         setIsLoading(true);
         const response = await api.get(`/game/code/${userRoomId}`, {
@@ -69,7 +69,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
 
         console.log('상대 팀 코드 불러오기:', response);
         setCode(response.data.code);
-        if (!isTeam) setOpponentName(response?.data.nickname);
+        if (!isTeam) setOpponentName(response?.data.data.nickname);
       } catch (error) {
         console.error(error);
         <ErrorPage />;
@@ -80,9 +80,11 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
   };
 
   useEffect(() => {
-    fetchAiCoaching();
-    fetchUserCode();
-  }, []);
+    if (finish) {
+      fetchAiCoaching();
+      fetchUserCode();
+    }
+  }, [finish]);
 
   // 모달 타입에 따른 설정
   const getModalConfig = () => {
