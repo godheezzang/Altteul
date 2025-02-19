@@ -1,5 +1,6 @@
-import UserProfileImg from '@components/Common/UserProfileImg';
 import { useEffect, useState } from 'react';
+import onVoice from '@assets/icon/on_voice.svg';
+import offVoice from '@assets/icon/off_voice.svg';
 
 import {
   createLocalAudioTrack,
@@ -12,9 +13,9 @@ import {
 } from 'livekit-client';
 import useGameStore from '@stores/useGameStore';
 import useAuthStore from '@stores/authStore';
-import VideoComponent from '@components/Ide/VideoComponent';
 import AudioComponent from '@components/Ide/AudioComponent';
 import { createToken } from '@utils/openVidu';
+import UserProfile from '@components/Match/UserProfile';
 
 type TrackInfo = {
   trackPublication: RemoteTrackPublication;
@@ -44,16 +45,12 @@ function configureUrls() {
 }
 
 const VoiceChat = () => {
-  const { userRoomId, myTeam } = useGameStore();
+  const { userRoomId, myTeam, opponent } = useGameStore();
   const { userId } = useAuthStore();
   const [room, setRoom] = useState<Room | undefined>(undefined);
   const [localTrack, setLocalTrack] = useState<LocalAudioTrack | undefined>(undefined);
   const [remoteTracks, setRemoteTracks] = useState<TrackInfo[]>([]);
-
-  const [participantName, setParticipantName] = useState(
-    () => `${userId}-${Math.floor(Math.random() * 100)}`
-  );
-  const [roomName, setRoomName] = useState('Test Room');
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (userRoomId && userId) {
@@ -76,14 +73,10 @@ const VoiceChat = () => {
           publication: RemoteTrackPublication,
           participant: RemoteParticipant
         ) => {
-          if (myTeam.users.some(user => String(user.userId) === participant.identity)) {
-            setRemoteTracks(prev => [
-              ...prev,
-              { trackPublication: publication, participantIdentity: participant.identity },
-            ]);
-
-            console.log('remoteTracks:', remoteTracks);
-          }
+          setRemoteTracks(prev => [
+            ...prev,
+            { trackPublication: publication, participantIdentity: participant.identity },
+          ]);
         }
       );
 
@@ -99,7 +92,6 @@ const VoiceChat = () => {
 
       // Get a token from your application server with the room name and participant name
       const token = await createToken(userRoomId, userId);
-      // console.log('token:', token);
 
       // Connect to the room with the LiveKit URL and the token
       await room.connect(LIVEKIT_URL, token);
@@ -108,9 +100,8 @@ const VoiceChat = () => {
 
       const audioTrack = await createLocalAudioTrack();
       await room.localParticipant.publishTrack(audioTrack);
-      // await room.localParticipant.enableCameraAndMicrophone();
-      // setLocalTrack(room.localParticipant.videoTrackPublications.values().next().value.videoTrack);
       setLocalTrack(audioTrack);
+      setIsConnected(true);
     } catch (error) {
       console.log('There was an error connecting to the room:', (error as Error).message);
       await leaveRoom();
@@ -125,43 +116,86 @@ const VoiceChat = () => {
     setRoom(undefined);
     setLocalTrack(undefined);
     setRemoteTracks([]);
+    setIsConnected(false);
   }
 
-  console.log('remoteTracks:', remoteTracks);
-  console.log('localTrack:', localTrack);
+  function toggleVoiceChat() {
+    if (isConnected) {
+      leaveRoom();
+    } else {
+      joinRoom();
+    }
+  }
 
-  /**
-   * --------------------------------------------
-   * GETTING A TOKEN FROM YOUR APPLICATION SERVER
-   * --------------------------------------------
-   * The method below request the creation of a token to
-   * your application server. This prevents the need to expose
-   * your LiveKit API key and secret to the client side.
-   *
-   * In this sample code, there is no user control at all. Anybody could
-   * access your application server endpoints. In a real production
-   * environment, your application server must identify the user to allow
-   * access to the endpoints.
-   */
+  const activeParticipants = new Set(remoteTracks.map(track => track.participantIdentity));
+  activeParticipants.add(String(userId));
 
   return (
-    <div id="room">
-      <h2>{roomName}</h2>
-      <button onClick={leaveRoom}>Leave Room</button>
-      <div id="layout-container">
-        {/* 🔥 로컬 오디오 트랙만 표시 */}
-        {localTrack && <AudioComponent track={localTrack} />}
+    <div id="room" className="px-4 flex">
+      <div className="flex-1">
+        <div className="flex gap-2 mb-4">
+          <p>우리팀</p>
+          <button onClick={toggleVoiceChat}>
+            {isConnected ? (
+              <img src={onVoice} alt="음성 채팅 떠나기" />
+            ) : (
+              <img src={offVoice} alt="음성채팅 재입장" />
+            )}
+          </button>
+        </div>
 
-        {/* 🔥 원격 오디오 트랙만 표시 */}
-        {remoteTracks.map(remoteTrack => (
-          <AudioComponent
-            key={remoteTrack.trackPublication.trackSid}
-            participantIdentity={remoteTrack.participantIdentity}
-            track={remoteTrack.trackPublication.audioTrack!}
-            handleMuted={remoteTrack.trackPublication.handleMuted}
-            handleUnmuted={remoteTrack.trackPublication.handleUnmuted}
-          />
-        ))}
+        <div id="layout-container" className="flex gap-4">
+          {isConnected ? (
+            <>
+              {/* 🔥 로컬 오디오 트랙만 표시 */}
+              {localTrack && (
+                <AudioComponent track={localTrack} participantIdentity={String(userId)} />
+              )}
+
+              {/* 🔥 원격 오디오 트랙만 표시 */}
+              {remoteTracks.map(remoteTrack => (
+                <AudioComponent
+                  key={remoteTrack.trackPublication.trackSid}
+                  participantIdentity={remoteTrack.participantIdentity}
+                  track={remoteTrack.trackPublication.audioTrack!}
+                />
+              ))}
+
+              {myTeam.users
+                .filter(user => !activeParticipants.has(String(user.userId)))
+                .map(user => (
+                  <AudioComponent key={user.userId} participantIdentity={String(user.userId)} />
+                ))}
+            </>
+          ) : (
+            <>
+              {myTeam.users.map(user => (
+                <AudioComponent key={user.userId} participantIdentity={String(user.userId)} />
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 상대팀 */}
+      <div className="flex-1">
+        <p className="mb-4">상대팀</p>
+        <div className="flex gap-4">
+          {opponent.users.map(user => (
+            <div key={user.userId}>
+              <div className="p-1 rounded-full bg-gray-04">
+                <UserProfile
+                  nickname={user.nickname}
+                  profileImg={user.profileImg}
+                  tierId={user.tierId}
+                  isNameShow={false}
+                  className="w-[2.5rem] h-[2.5rem]"
+                />
+              </div>
+              <p>{user.nickname}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
