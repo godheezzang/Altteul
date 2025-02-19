@@ -87,7 +87,6 @@ public class TeamRoomService {
 	private final GameRepository gameRepository;
 	private final RoomWebSocketService roomWebSocketService;
 	private final RoomValidator validator;
-	// private final VoiceChatService voiceChatService;
 
 	/**
 	 * 팀전 대기방 입장 처리
@@ -332,10 +331,6 @@ public class TeamRoomService {
 				BattleType.T);
 			return;
 		}
-
-		// 게임 시작 시 음성 채팅 세션 생성
-		// voiceChatService.createTeamVoiceSession(matchId, roomId1);
-		// voiceChatService.createTeamVoiceSession(matchId, roomId2);
 
 		// redis에 저장된 problem Id를 조회하여 Game 저장 시 사용
 		String problemId = (redisTemplate.opsForValue().get(RedisKeys.TeamRoomProblem(matchId)));
