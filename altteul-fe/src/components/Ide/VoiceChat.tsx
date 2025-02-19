@@ -1,6 +1,5 @@
 import UserProfileImg from '@components/Common/UserProfileImg';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
 import {
   LocalVideoTrack,
@@ -28,17 +27,17 @@ configureUrls();
 function configureUrls() {
   if (!APPLICATION_SERVER_URL) {
     if (window.location.hostname === 'localhost') {
-      APPLICATION_SERVER_URL = 'http://localhost:8080/';
+      APPLICATION_SERVER_URL = 'http://localhost:8443/';
     } else {
-      APPLICATION_SERVER_URL = 'https://' + window.location.hostname + ':6443/';
+      APPLICATION_SERVER_URL = 'https://' + window.location.hostname + ':8443/';
     }
   }
 
   if (!LIVEKIT_URL) {
     if (window.location.hostname === 'localhost') {
-      LIVEKIT_URL = 'ws://localhost:7880/';
+      LIVEKIT_URL = 'ws://localhost:8443/';
     } else {
-      LIVEKIT_URL = 'wss://' + window.location.hostname + ':7880/';
+      LIVEKIT_URL = 'wss://' + window.location.hostname + ':8443/';
     }
   }
 }
