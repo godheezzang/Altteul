@@ -69,6 +69,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       isOpen={isOpen}
       onClose={closeModal}
       height="29rem"
+      minHeight='29rem'
       title="알뜰 로그인"
       className="bg-primary-white"
     >
