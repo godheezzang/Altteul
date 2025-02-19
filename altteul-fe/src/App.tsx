@@ -57,8 +57,17 @@ const App = () => {
       //React-Toastify를 사용한 confirm 대체
       toast.info(
         <div>
-          <p>{`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`}</p>
+          <p className='text-primary-white'>{`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`}</p>
           <div className="mt-2 flex justify-end gap-2">
+            <button
+              onClick={() => {
+                toast.dismiss();
+                handleInviteResponse(true, data.nickname, data.roomId);
+              }}
+              className="px-3 py-1 bg-primary-orange text-white rounded"
+            >
+              수락
+            </button>
             <button
               onClick={() => {
                 toast.dismiss();
@@ -67,15 +76,6 @@ const App = () => {
               className="px-3 py-1 bg-gray-500 text-white rounded"
             >
               거절
-            </button>
-            <button
-              onClick={() => {
-                toast.dismiss();
-                handleInviteResponse(true, data.nickname, data.roomId);
-              }}
-              className="px-3 py-1 bg-blue-500 text-white rounded"
-            >
-              수락
             </button>
           </div>
         </div>,
@@ -178,7 +178,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme="light"
       />
       <div className="min-h-screen">
         {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
