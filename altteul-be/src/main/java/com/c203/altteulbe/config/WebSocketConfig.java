@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.converter.ByteArrayMessageConverter;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
@@ -67,6 +66,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.setAllowedOriginPatterns(
 				"http://localhost:80",
 				"http://localhost:5173",
+				"http://localhost:5080",
 				"http://frontend:80",
 				"http://frontend:5173",
 				"http://host.docker.internal:80",
@@ -134,10 +134,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		converter.setObjectMapper(objectMapper);
 		converter.setContentTypeResolver(resolver);
 
-		// 바이너리 메세지 컨버터 추가
-		ByteArrayMessageConverter byteArrayConverter = new ByteArrayMessageConverter();
-
-		messageConverters.add(byteArrayConverter);
 		messageConverters.add(converter);
 		return false;
 	}

@@ -1,18 +1,21 @@
 import useGameStore from '@stores/useGameStore';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import logo from '@assets/icon/Altteul.svg';
 import { useSocketStore } from '@stores/socketStore';
 import { useState } from 'react';
 import { api } from '@utils/Api/commonApi';
 import useAuthStore from '@stores/authStore';
 import ConfirmModal from '@components/Common/ConfirmModal';
+import useModalStore from '@stores/modalStore';
+import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
+import ErrorPage from '@pages/Error/ErrorPage';
 
 const GameGnb = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const socket = useSocketStore();
   const isTeam = location.pathname.includes('/game/team');
   const { userRoomId, myTeam } = useGameStore();
+  const { openModal, closeModal } = useModalStore();
 
   const problem = useGameStore(state => state.problem);
   const { token } = useAuthStore();
@@ -37,12 +40,25 @@ const GameGnb = () => {
       );
 
       if (response.status === 200) {
+        if (isTeam) {
+          closeModal();
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.TEAM,
+            result: RESULT_TYPES.FAILURE,
+          });
+        } else {
+          closeModal();
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.SINGLE,
+            result: RESULT_TYPES.FAILURE,
+          });
+        }
+
         socket.restoreSubscriptions();
-        navigate('/');
       }
     } catch (error) {
       console.error(error);
-      // TODO: 에러 페이지/모달 띄우기
+      <ErrorPage />;
     }
   };
 

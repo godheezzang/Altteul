@@ -20,11 +20,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "test_result")
 @Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class TestResult extends BaseCreatedEntity {
@@ -74,7 +76,8 @@ public class TestResult extends BaseCreatedEntity {
 					case MLE -> status = Status.MLE;
 					default -> status = Status.RUN;
 				}
-
+				System.out.println("status: " + status);
+				System.out.println("output: " + testCaseResult.getOutput());
 				testResults.add(
 					TestResult.builder()
 						.testResult(status)

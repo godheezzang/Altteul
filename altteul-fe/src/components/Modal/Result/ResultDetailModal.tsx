@@ -37,7 +37,9 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
   };
 
   useEffect(() => {
-    fetchResultData();
+    if (gameId) {
+      fetchResultData();
+    }
   }, [gameId, isFinish]);
 
   //TODO: 다음 버튼 클릭시 로직
@@ -54,23 +56,21 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      // height="50rem"
+      minWidth="50rem"
       title="게임결과" //반영이 안되네 // 되게했지롱
+      minHeight="30rem"
       titleColor="primary-white"
-      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange p-10 w-[72rem] justify-center items-center"
+      className="bg-primary-black relative overflow-hidden border-2 border-primary-orange shadow-orange p-12 items-center justify-between"
     >
-      <div className="flex flex-col items-center justify-center h-full w-full">
-        {/* WIN! text with glow */}
-        <ResultList results={results} />
-
-        {/* 다음 버튼 */}
-        <SmallButton
-          onClick={handleContinue}
-          backgroundColor="primary-orange"
-          className="px-8 py-2 relative"
-          children="다음"
-        ></SmallButton>
-      </div>
+      {/* WIN! text with glow */}
+      <ResultList results={results} />
+      {/* 다음 버튼 */}
+      <SmallButton
+        onClick={handleContinue}
+        backgroundColor="primary-orange"
+        className="px-8 py-2 relative"
+        children="다음"
+      ></SmallButton>
     </Modal>
   );
 };

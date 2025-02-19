@@ -394,7 +394,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       <div className="flex items-center mr-20">
                         <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2 mr-4">
                           <img
-                            src={`${member.profileImage}`}
+                            src={`${member.profileImg}`}
                             alt={member.nickname + ' 프로필 이미지'}
                             className="w-[1.8rem]"
                           />
