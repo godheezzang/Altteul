@@ -3,7 +3,7 @@ import PeopleIcon from '@assets/icon/People.svg';
 
 type ProfileUploadProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  currentImage: File | null;
+  currentImage: string | File | null;
 };
 
 const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
@@ -56,7 +56,7 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
       <button
         type="button"
         onClick={handleButtonClick}
-        className="px-4 py-2 text-sm text-gray-03 hover:text-primary-orange border border-2 border-gray-02 rounded-xl hover:border-primary-orange"
+        className="px-4 py-2 text-sm text-gray-03 hover:text-primary-orange border-2 border-gray-02 rounded-xl hover:border-primary-orange"
       >
         {preview ? '다른 사진 선택하기' : '프로필 사진 선택하기'}
       </button>
@@ -71,7 +71,7 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
             }
             onChange({ target: { files: null } } as any);
           }}
-          className="text-sm text-gray-01 hover:text-primary-orange"
+          className="text-sm border-2 border-gray-02 text-gray-02 hover:text-primary-orange hover:border-primary-orange w-44 rounded-lg h-8"
         >
           기본 이미지로 되돌리기
         </button>
