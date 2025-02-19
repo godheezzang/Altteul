@@ -18,9 +18,8 @@ import { createToken } from '@utils/openVidu';
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam, setIsFinish } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam, setIsFinish, opponent } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
-
   const [sideProblem, setSideProblem] = useState(null);
   const [code, setCode] = useState('');
   const [opponentCode, setOpponentCode] = useState(''); // 상대 팀 코드
@@ -153,6 +152,7 @@ const TeamIdePage = () => {
       <div className="min-w-[23rem] max-w-[30rem] border-gray-04">
         <ProblemInfo />
         <VoiceChat />
+        {/* <VoiceChat roomId={userRoomId} voiceToken={voiceToken} /> */}
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
@@ -162,13 +162,14 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          {/* <CodeEditor
-            roomId={String(gameId)}
-            code={code}
-            setCode={setCode}
-            language={language}
-            setLanguage={setLanguage}
-          /> */}
+          <CodeEditor 
+            roomId={String(userRoomId)} 
+            code={code} 
+            setCode={setCode} 
+            language={language} 
+            setLanguage={setLanguage} 
+            myRoomId={String(userRoomId)}
+          />
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
@@ -187,14 +188,15 @@ const TeamIdePage = () => {
         </div>
         <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
-          <div>
-            {/* <CodeEditor
-              roomId={String(gameId)}
+          <div className="blur-sm pointer-events-none">
+            <CodeEditor
+              roomId={String(opponent.roomId)}
               code={opponentCode}
               setCode={() => {}}
               language={language}
               readOnly={true}
-            /> */}
+              myRoomId={String(userRoomId)}
+            />
           </div>
         </div>
       </div>
@@ -203,7 +205,7 @@ const TeamIdePage = () => {
       {showModal && sideProblem && (
         <SideProblemModal
           gameId={gameId}
-          roomId={userRoomId}
+          roomId={userRoomId }
           problem={sideProblem?.data}
           onClose={() => setShowModal(false)}
         />
