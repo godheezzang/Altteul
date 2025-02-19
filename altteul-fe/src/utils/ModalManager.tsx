@@ -8,7 +8,7 @@ import AdditionalModal from '@components/Modal/Result/AdditionalModal';
 import NavigateModal from '@components/Modal/Result/NavigateModal';
 import ResultDetailModal from '@components/Modal/Result/ResultDetailModal';
 import MainModal from '@components/Modal/FriendChat/MainModal';
-import EditProfileModal from '@components/Modal/Auth/editProfileModal';
+import EditProfileModal from '@components/Modal/Auth/EditProfileModal';
 
 const ModalManager = () => {
   const { closeModal, isOpen, getModalInfo } = useModalStore();
