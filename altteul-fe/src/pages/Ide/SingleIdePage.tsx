@@ -59,47 +59,45 @@ const SingleIdePage = () => {
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
       console.log('📩 실시간 게임 현황 수신:', data);
 
-      const { myTeam, opponents } = data.data;
-
-      // ✅ 내 팀 데이터 업데이트
-      if (myTeam?.members.some((member: MemberInfo) => member.userId === Number(userId))) {
-        const progress = myTeam.passRate ?? 0;
-        setUserProgress(prev => ({ ...prev, [userId]: progress }));
-
-        if (myTeam.passRate === 100) {
-          setCompleteUsers(prev => new Set([...prev, Number(userId)]));
-        }
-
-        if (myTeam.gameResult === 1) {
-          setIsFinish('WIN');
-          openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.SINGLE, result: RESULT_TYPES.SUCCESS });
-        }
+      // ✅ data?.data 체크 (최상위)
+      if (!data || !data.data) {
+        console.warn('⚠️ 게임 현황 데이터가 없습니다:', data);
+        return;
       }
 
-      // ✅ 상대 팀 데이터 업데이트
-      const updatedUserProgress = { ...userProgress };
-      const updatedCompleteUsers = new Set(completeUsers);
+      const { submittedTeam, restTeam } = data.data;
+      const updatedProgress: Record<number, number> = {};
+      const completedSet = new Set(completeUsers);
 
-      opponents.forEach((opponent: TeamInfo) => {
-        opponent.members.forEach(member => {
-          updatedUserProgress[member.userId] = opponent.passRate ?? 0;
-
-          if (opponent.passRate === 100) {
-            updatedCompleteUsers.add(member.userId);
-          }
-
-          if (opponent.gameResult === 1 && member.userId !== Number(userId)) {
-            setIsFinish('LOSE');
-            openModal(MODAL_TYPES.RESULT, {
-              type: GAME_TYPES.SINGLE,
-              result: RESULT_TYPES.FAILURE,
-            });
-          }
+      // ✅ submittedTeam이 존재하는지 확인
+      if (submittedTeam?.gameResult === 1 && Array.isArray(submittedTeam.members)) {
+        submittedTeam.members.forEach((member: MemberInfo) => {
+          completedSet.add(member.userId);
+          updatedProgress[member.userId] = 100; // 통과율 100%
         });
-      });
+      } else if (submittedTeam?.gameResult === 0 && Array.isArray(submittedTeam.members)) {
+        submittedTeam.members.forEach((member: MemberInfo) => {
+          updatedProgress[member.userId] = submittedTeam.passRate;
+        });
+      }
 
-      setUserProgress(updatedUserProgress);
-      setCompleteUsers(updatedCompleteUsers);
+      // // ✅ restTeam이 존재하는지 확인
+      // if (Array.isArray(restTeam)) {
+      //   restTeam.forEach((team: TeamInfo) => {
+      //     if (team && Array.isArray(team.members)) {
+      //       team.members.forEach((member: MemberInfo) => {
+      //         updatedProgress[member.userId] = team.passRate || 0;
+      //       });
+      //     } else {
+      //       console.warn('⚠️ team 또는 members 데이터 없음:', team);
+      //     }
+      //   });
+      // } else {
+      //   console.warn('⚠️ restTeam 데이터 없음:', restTeam);
+      // }
+
+      setCompleteUsers(completedSet);
+      setUserProgress(prev => ({ ...prev, ...updatedProgress }));
     });
 
     // 퇴장하기 구독
@@ -177,7 +175,7 @@ const SingleIdePage = () => {
         </div>
       </div>
 
-      <div className="grow max-w-[15rem] min-w-[15rem]">
+      <div className="grow min-w-[15rem]">
         <GameUserList
           users={users}
           completeUsers={completeUsers}
