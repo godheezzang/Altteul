@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import PeopleIcon from '@assets/icon/People.svg';
+import useModalStore from '@stores/modalStore';
 
 type ProfileUploadProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -9,6 +10,7 @@ type ProfileUploadProps = {
 const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const { modalInfo } = useModalStore();
 
   // 이미지 선택시 미리보기 생성
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +37,7 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
         onClick={handleButtonClick}
       >
         <img
-          src={preview || PeopleIcon}
+          src={modalInfo.profileImg || PeopleIcon}
           alt="프로필 이미지"
           className="w-full h-full object-cover"
         />
