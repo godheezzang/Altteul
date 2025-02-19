@@ -7,6 +7,11 @@ import lose from '@assets/icon/result/lose.svg';
 import useModalStore from '@stores/modalStore';
 
 import { GAME_TYPES, RESULT_TYPES, GameType, ResultType, MODAL_TYPES } from 'types/modalTypes';
+import useGameStore from '@stores/useGameStore';
+import { api } from '@utils/Api/commonApi';
+import useAuthStore from '@stores/authStore';
+import ErrorPage from '@pages/Error/ErrorPage';
+import { useSocketStore } from '@stores/socketStore';
 
 type ResultModalProps = {
   isOpen: boolean;
@@ -17,6 +22,10 @@ type ResultModalProps = {
 
 const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
   const { openModal } = useModalStore();
+  const { userRoomId, myTeam } = useGameStore();
+  const { token } = useAuthStore();
+  const socket = useSocketStore();
+  const isTeam = location.pathname.includes('/game/team');
 
   // 결과에 따른 UI 설정
   //성공 유무 1차 필터링
@@ -51,13 +60,32 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
 
   const config = getResultConfig();
 
-  const handleContinue = () => {
-    onClose();
-    // 게임 타입에 따라 다른 모달 열기
-    if (type === GAME_TYPES.SINGLE) {
-      openModal(MODAL_TYPES.LIST); // 성공/실패 상관없이 결과 목록으로 이동
-    } else {
-      openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.TEAM });
+  const handleContinue = async () => {
+    try {
+      const response = await api.post(
+        '/game/leave',
+        {
+          roomId: isTeam ? myTeam.roomId : userRoomId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        onClose();
+        // 게임 타입에 따라 다른 모달 열기
+        if (type === GAME_TYPES.SINGLE) {
+          openModal(MODAL_TYPES.LIST); // 성공/실패 상관없이 결과 목록으로 이동
+        } else {
+          openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.TEAM });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      <ErrorPage />;
     }
   };
 
