@@ -11,15 +11,10 @@ import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.service.exception.GameNotParticipatedException;
-import com.c203.altteulbe.game.web.dto.result.request.OpponentCodeRequestDto;
 import com.c203.altteulbe.game.web.dto.result.response.GameResultResponseDto;
 import com.c203.altteulbe.game.web.dto.result.response.OpponentCodeResponseDto;
 import com.c203.altteulbe.game.web.dto.result.response.TeamInfo;
-import com.c203.altteulbe.room.persistent.entity.Room;
-import com.c203.altteulbe.room.persistent.entity.SingleRoom;
-import com.c203.altteulbe.room.persistent.repository.single.SingleRoomRepository;
-import com.c203.altteulbe.room.persistent.repository.team.TeamRoomRepository;
-import com.c203.altteulbe.room.service.exception.RoomNotFoundException;
+import com.c203.altteulbe.game.web.dto.result.response.UserCodeInGameResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GameResultService {
 	private final GameRepository gameRepository;
-	private final SingleRoomRepository singleRoomRepository;
-	private final TeamRoomRepository teamRoomRepository;
 
 	public GameResultResponseDto getGameResult(Long gameId, Long userId) {
 		Game game = gameRepository.findWithAllMemberByGameId(gameId)
@@ -68,32 +61,34 @@ public class GameResultService {
 	}
 
 	// 배틀 결과에서 상대팀이 제출한 코드 보기
-	public OpponentCodeResponseDto getOpponentCode(Long roomId, BattleType type) {
-		Room room;
+	public OpponentCodeResponseDto getOpponentCode(Long roomId, Long gameId, BattleType type) {
+		Game game = gameRepository.getReferenceById(gameId);
+		List<UserCodeInGameResponseDto> userCodes;
+
 		if (type == BattleType.S) {
-			room = singleRoomRepository.findById(roomId).orElseThrow(RoomNotFoundException::new);
-			return getOpponentCodeResponseDto(roomId, room);
+			// 개인전인 경우
+			userCodes = game.getSingleRooms().stream()
+				.filter(singleRoom -> !singleRoom.getId().equals(roomId))
+				.map(singleRoom -> UserCodeInGameResponseDto.builder()
+					.code(singleRoom.getCode() != null ? singleRoom.getCode() : "")
+					.nickname(singleRoom.getUser().getNickname())
+					.build())
+				.toList();
 		} else {
-			room = teamRoomRepository.findById(roomId).orElseThrow(RoomNotFoundException::new);
-			return getOpponentCodeResponseDto(roomId, room);
-		}
-	}
-
-	private static OpponentCodeResponseDto getOpponentCodeResponseDto(Long roomId, Room room) {
-		String code = room.getCode();
-		if (code == null || code.isEmpty()) {
-			code = "";
-		}
-
-		String nickname = null;
-		if (room instanceof SingleRoom singleRoom) {
-			nickname = singleRoom.getUser().getNickname();
+			// 팀전인 경우
+			userCodes = game.getTeamRooms().stream()
+				.filter(teamRoom -> !teamRoom.getId().equals(roomId))
+				.flatMap(teamRoom -> teamRoom.getUserTeamRooms().stream()
+					.map(userTeamRoom -> UserCodeInGameResponseDto.builder()
+						.code(teamRoom.getCode() != null ? teamRoom.getCode() : "")
+						.nickname(userTeamRoom.getUser().getNickname())
+						.build()))
+				.toList();
 		}
 
 		return OpponentCodeResponseDto.builder()
-			.roomId(roomId)
-			.nickname(nickname) //  TeamRoom일 경우 null이거나 nickname반환 안됨
-			.code(code)
+			.userCodes(userCodes)
 			.build();
+
 	}
 }
