@@ -12,6 +12,8 @@ interface UserProfileProps {
   tierId: number;
   className?: string;
   isNameShow?: boolean;
+  headUser?: string;
+  headTier?: string;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
@@ -20,6 +22,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
   tierId,
   className,
   isNameShow = true,
+  headUser = '',
+  headTier = '',
 }) => {
   const userImg = profileImg ? profileImg : userIcon;
   const tier =
@@ -38,8 +42,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <div className="relative">
-        <img src={userImg} alt={nickname} className="w-16 h-16 rounded-full" />
-        <img src={tier} alt="Tier" className="absolute -bottom-2 -right-2 w-6 h-6" />
+        <img src={userImg} alt={nickname} className={`${headUser} w-16 h-16 rounded-full`} />
+        <img src={tier} alt="Tier" className={`${headTier} absolute -bottom-2 -right-2 w-8 h-8`} />
       </div>
 
       {isNameShow && <span className="text-white text-sm mt-2">{nickname}</span>}
