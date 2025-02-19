@@ -40,7 +40,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               : '';
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
+    <div className={`flex flex-col items-center`}>
       <div className="relative">
         <img src={userImg} alt={nickname} className={`${headUser} w-16 h-16 rounded-full`} />
         <img src={tier} alt="Tier" className={`${headTier} absolute -bottom-2 -right-2 w-8 h-8`} />
