@@ -1,16 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PeopleIcon from '@assets/icon/People.svg';
-import useModalStore from '@stores/modalStore';
 
 type ProfileUploadProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  currentImage: string | File | null;
+  currentImage: string | null;
 };
 
 const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const { modalInfo } = useModalStore();
+  
+  // currentImage가 변경될 때마다 preview 업데이트
+  useEffect(() => {
+    setPreview(currentImage);
+  }, [currentImage]);
 
   // 이미지 선택시 미리보기 생성
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +33,9 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
     fileInputRef.current?.click();
   };
 
+  // 현재 표시할 이미지 결정
+  const displayImage = preview || currentImage || PeopleIcon;
+
   return (
     <div className="flex flex-col items-center gap-4 w-[22rem]">
       <div
@@ -37,7 +43,7 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
         onClick={handleButtonClick}
       >
         <img
-          src={modalInfo.profileImg || PeopleIcon}
+          src={displayImage}
           alt="프로필 이미지"
           className="w-full h-full object-cover"
         />
@@ -60,14 +66,14 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
         onClick={handleButtonClick}
         className="px-4 py-2 text-sm text-gray-03 hover:text-primary-orange border-2 border-gray-02 rounded-xl hover:border-primary-orange"
       >
-        {preview ? '다른 사진 선택하기' : '프로필 사진 선택하기'}
+        {preview && preview !== currentImage ? '다른 사진 선택하기' : '프로필 사진 선택하기'}
       </button>
 
-      {preview && (
+      {preview && preview !== currentImage && (
         <button
           type="button"
           onClick={() => {
-            setPreview(null);
+            setPreview(currentImage);
             if (fileInputRef.current) {
               fileInputRef.current.value = '';
             }
@@ -75,7 +81,7 @@ const ProfileUpload = ({ onChange, currentImage }: ProfileUploadProps) => {
           }}
           className="text-sm border-2 border-gray-02 text-gray-02 hover:text-primary-orange hover:border-primary-orange w-44 rounded-lg h-8"
         >
-          기본 이미지로 되돌리기
+          변경 취소
         </button>
       )}
     </div>
