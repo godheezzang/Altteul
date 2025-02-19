@@ -2,7 +2,8 @@ import UserProfileImg from '@components/Common/UserProfileImg';
 import { useEffect, useState } from 'react';
 
 import {
-  LocalVideoTrack,
+  createLocalAudioTrack,
+  LocalAudioTrack,
   RemoteParticipant,
   RemoteTrack,
   RemoteTrackPublication,
@@ -20,8 +21,8 @@ type TrackInfo = {
   participantIdentity: string;
 };
 
-let APPLICATION_SERVER_URL = '';
-let LIVEKIT_URL = '';
+let APPLICATION_SERVER_URL = 'https://i12c203.p.ssafy.io:8443/';
+let LIVEKIT_URL = 'wss://i12c203.p.ssafy.io:8443/';
 configureUrls();
 
 function configureUrls() {
@@ -43,62 +44,73 @@ function configureUrls() {
 }
 
 const VoiceChat = () => {
-  const { userRoomId } = useGameStore();
+  const { userRoomId, myTeam } = useGameStore();
   const { userId } = useAuthStore();
   const [room, setRoom] = useState<Room | undefined>(undefined);
-  const [localTrack, setLocalTrack] = useState<LocalVideoTrack | undefined>(undefined);
+  const [localTrack, setLocalTrack] = useState<LocalAudioTrack | undefined>(undefined);
   const [remoteTracks, setRemoteTracks] = useState<TrackInfo[]>([]);
 
   const [participantName, setParticipantName] = useState(
-    String(userId) + Math.floor(Math.random() * 100)
+    () => `${userId}-${Math.floor(Math.random() * 100)}`
   );
   const [roomName, setRoomName] = useState('Test Room');
 
   useEffect(() => {
-    joinRoom();
-  }, []);
+    if (userRoomId && userId) {
+      joinRoom();
+    }
+  }, [userRoomId, userId]);
+
   async function joinRoom() {
-    // Initialize a new Room object
-    const room = new Room();
-    setRoom(room);
-
-    // Specify the actions when events take place in the room
-    // On every new Track received...
-    room.on(
-      RoomEvent.TrackSubscribed,
-      (
-        _track: RemoteTrack,
-        publication: RemoteTrackPublication,
-        participant: RemoteParticipant
-      ) => {
-        setRemoteTracks(prev => [
-          ...prev,
-          { trackPublication: publication, participantIdentity: participant.identity },
-        ]);
-      }
-    );
-
-    // On every Track destroyed...
-    room.on(
-      RoomEvent.TrackUnsubscribed,
-      (_track: RemoteTrack, publication: RemoteTrackPublication) => {
-        setRemoteTracks(prev =>
-          prev.filter(track => track.trackPublication.trackSid !== publication.trackSid)
-        );
-      }
-    );
-
     try {
+      // Initialize a new Room object
+      const room = new Room();
+      setRoom(room);
+
+      // Specify the actions when events take place in the room
+      // On every new Track received...
+      room.on(
+        RoomEvent.TrackSubscribed,
+        (
+          _track: RemoteTrack,
+          publication: RemoteTrackPublication,
+          participant: RemoteParticipant
+        ) => {
+          if (myTeam.users.some(user => String(user.userId) === participant.identity)) {
+            setRemoteTracks(prev => [
+              ...prev,
+              { trackPublication: publication, participantIdentity: participant.identity },
+            ]);
+
+            console.log('remoteTracks:', remoteTracks);
+          }
+        }
+      );
+
+      // On every Track destroyed...
+      room.on(
+        RoomEvent.TrackUnsubscribed,
+        (_track: RemoteTrack, publication: RemoteTrackPublication) => {
+          setRemoteTracks(prev =>
+            prev.filter(track => track.trackPublication.trackSid !== publication.trackSid)
+          );
+        }
+      );
+
       // Get a token from your application server with the room name and participant name
       const token = await createToken(userRoomId, userId);
-      console.log(token);
+      // console.log('token:', token);
 
       // Connect to the room with the LiveKit URL and the token
       await room.connect(LIVEKIT_URL, token);
 
       // Publish your camera and microphone
-      await room.localParticipant.enableCameraAndMicrophone();
-      setLocalTrack(room.localParticipant.videoTrackPublications.values().next().value.videoTrack);
+
+      const audioTrack = await createLocalAudioTrack();
+      await room.localParticipant.publishTrack(audioTrack);
+      // await room.localParticipant.enableCameraAndMicrophone();
+      // setLocalTrack(room.localParticipant.videoTrackPublications.values().next().value.videoTrack);
+      setLocalTrack(audioTrack);
     } catch (error) {
       console.log('There was an error connecting to the room:', (error as Error).message);
       await leaveRoom();
@@ -130,67 +142,22 @@ const VoiceChat = () => {
    */
 
   return (
-    <>
-      {!room ? (
-        <div id="join">
-          <div id="join-dialog">
-            <h2>Join a Video Room</h2>
-            <form
-              onSubmit={e => {
-                joinRoom();
-                e.preventDefault();
-              }}
-            >
-              <label htmlFor="participant-name">Participant</label>
-              <input
-                id="participant-name"
-                value={participantName}
-                onChange={e => setParticipantName(e.target.value)}
-                required
-              />
-              <label htmlFor="room-name">Room</label>
-              <input
-                id="room-name"
-                value={roomName}
-                onChange={e => setRoomName(e.target.value)}
-                required
-              />
-              <button type="submit" disabled={!roomName || !participantName}>
-                Join!
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : (
-        <div id="room">
-          <h2>{roomName}</h2>
-          <button onClick={leaveRoom}>Leave Room</button>
-          <div id="layout-container">
-            {localTrack && (
-              <VideoComponent
-                track={localTrack}
-                participantIdentity={participantName}
-                local={true}
-              />
-            )}
-            {remoteTracks.map(remoteTrack =>
-              remoteTrack.trackPublication.kind === 'video' ? (
-                <VideoComponent
-                  key={remoteTrack.trackPublication.trackSid}
-                  track={remoteTrack.trackPublication.videoTrack!}
-                  participantIdentity={remoteTrack.participantIdentity}
-                />
-              ) : (
-                <AudioComponent
-                  key={remoteTrack.trackPublication.trackSid}
-                  track={remoteTrack.trackPublication.audioTrack!}
-                />
-              )
-            )}
-          </div>
-        </div>
-      )}
-    </>
+    <div id="room">
+      <h2>{roomName}</h2>
+      <button onClick={leaveRoom}>Leave Room</button>
+      <div id="layout-container">
+        {/* 🔥 로컬 오디오 트랙만 표시 */}
+        {localTrack && <AudioComponent track={localTrack} />}
+
+        {/* 🔥 원격 오디오 트랙만 표시 */}
+        {remoteTracks.map(remoteTrack => (
+          <AudioComponent
+            key={remoteTrack.trackPublication.trackSid}
+            track={remoteTrack.trackPublication.audioTrack!}
+          />
+        ))}
+      </div>
+    </div>
   );
 
   return (
