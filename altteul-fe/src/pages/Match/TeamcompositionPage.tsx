@@ -55,7 +55,7 @@ const TeamcompositionPage = () => {
 
   const handleStartButton = () => {
     //혼자만 있을 때
-    if (alliance.length === 0) {
+    if (alliance.length === 1) {
       alert('혼자서는 플레이 할 수 없습니다.');
       return;
     }
