@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
+import Magnifier from '@assets/icon/friend/Search_orange.svg';
 
 type InputProps = {
   type?: 'text' | 'password' | 'search';
@@ -13,7 +14,9 @@ type InputProps = {
   buttonText?: string;
   onButtonClick?: (e: React.MouseEvent) => void;
   showPasswordToggle?: boolean;
+  showMagnifier?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  buttonDisabled?: boolean; // 버튼 비활성화 여부
 };
 
 const DEFAULT_INPUT_STYLE =
@@ -27,18 +30,19 @@ const Input = ({
   value,
   onChange,
   name,
-  width = '23.5rem',
   height = '3rem',
   className = '',
   buttonText,
   onButtonClick,
   showPasswordToggle = false,
-  onKeyDown
+  showMagnifier = false,
+  buttonDisabled = false,
+  onKeyDown,
 }: InputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <div className="flex items-center w-full relative">
+    <div className="flex items-center relative">
       <div className="flex-grow" style={{ width: `calc(100% - ${buttonText ? '6rem' : '0rem'})` }}>
         <input
           className={`${className || DEFAULT_INPUT_STYLE} ${showPasswordToggle ? 'pr-12' : ''} w-full h-[${height}]`}
@@ -55,12 +59,29 @@ const Input = ({
             onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-03 hover:text-gray-02"
           >
-            {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {isPasswordVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+          </button>
+        )}{' '}
+        {showMagnifier && (
+          <button
+            onClick={onButtonClick}
+            className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80 transition-opacity disabled:opacity-50"
+            aria-label="검색"
+          >
+            <img src={Magnifier} alt="검색" className="w-5 h-5" />
           </button>
         )}
       </div>
       {buttonText && onButtonClick && (
-        <button type="button" onClick={onButtonClick} className={BUTTON_STYLE}>
+        <button
+          type="button"
+          onClick={onButtonClick}
+          disabled={buttonDisabled}
+          className={`${BUTTON_STYLE}
+             ${buttonDisabled && 'bg-gray-02 border !border-gray-02 text-white hover:bg-gray-02 cursor-auto'
+              
+             }`}
+        >
           {buttonText}
         </button>
       )}

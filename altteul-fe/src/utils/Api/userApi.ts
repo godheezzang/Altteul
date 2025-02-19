@@ -23,3 +23,14 @@ export const searchUsers = async (nickname: string) => {
     console.log(error)
   }
 };
+
+//editUserProfile
+export const updateProfile = async (formData:FormData) => {
+  const response = await userApi.patch('', formData,
+    {
+      headers: {'Content-Type': 'multipart/form-data'},
+    }
+  )
+
+  return response
+}

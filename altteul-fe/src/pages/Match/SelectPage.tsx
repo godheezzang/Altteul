@@ -27,7 +27,7 @@ const SelectPage = () => {
 
   return (
     <div
-      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center -mt-[3.5rem]"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* 배경 오버레이 */}
