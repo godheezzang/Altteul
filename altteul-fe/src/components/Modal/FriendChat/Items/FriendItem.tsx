@@ -56,10 +56,10 @@ const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
 
   return (
     <div className="flex items-center justify-between bg-gray-04 p-3 rounded-lg">
-    {/* <div className="flex items-center justify-between border border-gray-500 p-3 rounded-lg"> */}
+      {/* <div className="flex items-center justify-between border border-gray-500 p-3 rounded-lg"> */}
       <div className="flex items-center gap-3">
         <div className="relative">
-          <img src={friend.profileImg} alt="프로필" className="w-10 h-10 rounded-full" />
+          <img src={friend.profileImg} alt="프로필" className="ml-2 w-10 h-10 rounded-full" />
           <div
             className={`absolute top-0 right-0 w-3 h-3 rounded-full border-2 ${
               friend.isOnline ? 'bg-green-500' : 'bg-gray-400'
@@ -68,14 +68,14 @@ const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
         </div>
         <p className="font-semibold text-primary-white">{friend.nickname}</p>
       </div>
-
+      |
       <div className="flex gap-2">
         {showInviteButton && (
           <button onClick={handleGameInvite} className="px-3 py-1 ">
             <img src={inviteFriendIcon} alt="초대" className="w-8 h-8" />
           </button>
         )}
-        <button onClick={handleChat} className="px-3 py-1 rounded ">
+        <button onClick={handleChat} className="px-0.5 py-1 rounded ">
           <img src={startChat} alt="채팅" className="w-6 h-6" />
         </button>
         <button onClick={handleDeleteFriend} className="px-2 py-1">
