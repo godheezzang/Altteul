@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import useFriendChatStore from '@stores/friendChatStore';
 import FriendRequestItem from '@components/Modal/FriendChat/Items/FriendRequestItem';
-import GameInviteItem, { GameInvite } from '../Items/GameInviteItem';
 import { getFriendRequests } from '@utils/Api/friendChatApi';
 import { FriendRequest } from 'types/types';
 
