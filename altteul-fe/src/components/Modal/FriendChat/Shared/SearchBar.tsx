@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import Input from '@components/Common/Input';
 import useFriendChatStore from '@stores/friendChatStore';
-import Magnifier from '@assets/icon/friend/Search.svg';
 
 const SearchBar = () => {
   const fcStore = useFriendChatStore();
@@ -45,17 +44,12 @@ const SearchBar = () => {
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyPress}
+          onButtonClick={handleSearch}
+          showMagnifier={true}
           placeholder = '유저를 검색하세요.'
           name="search"
           className="w-full px-4 rounded-lg text-black h-[2.4rem] focus:ring-3 focus:ring-primary-orange focus:outline-none"
         />
-        <button
-          onClick={handleSearch}
-          className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80 transition-opacity disabled:opacity-50"
-          aria-label="검색"
-        >
-          <img src={Magnifier} alt="검색" className="w-5 h-5" />
-        </button>
       </div>
     </div>
   );
