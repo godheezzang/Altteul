@@ -2,13 +2,13 @@ import { getUserInfo } from '@utils/Api/userApi';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserInfo as UserInfoType } from 'types/types';
-import people from '@assets/icon/People.svg';
 import bronze from '@assets/icon/badge/Badge_01.svg';
 import silver from '@assets/icon/badge/Badge_04.svg';
 import gold from '@assets/icon/badge/Badge_05.svg';
 import platinum from '@assets/icon/badge/Badge_07.svg';
 import dia from '@assets/icon/badge/Badge_08.svg';
 import LoadingSpinner from '@components/Common/LoadingSpinner';
+import useModalStore from '@stores/modalStore';
 
 const tierIcons = {
   bronze: bronze,
@@ -22,6 +22,7 @@ const UserInfo = () => {
   const { userId } = useParams();
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { openModal } = useModalStore();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -41,6 +42,10 @@ const UserInfo = () => {
     fetchUserInfo();
   }, [userId]);
 
+  const handleEditProfile = () => {
+    openModal('edit-profile', {nickname:userInfo.nickname, profileImg:userInfo.profileImg} );
+  };
+
   // TODO: 로딩 컴포넌트로 교체
   if (isLoading) return <LoadingSpinner loading={isLoading} />;
 
@@ -55,11 +60,21 @@ const UserInfo = () => {
   return (
     <div className="mb-10">
       <div className="relative w-24 mx-auto">
-        <img
-          src={userInfo.profileImg}
-          alt="Profile"
-          className="w-24 h-24 rounded-full border-2 border-gray-01"
-        />
+        <div
+          className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-01 hover:border-primary-orange cursor-pointer"
+          onClick={handleEditProfile}
+        >
+          <img
+            src={userInfo.profileImg}
+            alt="Profile"
+            // className="w-24 h-24 "
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+            <span className="text-primary-white text-sm font-bold">정보 수정</span>
+          </div>
+        </div>
+
         {/* TODO: 유저 티어별로 이미지 설정해서 이미지 넣기 */}
         <div className="absolute -bottom-2 -right-2 rounded-full">
           <img
