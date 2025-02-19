@@ -33,6 +33,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
   const [code, setCode] = useState('');
   const [opponentName, setOpponentName] = useState('');
   const finish = isFinish === 'WIN' || isFinish === 'LOSE';
+
   // ai 코칭
   const fetchAiCoaching = async () => {
     if (userRoomId && gameId && finish) {
@@ -78,13 +79,6 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
       }
     }
   };
-
-  useEffect(() => {
-    if (finish) {
-      fetchAiCoaching();
-      fetchUserCode();
-    }
-  }, [finish]);
 
   // 모달 타입에 따른 설정
   const getModalConfig = () => {
