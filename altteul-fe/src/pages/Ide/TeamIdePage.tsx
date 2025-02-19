@@ -10,12 +10,15 @@ import useAuthStore from '@stores/authStore';
 import resize from '@assets/icon/resize.svg';
 import VoiceChat from '@components/Ide/VoiceChat';
 import { teamApi } from '@utils/Api/commonApi';
-import { OpenVidu } from 'openvidu-browser';
+import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
+import useModalStore from '@stores/modalStore';
+import { TeamInfo } from 'types/types';
+import { createToken } from '@utils/openVidu';
 
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam, setIsFinish } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
 
   const [sideProblem, setSideProblem] = useState(null);
@@ -28,39 +31,14 @@ const TeamIdePage = () => {
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const { userId, token } = useAuthStore();
-  const [voiceToken, setVoiceToken] = useState(null);
   const userRoomId = myTeam.roomId;
+  const { openModal } = useModalStore();
 
-  // const joinVoiceChat = async () => {
-  //   if (!userRoomId) return;
-
-  //   try {
-  //     const response = await teamApi.post(
-  //       `/${userRoomId}/voice/join`,
-  //       {},
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     const sessionToken = response.data.data.token;
-  //     setVoiceToken(sessionToken);
-
-  //     console.log('음성 채팅 세션 참여 성공:', sessionToken);
-  //   } catch (error) {
-  //     console.error('음성 채팅 세션 참여 실패:', error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (userRoomId) {
-  //     setUserRoomId(userRoomId);
-  //     joinVoiceChat();
-  //   }
-  // }, [userId, users, setUserRoomId]);
+  useEffect(() => {
+    if (userRoomId) {
+      setUserRoomId(userRoomId);
+    }
+  }, [userId, users, userRoomId, setUserRoomId]);
 
   useEffect(() => {
     if (!connected) return;
@@ -81,14 +59,33 @@ const TeamIdePage = () => {
       setShowModal(true);
     });
 
-    // ✅ 코드 채점 결과 구독
+    // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
       console.log('📩 코드 채점 결과 수신:', data);
     });
 
-    // ✅ 상대 팀 채점 결과 구독
+    // 실시간 게임 현황 구독
+    subscribe(`/sub/game/${gameId}/submission/result`, data => {
+      console.log('📩 실시간 게임 현황 수신:', data);
+
+      const { myTeam, opponents } = data.data;
+
+      if (myTeam?.passRate === 100) {
+        setIsFinish('WIN');
+        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.SUCCESS });
+      }
+
+      opponents.forEach((opponent: TeamInfo) => {
+        if (opponent.passRate === 100) {
+          setIsFinish('LOSE');
+          openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.FAILURE });
+        }
+      });
+    });
+
+    // ✅ 상대 팀 코드 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
-      console.log('📩 상대 팀 채점 결과 수신:', data);
+      console.log('📩 상대 팀 코드 수신:', data);
       setOpponentCode(data.code);
     });
 
@@ -164,7 +161,7 @@ const TeamIdePage = () => {
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
       <div className="min-w-[23rem] max-w-[23rem] border-gray-04">
         <ProblemInfo />
-        <VoiceChat roomId={userRoomId} voiceToken={voiceToken} />
+        <VoiceChat />
       </div>
 
       {/* ✅ 우리 팀과 상대 팀의 코드 에디터 표시 */}
@@ -174,7 +171,13 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor roomId={String(gameId)} code={code} setCode={setCode} language={language} setLanguage={setLanguage} />
+          {/* <CodeEditor
+            roomId={String(gameId)}
+            code={code}
+            setCode={setCode}
+            language={language}
+            setLanguage={setLanguage}
+          /> */}
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
             <IdeFooter
@@ -194,13 +197,13 @@ const TeamIdePage = () => {
         <div style={{ width: `${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           <h2 className="text-center">상대 팀 코드</h2>
           <div>
-            <CodeEditor
+            {/* <CodeEditor
               roomId={String(gameId)}
               code={opponentCode}
               setCode={() => {}}
               language={language}
               readOnly={true}
-            />
+            /> */}
           </div>
         </div>
       </div>
