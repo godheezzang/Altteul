@@ -39,9 +39,6 @@
 .monaco-editor.no-user-select,
 .monaco-editor.no-user-select,
 .margin-view-overlays {
-  position: static !important;
-  width: 100% !important;
-  height: 100% !important;
   background-color: #242a32 !important;
 }
 
@@ -55,7 +52,7 @@
 }
 
 .Toastify__toast--info {
-  background: #242A32;
-  border: #E06C2D;
-  border-color: #E06C2D;
+  background: #242a32;
+  border: #e06c2d;
+  border-color: #e06c2d;
 }
