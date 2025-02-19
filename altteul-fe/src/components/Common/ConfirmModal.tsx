@@ -5,7 +5,10 @@ interface ConfirmModalProps {
 
 const ConfirmModal = ({ onConfirm, onCancel }: ConfirmModalProps) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"style={{ zIndex: 999}}>
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      style={{ zIndex: 51 }}
+    >
       <div className="bg-primary-black p-8 rounded-md shadow-side w-[30rem] shadow-gray-03 text-center">
         <h2 className="text-lg font-semibold text-primary-white">정말 게임을 나가시겠습니까?</h2>
         <p className="text-gray-02 mt-2">나가기를 선택하면 진행 중인 게임에서 패배하게 됩니다.</p>
