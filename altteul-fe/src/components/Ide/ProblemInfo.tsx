@@ -1,9 +1,12 @@
 import useGameStore from '@stores/useGameStore';
 import { ReactNode } from 'react';
 import parse, { DOMNode, domToReact } from 'html-react-parser';
+import { useLocation } from 'react-router-dom';
 
 const ProblemInfo = () => {
   const { problem, testcases } = useGameStore();
+  const location = useLocation();
+  const isTeam = location.pathname.includes('/game/team');
 
   if (!problem || !testcases) {
     return null;
@@ -61,7 +64,7 @@ const ProblemInfo = () => {
   };
 
   return (
-    <div className="h-[50rem] overflow-auto mb-12">
+    <div className={`${isTeam ? 'h-[50rem]' : ''} overflow-auto mb-12`}>
       <h2 className="text-lg font-semibold border-b border-gray-04 p-4">
         {problem.problemId}. {problem.problemTitle}
       </h2>
