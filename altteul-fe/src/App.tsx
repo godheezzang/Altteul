@@ -16,8 +16,8 @@ import useFriendChatStore from '@stores/friendChatStore';
 import useAuthStore from '@stores/authStore';
 
 //react-Toastify
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {ToastContainer} from 'react-toastify';
 
 const App = () => {
   const location = useLocation();
@@ -54,42 +54,90 @@ const App = () => {
     console.log(message);
     //요청을 받은 경우
     if (type === 'INVITE_REQUEST_RECEIVED') {
-      //TODO: confirm 말고 다른 방식의 요청 수락/거절 형식 필요
-      const accepted = confirm(`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`);
-
-      if (accepted) {
-        // 게임 초대 수락
-        try {
-          //TODO: 응답(res.status)에 따른 처리 필요
-          const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 수락 api
-          matchStore.setMatchData(res.data); //초대받은 방으로 이동 후 쓰일 data setting
-          alert(`${data.nickname}님의 대기방으로 이동합니다.`);
-          navigate(`/match/team/composition`); //팀전 대기방으로 이동
-        } catch (error) {
-          console.error('초대 수락 중 오류 발생:', error);
+      //React-Toastify를 사용한 confirm 대체
+      toast.info(
+        <div>
+          <p>{`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`}</p>
+          <div className="mt-2 flex justify-end gap-2">
+            <button
+              onClick={() => {
+                toast.dismiss();
+                handleInviteResponse(false, data.nickname, data.roomId);
+              }}
+              className="px-3 py-1 bg-gray-500 text-white rounded"
+            >
+              거절
+            </button>
+            <button
+              onClick={() => {
+                toast.dismiss();
+                handleInviteResponse(true, data.nickname, data.roomId);
+              }}
+              className="px-3 py-1 bg-blue-500 text-white rounded"
+            >
+              수락
+            </button>
+          </div>
+        </div>,
+        {
+          position: "top-center",
+          autoClose: false,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          closeButton: false,
         }
-      }
-
-      if (!accepted) {
-        //게임 초대 거절
-        const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 거절 api
-      }
+      );
     }
 
     //초대 거절 응답
     if (type === 'INVITE_REJECTED') {
-      alert(data.note);
+      toast.error("초대 요청이 거절되었습니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
     }
 
     //초대 수락 응답
     if (type === 'INVITE_ACCEPTED') {
-      alert(data.note);
+      toast.success("초대를 수락했습니다. 곧 방에 입장합니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
     }
 
     if (type === 'SEND_REQUEST') {
       //친구 신청 받았을 때 데이터 FriendChatStore에 저장
       // fcStore.setFriendRequests(data.friendRequests)
-      //TODO: 친구 신청이 왔다는 알림(?)
+      //친구 신청 알림 추가
+      toast.info(`새 친구 신청이 도착했습니다!`, {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  // 초대 응답 처리 함수
+  const handleInviteResponse = async (accepted: boolean, nickname: string, roomId: number) => {
+    try {
+      const res = await inviteResponse(nickname, roomId, accepted);
+      
+      if (accepted) {
+        // 초대 수락 시
+        matchStore.setMatchData(res.data);
+        toast.success(`${nickname}님의 대기방으로 이동합니다.`, {
+          position: "top-center",
+          autoClose: 2000,
+          onClose: () => navigate(`/match/team/composition`)
+        });
+      }
+    } catch (error) {
+      console.error('초대 응답 중 오류 발생:', error);
+      toast.error('초대 응답 중 오류가 발생했습니다.', {
+        position: "top-center",
+        autoClose: 3000
+      });
     }
   };
 
@@ -120,7 +168,18 @@ const App = () => {
 
   return (
     <>
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <div className="min-h-screen">
         {!hideNavigation.has(location.pathname) && (isGamePage ? <GameGnb /> : <MainGnb />)}
         <main className={`mt-[3.5rem] bg-primary-black h-[calc(100vh-3.5rem)]`}>
