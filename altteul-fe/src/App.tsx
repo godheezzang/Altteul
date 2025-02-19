@@ -101,20 +101,21 @@ const App = () => {
 
     //초대 수락 응답
     if (type === 'INVITE_ACCEPTED') {
-      toast.success("초대를 수락했습니다. 곧 방에 입장합니다.", {
+      toast.success("초대를 수락했습니다.", {
         position: "top-center",
         autoClose: 3000,
       });
     }
 
     if (type === 'SEND_REQUEST') {
-      //친구 신청 받았을 때 데이터 FriendChatStore에 저장
-      // fcStore.setFriendRequests(data.friendRequests)
-      //친구 신청 알림 추가
       toast.info(`새 친구 신청이 도착했습니다!`, {
-        position: "bottom-right",
-        autoClose: 3000,
+        position: "bottom-center",
       });
+    }
+
+    if (type === 'FRIEND_LIST_UPDATE_REQUIRED' || type === 'FRIEND_RELATION_CHANGED') {
+      // friendChatStore의 트리거 함수 호출
+      fcStore.triggerFriendsRefresh();
     }
   };
 

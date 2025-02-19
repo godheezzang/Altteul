@@ -15,6 +15,7 @@ interface socketResponseMessage {
     | 'INVITE_ACCEPTED'
     | 'INVITE_REJECTED'
     | 'SEND_REQUEST'
+    | 'FRIEND_LIST_UPDATE_REQUIRED' | 'FRIEND_RELATION_CHANGED'
     | '새 메시지';
   data: {
     //유저 입퇴장('ENTER/LEAVE') message
