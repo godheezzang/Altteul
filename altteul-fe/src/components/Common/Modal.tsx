@@ -36,13 +36,13 @@ const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-55 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-55 flex justify-center items-center"
       onClick={handleClose}
     >
       <div
-        className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className}`.trim()}
+        className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className} z-100`.trim()}
         onClick={e => e.stopPropagation()}
-        style={{ minWidth, minHeight }}
+        style={{ minWidth, minHeight, zIndex: 999 }}
       >
         {title && (
           <h2 className={`text-xxl font-bold text-center mt-4 text-${titleColor}`}>{title}</h2>
