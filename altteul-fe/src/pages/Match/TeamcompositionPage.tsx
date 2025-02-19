@@ -46,6 +46,11 @@ const TeamcompositionPage = () => {
         leaderId: data.leaderId,
         users: data.users,
       });
+      
+      // 4명이 되면 자동 매칭 시작
+      if (data.users.length >= 4) {
+        navigateMatchPage();
+      }
     }
 
     // 매칭이 시작되면 TeamSearchPage로 이동
@@ -53,10 +58,6 @@ const TeamcompositionPage = () => {
       navigate('/match/team/search');
     }
 
-    // 4명이 되면 자동 매칭 시작
-    if (data.users.length >= 4) {
-      navigateMatchPage();
-    }
   };
 
   // 매칭 시작 버튼 핸들러
