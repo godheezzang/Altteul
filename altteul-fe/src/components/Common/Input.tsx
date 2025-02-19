@@ -16,6 +16,7 @@ type InputProps = {
   showPasswordToggle?: boolean;
   showMagnifier?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  buttonDisabled?: boolean; // 버튼 비활성화 여부
 };
 
 const DEFAULT_INPUT_STYLE =
@@ -35,6 +36,7 @@ const Input = ({
   onButtonClick,
   showPasswordToggle = false,
   showMagnifier = false,
+  buttonDisabled = false,
   onKeyDown,
 }: InputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -71,7 +73,15 @@ const Input = ({
         )}
       </div>
       {buttonText && onButtonClick && (
-        <button type="button" onClick={onButtonClick} className={BUTTON_STYLE}>
+        <button
+          type="button"
+          onClick={onButtonClick}
+          disabled={buttonDisabled}
+          className={`${BUTTON_STYLE}
+             ${buttonDisabled && 'bg-gray-02 border !border-gray-02 text-white hover:bg-gray-02 cursor-auto'
+              
+             }`}
+        >
           {buttonText}
         </button>
       )}
