@@ -51,7 +51,6 @@ public class GameLeaveService {
 	private final SingleRoomRepository singleRoomRepository;
 	private final TeamRoomRepository teamRoomRepository;
 	private final RoomWebSocketService roomWebSocketService;
-	// private final VoiceChatService voiceChatService;
 
 	private static final String TEAM_LEFT_STATUS = "TEAM_LEFT";
 
@@ -236,9 +235,6 @@ public class GameLeaveService {
 
 		removeUserRedisData(user, roomUsersKey, BattleType.T);
 
-		// 음성 채팅 연결 종료
-		// voiceChatService.terminateUserVoiceConnection(Long.parseLong(redisRoomId), user.getUserId().toString());
-
 		// 남은 유저 정보 조회 및 팀별 그룹화
 		Map<Long, List<UserInfoResponseDto>> remainingUsersByTeam = getRemainingTeamUsers(redisRoomId,
 			user.getUserId());
@@ -290,9 +286,6 @@ public class GameLeaveService {
 			handleInProgressTeamAllLeft(game, roomId, matchId, remainingUsersByTeam);
 		}
 
-		// voice session 종료
-		// voiceChatService.terminateTeamVoiceSession(Long.parseLong(redisRoomId));
-		// voiceChatService.terminateTeamVoiceSession(Long.parseLong(opposingRoomId));
 	}
 
 	private void handleInProgressTeamAllLeft(Game game, Long roomId, String matchId,

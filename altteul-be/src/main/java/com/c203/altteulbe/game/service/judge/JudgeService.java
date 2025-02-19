@@ -90,8 +90,8 @@ public class JudgeService {
 		JudgeRequestDto judgeRequestDto = JudgeRequestDto.builder()
 			.src(request.getCode())
 			.language_config(langDto)
-			.max_cpu_time(2000L) // 기본 1초
-			.max_memory(100 * 1024 * 1024L) // 기본 100MB
+			.max_cpu_time(3000L) // 기본 1초
+			.max_memory(125 * 1024 * 1024L) // 기본 100MB
 			.test_case_id(problemFolderName)
 			.output(true)
 			.build();
@@ -105,7 +105,7 @@ public class JudgeService {
 	 * @param id : username
 	 */
 	public void submitCode(SubmitCodeRequestDto request, Long id) {
-		log.debug("코드 제출 요청 값: " + request.toString());
+		log.debug("코드 제출 요청 값: {}", request.toString());
 		// 저지에게 코드 제출
 		Problem problem = problemRepository.findById(request.getProblemId())
 			.orElseThrow(() -> new BusinessException("문제를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST));
@@ -117,7 +117,7 @@ public class JudgeService {
 		CodeSubmissionTeamResponseDto teamResponseDto = CodeSubmissionTeamResponseDto.from(judgeResponse, id);
 		CodeSubmissionOpponentResponseDto opponentResponseDto;
 		if (judgeResponse.isNotCompileError()) {
-			log.debug("코드 제출 결과 값: " + judgeResponse);
+			log.debug("코드 제출 결과 값: {}", judgeResponse);
 			opponentResponseDto = CodeSubmissionOpponentResponseDto.builder()
 				.userId(id)
 				.totalCount(teamResponseDto.getTotalCount())

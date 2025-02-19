@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-	// private final VoiceChatInterceptor voiceChatInterceptor;
-
 	private static final long MAX_AGE_SECS = 3600;
 
 	@Override
@@ -52,10 +50,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			.allowCredentials(true)
 			.maxAge(MAX_AGE_SECS);
 	}
-
-	// @Override
-	// public void addInterceptors(InterceptorRegistry registry) {
-	// 	registry.addInterceptor(voiceChatInterceptor)
-	// 		.addPathPatterns("/**");
-	// }
 }

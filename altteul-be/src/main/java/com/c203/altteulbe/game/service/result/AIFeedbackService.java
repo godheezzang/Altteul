@@ -1,5 +1,6 @@
 package com.c203.altteulbe.game.service.result;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Service;
 
 import com.c203.altteulbe.common.dto.BattleType;
+import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
@@ -52,10 +54,14 @@ public class AIFeedbackService {
 			if (myRoom.getCode() == null) throw new NullPointerException();
 			userPromptTemplate = getPrompt(game.getProblem(), myRoom);
 		}
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("problemDescription", game.getProblem().getDescription());
+		variables.put("language", myRoom.getLang() == Language.JV ? "java" : "python");
+		variables.put("userCode", myRoom.getCode());
 
 		System.out.println(userPromptTemplate);
-
-		PromptTemplate userTemplate = new PromptTemplate(userPromptTemplate);
+		userPromptTemplate = escapePrompt(userPromptTemplate);
+		PromptTemplate userTemplate = new PromptTemplate(userPromptTemplate,variables);
 		String userCommand = userTemplate.render();
 
 		String systemPromptTemplate = """
@@ -104,4 +110,21 @@ public class AIFeedbackService {
         위의 코드에 대해 개선할 점을 리뷰해주세요. 코드 스타일, 최적화, 버그 가능성을 포함해서 상세한 피드백을 작성해주세요.
         """.formatted(problem.getDescription(), mdLanguage, room.getCode());
 	}
+
+	private String getPrompt() {
+		return """
+        문제 설명: {problemDescription}
+        유저 코드:
+        ```{language}
+        {userCode}
+        ```
+        위의 코드에 대해 개선할 점을 리뷰해주세요. 코드 스타일, 최적화, 버그 가능성을 포함해서 상세한 피드백을 작성해주세요.
+        """;
+	}
+
+	private String escapePrompt(String original) {
+		return original.replace("{", "{{")
+			.replace("}", "}}");
+	}
+
 }
