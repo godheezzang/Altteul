@@ -63,6 +63,8 @@ const App = () => {
           //TODO: 응답(res.status)에 따른 처리 필요
           const res = await inviteResponse(data.nickname, data.roomId, accepted); //게임 초대 수락 api
           matchStore.setMatchData(res.data); //초대받은 방으로 이동 후 쓰일 data setting
+          alert(`${data.nickname}님의 대기방으로 이동합니다.`);
+          navigate(`/match/team/composition`); //팀전 대기방으로 이동
         } catch (error) {
           console.error('초대 수락 중 오류 발생:', error);
         }
@@ -81,8 +83,7 @@ const App = () => {
 
     //초대 수락 응답
     if (type === 'INVITE_ACCEPTED') {
-      alert(`${data.note} 대기방으로 이동합니다.`);
-      navigate(`/match/team/composition`); //팀전 대기방으로 이동
+      alert(data.note);
     }
 
     if (type === 'SEND_REQUEST') {
