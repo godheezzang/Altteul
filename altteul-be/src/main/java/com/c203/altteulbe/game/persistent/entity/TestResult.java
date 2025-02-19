@@ -45,7 +45,7 @@ public class TestResult extends BaseCreatedEntity {
 	@Column(name = "execute_memory", columnDefinition = "int unsigned")
 	private Integer executeMemory;
 
-	@Column(name = "test_result", nullable = false, columnDefinition = "ENUM('P','R','F')")
+	@Column(name = "test_result", nullable = false, columnDefinition = "ENUM('P','RUN','TLE','MLE','F')")
 	@Enumerated(EnumType.STRING)
 	private Status testResult;
 
