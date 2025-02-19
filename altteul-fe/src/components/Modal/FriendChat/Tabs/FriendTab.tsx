@@ -11,6 +11,7 @@ const FriendTab = () => {
   const [currentPage, setCurrentPage] = useState(0);
   
   const fcStore = useFriendChatStore();
+  const { friendsNeedRefresh, resetFriendsRefresh } = fcStore;
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -36,6 +37,14 @@ const FriendTab = () => {
       fcStore.setIsSearching(false);
     }
   };
+
+  // 새로고침 트리거가 활성화되면 친구 목록을 다시 가져옵니다
+  useEffect(() => {
+    if (friendsNeedRefresh) {
+      getFriendsList();
+      resetFriendsRefresh();
+    }
+  }, [friendsNeedRefresh]);
 
   useEffect(() => {
     if (inView && !fcStore.isSearching && fcStore.hasMore && !fcStore.searchQuery) {

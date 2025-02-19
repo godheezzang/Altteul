@@ -10,6 +10,7 @@ const NotificationTab = () => {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fcStore = useFriendChatStore();
 
   // 알림 데이터 가져오기
   const fetchNotifications = async () => {
@@ -30,11 +31,11 @@ const NotificationTab = () => {
     fetchNotifications();
   }, []);
 
-  //친구 요청 수락/거절시 리스트에서 제거
-  const updateNotifications = (friendRequestId: number) => {
-    setFriendRequests(prev =>
-      prev.filter(friendRequest => friendRequest.friendRequestId !== friendRequestId)
-    );
+  // 친구 요청 수락/거절시 리스트에서 즉시 제거
+  const removeRequestFromList = (friendRequestId: number) => {
+    setFriendRequests(prev => prev.filter(
+      request => request.friendRequestId !== friendRequestId
+    ));
   };
 
   return (
@@ -60,7 +61,7 @@ const NotificationTab = () => {
                 <FriendRequestItem
                   key={request.friendRequestId}
                   request={request}
-                  onRefresh={updateNotifications}
+                  onRefresh={removeRequestFromList}
                 />
               ))
             ) : (

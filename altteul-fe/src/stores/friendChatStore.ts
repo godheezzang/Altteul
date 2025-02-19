@@ -1,6 +1,5 @@
 // src/stores/friendChatStore.ts
 import { FriendRequest } from 'types/types';
-import { getState } from 'yjs';
 import { create } from 'zustand';
 
 type ViewType = 'main' | 'search' | 'chat';
@@ -20,9 +19,8 @@ interface FriendChatState {
   searchError: string;
   hasMore: boolean;  // 무한 스크롤을 위한 상태
 
-  //친구신청목록
-  // friendRequests: FriendRequest[]
-
+  // 친구 목록 새로고침 트리거
+  friendsNeedRefresh: boolean;
   
   // 액션들
   setCurrentView: (view: ViewType) => void;
@@ -33,7 +31,10 @@ interface FriendChatState {
   setIsSearching: (isSearching: boolean) => void;
   setSearchError: (error: string | null) => void;
   setHasMore: (hasMore: boolean) => void;
-  // setFriendRequests: (friendRequests: FriendRequest) => void
+  
+  // 친구 목록 새로고침 액션
+  triggerFriendsRefresh: () => void;
+  resetFriendsRefresh: () => void;
   
   startChat: (friendId: number) => void;
   resetStore: () => void;
@@ -48,6 +49,7 @@ const initialState = {
   isSearching: false,
   searchError: "",
   hasMore: true,
+  friendsNeedRefresh: false,
 };
 
 const useFriendChatStore = create<FriendChatState>((set) => ({
@@ -61,6 +63,10 @@ const useFriendChatStore = create<FriendChatState>((set) => ({
   setIsSearching: (isSearching) => set({ isSearching }),
   setSearchError: (error) => set({ searchError: error }),
   setHasMore: (hasMore) => set({ hasMore }),
+
+  // 친구 목록 새로고침 액션
+  triggerFriendsRefresh: () => set({ friendsNeedRefresh: true }),
+  resetFriendsRefresh: () => set({ friendsNeedRefresh: false }),
 
   startChat: (friendId) => set({
     currentView: 'chat',
