@@ -159,7 +159,7 @@ const TeamIdePage = () => {
           clearInterval(interval);
         }
       },
-      60 * 10 * 1000
+      60 * 1000
     );
 
     return () => clearInterval(interval);

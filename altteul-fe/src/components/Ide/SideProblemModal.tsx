@@ -56,7 +56,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 60000);
+    }, 6000);
 
     return () => clearTimeout(timer);
   }, []);
