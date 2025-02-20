@@ -11,7 +11,7 @@ export type SortedPlayer = {
   executeMemory: string | number | null;
   executeTime: string | number | null;
   gameResult: number | string;
-  isMyTeam: boolean;
+  isFinish: boolean;
   lang: string | null;
   nickname: string;
   passRate: number;
@@ -45,7 +45,7 @@ const ResultList = ({ results }: ResultListProps) => {
         point: results.submittedTeam.point,
         passRate: results.submittedTeam.passRate,
         duration: results.submittedTeam.duration,
-        isMyTeam: true,
+        isFinish: true,
       }));
 
       const opponentMembers = results.restTeam?.flatMap((opponent: TeamInfo) =>
@@ -59,7 +59,7 @@ const ResultList = ({ results }: ResultListProps) => {
           point: opponent.point,
           passRate: opponent.passRate,
           duration: opponent.duration,
-          isMyTeam: false,
+          isFinish: false,
         }))
       );
 
@@ -75,19 +75,19 @@ const ResultList = ({ results }: ResultListProps) => {
 
   return (
     <div>
-      <div className="relative flex text-primary-white w-[60rem] justify-between text-sm p-4">
-        <p className="w-8 text-center">순위</p>
+      <div className="relative flex text-primary-white w-[62rem] justify-between text-sm p-4 ">
+        <p className="w-10 text-center">순위</p>
         <p className="w-40 text-center">플레이어</p>
-        <p className="w-18 text-center text-sm">획득 포인트</p>
+        <p className="w-18 text-center text-sm">포인트</p>
         <p className="w-16 text-center">시간</p>
         <p className="w-8 text-center">해결</p>
         <p className="w-16 text-center">통과율</p>
         <p className="w-16 text-center">언어</p>
         <p className="w-16 text-center">실행 속도</p>
-        <p className="w-16 text-center">메모리</p>
+        <p className="w-18 text-center">메모리</p>
         <p className="w-20 text-center"></p>
       </div>
-      <ul>
+      <ul className="relative flex flex-col text-primary-white w-[64rem] justify-between text-sm p-4">
         {sortedPlayers.map((player, index) => (
           <ResultItem key={index} player={player} rank={index + 1} />
         ))}

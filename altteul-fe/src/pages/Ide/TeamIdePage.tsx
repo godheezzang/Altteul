@@ -18,7 +18,7 @@ import { createToken } from '@utils/openVidu';
 const MAX_REQUESTS = 5;
 
 const TeamIdePage = () => {
-  const { gameId, users, setUserRoomId, myTeam, setIsFinish, opponent } = useGameStore();
+  const { gameId, users, setUserRoomId, myTeam, setIsFinish, opponent, matchId } = useGameStore();
   const { subscribe, sendMessage, connected } = useSocketStore();
   const [sideProblem, setSideProblem] = useState(null);
   const [code, setCode] = useState('');
@@ -79,14 +79,10 @@ const TeamIdePage = () => {
       setOpponentCode(data.code);
     });
 
-    // 음성 채팅 세션 참여
-    subscribe(`/sub/team/${userRoomId}/voice/status`, data => {
-      console.log('음성 채팅 상태 변경:', data);
-
-      if (data.status) {
-        console.log(`${userId} 음성 채팅 참여`);
-      }
+    subscribe(`/sub/team/room/${matchId}`, data => {
+      console.log('퇴장하기 구독 데이터', data);
     });
+
     return () => {
       // ✅ 구독 해제
     };
@@ -162,12 +158,12 @@ const TeamIdePage = () => {
           style={{ width: `${leftPanelWidth}%`, minWidth: '20%' }}
         >
           <h2 className="text-center">우리 팀 코드</h2>
-          <CodeEditor 
-            roomId={String(userRoomId)} 
-            code={code} 
-            setCode={setCode} 
-            language={language} 
-            setLanguage={setLanguage} 
+          <CodeEditor
+            roomId={String(userRoomId)}
+            code={code}
+            setCode={setCode}
+            language={language}
+            setLanguage={setLanguage}
             myRoomId={String(userRoomId)}
           />
           <Terminal output={output} isTeam={true} />
@@ -205,7 +201,7 @@ const TeamIdePage = () => {
       {showModal && sideProblem && (
         <SideProblemModal
           gameId={gameId}
-          roomId={userRoomId }
+          roomId={userRoomId}
           problem={sideProblem?.data}
           onClose={() => setShowModal(false)}
         />

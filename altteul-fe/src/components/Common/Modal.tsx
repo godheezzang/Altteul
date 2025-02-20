@@ -22,7 +22,7 @@ const Modal = ({
   minWidth = '28rem',
   width,
   height,
-  minHeight = '34.5rem',
+  minHeight = '15rem',
   className = '',
   titleColor = '',
   onReset,
@@ -35,10 +35,7 @@ const Modal = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center"
-      onClick={handleClose}
-    >
+    <div className="fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center">
       <div
         className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className} z-100`.trim()}
         onClick={e => e.stopPropagation()}

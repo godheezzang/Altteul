@@ -19,6 +19,7 @@ import com.c203.altteulbe.chat.persistent.entity.QUserChatRoom;
 import com.c203.altteulbe.chat.web.dto.response.ChatMessageResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatroomDetailResponseDto;
 import com.c203.altteulbe.chat.web.dto.response.ChatroomListResponseDto;
+import com.c203.altteulbe.friend.persistent.entity.QFriendship;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.user.persistent.entity.QUser;
 import com.querydsl.core.Tuple;
@@ -37,6 +38,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 	private static final QChatroom Q_CHATROOM = QChatroom.chatroom;
 	private static final QUserChatRoom Q_USER_CHATROOM = QUserChatRoom.userChatRoom;
 	private static final QUser Q_USER = QUser.user;
+	private static final QFriendship Q_FRIENDSHIP = QFriendship.friendship;
 
 	public ChatroomCustomRepositoryImpl(JPAQueryFactory queryFactory, UserStatusService userStatusService) {
 		super(Chatroom.class);
@@ -69,7 +71,7 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 						.then(Boolean.FALSE)
 						.otherwise(Boolean.TRUE),
 					"isMessageRead"
-					),
+				),
 				Expressions.cases() // 메세지 보낸 시간
 					.when(Q_CHATMESSAGE.createdAt.isNotNull())
 					.then(Q_CHATMESSAGE.createdAt)
@@ -86,7 +88,27 @@ public class ChatroomCustomRepositoryImpl extends QuerydslRepositorySupport impl
 							.where(Q_CHATMESSAGE.chatroom.eq(Q_CHATROOM))
 					))
 			)
-			.where(Q_USER_CHATROOM.user.userId.ne(userId)) // 상대방이 보낸 메세지(자신 X)
+			.where(Q_USER_CHATROOM.user.userId.ne(userId)
+				.and(
+					JPAExpressions
+						.selectOne()
+						.from(Q_FRIENDSHIP)
+						.where(
+							(Q_FRIENDSHIP.user.userId.eq(userId)
+								.and(Q_FRIENDSHIP.friend.userId.eq(Q_USER.userId)))
+								.or(Q_FRIENDSHIP.user.userId.eq(Q_USER.userId)
+									.and(Q_FRIENDSHIP.friend.userId.eq(userId))))
+						.exists()
+				)
+				.and(  // 자신도 해당 채팅방에 참여하고 있는지 확인
+					JPAExpressions
+						.selectOne()
+						.from(Q_USER_CHATROOM)
+						.where(Q_USER_CHATROOM.chatroom.eq(Q_CHATROOM)
+							.and(Q_USER_CHATROOM.user.userId.eq(userId)))
+						.exists()
+				)
+			) // 상대방이 보낸 메세지(자신 X)
 			.orderBy( // 최신 순으로 정렬
 				Expressions.cases()
 					.when(Q_CHATMESSAGE.createdAt.isNotNull())
