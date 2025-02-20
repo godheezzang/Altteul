@@ -100,9 +100,7 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
         {config.mainText === 'FAIL' ? (
           ''
         ) : (
-          <div className="text-gray-02 text-sm mb-3">
-            계속하려면 Enter키나 다음 버튼을 눌러주세요.
-          </div>
+          <p className="text-gray-02 text-sm mb-3">계속하려면 다음 버튼을 눌러주세요.</p>
         )}
 
         {config.mainText === 'FAIL' ? (

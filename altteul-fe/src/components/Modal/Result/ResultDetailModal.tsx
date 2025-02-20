@@ -37,10 +37,11 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
   };
 
   useEffect(() => {
-    if (gameId) {
+    if ((gameId && isFinish === 'WIN') || isFinish === 'LOSE') {
       fetchResultData();
+      console.log('modalDetail isFinish:', isFinish);
     }
-  }, [gameId, isFinish, setResults]);
+  }, [isFinish]);
 
   //TODO: 다음 버튼 클릭시 로직
   const handleContinue = () => {

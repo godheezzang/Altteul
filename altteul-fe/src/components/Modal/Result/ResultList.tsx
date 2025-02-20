@@ -75,14 +75,14 @@ const ResultList = ({ results }: ResultListProps) => {
 
   return (
     <div>
-      <div className="relative flex text-primary-white w-[62rem] justify-between text-sm p-4 ">
+      <div className="relative flex text-primary-white w-[62rem] justify-between text-sm pl-8 mt-10">
         <p className="w-10 text-center">순위</p>
-        <p className="w-40 text-center">플레이어</p>
-        <p className="w-18 text-center text-sm">포인트</p>
-        <p className="w-16 text-center">시간</p>
+        <p className="w-32 text-center">플레이어</p>
+        <p className="w-20 text-center text-sm">포인트</p>
+        <p className="w-10 text-center">시간</p>
         <p className="w-8 text-center">해결</p>
-        <p className="w-16 text-center">통과율</p>
-        <p className="w-16 text-center">언어</p>
+        <p className="w-10 text-center">통과율</p>
+        <p className="w-14 text-center">언어</p>
         <p className="w-16 text-center">실행 속도</p>
         <p className="w-18 text-center">메모리</p>
         <p className="w-20 text-center"></p>
