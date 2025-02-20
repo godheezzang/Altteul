@@ -1,62 +1,53 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor, { loader } from '@monaco-editor/react';
+// 1) txt 파일 import
+import mcWar from '@assets/solved/MC 전쟁.txt';
+import gridCity from '@assets/solved/격자 도시.txt?raw';
+import headMeeting from '@assets/solved/머리맞대기.txt?raw';
+import warehouseRobot from '@assets/solved/물류 창고 로봇.txt?raw';
+import busTransfer from '@assets/solved/버스 환승.txt?raw';
 
 loader.init().then(monaco => {
-  monaco.languages.register({ id: 'java' });
-  // monaco.languages.setMonarchTokensProvider('java', javaLanguage);
-  // monaco.languages.setLanguageConfiguration('java', javaConfiguration)
+  monaco.languages.register({ id: 'python' });
 });
 
-const codeSnippet = ` import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class Solution {
-    static boolean visited[];
-    static List<String> lst;
-    public static void main(String[] args) {
-        Solution sol = new Solution();
-        System.out.println(Arrays.toString(sol.solution(new String[][] {{"ICN", "JFK"}, {"HND", "IAD"}, {"JFK", "HND"}})));
-        System.out.println(Arrays.toString(sol.solution(
-            new String[][] {{"ICN", "SFO"}, {"ICN", "ATL"}, {"SFO", "ATL"}, {"ATL", "ICN"}, {"ATL", "SFO"}})));
-    }
-
-    public String[] solution(String[][] tickets) {
-        String[] answer = {};
-        visited = new boolean[tickets.length];
-        lst = new ArrayList<String>();
-        dfs(0, "ICN", "ICN", tickets);
-        Collections.sort(lst);
-        answer = lst.get(0).split(" ");
-        return answer;
-    }
-
-    private void dfs(int depth, String start, String route, String[][] tickets) {
-        if(depth == tickets.length) {
-            lst.add(route);
-            return;
-        }
-        for (int i = 0; i < tickets.length; i++) {
-            if (!visited[i] && start.equals(tickets[i][0])) {
-                visited[i] = true;
-                dfs(depth + 1, tickets[i][1], route + " " + tickets[i][1], tickets);
-                visited[i] = false;
-            }
-        }
-    }
-} `;
+// 2) 코드 스니펫 배열
+const codeSnippets = [
+  mcWar,
+  gridCity,
+  headMeeting,
+  warehouseRobot,
+  busTransfer,
+];
 
 const AnimatedCodeEditor = (): JSX.Element => {
-  const [typedCode, setTypedCode] = useState<string>('');
-  const indexRef = useRef<number>(0);
+  // codeSnippet을 상태로 갖고, 무작위로 선택
+  const [codeSnippet, setCodeSnippet] = useState('');
+  const [typedCode, setTypedCode] = useState('');
+  const indexRef = useRef(0);
   const rafRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number>(0); // ⬅ 마지막 실행 시간 기록
+  const lastTimeRef = useRef<number>(0);
   const [isEditorReady, setIsEditorReady] = useState(false);
 
-  const typingSpeed = 40; // ⬅ 속도 조절 (밀리초, 값이 클수록 느려짐)
+  // 타이핑 속도 (ms)
+  const typingSpeed = 30;
 
+  // 3) 마운트 시점에 무작위 스니펫 선택
   useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * codeSnippets.length);
+    setCodeSnippet(codeSnippets[randomIndex]);
+  }, []);
+
+  // 4) codeSnippet이 정해지면 타이핑 시작
+  useEffect(() => {
+    // codeSnippet이 아직 ''이면 타이핑 로직이 필요없음
+    if (!codeSnippet || !isEditorReady) return;
+
+    // typedCode 초기화
+    setTypedCode('');
+    indexRef.current = 0;
+    lastTimeRef.current = 0;
+
     const typeNextChar = (timestamp: number) => {
       if (!lastTimeRef.current) {
         lastTimeRef.current = timestamp;
@@ -64,11 +55,10 @@ const AnimatedCodeEditor = (): JSX.Element => {
 
       const elapsed = timestamp - lastTimeRef.current;
       if (elapsed > typingSpeed) {
-        // ⬅ 일정 간격 이상 지나야 실행
         if (indexRef.current < codeSnippet.length) {
           setTypedCode(prev => prev + codeSnippet[indexRef.current]);
           indexRef.current += 1;
-          lastTimeRef.current = timestamp; // ⬅ 마지막 실행 시간 갱신
+          lastTimeRef.current = timestamp;
         }
       }
 
@@ -77,23 +67,22 @@ const AnimatedCodeEditor = (): JSX.Element => {
       }
     };
 
-    if (isEditorReady) {
-      rafRef.current = requestAnimationFrame(typeNextChar);
-    }
+    rafRef.current = requestAnimationFrame(typeNextChar);
 
     return () => {
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [isEditorReady]);
+  }, [codeSnippet, isEditorReady]);
 
   return (
     <div className="relative w-full h-[calc(100vh-3.5rem)] overflow-hidden">
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black overflow-hidden" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black" />
+
       <MonacoEditor
         height="100%"
-        language="java"
+        language="python"
         theme="vs-dark"
         value={typedCode}
         onMount={() => setIsEditorReady(true)}
