@@ -132,14 +132,6 @@ public class JudgeService {
 				.totalCount(null)
 				.build();
 		}
-		// 채점 결과 팀별로 메세지 전송
-		judgeWebsocketService.sendTeamSubmissionResult(teamResponseDto,
-			request.getGameId(),
-			request.getTeamId());
-
-		judgeWebsocketService.sendOpponentSubmissionResult(opponentResponseDto,
-			request.getGameId(),
-			request.getTeamId());
 
 		// 결과를 내역 db에 저장, 게임 db에 저장
 		// 1. 내역 Entity 생성, 레포지토리 쿼리문 생성, 언어별 제한 테이블 추가
@@ -172,6 +164,15 @@ public class JudgeService {
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);
+
+		// 채점 결과 팀별로 메세지 전송
+		judgeWebsocketService.sendTeamSubmissionResult(teamResponseDto,
+			request.getGameId(),
+			request.getTeamId());
+
+		judgeWebsocketService.sendOpponentSubmissionResult(opponentResponseDto,
+			request.getGameId(),
+			request.getTeamId());
 
 		// 실시간 게임 현황 전송
 		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
