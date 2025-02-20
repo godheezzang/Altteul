@@ -32,7 +32,7 @@ interface EditProfileProps {
 }
 
 const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
-  const { modalInfo } = useModalStore();
+  const { modalInfo, setProfileUpdated } = useModalStore();
 
   const languageOptions = [
     { id: 1, value: 'PY', label: 'Python' },
@@ -227,6 +227,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     try {
       setIsSubmitting(true);
       const response = await updateProfile(formData);
+      setProfileUpdated(true); 
       toast.success('정보가 수정되었습니다.', {
         position: "top-center",
         autoClose: 2000,
