@@ -20,7 +20,7 @@ type NavigateModalProps = {
 
 const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const { openModal } = useModalStore();
-  const { myTeam, userRoomId, gameId, matchId } = useGameStore();
+  const { myTeam, userRoomId, gameId, matchId, resetGameInfo } = useGameStore();
   const { token, userId } = useAuthStore();
   const socket = useSocketStore();
   const navigate = useNavigate();
@@ -57,6 +57,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
             socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
             socket.unsubscribe(`/sub/team/room/${matchId}`);
           }
+          resetGameInfo();
           onClose();
           navigate('/match/select');
         }
@@ -139,6 +140,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
             socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
             socket.unsubscribe(`/sub/team/room/${matchId}`);
           }
+          resetGameInfo();
           onClose();
           navigate('/');
         }
