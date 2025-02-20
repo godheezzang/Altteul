@@ -268,7 +268,9 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                   <div className="text-sm">
                     <p>메모리</p>
                     <p className="font-semibold">
-                      {record.myTeam.executeMemory ? record.myTeam.executeMemory + 'MB' : '-'}
+                      {record.myTeam.executeMemory
+                        ? Math.round(Number(record.myTeam.executeMemory) / 1024 / 1024) + 'MB'
+                        : '-'}
                     </p>
                   </div>
                 </div>
@@ -288,7 +290,9 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                 <div>
                   <p>메모리</p>
                   <p className="font-semibold">
-                    {record.myTeam.executeMemory ? record.myTeam.executeMemory + 'MB' : '-'}
+                    {record.myTeam.executeMemory
+                      ? Math.round(Number(record.myTeam.executeMemory) / 1024 / 1024) + 'MB'
+                      : '-'}
                   </p>
                 </div>
               </div>
@@ -480,7 +484,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                       <div className="flex grow justify-between items-center">
                         <p>{member.lang}</p>
                         <p>{member.executeTime ? member.executeTime + '초' : '-'}</p>
-                        <p>{member.executeTime ? member.executeTime + 'MB' : '-'}</p>
+                        <p>
+                          {member.executeMemory
+                            ? Math.round(member.executeMemory / 1024 / 1024) + 'MB'
+                            : '-'}
+                        </p>
                         <SmallButton onClick={() => handleCodeClick(member.code, member.nickname)}>
                           코드
                         </SmallButton>

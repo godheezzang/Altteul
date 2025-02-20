@@ -98,8 +98,6 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
     return <LoadingSpinner loading={isLoading} />;
   }
 
-  console.log(player);
-
   return (
     <>
       <li className="flex gap-4 text-primary-white justify-between items-center  mb-4 ">
@@ -136,7 +134,9 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
             {player.executeTime ? player.executeTime + '초' : '-'}
           </p>
           <p className="w-16 text-center text-sm">
-            {player.executeMemory ? player.executeMemory + ' MB' : '-'}
+            {player.executeMemory
+              ? Math.round(Number(player.executeMemory) / 1024 / 1024) + ' MB'
+              : '-'}
           </p>
         </div>
 

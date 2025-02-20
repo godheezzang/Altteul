@@ -58,7 +58,11 @@ const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps
                 </div>
                 <div className="flex-1">
                   <p>메모리</p>
-                  <p>{teamCodeInfo.executeMemory ? teamCodeInfo.executeMemory + 'MB' : '-'}</p>
+                  <p>
+                    {teamCodeInfo.executeMemory
+                      ? Math.round(Number(teamCodeInfo.executeMemory) / 1024 / 1024) + 'MB'
+                      : '-'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -82,7 +86,9 @@ const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps
                 <div className="flex-1">
                   <p>메모리</p>
                   <p>
-                    {opponentCodeInfo.executeMemory ? opponentCodeInfo.executeMemory + 'MB' : '-'}
+                    {opponentCodeInfo.executeMemory
+                      ? Math.round(Number(opponentCodeInfo.executeMemory) / 1024 / 1024) + 'MB'
+                      : '-'}
                   </p>
                 </div>
               </div>
