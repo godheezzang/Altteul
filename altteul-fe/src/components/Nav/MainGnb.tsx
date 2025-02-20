@@ -10,7 +10,7 @@ const MainGnb = () => {
   const location = useLocation();
   const params = useParams()
   const { token, logout } = useAuthStore();
-  const { openModal } = useModalStore();
+  const { openModal, closeModal } = useModalStore();
   const { disconnect } = useSocketStore();
   const { userId } = useAuthStore();
 
@@ -41,6 +41,7 @@ const MainGnb = () => {
     logout();
     disconnect();
     navigate('/');
+    closeModal();
   };
 
   return (

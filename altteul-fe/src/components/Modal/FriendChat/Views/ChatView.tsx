@@ -119,7 +119,7 @@ const ChatView = () => {
           >
             {/* 시간표시 */}
             {message.senderId === Number(userId) && (
-              <p className="opacity-70 mr-1" style={{ fontSize: '0.6rem' }}>
+              <p className="opacity-70 mr-2 text-xs">
                 {new Date(message.createdAt).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
@@ -140,7 +140,7 @@ const ChatView = () => {
 
             {/* 시간표시 */}
             {message.senderId !== Number(userId) && (
-              <p className="opacity-70 ml-1" style={{ fontSize: '0.6rem' }}>
+              <p className="opacity-70 ml-2 text-xs" style={{ fontSize: '0.6rem' }}>
                 {new Date(message.createdAt).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
@@ -154,8 +154,8 @@ const ChatView = () => {
 
       {/* 메시지 입력 */}
       <div className="border-t border-gray-700 p-4">
-        <div className="flex gap-2 relative">
-          <Input
+        <div className="flex  relative w-full">
+          <input
             name="chatMessage"
             type="text"
             value={message}

@@ -1,80 +1,93 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserProfile from '@components/Match/UserProfile';
 import Button from '@components/Common/Button/Button';
 import backgroundImage from '@assets/background/team_matching_bg.svg';
 import tmi from '@assets/tmi.json';
-import { User } from 'types/types';
-import { useMatchStore } from '@stores/matchStore';
+import { useMatchStore } from '@stores/matchStore'; // ← Zustand Store
 import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { cancelTeamMatch } from '@utils/Api/matchApi';
 import useGameStore from '@stores/useGameStore';
+import { User } from 'types/types';
 
 const TeamSearchPage = () => {
+  const navigate = useNavigate();
+  const socket = useSocketStore();
+  const gameStore = useGameStore();
+
+  // Store에서 matchData를 직접 구독 (초기 users를 복사하지 않음)
+  const {
+    matchData,
+    setMatchData,
+    setMathId,
+    setMyTeam,
+    setOpponent,
+  } = useMatchStore((state) => ({
+    matchData: state.matchData,
+    setMatchData: state.setMatchData,
+    setMathId: state.setMathId,
+    setMyTeam: state.setMyTeam,
+    setOpponent: state.setOpponent,
+  }));
+
+  const { roomId, users } = matchData;
+
+  // 재미 요소 TMI(facts)
   const [fact, setFact] = useState<string>('');
   const [facts] = useState<string[]>(tmi.facts);
-  const navigate = useNavigate();
-  const matchStore = useMatchStore();
-  const gameStore = useGameStore();
-  const socket = useSocketStore();
-  const alliance = matchStore.matchData.users;
-  const roomId = matchStore.matchData.roomId;
 
-  //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/team/room/${roomId}`, handleMessage);
 
-    //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
       const matchId = sessionStorage.getItem('matchId');
-      console.log('teamSearch Out, 콜백함수 정리');
+      console.log('TeamSearchPage unmount. Unsubscribe socket.');
       socket.unsubscribe(`/sub/team/room/${roomId}`);
-      matchId ? socket.unsubscribe(`/sub/team/room/${matchId}`) : () => {};
+      matchId ? socket.unsubscribe(`/sub/team/room/${matchId}`) : null;
     };
   }, [roomId]);
 
-  //소켓 응답 처리
+  // 소켓 메시지 핸들러
   const handleMessage = (message: socketResponseMessage) => {
     console.log(message);
     const { type, data } = message;
 
-    //매칭 성사 소켓 응답
+    // 매칭이 잡히면 matchId를 기록하고 새 구독
     if (type === 'MATCHED') {
-      matchStore.setMathId(data.matchId); //final에서 구독 신청 시 써야함
-      socket.subscribe(`/sub/team/room/${data.matchId}`, handleMessage); //COUNTING_READY응답을 받기 위한 구독신청
+      setMathId(data.matchId);
+      socket.subscribe(`/sub/team/room/${data.matchId}`, handleMessage);
     }
 
+    // COUNTING_READY가 오면 게임 최종 페이지로 이동
     if (type === 'COUNTING_READY') {
-      //final 페이지에 쓰일 데이터 저장
-      matchStore.setMyTeam(data.team1);
-      matchStore.setOpponent(data.team2);
+      setMyTeam(data.team1);
+      setOpponent(data.team2);
 
-      gameStore.setMyTeam(data.team1)
-      gameStore.setOpponent(data.team2)
-      gameStore.setProblem(data.problem)
-      gameStore.setTestcases(data.testcases)
+      // GameStore에도 저장
+      gameStore.setMyTeam(data.team1);
+      gameStore.setOpponent(data.team2);
+      gameStore.setProblem(data.problem);
+      gameStore.setTestcases(data.testcases);
 
-      //페이지 이동
       navigate('/match/team/final');
     }
 
-    //매칭 취소 버튼 클릭 이후 소켓 응답
+    // 매칭 취소 성공 시 MATCH_CANCEL_SUCCESS
     if (type === 'MATCH_CANCEL_SUCCESS') {
-      //넘어온 데이터로 myTeam 재설정
-      matchStore.setMyTeam(data)
-
-      //매칭 페이지로 이동
+      // myTeam 재설정
+      setMyTeam(data);
+      // 다시 팀 구성 페이지로
       navigate('/match/team/composition');
     }
   };
 
-  //매칭 취소 버튼 핸들링 -> api 요청 -> 소켓 응답(MATCH_CANCEL_SUCCESS) -> 매칭 취소
+  // 매칭 취소 버튼
   const handleMatchCancelButton = () => {
     cancelTeamMatch(roomId);
   };
 
-  // 첫 fact 생성 후 5초 간격으로 Rotation
+  // 최초 & 주기적인 TMI 보여주기
   useEffect(() => {
     setFact(facts[Math.floor(Math.random() * facts.length)]);
 
@@ -90,26 +103,20 @@ const TeamSearchPage = () => {
       className="w-full -mt-[3.5rem] bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* 컨텐츠 */}
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center">
-        {/* Status Message */}
         <div className="text-white text-3xl mb-8 flex flex-col items-center">
           대전 할 상대를 찾고 있어요. 🧐
           <div className="flex text-base mt-3">
             조금만 기다려 주세요
-            <div className="ml-2">
-              {/* 스피너 */}
-              <div className="animate-bounce">...</div>
-            </div>
+            <div className="ml-2 animate-bounce">...</div>
           </div>
         </div>
 
         {/* 팀 정보 */}
         <div className="flex justify-center items-center gap-20">
-          {alliance.map((user: User) => (
+          {users.map((user: User) => (
             <UserProfile
               key={user.userId}
               nickname={user.nickname}
@@ -119,18 +126,16 @@ const TeamSearchPage = () => {
           ))}
         </div>
 
-        {/* 버튼 */}
         <div className="flex gap-6 mt-12">
-          <Button
-            className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
-            onClick={handleMatchCancelButton}
-          >
+          <Button onClick={handleMatchCancelButton}>
             매칭 취소하기
           </Button>
         </div>
 
-        {/* TMI */}
-        <div className="absolute bottom-8 text-gray-300 text-sm">{fact}</div>
+        {/* 랜덤 TMI */}
+        <div className="absolute bottom-8 text-gray-300 text-sm">
+          {fact}
+        </div>
       </div>
     </div>
   );

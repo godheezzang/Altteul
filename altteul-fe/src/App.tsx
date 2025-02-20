@@ -38,7 +38,6 @@ const App = () => {
   }, []);
 
   // 로그인 & 소켓 연결 성공 시 친구관련 구독 신청
-  //TODO: App.tsx기 때문에 페이지에 따른 구독신청과 구독취소 관리 필요함(안하면 문제 풀다가 초대 요청 받을 수 있음)
   useEffect(() => {
     const userId = sessionStorage.getItem('userId');
     if (socket.connected && userId) {
@@ -50,6 +49,21 @@ const App = () => {
 
   //전체 소켓 응답 메세지 핸들러
   const handleMessage = async (message: socketResponseMessage) => {
+    //소켓 응답을 받는 경로
+    const allowedPaths = [
+      '/',
+      '/rank',
+      '/match/select',
+    ];
+
+    // users/:id 페이지도 허용하려면
+    const isUsersPage = location.pathname.startsWith('/users/');
+
+    if (!allowedPaths.includes(location.pathname) && !isUsersPage) {
+      // 이 경로가 아니면 처리 안 하고 그냥 return
+      return;
+    }
+
     const { type, data } = message;
     console.log(message);
     //요청을 받은 경우
@@ -57,7 +71,7 @@ const App = () => {
       //React-Toastify를 사용한 confirm 대체
       toast.info(
         <div>
-          <p className='text-primary-white'>{`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`}</p>
+          <p className="text-primary-white">{`${data.nickname || '알 수 없음'}님이 팀전에 초대하셨습니다.`}</p>
           <div className="mt-2 flex justify-end gap-2">
             <button
               onClick={() => {
@@ -80,7 +94,7 @@ const App = () => {
           </div>
         </div>,
         {
-          position: "top-center",
+          position: 'top-center',
           autoClose: false,
           hideProgressBar: false,
           closeOnClick: false,
@@ -93,28 +107,30 @@ const App = () => {
 
     //초대 거절 응답
     if (type === 'INVITE_REJECTED') {
-      toast.error("초대 요청이 거절되었습니다.", {
-        position: "top-center",
+      toast.error('초대 요청이 거절되었습니다.', {
+        position: 'top-center',
         autoClose: 3000,
       });
     }
 
     //초대 수락 응답
     if (type === 'INVITE_ACCEPTED') {
-      toast.success("초대를 수락했습니다. 곧 방에 입장합니다.", {
-        position: "top-center",
+      toast.success('초대를 수락했습니다.', {
+        position: 'top-center',
         autoClose: 3000,
       });
     }
 
     if (type === 'SEND_REQUEST') {
-      //친구 신청 받았을 때 데이터 FriendChatStore에 저장
-      // fcStore.setFriendRequests(data.friendRequests)
-      //친구 신청 알림 추가
       toast.info(`새 친구 신청이 도착했습니다!`, {
-        position: "bottom-right",
-        autoClose: 3000,
+        position: 'bottom-center',
+        className: 'text-white',
       });
+    }
+
+    if (type === 'FRIEND_LIST_UPDATE_REQUIRED' || type === 'FRIEND_RELATION_CHANGED') {
+      // friendChatStore의 트리거 함수 호출
+      fcStore.triggerFriendsRefresh();
     }
   };
 
@@ -122,21 +138,21 @@ const App = () => {
   const handleInviteResponse = async (accepted: boolean, nickname: string, roomId: number) => {
     try {
       const res = await inviteResponse(nickname, roomId, accepted);
-      
+
       if (accepted) {
         // 초대 수락 시
         matchStore.setMatchData(res.data);
         toast.success(`${nickname}님의 대기방으로 이동합니다.`, {
-          position: "top-center",
+          position: 'top-center',
           autoClose: 2000,
-          onClose: () => navigate(`/match/team/composition`)
+          onClose: () => navigate(`/match/team/composition`),
         });
       }
     } catch (error) {
       console.error('초대 응답 중 오류 발생:', error);
       toast.error('초대 응답 중 오류가 발생했습니다.', {
-        position: "top-center",
-        autoClose: 3000
+        position: 'top-center',
+        autoClose: 3000,
       });
     }
   };
@@ -153,13 +169,10 @@ const App = () => {
     []
   );
 
-  const showFriendChatModalButton = [
-    '/',
-    '/rank',
-    '/match/select',
-    '/match/single/search',
-    '/match/team/composition',
-  ].includes(location.pathname);
+  const showFriendChatModalButton =
+    ['/', '/rank', '/match/select', '/match/single/search', '/match/team/composition'].includes(
+      location.pathname
+    ) || location.pathname.startsWith('/users/');
 
   const transparentNavigation = useMemo(
     () => new Set(['/match/select', '/rank', `/users/${userId}`]),
@@ -168,7 +181,7 @@ const App = () => {
 
   return (
     <>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}

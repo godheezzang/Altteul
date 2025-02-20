@@ -1,6 +1,7 @@
 // src/components/Modal/FriendChat/Items/FriendRequestItem.tsx
 import useAuthStore from '@stores/authStore';
 import { useSocketStore } from '@stores/socketStore';
+import useFriendChatStore from '@stores/friendChatStore';
 import { friendRequestResponse } from '@utils/Api/friendChatApi';
 import { FriendRequest } from 'types/types';
 import requestAccept from '@assets/icon/friend/requestAccept.svg'
@@ -8,23 +9,37 @@ import requestReject from '@assets/icon/friend/requestReject.svg'
 
 interface FriendRequestItemProps {
   request: FriendRequest;
-  onRefresh: (friendRequestId:number) => void;
+  onRefresh: (friendRequestId: number) => void;
 }
 
 const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
   const { sendMessage } = useSocketStore();
   const currentUserId = useAuthStore().userId;
+  const { triggerFriendsRefresh } = useFriendChatStore();
 
   const handleResponse = (yn: "P" | "A" | "R") => {
+    // 1. API 호출 전에 UI에서 먼저 제거
+    onRefresh(request.friendRequestId);
+    
+    // 2. API 요청
     const response = {
       friendRequestId: request.friendRequestId,
       fromUserId: request.fromUserId, // 요청 보낸 사람 id
       toUserId: Number(currentUserId), // 요청 받은 사람 id
       requestStatus: yn,
     };
-    friendRequestResponse(response);
+    
+    friendRequestResponse(response).catch(error => {
+      console.error('친구 요청 응답 실패:', error);
+      // 실패 시 처리 (필요하다면 상태 되돌리기 등 구현)
+    });
+    
     sendMessage('/pub/friend/request/process', response);
-    onRefresh(request.friendRequestId);
+    
+    // 수락인 경우 친구 목록 새로고침 트리거 활성화
+    if (yn === 'A') {
+      triggerFriendsRefresh();
+    }
   };
 
   return (
@@ -39,13 +54,13 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
       <div className="flex">
         <button
           onClick={() => handleResponse('A')}
-          className="px-2 py-1 "
+          className="px-2 py-1"
         >
           <img src={requestAccept} alt="수락" className='w-8 h-8' />
         </button>
         <button
           onClick={() => handleResponse('R')}
-          className="px-2 py-1 "
+          className="px-2 py-1"
         >
           <img src={requestReject} alt="거절" className='w-8 h-8' />
         </button>
