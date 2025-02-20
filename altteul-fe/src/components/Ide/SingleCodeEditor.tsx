@@ -51,7 +51,7 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly }: CodeEdit
         />
       )}
       <Editor
-        height="38rem"
+        height="30rem"
         language={language}
         value={code}
         theme="vs-dark"
