@@ -54,13 +54,13 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
       <div className="flex">
         <button
           onClick={() => handleResponse('A')}
-          className="px-2 py-1"
+          className="px-2 py-1 rounded-xl hover:bg-primary-white/25"
         >
           <img src={requestAccept} alt="수락" className='w-8 h-8' />
         </button>
         <button
           onClick={() => handleResponse('R')}
-          className="px-2 py-1"
+          className="px-2 py-1 rounded-xl hover:bg-primary-white/25"
         >
           <img src={requestReject} alt="거절" className='w-8 h-8' />
         </button>

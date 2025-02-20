@@ -4,6 +4,7 @@ import { useState } from 'react';
 import freindRequest from "@assets/icon/friend/freindRequestIcon.svg"
 import success from "@assets/icon/friend/success.svg"
 import fail from "@assets/icon/friend/fail.svg"
+import { toast } from 'react-toastify';
 
 interface SearchResultItemProps {
   user: {
@@ -20,18 +21,19 @@ const SearchResultItem = ({ user }: SearchResultItemProps) => {
   const [isError, setIsError] = useState(false);
 
   const handleRequestFriend = async () => {
-    
     try{
       const res = await requestFriend(user.userId);
       sendMessage('/pub/friend/request', {
         toUserId: user.userId,
       });
+      setIsClick(true);
     }catch(error){
-      setIsError(true)
-      alert('친구 요청 목록을 확인해주세요')
+      setIsError(true);
+      toast.error('친구 요청을 받았거나 요청한 유저입니다.', {
+        position: "bottom-center",
+        autoClose: 3000
+      });
     }
-
-    setIsClick(true);
   };
 
   return (

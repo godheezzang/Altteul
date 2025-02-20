@@ -12,6 +12,7 @@ import { useSocketStore } from '@stores/socketStore';
 import { singleOut, singleStart } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { PacmanLoader } from 'react-spinners';
+import { toast } from 'react-toastify';
 
 const SingleSearchPage = () => {
   const navigate = useNavigate();
@@ -79,8 +80,11 @@ const SingleSearchPage = () => {
     onComplete: () => {
       //1. 혼자만 있으면 시작 x
       if (waitUsers.length === 0) {
-        alert('상대 유저가 입장하지 않아 종료합니다.');
-        userOut();
+        toast.error('상대 유저가 입장하지 않아 종료합니다.', {
+          position: "top-center",
+          autoClose: 3000,
+          onClose: () => userOut()
+        });
         return;
       }
       //2. 방장 제외 1명 이상의 플레이어만 충족하면 시작
@@ -92,14 +96,42 @@ const SingleSearchPage = () => {
   const handleStartButton = async () => {
     //혼자만 있을 때
     if (waitUsers.length === 0) {
-      alert('상대 유저가 입장하지 않았습니다.');
+      toast.warning('상대 유저가 입장하지 않았습니다.', {
+        position: "top-center",
+        autoClose: 3000
+      });
       return;
     }
 
     //8명 상관없이 시작할건지 확인
-    if (confirm('바로 시작하시겠습니까?')) {
-      navigateFinalPage();
-    }
+    toast.info(
+      <div>
+        <p>바로 시작하시겠습니까?</p>
+        <div className="mt-3 flex justify-end gap-3">
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          >
+            취소
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss();
+              navigateFinalPage();
+            }}
+            className="px-4 py-2 bg-primary-orange text-white rounded-md"
+          >
+            시작
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
+      }
+    );
   };
 
   //Final 페이지 이동 조건 충족시
@@ -196,7 +228,7 @@ const SingleSearchPage = () => {
         </div>
 
         {/* TMI */}
-        <div className="absolute bottom-8 text-gray-300 text-sm">{fact}</div>
+        <div className="absolute bottom-14 text-gray-100 text-[1rem]">{fact}</div>
       </div>
     </div>
   );
