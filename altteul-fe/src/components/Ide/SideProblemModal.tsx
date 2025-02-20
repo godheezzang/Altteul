@@ -37,8 +37,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
   const { subscribe, sendMessage, connected } = useSocketStore();
   const [isMyAnswer, setIsMyAnswer] = useState(false);
-  const { opponent } = useGameStore();
+  const { opponent, myTeam } = useGameStore();
   const opponentRoomId = opponent.roomId;
+  const userRoomId = myTeam.roomId;
 
   useEffect(() => {
     if (!connected) return;
@@ -48,7 +49,6 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
 
-      // TODO: 사이드문제 결과에 userId 추가되면 ? 삭제
       setIsMyAnswer(data.data.roomId === userRoomId);
     });
   }, [connected, gameId, roomId, subscribe]);
@@ -56,7 +56,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 6000);
+    }, 60000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -75,7 +75,6 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
       answer: answer,
     });
   };
-
 
   // 서버에서 결과를 받으면 정답 여부 확인
   useEffect(() => {
@@ -106,8 +105,8 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
   // 아이템 사용 요청을 보내는 함수
   const requestUseItem = (itemId: number) => {
-    console.log("teamId :" + roomId )
-    sendMessage('/pub/item/use', { gameId, teamId: roomId, itemId });
+    // console.log('teamId :' + roomId);
+    sendMessage('/pub/item/use', { gameId, teamId: userRoomId, itemId });
   };
 
   return (
@@ -137,6 +136,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
             {isMyAnswer && (
               <div className="text-center text-primary-orange font-bold my-4">
                 팀원이 사이드 문제를 풀었습니다!
+                {/* <SmallButton onClick={onClose} className="mt-4 px-4 py-2">
+                  확인
+                </SmallButton> */}
               </div>
             )}
             {/* ✅ 제출 결과가 없을 때 문제 표시 */}

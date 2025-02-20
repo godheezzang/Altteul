@@ -31,12 +31,12 @@ const TeamIdePage = () => {
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [usedItem, setUsedItem] = useState(null);
-  const [hittedItem, setHittedItem] = useState(null);
   const { userId, token } = useAuthStore();
   const userRoomId = myTeam.roomId;
   const { openModal } = useModalStore();
   const [myTeamRemainingUsers, setMyTeamRemainingUsers] = useState<number[]>([]);
   const [opponentRemainingUsers, setOpponentRemainingUsers] = useState<number[]>([]);
+  const [hittedItem, setHittedItem] = useState<{ type: string; duration: number } | null>(null);
 
   useEffect(() => {
     if (userRoomId) {
@@ -75,7 +75,7 @@ const TeamIdePage = () => {
         // => LOSE 모달 띄우고, setIsFinish('LOSE')
 
         if (submittedTeam.gameResult === 1 && submittedTeam.teamId === userRoomId) {
-        setIsFinish('WIN');
+          setIsFinish('WIN');
           openModal(MODAL_TYPES.RESULT, {
             type: GAME_TYPES.TEAM,
             result: RESULT_TYPES.SUCCESS,
@@ -134,6 +134,21 @@ const TeamIdePage = () => {
       }
     });
 
+    // 사용할 아이템 정보 구독
+    subscribe(`/sub/${gameId}/${userRoomId}/item/hit`, data => {
+      console.log('아이템 정보 전송', data);
+
+      if (data.type === '아이템 사용') {
+        // 이 데이터를 받으면 item을 사용하는 함수를 실행한다.
+        // item의 종류: 3초간 내 코드 에디터 가리기
+        // item을 사용하는 함수를 작성하고 실행하는 로직이 필요함
+        setHittedItem({ type: 'blind', duration: 5 });
+        setTimeout(() => {
+          setHittedItem(null);
+        }, 5 * 1000);
+      }
+    });
+
     return () => {
       // ✅ 구독 해제
     };
@@ -157,7 +172,7 @@ const TeamIdePage = () => {
       } else {
         clearInterval(interval);
       }
-    }, 30 * 1000);
+    }, 10 * 1000);
 
     return () => clearInterval(interval);
   }, [requestCount]);
@@ -240,7 +255,6 @@ const TeamIdePage = () => {
               language={language}
               readOnly={true}
               myRoomId={String(userRoomId)}
-              item={null}
             />
           </div>
           <VoiceChat opponentRemainingUsers={opponentRemainingUsers} />
