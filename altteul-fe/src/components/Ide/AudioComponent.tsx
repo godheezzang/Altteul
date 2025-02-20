@@ -54,9 +54,9 @@ function AudioComponent({ track, participantIdentity }: AudioComponentProps) {
 
       {userInfo && (
         <>
-          <div onClick={toggleMute}>
+          <div onClick={userInfo.userId === userId && toggleMute}>
             <div
-              className={`p-1 rounded-full ${isMuted ? 'opacity-30 border-2 border-gray-06' : 'border-2  border-primary-orange'} bg-gray-04 cursor-pointer`}
+              className={`p-1 rounded-full ${isMuted ? 'opacity-30 border-2 border-gray-06' : 'border-2  border-primary-orange'} bg-gray-04 ${userInfo.userId === userId && 'cursor-pointer'}`}
             >
               <UserProfile
                 nickname={userInfo.nickname}
