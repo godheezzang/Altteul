@@ -14,7 +14,7 @@ import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
 const MAX_REQUESTS = 1;
 
-interface SubmittedTeam {
+export interface SubmittedTeam {
   code: string;
   createdAt: string;
   duration: string | null;
@@ -29,7 +29,7 @@ interface SubmittedTeam {
   totalHeadCount: number;
 }
 
-interface Member {
+export interface Member {
   nickname: string;
   profileImage: string;
   tierId: number;

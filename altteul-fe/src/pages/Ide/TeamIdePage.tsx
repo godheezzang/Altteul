@@ -12,10 +12,11 @@ import VoiceChat from '@components/Ide/VoiceChat';
 import { teamApi } from '@utils/Api/commonApi';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 import useModalStore from '@stores/modalStore';
-import { TeamInfo } from 'types/types';
+import { TeamInfo, User } from 'types/types';
 import { createToken } from '@utils/openVidu';
+import { SubmittedTeam } from '@pages/Ide/SingleIdePage';
 
-const MAX_REQUESTS = 5;
+const MAX_REQUESTS = 1;
 
 const TeamIdePage = () => {
   const { gameId, users, setUserRoomId, myTeam, setIsFinish, opponent, matchId } = useGameStore();
@@ -32,6 +33,8 @@ const TeamIdePage = () => {
   const { userId, token } = useAuthStore();
   const userRoomId = myTeam.roomId;
   const { openModal } = useModalStore();
+  const [myTeamRemainingUsers, setMyTeamRemainingUsers] = useState<number[]>([]);
+  const [opponentRemainingUsers, setOpponentRemainingUsers] = useState<number[]>([]);
 
   useEffect(() => {
     if (userRoomId) {
@@ -58,19 +61,31 @@ const TeamIdePage = () => {
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
       console.log('📩 실시간 게임 현황 수신:', data);
 
-      const { myTeam, opponents } = data.data;
+      if (data?.type === '게임 현황' && data.data.gameType === 'T') {
+        const submittedTeam: SubmittedTeam = data.data.submittedTeam;
 
-      if (myTeam?.passRate === 100) {
-        setIsFinish('WIN');
-        openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.SUCCESS });
-      }
+        // submittedTeam.gameResult === 1이면 submittedTeam.teamId가 이긴거
+        // submittedTeam.teamId === userRoomId이면 내가 승리
+        // submittedTeam.gameResult === 1 && submittedTeam.teamId === userRoomId 라면 승리
+        // => WIN 모달 띄우고, setIsFinish('WIN')
 
-      opponents.forEach((opponent: TeamInfo) => {
-        if (opponent.passRate === 100) {
+        // submittedTeam.gameResult === 1 && submittedTeam.teamId !== userRoomID 라면 패배
+        // => LOSE 모달 띄우고, setIsFinish('LOSE')
+
+        if (submittedTeam.gameResult === 1 && submittedTeam.teamId === userRoomId) {
+          setIsFinish('WIN');
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.TEAM,
+            result: RESULT_TYPES.SUCCESS,
+          });
+        } else if (submittedTeam.gameResult === 1 && submittedTeam.teamId !== userRoomId) {
           setIsFinish('LOSE');
-          openModal(MODAL_TYPES.RESULT, { type: GAME_TYPES.TEAM, result: RESULT_TYPES.FAILURE });
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.TEAM,
+            result: RESULT_TYPES.FAILURE,
+          });
         }
-      });
+      }
     });
 
     // ✅ 상대 팀 코드 구독
@@ -81,6 +96,40 @@ const TeamIdePage = () => {
 
     subscribe(`/sub/team/room/${matchId}`, data => {
       console.log('퇴장하기 구독 데이터', data);
+
+      if (data?.type === 'GAME_IN_PROGRESS_LEAVE') {
+        const { remainingUsers } = data.data;
+
+        // const myTeamRemain = remainingUsers[userRoomId]: 우리팀에서 남아있는 사람
+        // 오디오 트랙에 참가하지 않은 사람은 현재 반투명 표시
+        // myTeamRemain을 VoiceChat에 props로 전달
+        // myTeam.users와 myTeamRemain을 비교해서
+        // myTeamRemain에 없는 user.userId는 퇴장했음을 UI에 표시 _> 반투명+퇴장(가상요소로) 표시
+        //
+        // const opponentRemain = remaininUsers[opponent.roomId]: 상대 팀에서 남아있는 사람
+        // VoiceChat에서 상대팀을 뺴고, 상대팀을 따로 모아두는 컴포넌트에다가 전달
+        // opponent.users와 opponentRemain을 비교해서,
+        // opponentRemain에 없는 user.userId는 퇴장했음을 UI에 표시 -> 반투명+퇴장(가상요소로) 표시
+        // opponentRemain.length === 0이면 우리 팀이 이긴거
+        // => WIN 모달 띄우고, setIsFinish('WIN')
+
+        // 우리 팀 남은 인원
+        const myTeamRemain = remainingUsers[userRoomId]?.map((user: User) => user.userId) || [];
+        setMyTeamRemainingUsers(myTeamRemain);
+
+        // 상대 팀 남은 인원
+        const opponentRemain =
+          remainingUsers[opponent.roomId]?.map((user: User) => user.userId) || [];
+        setOpponentRemainingUsers(opponentRemain);
+
+        if (opponentRemain.length === 0) {
+          setIsFinish('WIN');
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.TEAM,
+            result: RESULT_TYPES.SUCCESS,
+          });
+        }
+      }
     });
 
     return () => {
@@ -193,7 +242,7 @@ const TeamIdePage = () => {
               myRoomId={String(userRoomId)}
             />
           </div>
-          <VoiceChat />
+          <VoiceChat opponentRemainingUsers={opponentRemainingUsers} />
         </div>
       </div>
 
