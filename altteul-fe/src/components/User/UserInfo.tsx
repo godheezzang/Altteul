@@ -24,8 +24,13 @@ const UserInfo = () => {
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { openModal, profileUpdated, setProfileUpdated } = useModalStore();
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   useEffect(() => {
+    // 현재 로그인한 사용자와 조회 중인 사용자가 같은지 확인
+    const currentUserId = sessionStorage.getItem('userId');
+    setIsCurrentUser(currentUserId === userId);
+    
     const fetchUserInfo = async () => {
       try {
         setIsLoading(true);
@@ -44,7 +49,9 @@ const UserInfo = () => {
   }, [userId, profileUpdated, setProfileUpdated]);
 
   const handleEditProfile = () => {
-    openModal('edit-profile', { nickname: userInfo.nickname, profileImg: userInfo.profileImg });
+    if (isCurrentUser) {
+      openModal('edit-profile', { nickname: userInfo.nickname, profileImg: userInfo.profileImg });
+    }
   };
 
   if (isLoading) return <LoadingSpinner loading={isLoading} />;
@@ -59,22 +66,32 @@ const UserInfo = () => {
   return (
     <div className="mb-10">
       <div className="relative w-24 mx-auto">
-        <div
-          className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-01 hover:border-primary-orange cursor-pointer"
-          onClick={handleEditProfile}
-        >
-          <img
-            src={userInfo.profileImg}
-            alt="Profile"
-            // className="w-24 h-24 "
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-            <span className="text-primary-white text-sm font-bold">정보 수정</span>
+        {isCurrentUser ? (
+          // 본인 프로필일 때: 버튼으로 수정 가능
+          <button
+            className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-01 hover:border-primary-orange cursor-pointer"
+            onClick={handleEditProfile}
+          >
+            <img
+              src={userInfo.profileImg}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+              <span className="text-primary-white text-sm font-bold">정보 수정</span>
+            </div>
+          </button>
+        ) : (
+          // 다른 사용자 프로필일 때: 단순 이미지만 표시
+          <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-01">
+            <img
+              src={userInfo.profileImg}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
+        )}
 
-        {/* TODO: 유저 티어별로 이미지 설정해서 이미지 넣기 */}
         <div className="absolute -bottom-2 -right-2 rounded-full">
           <img
             src={tierIcons[userInfo.tierName.toLowerCase() as keyof typeof tierIcons]}

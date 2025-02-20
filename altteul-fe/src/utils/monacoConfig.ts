@@ -7,7 +7,7 @@ export const configureMonaco = async () => {
   // Python 언어 설정
   monaco.languages.register({ id: 'python' });
   monaco.languages.setMonarchTokensProvider('python', {
-    keywords: ['def', 'class', 'import', 'from', 'as', 'for', 'in', 'while', 'print'],
+    keywords: ['def', 'class', 'import', 'from', 'as', 'for', 'in', 'while', 'print', 'Altteul'],
     tokenizer: {
       root: [
         [

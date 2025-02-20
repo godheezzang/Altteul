@@ -131,6 +131,10 @@ const App = () => {
     if (type === 'FRIEND_LIST_UPDATE_REQUIRED' || type === 'FRIEND_RELATION_CHANGED') {
       // friendChatStore의 트리거 함수 호출
       fcStore.triggerFriendsRefresh();
+      toast.info(`친구 목록이 업데이트 되었습니다.`, {
+        position: 'bottom-center',
+        className: 'text-white',
+      });
     }
   };
 

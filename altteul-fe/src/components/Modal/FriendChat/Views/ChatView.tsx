@@ -119,7 +119,7 @@ const ChatView = () => {
           >
             {/* 시간표시 */}
             {message.senderId === Number(userId) && (
-              <p className="opacity-70 mr-2 text-xs">
+              <p className="opacity-70 mr-2 text-xs" style={{ fontSize: '0.6rem' }}>
                 {new Date(message.createdAt).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',

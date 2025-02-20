@@ -2,10 +2,12 @@ import rank_up from "@assets/icon/rank_up.svg";
 import rank_down from "@assets/icon/rank_down.svg";
 import {Ranking} from "types/types";
 import { badges } from "./BadgeFilter";
+import { useNavigate } from "react-router-dom";
 
 // 랭킹 행 컴포넌트
 const RankingItem = ({ data, className }: { data: Ranking, className: string }) => {
   const { userId, nickname, lang, ranking, point, tierId, rankChange, rate } = data;
+  const navigate = useNavigate();
 
   const formatNumber = (num: number) => {
     return num ? num.toLocaleString() : '0';
@@ -45,8 +47,8 @@ const RankingItem = ({ data, className }: { data: Ranking, className: string }) 
       {/* 순위 */}
       <div>{ranking}</div>
       {/* 뱃지&닉네임 */}
-      <div className="px-16 text-left">
-        <div className="flex gap-3">
+      <div className="px-16 text-left" onClick={() => navigate(`/users/${userId}`)}>
+        <div className="flex gap-3 hover:cursor-pointer">
           <div>{getBadgeImage()}</div>
           <div>{nickname}</div>
         </div>
