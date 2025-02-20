@@ -2,12 +2,12 @@ import { loader } from '@monaco-editor/react';
 
 export const configureMonaco = async () => {
   await loader.init();
-  const monaco = await loader.__getMonacoInstance();
+  const monaco = loader.__getMonacoInstance();
 
   // Python 언어 설정
   monaco.languages.register({ id: 'python' });
   monaco.languages.setMonarchTokensProvider('python', {
-    keywords: ['def', 'class', 'import', 'from', 'as'],
+    keywords: ['def', 'class', 'import', 'from', 'as', 'for', 'in', 'while', 'print'],
     tokenizer: {
       root: [
         [
@@ -89,7 +89,11 @@ export const configureMonaco = async () => {
           {
             label: 'psvm',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            insertText: ['public static void main(String[] args) {', '\t${1:System.out.println("Hello World!");}', '}'].join('\n'),
+            insertText: [
+              'public static void main(String[] args) {',
+              '\t${1:System.out.println("Hello World!");}',
+              '}',
+            ].join('\n'),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range: range,
           },

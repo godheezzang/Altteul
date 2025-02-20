@@ -6,16 +6,17 @@ import bronze from '@assets/icon/badge/Badge_01.svg';
 import silver from '@assets/icon/badge/Badge_04.svg';
 import gold from '@assets/icon/badge/Badge_05.svg';
 import platinum from '@assets/icon/badge/Badge_07.svg';
-import dia from '@assets/icon/badge/Badge_08.svg';
+import diamond from '@assets/icon/badge/Badge_08.svg';
 import LoadingSpinner from '@components/Common/LoadingSpinner';
 import useModalStore from '@stores/modalStore';
+import UserProfile from '@components/Match/UserProfile';
 
 const tierIcons = {
   bronze: bronze,
   silver: silver,
   gold: gold,
   platinum: platinum,
-  dia: dia,
+  diamond: diamond,
 } as const;
 
 const UserInfo = () => {
@@ -43,13 +44,11 @@ const UserInfo = () => {
   }, [userId, profileUpdated, setProfileUpdated]);
 
   const handleEditProfile = () => {
-    openModal('edit-profile', {nickname:userInfo.nickname, profileImg:userInfo.profileImg} );
+    openModal('edit-profile', { nickname: userInfo.nickname, profileImg: userInfo.profileImg });
   };
 
-  // TODO: 로딩 컴포넌트로 교체
   if (isLoading) return <LoadingSpinner loading={isLoading} />;
 
-  // TODO: 에러 페이지로 교체
   if (!userInfo)
     return (
       <div>

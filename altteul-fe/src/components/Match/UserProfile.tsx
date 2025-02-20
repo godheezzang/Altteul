@@ -16,7 +16,7 @@ interface UserProfileProps {
   headTier?: string;
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({
+const UserProfile = ({
   nickname,
   profileImg,
   tierId,

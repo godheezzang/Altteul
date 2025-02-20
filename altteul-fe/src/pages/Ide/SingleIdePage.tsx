@@ -12,7 +12,7 @@ import { MemberInfo, TeamInfo, User } from 'types/types';
 import useModalStore from '@stores/modalStore';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
-const MAX_REQUESTS = 5;
+const MAX_REQUESTS = 1;
 
 const SingleIdePage = () => {
   const { gameId, roomId, users, setUserRoomId, setIsFinish, isFinish } = useGameStore();
@@ -145,17 +145,14 @@ const SingleIdePage = () => {
     if (!connected) return;
     if (requestCount >= MAX_REQUESTS) return;
 
-    const interval = setInterval(
-      () => {
-        if (requestCount < MAX_REQUESTS) {
-          requestSideProblem();
-          setRequestCount(prev => prev + 1);
-        } else {
-          clearInterval(interval);
-        }
-      },
-      60 * 10 * 1000
-    );
+    const interval = setInterval(() => {
+      if (requestCount < MAX_REQUESTS) {
+        requestSideProblem();
+        setRequestCount(prev => prev + 1);
+      } else {
+        clearInterval(interval);
+      }
+    }, 30 * 1000);
 
     return () => clearInterval(interval);
   }, [requestCount]);

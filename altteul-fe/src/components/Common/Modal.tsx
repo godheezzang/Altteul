@@ -28,19 +28,17 @@ const Modal = ({
   titleColor = '',
   onReset,
 }: ModalProps) => {
-  if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음
-
   const params = useParams();
   const location = useLocation();
+  if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음
 
   const handleClose = () => {
     onClose();
-    onReset();
+    if (onReset) onReset();
   };
 
   const isAuth = location.pathname.length === 1;
-  const isEditUserInfo = location.pathname.includes(`/user/${params.userId}`);
-  console.log(isAuth);
+  const isEditUserInfo = location.pathname.includes(`/users/${params.userId}`);
 
   return (
     <div
