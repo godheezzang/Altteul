@@ -43,7 +43,7 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
       return;
     }
 
-    const newProvider = new WebsocketProvider(SOCKET_URL, roomId, ydoc,{params: { myRoomId: myRoomId }}); // 상대팀 코드 parameter
+    const newProvider = new WebsocketProvider(SOCKET_URL, roomId, ydoc); // 상대팀 코드 parameter
     setProvider(newProvider);
     console.log(editor)
     console.log(myRoomId);
