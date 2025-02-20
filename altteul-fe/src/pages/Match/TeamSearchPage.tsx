@@ -135,7 +135,7 @@ const TeamSearchPage = () => {
         </div>
 
         {/* 랜덤 TMI */}
-        <div className="absolute bottom-14 text-gray-100 text-[1rem]">
+        <div className="absolute bottom-14 text-gray-100 text-[1.1rem]">
           {fact}
         </div>
       </div>
