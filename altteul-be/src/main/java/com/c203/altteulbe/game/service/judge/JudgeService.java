@@ -132,14 +132,6 @@ public class JudgeService {
 				.totalCount(null)
 				.build();
 		}
-		// 채점 결과 팀별로 메세지 전송
-		judgeWebsocketService.sendTeamSubmissionResult(teamResponseDto,
-			request.getGameId(),
-			request.getTeamId());
-
-		judgeWebsocketService.sendOpponentSubmissionResult(opponentResponseDto,
-			request.getGameId(),
-			request.getTeamId());
 
 		// 결과를 내역 db에 저장, 게임 db에 저장
 		// 1. 내역 Entity 생성, 레포지토리 쿼리문 생성, 언어별 제한 테이블 추가
@@ -166,14 +158,24 @@ public class JudgeService {
 		Game game = gameRepository.findWithAllMemberByGameId(request.getGameId())
 			.orElseThrow(() -> new BusinessException("게임 찾을 수 없음", HttpStatus.NOT_FOUND));
 
-		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory, Language.valueOf(request.getLang()));
-
-		// 실시간 게임 현황 전송
-		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
+		updateRoomSubmission(game, request.getTeamId(), testHistory, request.getCode(), maxExecutionTime, maxMemory,
+			Language.valueOf(request.getLang()));
 
 		List<TestResult> testResults = TestResult.from(judgeResponse, testHistory);
 		testHistory.updateTestResults(testResults);
 		testHistoryRepository.save(testHistory);
+
+		// 채점 결과 팀별로 메세지 전송
+		judgeWebsocketService.sendTeamSubmissionResult(teamResponseDto,
+			request.getGameId(),
+			request.getTeamId());
+
+		judgeWebsocketService.sendOpponentSubmissionResult(opponentResponseDto,
+			request.getGameId(),
+			request.getTeamId());
+
+		// 실시간 게임 현황 전송
+		judgeWebsocketService.sendSubmissionResult(request.getGameId(), request.getTeamId());
 	}
 
 	public CodeExecutionResponseDto executeCode(SubmitCodeRequestDto request, Long userId) {
@@ -235,7 +237,7 @@ public class JudgeService {
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
 			.count();
-		BattleResult result = BattleResult.fromRank(finishedTeamCount+1); // 순위 틀리는 오류 수정
+		BattleResult result = BattleResult.fromRank(finishedTeamCount + 1); // 순위 틀리는 오류 수정
 		myRoom.updateStatusByGameClear(result);
 
 		// FAIL이 아닐 때만 사이드 문제 포인트 추가

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.c203.altteulbe.friend.service.FriendRedisService;
 import com.c203.altteulbe.friend.service.UserStatusService;
 import com.c203.altteulbe.game.service.GameLeaveService;
 import com.c203.altteulbe.game.web.dto.leave.request.GameLeaveRequestDto;
@@ -30,6 +31,7 @@ public class WebSocketEventListener {
 	private final SingleRoomService singleRoomService;
 	private final TeamRoomService teamRoomService;
 	private final GameLeaveService gameLeaveService;
+	private final FriendRedisService friendRedisService;
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -86,6 +88,8 @@ public class WebSocketEventListener {
 					log.info("유저 {}가 개인전 게임방 {}에서 나갔습니다.", userId, teamRoomId);
 				}
 				userStatusService.setUserOffline(userId);
+				friendRedisService.invalidateFriendList(userId);
+				friendRedisService.invalidateFriendRequests(userId);
 				log.info("유저가 연결 해제 되었습니다 - userId: {}", userId);
 			} catch (Exception e) {
 				log.error("WebSocket 연결 해제 처리 실패: {}", e.getMessage());

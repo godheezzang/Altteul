@@ -22,7 +22,7 @@ const UserInfo = () => {
   const { userId } = useParams();
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { openModal } = useModalStore();
+  const { openModal, profileUpdated, setProfileUpdated } = useModalStore();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -40,7 +40,7 @@ const UserInfo = () => {
     };
 
     fetchUserInfo();
-  }, [userId]);
+  }, [userId, profileUpdated, setProfileUpdated]);
 
   const handleEditProfile = () => {
     openModal('edit-profile', {nickname:userInfo.nickname, profileImg:userInfo.profileImg} );

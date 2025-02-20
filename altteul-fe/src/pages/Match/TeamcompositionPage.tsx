@@ -8,6 +8,7 @@ import { useSocketStore } from '@stores/socketStore';
 import { teamOut, teamStart } from '@utils/Api/matchApi';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { User } from 'types/types';
+import { toast } from 'react-toastify';
 
 const TeamcompositionPage = () => {
   const navigate = useNavigate();
@@ -57,19 +58,51 @@ const TeamcompositionPage = () => {
     if (type === 'MATCHING') {
       navigate('/match/team/search');
     }
-
   };
 
   // 매칭 시작 버튼 핸들러
   const handleStartButton = () => {
     if (users.length === 1) {
-      alert('혼자서는 플레이 할 수 없습니다.');
+      toast.error('혼자서는 플레이 할 수 없습니다.', {
+        position: "top-center",
+        autoClose: 3000
+      });
       return;
     }
 
-    if (users.length === 4 || confirm('바로 시작하시겠습니까?')) {
+    if (users.length === 4) {
       navigateMatchPage();
+      return;
     }
+    
+    toast.info(
+      <div>
+        <p>바로 시작하시겠습니까?</p>
+        <div className="mt-3 flex justify-end gap-3">
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          >
+            취소
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss();
+              navigateMatchPage();
+            }}
+            className="px-4 py-2 bg-primary-orange text-white rounded-md"
+          >
+            시작
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
+      }
+    );
   };
 
   // 매칭 조건 충족 시 다음 페이지로 이동 & API 호출

@@ -74,7 +74,12 @@ export const getFriendChatMessages = async (friendId: number) => {
 
 //팀전 초대 api
 export const inviteFriend = async (payload: { inviteeId: number; roomId: number }) => {
-  const data = await teamApi.post('invite', payload);
+  try{
+    const data = await teamApi.post('invite', payload);
+    return data
+  }catch(e){
+    throw new Error()
+  }
 };
 
 //친구 신청 api

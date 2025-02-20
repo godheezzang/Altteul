@@ -16,6 +16,7 @@ import com.c203.altteulbe.common.dto.Language;
 import com.c203.altteulbe.game.persistent.entity.Game;
 import com.c203.altteulbe.game.persistent.entity.problem.Problem;
 import com.c203.altteulbe.game.persistent.repository.game.GameRepository;
+import com.c203.altteulbe.game.service.exception.CodeNotFoundException;
 import com.c203.altteulbe.game.service.exception.GameNotFoundException;
 import com.c203.altteulbe.game.web.dto.result.request.AIFeedbackRequestDto;
 import com.c203.altteulbe.game.web.dto.result.response.AIFeedbackResponse;
@@ -48,10 +49,10 @@ public class AIFeedbackService {
 			.orElseThrow(RoomNotFoundException::new);
 
 		if (game.getBattleType() == BattleType.S) {
-			if (myRoom.getCode() == null) throw new NullPointerException();
+			if (myRoom.getCode() == null) throw new CodeNotFoundException();
 			userPromptTemplate = getPrompt(game.getProblem(), myRoom);
 		} else {
-			if (myRoom.getCode() == null) throw new NullPointerException();
+			if (myRoom.getCode() == null) throw new CodeNotFoundException();
 			userPromptTemplate = getPrompt(game.getProblem(), myRoom);
 		}
 		Map<String, Object> variables = new HashMap<>();

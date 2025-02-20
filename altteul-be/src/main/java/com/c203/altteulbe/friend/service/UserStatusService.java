@@ -87,7 +87,8 @@ public class UserStatusService {
 			.range(0, userIds.size())
 			.boxed()
 			.collect(Collectors.toMap(
-				userIds::get, i -> Boolean.TRUE.equals(results.get(i))
+				userIds::get, i -> Boolean.TRUE.equals(results.get(i)),
+				(existing, replace) -> replace
 			));
 	}
 

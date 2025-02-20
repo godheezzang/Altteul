@@ -78,7 +78,7 @@ const Input = ({
           onClick={onButtonClick}
           disabled={buttonDisabled}
           className={`${BUTTON_STYLE}
-             ${buttonDisabled && 'bg-gray-02 border !border-gray-02 text-white hover:bg-gray-02 cursor-auto'
+             ${buttonDisabled && '!bg-gray-02 border !border-gray-02 text-white hover:bg-gray-02 !cursor-auto'
               
              }`}
         >
