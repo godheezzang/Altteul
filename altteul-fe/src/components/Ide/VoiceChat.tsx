@@ -92,6 +92,7 @@ const VoiceChat = () => {
 
       // Get a token from your application server with the room name and participant name
       const token = await createToken(userRoomId, userId);
+      console.log('openviduToken:', token);
 
       // Connect to the room with the LiveKit URL and the token
       await room.connect(LIVEKIT_URL, token);
@@ -103,7 +104,7 @@ const VoiceChat = () => {
       setLocalTrack(audioTrack);
       setIsConnected(true);
     } catch (error) {
-      console.log('There was an error connecting to the room:', (error as Error).message);
+      console.log('There was an error connecting to the room:', error as Error);
       await leaveRoom();
     }
   }
@@ -129,6 +130,9 @@ const VoiceChat = () => {
 
   const activeParticipants = new Set(remoteTracks.map(track => track.participantIdentity));
   activeParticipants.add(String(userId));
+
+  console.log('localTrack:', localTrack);
+  console.log('remoteTrack:', remoteTracks);
 
   return (
     <div id="room" className="px-8 border-t border-gray-04 pt-4">
