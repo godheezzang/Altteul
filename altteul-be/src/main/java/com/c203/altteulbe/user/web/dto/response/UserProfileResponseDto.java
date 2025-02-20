@@ -35,7 +35,7 @@ public class UserProfileResponseDto implements AbstractDto {
 			.profileImg(S3Util.getImgUrl(user.getProfileImg()))
 			.tierId(user.getTier().getId())
 			.tierName(user.getTier().getTierName())
-			.rankPercentile((long)((double) user.getTodayRanking().getId() / totalCount * 100))
+			.rankPercentile((long)((double) user.getTodayRanking().getRanking() / totalCount * 100))
 			.rank(user.getTodayRanking().getId())
 			.rankChange(user.getTodayRanking().getRankingChange())
 			.isOwner(user.getUserId().equals(currentUserId))

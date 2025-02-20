@@ -212,7 +212,7 @@ public class JudgeService {
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
 			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
-				finishGame(game, game.getSingleRooms(), myRoom);
+				finishGame(game, game.getSingleRooms(), myRoom, testHistory.getSuccessCount());
 			}
 
 		} else {
@@ -227,15 +227,16 @@ public class JudgeService {
 			);
 			// 다 맞춰서 게임 종료할 경우 로직
 			if (testHistory.getFailCount() != null && testHistory.getFailCount() == 0) {
-				finishGame(game, game.getTeamRooms(), myRoom);
+				finishGame(game, game.getTeamRooms(), myRoom, testHistory.getSuccessCount());
 			}
 		}
 	}
 
-	private void finishGame(Game game, List<? extends Room> rooms, Room myRoom) {
+	private void finishGame(Game game, List<? extends Room> rooms, Room myRoom, int totalTestcaseCount) {
 		// 순위 갱신: finishTime 이 있는 방들만 정렬
 		int finishedTeamCount = (int)rooms.stream()
 			.filter(room -> room.getFinishTime() != null) // finishTime 이 설정된 방만 선택
+			.filter(room -> room.getSolvedTestcaseCount() == totalTestcaseCount)
 			.count();
 		BattleResult result = BattleResult.fromRank(finishedTeamCount + 1); // 순위 틀리는 오류 수정
 		myRoom.updateStatusByGameClear(result);
