@@ -5,6 +5,7 @@ import Dropdown from '@components/Common/Dropdown';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
+import * as monaco from 'monaco-editor';
 
 const DEFAULT_CODE = {
   python: 'print("Hello World!")',
@@ -25,12 +26,13 @@ interface CodeEditorProps {
   roomId: string;
   onCodeChange?: (code: string) => void;
   myRoomId: string;
+  item: number | null;
   // team: 
 }
 
 const SOCKET_URL = window.location.hostname === 'localhost' ? import.meta.env.VITE_SIGNALING_URL_DEV : import.meta.env.VITE_SIGNALING_URL_PROD;
 
-const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, myRoomId }: CodeEditorProps) => { 
+const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, myRoomId, item }: CodeEditorProps) => { 
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [editor, setEditor] = useState<any|null>(null)
   const [provider, setProvider] = useState<WebsocketProvider|null>(null)
@@ -65,9 +67,41 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
         newBinding.destroy()
       }
     }, [provider, editor])
+    
+    useEffect(() => {
+      console.log("item 변화 감지 후 효과 적용")
+      deleteRandomLine();
+    }, [item])
+    
+    const deleteRandomLine = useCallback(() => {
+      if (!editor) return;
+  
+      const model = editor.getModel();
+      if (!model) return;
+      console.log("모델 있음" + model)
+      const lineCount = model.getLineCount();
+      if (lineCount <= 1) return; // 한 줄만 있d을 경우 삭제하지 않음
+      console.log("라인 개수" + lineCount)
+      const randomLineNumber = Math.floor(Math.random() * lineCount) + 1;
+      console.log("랜덤 추출 라인 개수" + randomLineNumber)
+      // Monaco의 Range 객체 생성
+      const range = new monaco.Range(
+        randomLineNumber,
+        1,
+        randomLineNumber,
+        model.getLineMaxColumn(randomLineNumber)
+      );
+      console.log("효과 범위" + range.toString())
+      // 에디터에 삭제 명령 실행
+      editor.executeEdits('deleteRandomLine', [{
+        range: range,
+        text: null,
+        forceMoveMarkers: true
+      }]);
+    }, [editor]);
 
     // 에디터 마운트 시 설정
-  const handleEditorMount: OnMount = useCallback((editorInstance, monaco) => {
+    const handleEditorMount: OnMount = useCallback((editorInstance, monaco) => {
     configureMonaco();
     setCode(DEFAULT_CODE[language]);
     
@@ -93,7 +127,7 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
         { open: "'", close: "'" },
       ],
     });
-
+    
     monaco.editor.setTheme('custom-dark');
   }, []);
 
@@ -137,5 +171,6 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
     </div>
   );
 };
+
 
 export default CodeEditor;

@@ -44,7 +44,7 @@ public class ItemService {
 		Item item = itemRepository.findById(message.getItemId())
 			.orElseThrow(ItemNotFoundException::new);
 
-		if (availability) {
+		if (true) {
 			// 상대방 찾기
 			Game game = gameRepository.findWithRoomByGameId(message.getGameId())
 				.orElseThrow(GameNotFoundException::new);
