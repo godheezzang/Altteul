@@ -60,32 +60,13 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
 
   const config = getResultConfig();
 
-  const handleContinue = async () => {
-    try {
-      const response = await api.post(
-        '/game/leave',
-        {
-          roomId: isTeam ? myTeam.roomId : userRoomId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        onClose();
-        // 게임 타입에 따라 다른 모달 열기
-        if (type === GAME_TYPES.SINGLE) {
-          openModal(MODAL_TYPES.LIST); // 성공/실패 상관없이 결과 목록으로 이동
-        } else {
-          openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.TEAM });
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      <ErrorPage />;
+  const handleContinue = () => {
+    onClose();
+    // 게임 타입에 따라 다른 모달 열기
+    if (type === GAME_TYPES.SINGLE) {
+      openModal(MODAL_TYPES.LIST); // 성공/실패 상관없이 결과 목록으로 이동
+    } else {
+      openModal(MODAL_TYPES.NAVIGATE, { type: GAME_TYPES.TEAM });
     }
   };
 
@@ -95,7 +76,7 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
       onClose={onClose}
       // width="26rem"
       // height="25rem"
-      className={`bg-primary-black relative overflow-hidden border-2 border-${config.borderColor} ${config.shadowClass} z-999`}
+      className={`bg-primary-black relative overflow-hidden border-2 border-${config.borderColor} ${config.shadowClass} h-[24rem]`}
     >
       <div className="flex flex-col items-center justify-center h-full w-full">
         {/* 이미지 */}
@@ -105,10 +86,10 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
         </div>
 
         {/* 메인 텍스트 */}
-        <div className="mb-1 mt-2 text-4xl font-semibold text-primary-white">{config.mainText}</div>
+        <div className="mb-1 mt-2 text-4xl font-bold text-primary-orange">{config.mainText}</div>
 
         {/* 서브 텍스트 */}
-        <div className="text-lg text-primary-white">{config.subText}</div>
+        <div className="text-lg font-semibold text-primary-white">{config.subText}</div>
 
         {/* 포인트 텍스트 */}
         {config.pointText && (
@@ -126,9 +107,8 @@ const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
 
         {config.mainText === 'FAIL' ? (
           <>
-            <div className="text-gray-02 text-center mb-3 text-md/5 mt-1">
-              <p>테스트 케이스 중 일부가 틀렸습니다.</p>
-              <p className="text-sm">계속해서 문제를 푸시겠어요?</p>
+            <div className="text-gray-02 font-bold text-center mb-3 text-md/5 mt-1">
+              <p className="text-sm">정말 포기하실건가요?</p>
               <p className="text-sm">끝까지 문제 풀이에 성공하면 100P를 얻을 수 있습니다.</p>
             </div>
             <div className="flex gap-2">

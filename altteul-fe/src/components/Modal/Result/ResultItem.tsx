@@ -18,12 +18,18 @@ interface ResultItemProps {
   rank: number;
 }
 
+type Feedback = {
+  algorithmType: string[];
+  feedback: { code: string; description: string }[];
+  summary: string;
+};
+
 const ResultItem = ({ player, rank }: ResultItemProps) => {
   const { userId } = useAuthStore();
   const { gameId, userRoomId } = useGameStore();
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
+  const [feedbacks, setFeedbacks] = useState<Feedback | null>(null);
   const isTeam = location.pathname.includes('game/team');
   const [modalType, setModalType] = useState<'Feedback' | 'OpponentCode' | null>(null);
   const [userCodes, setUserCodes] = useState<{ nickname: string; code: string }[]>([]);
@@ -50,7 +56,6 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
     }
   };
 
-  //TODO: AI 코칭 버튼 클릭시 로직
   const handleAiCoaching = async () => {
     setShowModal(true);
     setModalType('Feedback');
@@ -59,12 +64,11 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
       const response = await api.get(`/game/result/feedback`, {
         params: {
           gameId: gameId,
-          teamId: userRoomId, // TODO: gameId만 보낼 때 삭제
+          teamId: userRoomId,
         },
       });
 
-      console.log('ai 코칭 결과:', response);
-      setFeedback(JSON.parse(response?.data.data.content));
+      setFeedbacks(JSON.parse(response?.data.data.content) || null);
     } catch (error) {
       console.error(error);
       <ErrorPage />;
@@ -96,9 +100,13 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
 
   return (
     <>
-      <li className="flex text-primary-white justify-between items-center  mb-4 ">
-        <div className="flex justify-between items-center bg-gray-06 p-4 rounded-lg w-[53rem]">
-          <p className="w-8 text-center">{rank > 0 ? rank : '-'}</p>
+      <li className="flex gap-4 text-primary-white justify-between items-center  mb-4 ">
+        <div className="flex justify-between items-center bg-gray-06 p-4 rounded-lg w-[55rem]">
+          {rank > 0 && player.isFinish ? (
+            <p className="w-10 text-center">{rank}</p>
+          ) : (
+            <p className="w-10 text-center text-gray-02 text-sm">미해결</p>
+          )}
           <div className="flex gap-2 items-center justify-center w-40">
             <div
               className="ml-1 mr-3
@@ -111,19 +119,23 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
               />
               <img src={tier} alt="Tier" className="absolute -bottom-1 -right-1 w-6 h-6" />
             </div>
-            <p className={player.userId === userId ? 'text-primary-orange' : ''}>
+            <p className={player.userId === userId ? 'text-primary-orange font-semibold' : ''}>
               {player.nickname}
             </p>
           </div>
-          <p className="w-16 text-center">{player.point}</p>
-          <p className="w-16 text-center">{player.duration}</p>
+          <p className="w-16 text-center text-sm">{player.point}</p>
+          <p className="w-16 text-center text-sm">{player.duration}</p>
           <p className="w-8 flex justify-center">
             {player.passRate === 100 ? <img src={checkbox} alt="해결 " /> : '-'}
           </p>
-          <p className="w-16 text-center">{player.passRate}%</p>
-          <p className="w-16 text-center">{player.lang}</p>
-          <p className="w-16 text-center">{player.executeTime ? player.executeTime : '-'}</p>
-          <p className="w-16 text-center">{player.executeMemory ? player.executeMemory : '-'}</p>
+          <p className="w-16 text-center text-sm">{player.passRate}%</p>
+          <p className="w-16 text-center text-sm">{player.lang}</p>
+          <p className="w-16 text-center text-sm">
+            {player.executeTime ? player.executeTime + '초' : '-'}
+          </p>
+          <p className="w-16 text-center text-sm">
+            {player.executeMemory ? player.executeMemory + 'MB' : '-'}
+          </p>
         </div>
 
         <div className="w-20">
@@ -155,10 +167,47 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
           >
             {modalType === 'Feedback' ? (
               <>
-                <h2 className="text-lg font-semibold text-primary-white mb-8">AI 코칭 결과</h2>
+                <h2 className="text-2xl font-semibold text-primary-white mb-8">
+                  🤖 AI 코칭 결과 🔎
+                </h2>
                 <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1">
-                  <p className="min-h-[10rem] max-h-[30rem] text-center">
-                    {feedback ? feedback : '코칭 정보가 없습니다.'}
+                  <p className="min-h-[10rem] max-h-[33rem] text-center">
+                    {feedbacks ? (
+                      <>
+                        <h3 className="text-md font-bold text-balance text-gray-01">
+                          {feedbacks.summary}
+                        </h3>
+                        {feedbacks.algorithmType?.length > 0 && (
+                          <div className="mt-4 mb-4">
+                            <ul className="flex flex-wrap gap-2 mt-2 justify-center">
+                              {feedbacks.algorithmType.map((type, index) => (
+                                <li
+                                  key={index}
+                                  className="px-3 py-1 bg-gray-03 text-gray-01 rounded-md text-sm"
+                                >
+                                  {type}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <ul className="mb-6">
+                          {feedbacks.feedback?.map((item, index) => (
+                            <li
+                              key={index}
+                              className="my-2 p-2 border-b border-gray-03 last:border-none"
+                            >
+                              <p className="text-primary-orange font-semibold text-balance">
+                                {item.code}
+                              </p>
+                              <p className="text-gray-02 text-balance">{item.description}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : (
+                      '코칭 정보가 없습니다.'
+                    )}
                   </p>
                 </div>
               </>
@@ -167,14 +216,18 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
                 <h2 className="text-lg font-semibold text-primary-white mb-8">
                   {player.nickname}님의 코드
                 </h2>
-                <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1">
+                <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1 flex items-center justify-center">
                   {userCodes
                     .filter(code => code.nickname === player.nickname)
-                    .map((code, index) => (
-                      <pre key={index} className="bg-gray-06 min-h-full">
-                        <code>{code.code || '코드 정보가 없습니다.'}</code>
-                      </pre>
-                    ))}
+                    .map((code, index) =>
+                      code.code ? (
+                        <pre key={index} className="bg-gray-06 max-h-[20rem]">
+                          <code className="text-sm">{code.code}</code>
+                        </pre>
+                      ) : (
+                        <p className="text-center">아직 상대방이 문제를 풀지 못했어요. 😓</p>
+                      )
+                    )}
                 </div>
               </>
             )}
