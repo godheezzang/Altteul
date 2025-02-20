@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 type ModalProps = {
   isOpen: boolean;
@@ -29,13 +30,21 @@ const Modal = ({
 }: ModalProps) => {
   if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음
 
+  const location = useLocation();
+
   const handleClose = () => {
     onClose();
     onReset();
   };
 
+  const isAuth = location.pathname.length === 1;
+  console.log(isAuth);
+
   return (
-    <div className="fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center">
+    <div
+      className={`fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center`}
+      onClick={handleClose}
+    >
       <div
         className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className} z-100`.trim()}
         onClick={e => e.stopPropagation()}
