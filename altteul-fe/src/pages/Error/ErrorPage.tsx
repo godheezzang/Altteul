@@ -1,10 +1,16 @@
 import MediumButton from '@components/Common/Button/MediumButton';
 import { useNavigate } from 'react-router-dom';
 import errorbg from '@assets/background/error_page.svg';
+import useAuthStore from '@stores/authStore';
 
 const ErrorPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
+  const handleMoveMain = () => {
+    logout();
+    navigate('/');
+  };
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
@@ -28,22 +34,12 @@ const ErrorPage = () => {
         </p>
 
         {/* 버튼들 */}
-        <div className="flex justify-center space-x-4">
-          <MediumButton
-            onClick={() => navigate('/')}
-            className="text-sm mt-2 bg-secondary-orange hover:bg-primary-orange transition-colors duration-300"
-          >
-            메인 페이지로
-          </MediumButton>
-          <MediumButton
-            onClick={() => window.history.back()}
-            backgroundColor="gray-04"
-            fontColor="primary-white"
-            className="text-sm mt-2 hover:bg-gray-03 transition-colors duration-300"
-          >
-            이전 페이지로
-          </MediumButton>
-        </div>
+        <MediumButton
+          onClick={handleMoveMain}
+          className="text-md mt-2 bg-secondary-orange hover:bg-primary-orange transition-colors duration-300"
+        >
+          메인 페이지로
+        </MediumButton>
       </div>
     </div>
     // </div>
