@@ -15,6 +15,15 @@ RUN gradle build -x test --parallel
 FROM openjdk:17-slim
 WORKDIR /app
 
+# 타임존 설정
+ENV TZ=Asia/Seoul
+RUN apt-get update \
+    && apt-get install -y tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # 빌더 이미지에서 jar 파일만 복사
 COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
 
