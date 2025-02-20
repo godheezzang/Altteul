@@ -1,7 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MonacoEditor, { loader } from '@monaco-editor/react';
 
-const codeSnippet = `import java.util.ArrayList;
+loader.init().then(monaco => {
+  monaco.languages.register({ id: 'java' });
+  // monaco.languages.setMonarchTokensProvider('java', javaLanguage);
+  // monaco.languages.setLanguageConfiguration('java', javaConfiguration)
+});
+
+const codeSnippet = ` import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,33 +45,58 @@ public class Solution {
             }
         }
     }
-}`;
+} `;
 
 const AnimatedCodeEditor = (): JSX.Element => {
   const [typedCode, setTypedCode] = useState<string>('');
   const indexRef = useRef<number>(0);
+  const rafRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number>(0); // ⬅ 마지막 실행 시간 기록
+  const [isEditorReady, setIsEditorReady] = useState(false);
+
+  const typingSpeed = 40; // ⬅ 속도 조절 (밀리초, 값이 클수록 느려짐)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (indexRef.current < codeSnippet.length) {
-        setTypedCode(prev => prev + codeSnippet[indexRef.current]);
-        indexRef.current += 1;
-      } else {
-        clearInterval(interval);
+    const typeNextChar = (timestamp: number) => {
+      if (!lastTimeRef.current) {
+        lastTimeRef.current = timestamp;
       }
-    }, 30);
 
-    return () => clearInterval(interval);
-  }, []);
+      const elapsed = timestamp - lastTimeRef.current;
+      if (elapsed > typingSpeed) {
+        // ⬅ 일정 간격 이상 지나야 실행
+        if (indexRef.current < codeSnippet.length) {
+          setTypedCode(prev => prev + codeSnippet[indexRef.current]);
+          indexRef.current += 1;
+          lastTimeRef.current = timestamp; // ⬅ 마지막 실행 시간 갱신
+        }
+      }
+
+      if (indexRef.current < codeSnippet.length) {
+        rafRef.current = requestAnimationFrame(typeNextChar);
+      }
+    };
+
+    if (isEditorReady) {
+      rafRef.current = requestAnimationFrame(typeNextChar);
+    }
+
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [isEditorReady]);
 
   return (
     <div className="relative w-full h-[calc(100vh-3.5rem)] overflow-hidden">
       <div className="absolute inset-0 z-10 bg-gradient-to-r from-transparent via-primary-black/80 to-primary-black overflow-hidden" />
       <MonacoEditor
         height="100%"
-        defaultLanguage="java"
+        language="java"
         theme="vs-dark"
         value={typedCode}
+        onMount={() => setIsEditorReady(true)}
         options={{
           readOnly: true,
           minimap: { enabled: false },
@@ -79,4 +110,5 @@ const AnimatedCodeEditor = (): JSX.Element => {
     </div>
   );
 };
+
 export default AnimatedCodeEditor;
