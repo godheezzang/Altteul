@@ -57,9 +57,9 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
             socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
             socket.unsubscribe(`/sub/team/room/${matchId}`);
           }
-          resetGameInfo();
           onClose();
           navigate('/match/select');
+          resetGameInfo();
         }
       } catch (error) {
         console.error(error);
@@ -140,9 +140,9 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
             socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
             socket.unsubscribe(`/sub/team/room/${matchId}`);
           }
-          resetGameInfo();
           onClose();
           navigate('/');
+          resetGameInfo();
         }
       } catch (error) {
         console.error(error);
