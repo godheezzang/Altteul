@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 type ModalProps = {
   isOpen: boolean;
@@ -30,6 +30,7 @@ const Modal = ({
 }: ModalProps) => {
   if (!isOpen) return null; // isOpen이 false이면 모달을 렌더링하지 않음
 
+  const params = useParams();
   const location = useLocation();
 
   const handleClose = () => {
@@ -38,12 +39,13 @@ const Modal = ({
   };
 
   const isAuth = location.pathname.length === 1;
+  const isEditUserInfo = location.pathname.includes(`/user/${params.userId}`);
   console.log(isAuth);
 
   return (
     <div
       className={`fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center`}
-      onClick={handleClose}
+      onClick={isAuth || isEditUserInfo ? handleClose : undefined}
     >
       <div
         className={`flex flex-col items-center text-primary-black rounded-2xl p-5 overflow-auto ${className} z-100`.trim()}
