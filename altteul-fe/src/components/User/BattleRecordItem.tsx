@@ -45,55 +45,55 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
   };
 
   const options = {
-      replace: (domNode: DOMNode, index: number) => {
-        if (
-          'type' in domNode &&
-          domNode.type === 'tag' &&
-          'name' in domNode &&
-          domNode.name === 'pre'
-        ) {
-          return (
-            <>
-              <h3
-                key={`h3-${index}`}
-                style={{
-                  marginTop: '2rem',
-                }}
-              >
-                {domToReact(domNode.children as DOMNode[])}
-              </h3>
-              <p
-                key={`p-${index}`}
-                style={{
-                  marginTop: '2rem',
-                  marginBottom: '1rem',
-                }}
-              >
-                {domToReact(domNode.children as DOMNode[])}
-              </p>
-              <img
-                key={`img-${index}`}
-                style={{
-                  marginBottom: '1rem',
-                }}
-              />
-              <pre
-                key={`pre-${index}`}
-                style={{
-                  marginTop: '2rem',
-                  backgroundColor: '#292F37',
-                  padding: '1rem',
-                  maxWidth: '100%',
-                  textWrap: 'pretty',
-                }}
-              >
-                {domToReact(domNode.children as DOMNode[])}
-              </pre>
-            </>
-          );
-        }
-      },
-    };
+    replace: (domNode: DOMNode, index: number) => {
+      if (
+        'type' in domNode &&
+        domNode.type === 'tag' &&
+        'name' in domNode &&
+        domNode.name === 'pre'
+      ) {
+        return (
+          <>
+            <h3
+              key={`h3-${index}`}
+              style={{
+                marginTop: '2rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </h3>
+            <p
+              key={`p-${index}`}
+              style={{
+                marginTop: '2rem',
+                marginBottom: '1rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </p>
+            <img
+              key={`img-${index}`}
+              style={{
+                marginBottom: '1rem',
+              }}
+            />
+            <pre
+              key={`pre-${index}`}
+              style={{
+                marginTop: '2rem',
+                backgroundColor: '#292F37',
+                padding: '1rem',
+                maxWidth: '100%',
+                textWrap: 'pretty',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </pre>
+          </>
+        );
+      }
+    },
+  };
 
   const isTeam = record.gameType === 'T' ? true : false;
   const isWin = isTeam ? record.myTeam.gameResult === 'FIRST' : record.myTeam.gameResult !== 'FAIL';
@@ -158,11 +158,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                 key={member.userId}
                 className={`flex gap-2 ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}
               >
-                <div className="p-1 rounded-full bg-gray-06">
+                <div className="rounded-full">
                   <img
                     src={`${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
-                    className="w-[1rem]"
+                    className="w-[1.5rem] h-[1.5rem] aspect-sqaure rounded-full bg-gray-01"
                   />
                 </div>
                 {member.nickname}
@@ -172,11 +172,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
           <div className="flex flex-col w-1/2 gap-0.5">
             {record.opponents[0].members.map(member => (
               <p key={member.userId} className="flex gap-2 items-center mb-1">
-                <div className="p-1 rounded-full bg-gray-06">
+                <div className="rounded-full">
                   <img
                     src={`${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
-                    className="w-[1rem]"
+                    className="w-[1.5rem] h-[1.5rem] aspect-sqaure rounded-full bg-gray-01"
                   />
                 </div>
                 {member.nickname}
@@ -195,11 +195,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                 key={member.userId}
                 className={`flex gap-2 ${index === 0 ? 'font-semibold' : 'font-regular'} ${member.userId === Number(userId) ? 'text-primary-orange' : ''} items-center mb-1`}
               >
-                <div className="p-1 rounded-full bg-gray-06">
+                <div className="rounded-full">
                   <img
                     src={`${member.profileImage}`}
                     alt={member.nickname + ' 프로필 이미지'}
-                    className="w-[1rem]"
+                    className="w-[1.5rem] h-[1.5rem] aspect-sqaure rounded-full bg-gray-01"
                   />
                 </div>
                 <p className={` ${allPlayers.length > 4 && index < 3 ? 'mr-4' : ''}`}>
@@ -222,7 +222,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
           <div className="after:content-[''] after:block after:w-[50px] after:h-[1px] after:bg-gray-03 after:mt-4 after:mb-4">
             <p className="font-semibold text-primary-orange">
               <span>{isTeam ? '팀전 ' : '개인전'} / </span>
-              <span>{isTeam ? `${record.myTeam.members.length}인` : '8인'}</span>
+              <span>
+                {isTeam
+                  ? `${record.myTeam.members.length + record.opponents[0].members.length}인`
+                  : `${1 + record.opponents.length}인`}
+              </span>
             </p>
             <p className="text-xs">{formattedDate}</p>
           </div>
@@ -329,11 +333,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                           key={member.userId}
                           className="flex gap-2 bg-gray-05 mb-2 rounded-md mt-2 py-2 px-5 text-sm items-center"
                         >
-                          <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
+                          <div className="relative border-2 border-gray-02 rounded-full aspect-square mr-2">
                             <img
                               src={`${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
-                              className="w-[1.8rem]"
+                              className="w-[2.5rem] h-[2.5rem] rounded-full aspect-square"
                             />
                             <div className="absolute -bottom-1 -right-1 w-[1.5rem]">
                               <img
@@ -390,11 +394,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                           key={member.userId}
                           className="flex gap-2 bg-gray-05 mb-2 rounded-md mt-2 py-2 px-5 text-sm items-center"
                         >
-                          <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2">
+                          <div className="relative border-2 border-gray-02 rounded-full aspect-square mr-2">
                             <img
                               src={`${member.profileImage}`}
                               alt={member.nickname + ' 프로필 이미지'}
-                              className="w-[1.8rem]"
+                              className="w-[2.5rem] h-[2.5rem] rounded-full aspect-square"
                             />
                             <div className="absolute -bottom-1 -right-1 w-[1.5rem]">
                               <img
@@ -446,11 +450,11 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                     </p>
                     <div className="flex grow items-center">
                       <div className="flex items-center mr-20">
-                        <div className="relative border-2 border-gray-02 rounded-full aspect-square p-2 mr-4">
+                        <div className="relative border-2 border-gray-02 rounded-full aspect-square mr-4">
                           <img
                             src={`${member.profileImage}`}
                             alt={member.nickname + ' 프로필 이미지'}
-                            className="w-[1.8rem]"
+                            className="w-[2.5rem] h-[2.5rem] rounded-full aspect-square"
                           />
                           <div className="absolute -bottom-1 -right-1 w-[1.5rem]">
                             <img
