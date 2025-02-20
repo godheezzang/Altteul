@@ -1,6 +1,6 @@
 import { UserGameRecord } from 'types/types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import bronze from '@assets/icon/badge/Badge_01.svg';
 import silver from '@assets/icon/badge/Badge_04.svg';
 import gold from '@assets/icon/badge/Badge_05.svg';
@@ -10,6 +10,7 @@ import arrow from '@assets/icon/friend/arrow.svg';
 import TeamTabs from '@components/User/TeamNavbar';
 import SmallButton from '@components/Common/Button/SmallButton ';
 import CodeModal from '@components/User/CodeModal';
+import parse, { DOMNode, domToReact } from 'html-react-parser';
 
 type BattleRecordItemProps = {
   record: UserGameRecord;
@@ -42,6 +43,57 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
     setCodeModalOpen(false);
     setSelectedCode(null);
   };
+
+  const options = {
+      replace: (domNode: DOMNode, index: number) => {
+        if (
+          'type' in domNode &&
+          domNode.type === 'tag' &&
+          'name' in domNode &&
+          domNode.name === 'pre'
+        ) {
+          return (
+            <>
+              <h3
+                key={`h3-${index}`}
+                style={{
+                  marginTop: '2rem',
+                }}
+              >
+                {domToReact(domNode.children as DOMNode[])}
+              </h3>
+              <p
+                key={`p-${index}`}
+                style={{
+                  marginTop: '2rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                {domToReact(domNode.children as DOMNode[])}
+              </p>
+              <img
+                key={`img-${index}`}
+                style={{
+                  marginBottom: '1rem',
+                }}
+              />
+              <pre
+                key={`pre-${index}`}
+                style={{
+                  marginTop: '2rem',
+                  backgroundColor: '#292F37',
+                  padding: '1rem',
+                  maxWidth: '100%',
+                  textWrap: 'pretty',
+                }}
+              >
+                {domToReact(domNode.children as DOMNode[])}
+              </pre>
+            </>
+          );
+        }
+      },
+    };
 
   const isTeam = record.gameType === 'T' ? true : false;
   const isWin = isTeam ? record.myTeam.gameResult === 'FIRST' : record.myTeam.gameResult !== 'FAIL';
@@ -465,7 +517,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                     <span>{record.problem.problemId}.</span>
                     <span>{record.problem.problemTitle}</span>
                   </p>
-                  <p>{record.problem.description}</p>
+                  {parse(record.problem.description, options) as ReactNode}
                 </div>
               </div>
             )}
