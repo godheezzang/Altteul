@@ -126,6 +126,7 @@ const TeamFinalPage = () => {
                 nickname={user.nickname}
                 profileImg={user.profileImg}
                 tierId={user.tierId}
+                className='w-24 h-24'
               />
             ))}
           </div>
@@ -141,6 +142,7 @@ const TeamFinalPage = () => {
                 nickname={user.nickname}
                 profileImg={user.profileImg}
                 tierId={user.tierId}
+                className='w-24 h-24'
               />
             ))}
           </div>

@@ -105,15 +105,9 @@ const SingleSearchPage = () => {
 
     //8명 상관없이 시작할건지 확인
     toast.info(
-      <div>
-        <p>바로 시작하시겠습니까?</p>
+      <div className='w-[14rem] flex flex-col items-end'>
+        <p className='text-white'>바로 시작하시겠습니까?</p>
         <div className="mt-3 flex justify-end gap-3">
-          <button
-            onClick={() => toast.dismiss()}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md"
-          >
-            취소
-          </button>
           <button
             onClick={() => {
               toast.dismiss();
@@ -122,6 +116,12 @@ const SingleSearchPage = () => {
             className="px-4 py-2 bg-primary-orange text-white rounded-md"
           >
             시작
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-4 py-2 mr-5 bg-gray-500 text-white rounded-md"
+          >
+            취소
           </button>
         </div>
       </div>,
@@ -199,14 +199,14 @@ const SingleSearchPage = () => {
         <div className="flex gap-6 mb-12">
           {isLeader && (
             <Button
-              className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+              className="w-28 h-10 text-lg transition-all duration-300 hover:shadow-orange"
               onClick={handleStartButton}
             >
               게임 시작
             </Button>
           )}
           <Button
-            className="transition-all duration-300 hover:shadow-[0_0_15px_var(--primary-orange)]"
+            className="w-36 h-10 text-lg transition-all duration-300 hover:shadow-orange"
             onClick={userOut}
           >
             매칭 취소하기

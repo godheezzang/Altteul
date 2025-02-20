@@ -57,7 +57,7 @@ const RankingItem = ({ data, className }: { data: Ranking, className: string }) 
       <div>{formatNumber(point)}</div>
       {/* 선호언어 */}
       <div>{getLanguageDisplay(lang)}</div>
-      <div>{rate}</div>
+      <div>{`${Math.round(rate)}%`}</div>
     </div>
   );
 };

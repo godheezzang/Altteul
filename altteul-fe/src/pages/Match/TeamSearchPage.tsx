@@ -10,6 +10,7 @@ import socketResponseMessage from 'types/socketResponseMessage';
 import { cancelTeamMatch } from '@utils/Api/matchApi';
 import useGameStore from '@stores/useGameStore';
 import { User } from 'types/types';
+import { PacmanLoader } from 'react-spinners';
 
 const TeamSearchPage = () => {
   const navigate = useNavigate();
@@ -106,11 +107,11 @@ const TeamSearchPage = () => {
       <div className="absolute inset-0 bg-black/50"></div>
 
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center">
-        <div className="text-white text-3xl mb-8 flex flex-col items-center">
+        <div className="text-white text-[2rem] mb-8 flex flex-col items-center">
           대전 할 상대를 찾고 있어요. 🧐
-          <div className="flex text-base mt-3">
+          <div className="flex text-[1.2rem] mt-3">
             조금만 기다려 주세요
-            <div className="ml-2 animate-bounce">...</div>
+            <PacmanLoader color="#ffffff" size={12} className='ml-3'/>
           </div>
         </div>
 
@@ -122,6 +123,7 @@ const TeamSearchPage = () => {
               nickname={user.nickname}
               profileImg={user.profileImg}
               tierId={user.tierId}
+              className='w-20 h-20'
             />
           ))}
         </div>

@@ -76,15 +76,9 @@ const TeamcompositionPage = () => {
     }
     
     toast.info(
-      <div>
-        <p>바로 시작하시겠습니까?</p>
+      <div className='w-[14rem] flex flex-col items-end'>
+        <p className='text-white'>바로 시작하시겠습니까?</p>
         <div className="mt-3 flex justify-end gap-3">
-          <button
-            onClick={() => toast.dismiss()}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md"
-          >
-            취소
-          </button>
           <button
             onClick={() => {
               toast.dismiss();
@@ -93,6 +87,12 @@ const TeamcompositionPage = () => {
             className="px-4 py-2 bg-primary-orange text-white rounded-md"
           >
             시작
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-4 py-2 mr-5 bg-gray-500 text-white rounded-md"
+          >
+            취소
           </button>
         </div>
       </div>,
@@ -134,6 +134,7 @@ const TeamcompositionPage = () => {
               nickname={user.nickname}
               profileImg={user.profileImg}
               tierId={user.tierId}
+              className='w-24 h-24'
             />
           ))}
         </div>
@@ -141,11 +142,11 @@ const TeamcompositionPage = () => {
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
           {isLeader && (
-            <Button onClick={handleStartButton}>
+            <Button onClick={handleStartButton} className='w-28 h-10 text-lg transition-all duration-300 hover:shadow-orange'>
               매칭 시작
             </Button>
           )}
-          <Button onClick={userOut}>
+          <Button onClick={userOut} className='w-32 h-10 text-lg transition-all duration-300 hover:shadow-orange'>
             나가기
           </Button>
         </div>
