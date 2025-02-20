@@ -98,8 +98,6 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
     return <LoadingSpinner loading={isLoading} />;
   }
 
-  console.log(player);
-
   return (
     <>
       <li className="flex gap-4 text-primary-white justify-between items-center  mb-4 ">
@@ -109,7 +107,7 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
           ) : (
             <p className="w-10 text-center text-gray-02 text-sm">미해결</p>
           )}
-          <div className="flex gap-2 items-center justify-center w-40">
+          <div className="flex gap-2 items-center justify-start w-40">
             <div
               className="ml-1 mr-3
           ' relative border rounded-full"
@@ -136,7 +134,9 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
             {player.executeTime ? player.executeTime + '초' : '-'}
           </p>
           <p className="w-16 text-center text-sm">
-            {player.executeMemory ? player.executeMemory + ' MB' : '-'}
+            {player.executeMemory
+              ? Math.round(Number(player.executeMemory) / 1024 / 1024) + ' MB'
+              : '-'}
           </p>
         </div>
 
@@ -178,7 +178,7 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
                   <p className="min-h-[10rem] max-h-[33rem] text-center">
                     {feedbacks ? (
                       <>
-                        <h3 className="text-md font-bold text-balance text-gray-01">
+                        <h3 className="text-md font-medium text-balance text-gray-01">
                           {feedbacks.summary}
                         </h3>
                         {feedbacks.algorithmType?.length > 0 && (
@@ -187,7 +187,7 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
                               {feedbacks.algorithmType.map((type, index) => (
                                 <li
                                   key={index}
-                                  className="px-3 py-1 bg-gray-03 text-gray-01 rounded-md text-sm"
+                                  className="px-3 py-1 bg-gray-03 text-gray-01 rounded-md text-md font-semibold"
                                 >
                                   {type}
                                 </li>
@@ -201,10 +201,12 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
                               key={index}
                               className="my-2 p-2 border-b border-gray-03 last:border-none"
                             >
-                              <p className="text-primary-orange font-semibold text-balance">
+                              <p className="text-primary-orange font-semibold text-balance text-lg">
                                 {item.code}
                               </p>
-                              <p className="text-gray-02 text-balance">{item.description}</p>
+                              <p className="text-gray-02 text-balance text-md">
+                                {item.description}
+                              </p>
                             </li>
                           ))}
                         </ul>

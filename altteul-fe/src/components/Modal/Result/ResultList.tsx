@@ -22,14 +22,6 @@ export type SortedPlayer = {
   userId: number;
 };
 
-// 시간 초단위로 변환하는 함수
-const parseDuration = (duration: string): number => {
-  if (!duration) return null;
-
-  const [minutes, seconds] = duration.split(':').map(Number);
-  return minutes * 60 + seconds;
-};
-
 const ResultList = ({ results }: ResultListProps) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
 
@@ -64,9 +56,15 @@ const ResultList = ({ results }: ResultListProps) => {
       );
 
       const sortedPlayers: SortedPlayer[] = [...myTeamMembers, ...opponentMembers].sort((a, b) => {
-        const durationA = parseDuration(a.duration);
-        const durationB = parseDuration(b.duration);
-        return durationA - durationB;
+        if (a.gameResult === 0 && b.gameResult !== 0) return 1;
+        if (b.gameResult === 0 && a.gameResult !== 0) return -1;
+
+        const gameResultA = Number(a.gameResult);
+        const gameResultB = Number(b.gameResult);
+
+        if (b.gameResult !== a.gameResult) {
+          return gameResultA - gameResultB;
+        }
       });
 
       setSortedPlayers(sortedPlayers);
