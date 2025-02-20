@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import SmallButton from '@components/Common/Button/SmallButton ';
 import useAuthStore from '@stores/authStore';
+import useGameStore from '@stores/useGameStore';
 
 interface SideProblemModalProps {
   gameId: number;
@@ -36,24 +37,26 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
   const { subscribe, sendMessage, connected } = useSocketStore();
   const [isMyAnswer, setIsMyAnswer] = useState(false);
+  const { myTeam } = useGameStore();
+  const userRoomId = myTeam.roomId;
 
   useEffect(() => {
     if (!connected) return;
 
     // 사이드 문제 채점 결과 구독
     subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
-      // console.log('📩 사이드 문제 채점 결과 수신:', data);
+      console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
 
       // TODO: 사이드문제 결과에 userId 추가되면 ? 삭제
-      setIsMyAnswer(data.data?.userId === Number(userId));
+      setIsMyAnswer(data.data.roomId === userRoomId);
     });
   }, [connected, gameId, roomId, subscribe]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 60000);
+    }, 60 * 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -63,15 +66,17 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     if (!answer.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    const upperCaseAnswer = answer.toUpperCase();
+    // const upperCaseAnswer = answer.toUpperCase();
 
     sendMessage(`/pub/side/submit`, {
       gameId,
       teamId: roomId,
       sideProblemId: problem.id,
-      answer: upperCaseAnswer,
+      answer: answer,
     });
   };
+
+  console.log(sideProblemResult);
 
   // 서버에서 결과를 받으면 정답 여부 확인
   useEffect(() => {
@@ -123,6 +128,11 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
           </div>
         ) : (
           <>
+            {isMyAnswer && (
+              <div className="text-center text-primary-orange font-bold my-4">
+                팀원이 사이드 문제를 풀었습니다!
+              </div>
+            )}
             {/* ✅ 제출 결과가 없을 때 문제 표시 */}
             {!submissionResult && (
               <>
@@ -135,30 +145,32 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
                 </div>
 
                 {/* ✅ 사용자 입력 필드 */}
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={e => setAnswer(e.target.value)}
-                    placeholder="정답을 입력해주세요."
-                    className="w-[15rem] px-4 py-2 rounded-md bg-gray-03"
-                    disabled={isSubmitting}
-                  />
-                  <SmallButton
-                    onClick={handleSubmit}
-                    className="px-4 py-2"
-                    disabled={!answer.trim() || isSubmitting}
-                  >
-                    {isSubmitting ? '제출 중...' : '제출'}
-                  </SmallButton>
-                  <SmallButton
-                    onClick={handleForfeit}
-                    className="px-4 py-2"
-                    backgroundColor="gray-03"
-                  >
-                    안풀래요
-                  </SmallButton>
-                </div>
+                {!isMyAnswer && (
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={e => setAnswer(e.target.value)}
+                      placeholder="정답을 입력해주세요."
+                      className="w-[15rem] px-4 py-2 rounded-md bg-gray-03"
+                      disabled={isSubmitting || isMyAnswer}
+                    />
+                    <SmallButton
+                      onClick={handleSubmit}
+                      className="px-4 py-2"
+                      disabled={!answer.trim() || isSubmitting}
+                    >
+                      {isSubmitting ? '제출 중...' : '제출'}
+                    </SmallButton>
+                    <SmallButton
+                      onClick={handleForfeit}
+                      className="px-4 py-2"
+                      backgroundColor="gray-03"
+                    >
+                      안풀래요
+                    </SmallButton>
+                  </div>
+                )}
               </>
             )}
 

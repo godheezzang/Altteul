@@ -148,17 +148,14 @@ const TeamIdePage = () => {
     if (!connected) return;
     if (requestCount >= MAX_REQUESTS) return;
 
-    const interval = setInterval(
-      () => {
-        if (requestCount < MAX_REQUESTS) {
-          requestSideProblem();
-          setRequestCount(prev => prev + 1);
-        } else {
-          clearInterval(interval);
-        }
-      },
-      60 * 10 * 1000
-    );
+    const interval = setInterval(() => {
+      if (requestCount < MAX_REQUESTS) {
+        requestSideProblem();
+        setRequestCount(prev => prev + 1);
+      } else {
+        clearInterval(interval);
+      }
+    }, 30 * 1000);
 
     return () => clearInterval(interval);
   }, [requestCount]);
