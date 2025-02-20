@@ -42,7 +42,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
     // 사이드 문제 채점 결과 구독
     subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, data => {
-      console.log('📩 사이드 문제 채점 결과 수신:', data);
+      // console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
 
       // TODO: 사이드문제 결과에 userId 추가되면 ? 삭제
@@ -78,7 +78,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     if (sideProblemResult && isSubmitting) {
       setIsSubmitting(false);
 
-      console.log('sideProblemResult:', sideProblemResult.data);
+      // console.log('sideProblemResult:', sideProblemResult.data);
 
       if (sideProblemResult?.data.status === 'P') {
         setSubmissionResult(

@@ -47,19 +47,19 @@ const TeamIdePage = () => {
 
     // ✅ 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
-      console.log('📩 사이드 문제 수신:', data);
+      // console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
     });
 
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      console.log('📩 코드 채점 결과 수신:', data);
+      // console.log('📩 코드 채점 결과 수신:', data);
     });
 
     // 실시간 게임 현황 구독
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
-      console.log('📩 실시간 게임 현황 수신:', data);
+      // console.log('📩 실시간 게임 현황 수신:', data);
 
       if (data?.type === '게임 현황' && data.data.gameType === 'T') {
         const submittedTeam: SubmittedTeam = data.data.submittedTeam;
@@ -90,12 +90,12 @@ const TeamIdePage = () => {
 
     // ✅ 상대 팀 코드 구독
     subscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`, data => {
-      console.log('📩 상대 팀 코드 수신:', data);
+      // console.log('📩 상대 팀 코드 수신:', data);
       setOpponentCode(data.code);
     });
 
     subscribe(`/sub/team/room/${matchId}`, data => {
-      console.log('퇴장하기 구독 데이터', data);
+      // console.log('퇴장하기 구독 데이터', data);
 
       if (data?.type === 'GAME_IN_PROGRESS_LEAVE') {
         const { remainingUsers } = data.data;
@@ -140,7 +140,7 @@ const TeamIdePage = () => {
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
     sendMessage(`/pub/side/receive`, { gameId, teamId: userRoomId });
-    console.log('📨 사이드 문제 요청 전송');
+    // console.log('📨 사이드 문제 요청 전송');
   };
 
   // ✅ 10분마다 자동으로 사이드 문제 요청

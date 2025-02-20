@@ -46,7 +46,7 @@ export const getFriendRequests = async ({ page = 0, size = 10 }: GetFriendsParam
     });
     return data;
   } catch (error) {
-    console.log('error: ', error);
+    // console.log('error: ', error);
   }
 };
 
@@ -74,11 +74,11 @@ export const getFriendChatMessages = async (friendId: number) => {
 
 //팀전 초대 api
 export const inviteFriend = async (payload: { inviteeId: number; roomId: number }) => {
-  try{
+  try {
     const data = await teamApi.post('invite', payload);
-    return data
-  }catch(e){
-    throw new Error()
+    return data;
+  } catch (e) {
+    throw new Error();
   }
 };
 

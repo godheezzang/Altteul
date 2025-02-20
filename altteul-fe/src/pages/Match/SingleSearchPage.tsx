@@ -45,21 +45,20 @@ const SingleSearchPage = () => {
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
-      console.log('singleSearchPage Out');
+      // console.log('singleSearchPage Out');
       socket.unsubscribe(`/sub/single/room/${roomId}`);
     };
   }, [roomId]);
 
   //소켓 응답 처리
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message);
+    // console.log(message);
     const { type, data } = message;
     if (type === 'ENTER' || type === 'LEAVE') {
       setLeaderId(data.leaderId);
       setWaitUsers(data.users.filter(user => user.userId !== data.leaderId));
       setHeadUser(data.users.find(user => user.userId === data.leaderId));
       setIsLeader(currentUserId === data.leaderId);
-
     } else if (type === 'COUNTING') {
       navigate('/match/single/final');
     }
@@ -81,9 +80,9 @@ const SingleSearchPage = () => {
       //1. 혼자만 있으면 시작 x
       if (waitUsers.length === 0) {
         toast.error('상대 유저가 입장하지 않아 종료합니다.', {
-          position: "top-center",
+          position: 'top-center',
           autoClose: 3000,
-          onClose: () => userOut()
+          onClose: () => userOut(),
         });
         return;
       }
@@ -97,16 +96,16 @@ const SingleSearchPage = () => {
     //혼자만 있을 때
     if (waitUsers.length === 0) {
       toast.warning('상대 유저가 입장하지 않았습니다.', {
-        position: "top-center",
-        autoClose: 3000
+        position: 'top-center',
+        autoClose: 3000,
       });
       return;
     }
 
     //8명 상관없이 시작할건지 확인
     toast.info(
-      <div className='w-[14rem] flex flex-col items-end'>
-        <p className='text-white'>바로 시작하시겠습니까?</p>
+      <div className="w-[14rem] flex flex-col items-end">
+        <p className="text-white">바로 시작하시겠습니까?</p>
         <div className="mt-3 flex justify-end gap-3">
           <button
             onClick={() => {
@@ -126,7 +125,7 @@ const SingleSearchPage = () => {
         </div>
       </div>,
       {
-        position: "top-center",
+        position: 'top-center',
         autoClose: false,
         closeButton: false,
         closeOnClick: false,
@@ -190,7 +189,7 @@ const SingleSearchPage = () => {
           <div className="flex text-base pt-1.5">
             조금만 기다려 주세요
             <div className="ml-2">
-              <PacmanLoader color="#ffffff" size={12}  />
+              <PacmanLoader color="#ffffff" size={12} />
             </div>
           </div>
         </div>

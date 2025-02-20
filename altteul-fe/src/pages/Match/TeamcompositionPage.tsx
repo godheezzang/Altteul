@@ -15,7 +15,7 @@ const TeamcompositionPage = () => {
   const socket = useSocketStore();
 
   // Store에서 matchData와 setter를 직접 구독
-  const { matchData, setMatchData } = useMatchStore((state) => ({
+  const { matchData, setMatchData } = useMatchStore(state => ({
     matchData: state.matchData,
     setMatchData: state.setMatchData,
   }));
@@ -30,14 +30,14 @@ const TeamcompositionPage = () => {
     socket.subscribe(`/sub/team/room/${roomId}`, handleMessage);
 
     return () => {
-      console.log('TeamcompositionPage unmount. Unsubscribe socket.');
+      // console.log('TeamcompositionPage unmount. Unsubscribe socket.');
       socket.unsubscribe(`/sub/team/room/${roomId}`);
     };
   }, [roomId]);
 
   // 소켓 메시지 핸들러
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message);
+    // console.log(message);
     const { type, data } = message;
 
     // ENTER or LEAVE 이벤트가 들어오면 store의 matchData 갱신
@@ -47,7 +47,7 @@ const TeamcompositionPage = () => {
         leaderId: data.leaderId,
         users: data.users,
       });
-      
+
       // 4명이 되면 자동 매칭 시작
       if (data.users.length >= 4) {
         navigateMatchPage();
@@ -64,8 +64,8 @@ const TeamcompositionPage = () => {
   const handleStartButton = () => {
     if (users.length === 1) {
       toast.error('혼자서는 플레이 할 수 없습니다.', {
-        position: "top-center",
-        autoClose: 3000
+        position: 'top-center',
+        autoClose: 3000,
       });
       return;
     }
@@ -74,10 +74,10 @@ const TeamcompositionPage = () => {
       navigateMatchPage();
       return;
     }
-    
+
     toast.info(
-      <div className='w-[14rem] flex flex-col items-end'>
-        <p className='text-white'>바로 시작하시겠습니까?</p>
+      <div className="w-[14rem] flex flex-col items-end">
+        <p className="text-white">바로 시작하시겠습니까?</p>
         <div className="mt-3 flex justify-end gap-3">
           <button
             onClick={() => {
@@ -97,7 +97,7 @@ const TeamcompositionPage = () => {
         </div>
       </div>,
       {
-        position: "top-center",
+        position: 'top-center',
         autoClose: false,
         closeButton: false,
         closeOnClick: false,
@@ -134,7 +134,7 @@ const TeamcompositionPage = () => {
               nickname={user.nickname}
               profileImg={user.profileImg}
               tierId={user.tierId}
-              className='w-24 h-24'
+              className="w-24 h-24"
             />
           ))}
         </div>
@@ -142,11 +142,17 @@ const TeamcompositionPage = () => {
         {/* 버튼 */}
         <div className="flex gap-6 mt-12">
           {isLeader && (
-            <Button onClick={handleStartButton} className='w-28 h-10 text-lg transition-all duration-300 hover:shadow-orange'>
+            <Button
+              onClick={handleStartButton}
+              className="w-28 h-10 text-lg transition-all duration-300 hover:shadow-orange"
+            >
               매칭 시작
             </Button>
           )}
-          <Button onClick={userOut} className='w-32 h-10 text-lg transition-all duration-300 hover:shadow-orange'>
+          <Button
+            onClick={userOut}
+            className="w-32 h-10 text-lg transition-all duration-300 hover:shadow-orange"
+          >
             나가기
           </Button>
         </div>

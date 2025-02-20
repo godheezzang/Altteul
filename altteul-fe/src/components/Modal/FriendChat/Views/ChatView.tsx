@@ -37,7 +37,7 @@ const ChatView = () => {
     try {
       setIsLoading(true);
       const response = await getFriendChatMessages(activeChatId);
-      console.log(response);
+      // console.log(response);
       setChatRoom(response.data);
       setChatRoomId(response.data.chatroomId);
       setSpeechBubble(response.data.messages);
@@ -50,7 +50,7 @@ const ChatView = () => {
   };
 
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message);
+    // console.log(message);
     const { type, data } = message;
     if (type === '새 메시지') {
       const newChat = {

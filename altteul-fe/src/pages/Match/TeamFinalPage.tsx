@@ -23,21 +23,21 @@ const TeamFinalPage = () => {
   const [displayText, setDisplayText] = useState(''); //타이핑 효과로 나타나는 텍스트 변수
   const [textIndex, setTextIndex] = useState(0); //타이핑 효과 추적 변수
   const [seconds, setSeconds] = useState<number>(10); //응답 데이터로 렌더링 전 초기값(10) 설정
-  
+
   //구독처리
   useEffect(() => {
     socket.subscribe(`/sub/team/room/${matchId}`, handleMessage);
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage 정리)
     return () => {
-      console.log('teamFinal Out, 콜백함수 정리');
+      // console.log('teamFinal Out, 콜백함수 정리');
       socket.unsubscribe(`/sub/team/room/${matchId}`);
     };
   }, [matchId]);
 
   //소켓 응답 처리
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message);
+    // console.log(message);
     const { type, data } = message;
 
     //카운트 응답
@@ -47,9 +47,9 @@ const TeamFinalPage = () => {
 
     if (type === 'COUNTING_CANCEL') {
       toast.error('유저 이탈로 메인페이지로 이동합니다.', {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
-        onClose: () => navigate('/match/select')
+        onClose: () => navigate('/match/select'),
       });
     }
 
@@ -72,7 +72,7 @@ const TeamFinalPage = () => {
 
       //페이지 이동
       setTimeout(() => {
-        console.log('IDE 페이지 이동');
+        // console.log('IDE 페이지 이동');
         navigate(`/game/team/${data.gameId}/${matchId}`);
       }, 100); // 데이터 저장 후 안전하게 페이지 이동
     }
@@ -126,7 +126,7 @@ const TeamFinalPage = () => {
                 nickname={user.nickname}
                 profileImg={user.profileImg}
                 tierId={user.tierId}
-                className='w-24 h-24'
+                className="w-24 h-24"
               />
             ))}
           </div>
@@ -142,7 +142,7 @@ const TeamFinalPage = () => {
                 nickname={user.nickname}
                 profileImg={user.profileImg}
                 tierId={user.tierId}
-                className='w-24 h-24'
+                className="w-24 h-24"
               />
             ))}
           </div>

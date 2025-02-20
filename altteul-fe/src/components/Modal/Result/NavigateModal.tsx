@@ -104,7 +104,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
         },
       });
 
-      console.log(response);
+      // console.log(response);
 
       setUserCodes(response.data.data.userCodes[-1] || null);
     } catch (error) {

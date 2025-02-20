@@ -15,22 +15,20 @@ export const getUserRecord = async (userId: string): Promise<UserGameRecordRespo
 // MainModal에서의 유저 검색 api
 export const searchUsers = async (nickname: string) => {
   try {
-    const res = await userApi.get("/search", {
-      params: { nickname }
+    const res = await userApi.get('/search', {
+      params: { nickname },
     });
     return res.data;
   } catch (error) {
-    console.log(error)
+    // console.log(error)
   }
 };
 
 //editUserProfile
-export const updateProfile = async (formData:FormData) => {
-  const response = await userApi.patch('', formData,
-    {
-      headers: {'Content-Type': 'multipart/form-data'},
-    }
-  )
+export const updateProfile = async (formData: FormData) => {
+  const response = await userApi.patch('', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
-  return response
-}
+  return response;
+};
