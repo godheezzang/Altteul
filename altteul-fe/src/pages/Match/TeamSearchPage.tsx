@@ -18,13 +18,7 @@ const TeamSearchPage = () => {
   const gameStore = useGameStore();
 
   // Store에서 matchData를 직접 구독 (초기 users를 복사하지 않음)
-  const {
-    matchData,
-    setMatchData,
-    setMathId,
-    setMyTeam,
-    setOpponent,
-  } = useMatchStore((state) => ({
+  const { matchData, setMatchData, setMathId, setMyTeam, setOpponent } = useMatchStore(state => ({
     matchData: state.matchData,
     setMatchData: state.setMatchData,
     setMathId: state.setMathId,
@@ -43,7 +37,7 @@ const TeamSearchPage = () => {
 
     return () => {
       const matchId = sessionStorage.getItem('matchId');
-      console.log('TeamSearchPage unmount. Unsubscribe socket.');
+      // console.log('TeamSearchPage unmount. Unsubscribe socket.');
       socket.unsubscribe(`/sub/team/room/${roomId}`);
       matchId ? socket.unsubscribe(`/sub/team/room/${matchId}`) : null;
     };
@@ -51,7 +45,7 @@ const TeamSearchPage = () => {
 
   // 소켓 메시지 핸들러
   const handleMessage = (message: socketResponseMessage) => {
-    console.log(message);
+    // console.log(message);
     const { type, data } = message;
 
     // 매칭이 잡히면 matchId를 기록하고 새 구독
@@ -111,7 +105,7 @@ const TeamSearchPage = () => {
           대전 할 상대를 찾고 있어요. 🧐
           <div className="flex text-[1.2rem] mt-3">
             조금만 기다려 주세요
-            <PacmanLoader color="#ffffff" size={12} className='ml-3'/>
+            <PacmanLoader color="#ffffff" size={12} className="ml-3" />
           </div>
         </div>
 
@@ -123,21 +117,17 @@ const TeamSearchPage = () => {
               nickname={user.nickname}
               profileImg={user.profileImg}
               tierId={user.tierId}
-              className='w-20 h-20'
+              className="w-20 h-20"
             />
           ))}
         </div>
 
         <div className="flex gap-6 mt-12">
-          <Button onClick={handleMatchCancelButton}>
-            매칭 취소하기
-          </Button>
+          <Button onClick={handleMatchCancelButton}>매칭 취소하기</Button>
         </div>
 
         {/* 랜덤 TMI */}
-        <div className="absolute bottom-14 text-gray-100 text-[1.1rem]">
-          {fact}
-        </div>
+        <div className="absolute bottom-14 text-gray-100 text-[1.1rem]">{fact}</div>
       </div>
     </div>
   );

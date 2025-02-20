@@ -47,7 +47,7 @@ const RankingPage = () => {
     try {
       setIsLoading(true);
       const rankingResponse: RankingResponse = await getRank(filter);
-      console.log(rankingResponse);
+      // console.log(rankingResponse);
       setLast(rankingResponse.data.last);
       setRankings(prev => [...prev, ...rankingResponse.data.rankings]);
       setPage(prevPage => prevPage + 1);
@@ -67,13 +67,13 @@ const RankingPage = () => {
 
   // 티어 선택 핸들러
   const handleTier = (tierId: number) => {
-    console.log(tierId);
+    // console.log(tierId);
     setSelectedTier(prev => (prev === tierId ? null : tierId));
     resetPagination();
   };
 
   const handleSearch = () => {
-    console.log(searchNickname);
+    // console.log(searchNickname);
     resetPagination();
   };
 

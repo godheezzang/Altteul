@@ -42,10 +42,10 @@ const IdeFooter = ({ code, language, setOutput, userRoomId }: IdeFooterProps) =>
         }
       );
 
-      console.log(response);
+      // console.log(response);
 
       const data = response?.data.data;
-      console.log(data);
+      // console.log(data);
 
       if (response?.data.status === 200) {
         if (data.isNotCompileError) {

@@ -40,7 +40,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       reconnectDelay: RECONNECT_DELAY,
 
       onConnect: (frame: Frame) => {
-        console.log('Connected:', frame);
+        // console.log('Connected:', frame);
         set({
           connected: true,
           reconnectAttempts: 0,
@@ -90,7 +90,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   subscribe: (destination: string, callback: (data: socketResponseMessage) => void) => {
-    console.log('구독 신청 경로', destination);
+    // console.log('구독 신청 경로', destination);
     const { client, connected, subscriptions } = get();
 
     //소켓 연결 자체가 안되어 있으면 종료
@@ -129,7 +129,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       sessionStorage.setItem('wsSubscriptions', JSON.stringify(activeSubscriptions));
     }
 
-    console.log('구독 신청 완료', destination);
+    // console.log('구독 신청 완료', destination);
   },
 
   unsubscribe: (destination: string) => {
@@ -149,7 +149,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       );
     }
 
-    console.log('구독 취소 완료', destination);
+    // console.log('구독 취소 완료', destination);
   },
 
   sendMessage: (destination: string, message: any) => {
@@ -164,7 +164,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       destination,
       body: JSON.stringify(message),
     });
-    console.log('메시지 전송 요청');
+    // console.log('메시지 전송 요청');
   },
 
   unsubscribeAll: () => {
@@ -186,7 +186,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     // sessionStorage에서도 모든 구독 제거
     sessionStorage.removeItem('wsSubscriptions');
 
-    console.log('모든 구독 취소 완료');
+    // console.log('모든 구독 취소 완료');
   },
 
   restoreSubscriptions: () => {

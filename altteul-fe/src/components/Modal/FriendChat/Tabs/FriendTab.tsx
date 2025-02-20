@@ -9,7 +9,7 @@ import useFriendChatStore from '@stores/friendChatStore';
 const FriendTab = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  
+
   const fcStore = useFriendChatStore();
   const { friendsNeedRefresh, resetFriendsRefresh } = fcStore;
 
@@ -23,11 +23,11 @@ const FriendTab = () => {
     try {
       fcStore.setIsSearching(true);
       const response = await getFriends();
-      console.log(response)
-      setFriends(prev => 
+      // console.log(response)
+      setFriends(prev =>
         currentPage === 0 ? response.data.friends : [...prev, ...response.data.friends]
       );
-      
+
       fcStore.setHasMore(response.data.friends.length > 0);
       fcStore.setSearchError(null);
     } catch (error) {
@@ -53,39 +53,31 @@ const FriendTab = () => {
   }, [inView]);
 
   useEffect(() => {
-      if(fcStore.currentView === 'main' && fcStore.currentTab === 'friends') {
-        getFriendsList();
-      }
+    if (fcStore.currentView === 'main' && fcStore.currentTab === 'friends') {
+      getFriendsList();
+    }
   }, [fcStore.currentView, fcStore.currentTab]);
 
   if (fcStore.searchError) {
     return <div className="text-center text-red-500 p-4">{fcStore.searchError}</div>;
   }
 
-  const updateFrinedList = (friendId:number) => {
-    setFriends((prev) => prev.filter((friend) => friend.userid !== friendId))
-  }
+  const updateFrinedList = (friendId: number) => {
+    setFriends(prev => prev.filter(friend => friend.userid !== friendId));
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">
       {friends.map(friend => (
-        <FriendItem
-          key={friend.userid}
-          friend={friend}
-          onRefresh={updateFrinedList}
-        />
+        <FriendItem key={friend.userid} friend={friend} onRefresh={updateFrinedList} />
       ))}
 
       <div ref={ref} className="h-4">
-        {fcStore.isSearching && (
-          <div className="text-center text-gray-400 py-2">로딩 중...</div>
-        )}
+        {fcStore.isSearching && <div className="text-center text-gray-400 py-2">로딩 중...</div>}
       </div>
 
       {!fcStore.hasMore && friends.length === 0 && (
-        <div className="text-center text-gray-400 p-4">
-          친구 목록이 비어있습니다.
-        </div>
+        <div className="text-center text-gray-400 p-4">친구 목록이 비어있습니다.</div>
       )}
     </div>
   );

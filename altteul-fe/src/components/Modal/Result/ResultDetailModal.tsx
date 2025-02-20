@@ -39,7 +39,7 @@ const ResultDetailModal = ({ isOpen, onClose }: ResultDetailModalProps) => {
   useEffect(() => {
     if ((gameId && isFinish === 'WIN') || isFinish === 'LOSE') {
       fetchResultData();
-      console.log('modalDetail isFinish:', isFinish);
+      // console.log('modalDetail isFinish:', isFinish);
     }
   }, [isFinish]);
 

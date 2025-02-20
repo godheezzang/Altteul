@@ -20,7 +20,7 @@ const ChatTab = () => {
     try {
       setIsLoading(true);
       const response = await getChatRooms();
-      console.log(response);
+      // console.log(response);
       if (response.status === 200) {
         setChatRooms(prev => (currentPage === 0 ? response.data : [...prev, ...response.data]));
       }

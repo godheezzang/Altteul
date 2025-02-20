@@ -46,7 +46,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
           },
         });
 
-        console.log('ai 코칭 결과:', response);
+        // console.log('ai 코칭 결과:', response);
         setCoachResult(JSON.parse(response?.data.data.content));
       } catch (error) {
         console.error(error);
@@ -68,7 +68,7 @@ const AdditionalModal = ({ isOpen, onClose, type, modalType }: AdditionalModalPr
           },
         });
 
-        console.log('상대 팀 코드 불러오기:', response);
+        // console.log('상대 팀 코드 불러오기:', response);
         setCode(response.data.code);
         if (!isTeam) setOpponentName(response?.data.data.nickname);
       } catch (error) {

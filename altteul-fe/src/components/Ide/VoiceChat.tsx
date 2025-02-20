@@ -92,7 +92,7 @@ const VoiceChat = ({ opponentRemainingUsers }: { opponentRemainingUsers: number[
 
       // Get a token from your application server with the room name and participant name
       const token = await createToken(userRoomId, userId);
-      console.log('openviduToken:', token);
+      // console.log('openviduToken:', token);
 
       // Connect to the room with the LiveKit URL and the token
       await room.connect(LIVEKIT_URL, token);
@@ -104,7 +104,7 @@ const VoiceChat = ({ opponentRemainingUsers }: { opponentRemainingUsers: number[
       setLocalTrack(audioTrack);
       setIsConnected(true);
     } catch (error) {
-      console.log('There was an error connecting to the room:', error as Error);
+      // console.log('There was an error connecting to the room:', error as Error);
       await leaveRoom();
     }
   }

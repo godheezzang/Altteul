@@ -4,7 +4,7 @@ import axios from 'axios';
 // 회원가입 API 요청
 export const registerUser = async (formData: FormData) => {
   try {
-    console.log('입력 데이터:', formData);
+    // console.log('입력 데이터:', formData);
 
     const response = await authApi.post('register', formData, {
       headers: {
@@ -12,10 +12,10 @@ export const registerUser = async (formData: FormData) => {
       },
     });
 
-    console.log('응답 데이터:', response);
+    // console.log('응답 데이터:', response);
 
     if (response.status >= 200 && response.status < 300) {
-      console.log('회원가입 성공');
+      // console.log('회원가입 성공');
       return {
         status: response.status,
         message: response.data.message || '회원가입 성공',
@@ -39,7 +39,7 @@ export const loginUser = async (username: string, password: string) => {
       throw new Error(response.data.message || '잘못된 응답');
     }
   } catch (error) {
-    console.log('error: ', error);
+    // console.log('error: ', error);
   }
 };
 
@@ -49,7 +49,7 @@ export const checkUsername = async (username: string) => {
     const response = await authApi.get(`id-check?username=${username}`);
     return response.data;
   } catch (error) {
-    console.log('error: ', error)
+    // console.log('error: ', error);
   }
 };
 
@@ -59,6 +59,6 @@ export const checkNickname = async (nickname: string) => {
     const response = await authApi.get(`nickname-check?nickname=${nickname}`);
     return response.data;
   } catch (error) {
-    console.log('error: ', error)
+    // console.log('error: ', error);
   }
 };

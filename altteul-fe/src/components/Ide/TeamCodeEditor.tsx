@@ -13,13 +13,13 @@ const DEFAULT_CODE = {
 };
 
 const languageOptions = [
-    { id: 1, value: 'python', label: 'Python' },
-    { id: 2, value: 'java', label: 'Java' },
+  { id: 1, value: 'python', label: 'Python' },
+  { id: 2, value: 'java', label: 'Java' },
 ];
 
 interface CodeEditorProps {
-  code?: string | null
-  setCode: React.Dispatch<React.SetStateAction<string>>
+  code?: string | null;
+  setCode: React.Dispatch<React.SetStateAction<string>>;
   language?: 'python' | 'java';
   setLanguage?: (lang: 'python' | 'java') => void;
   readOnly?: boolean;
@@ -30,7 +30,24 @@ interface CodeEditorProps {
   // team: 
 }
 
-const SOCKET_URL = window.location.hostname === 'localhost' ? import.meta.env.VITE_SIGNALING_URL_DEV : import.meta.env.VITE_SIGNALING_URL_PROD;
+const SOCKET_URL =
+  window.location.hostname === 'localhost'
+    ? import.meta.env.VITE_SIGNALING_URL_DEV
+    : import.meta.env.VITE_SIGNALING_URL_PROD;
+
+const CodeEditor = ({
+  code,
+  setCode,
+  language,
+  setLanguage,
+  readOnly,
+  roomId,
+  myRoomId,
+}: CodeEditorProps) => {
+  const ydoc = useMemo(() => new Y.Doc(), []);
+  const [editor, setEditor] = useState<any | null>(null);
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
+  const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
 const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, myRoomId, item }: CodeEditorProps) => { 
   const ydoc = useMemo(() => new Y.Doc(), [])
@@ -41,14 +58,14 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
   // WebSocket Provider 설정
   useEffect(() => {
     if (!roomId) {
-      console.error("roomId가 설정되지 않았습니다.");
+      console.error('roomId가 설정되지 않았습니다.');
       return;
     }
 
     const newProvider = new WebsocketProvider(SOCKET_URL, roomId, ydoc); // 상대팀 코드 parameter
     setProvider(newProvider);
-    console.log(editor)
-    console.log(myRoomId);
+    // console.log(editor)
+    // console.log(myRoomId);
     return () => {
       newProvider.destroy();
     };
@@ -104,7 +121,7 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
     const handleEditorMount: OnMount = useCallback((editorInstance, monaco) => {
     configureMonaco();
     setCode(DEFAULT_CODE[language]);
-    
+
     setEditor(editorInstance);
     editorInstance.focus();
 
@@ -133,19 +150,19 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, my
 
   return (
     <div className="flex flex-col border-b border-gray-04 items-end">
-        {setLanguage && (
-            <Dropdown
-            options={languageOptions}
-            value={language}
-            onChange={newLang => setLanguage(newLang as typeof language)}
-                width="10rem"
-                height="3.7rem"
-                className="bg-gray-06 border-0 text-sm"
-                optionCustomName="bg-gray-05 border-0"
-                borderColor="border-gray-06"
-                fontSize="text-sm"
-            />
-        )}
+      {setLanguage && (
+        <Dropdown
+          options={languageOptions}
+          value={language}
+          onChange={newLang => setLanguage(newLang as typeof language)}
+          width="10rem"
+          height="3.7rem"
+          className="bg-gray-06 border-0 text-sm"
+          optionCustomName="bg-gray-05 border-0"
+          borderColor="border-gray-06"
+          fontSize="text-sm"
+        />
+      )}
 
       <Editor
         height="55vh"
