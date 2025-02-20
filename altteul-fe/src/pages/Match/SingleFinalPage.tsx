@@ -9,6 +9,7 @@ import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import { singleOut } from '@utils/Api/matchApi';
 import useGameStore from '@stores/useGameStore';
+import { toast } from 'react-toastify';
 
 const SingleFinalPage = () => {
   const navigate = useNavigate();
@@ -71,8 +72,11 @@ const SingleFinalPage = () => {
 
     //혼자 남게 됐을 때 로직
     if (type === 'COUNTING_CANCEL') {
-      alert('대기 중 상대 유저가 연결을 종료했습니다.\n메인페이지로 이동합니다.');
-      navigate('/match/select');
+      toast.error('대기 중 상대 유저가 연결을 종료했습니다.', {
+        position: "top-center",
+        autoClose: 3000,
+        onClose: () => navigate('/match/select')
+      });
     }
   };
   return (

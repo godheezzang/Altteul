@@ -7,6 +7,7 @@ import { checkNickname } from '@utils/Api/auth';
 import ProfileUpload from '@components/Modal/Auth/ProfileUpload';
 import useModalStore from '@stores/modalStore';
 import { updateProfile } from '@utils/Api/userApi';
+import { toast } from 'react-toastify';
 
 // 프로필 이미지 타입 정의
 type ProfileImageType = string | File | null;
@@ -201,6 +202,10 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     // 닉네임이 변경되지 않았거나 이미 인증된 경우에만 진행
     if (form.nickname !== modalInfo?.nickname && !isNicknameVerified) {
       setApiError('닉네임 중복확인이 필요합니다.');
+      toast.warning('닉네임 중복확인이 필요합니다.', {
+        position: "top-center",
+        autoClose: 3000
+      });
       return;
     }
 
@@ -222,12 +227,19 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     try {
       setIsSubmitting(true);
       const response = await updateProfile(formData);
-      alert('정보가 수정되었습니다.');
-      onClose();
+      toast.success('정보가 수정되었습니다.', {
+        position: "top-center",
+        autoClose: 2000,
+        onClose: onClose
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.error('프로필 수정 중 오류 발생 : ', error);
         setApiError(error.message || '서버와 연결 할 수 없습니다. 다시 시도하세요.');
+        toast.error('프로필 수정 중 오류가 발생했습니다.', {
+          position: "top-center",
+          autoClose: 3000
+        });
       }
     } finally {
       setIsSubmitting(false);

@@ -8,6 +8,7 @@ import { useSocketStore } from '@stores/socketStore';
 import socketResponseMessage from 'types/socketResponseMessage';
 import useGameStore from '@stores/useGameStore';
 import useAuthStore from '@stores/authStore';
+import { toast } from 'react-toastify';
 
 const TeamFinalPage = () => {
   const navigate = useNavigate();
@@ -45,8 +46,11 @@ const TeamFinalPage = () => {
     }
 
     if (type === 'COUNTING_CANCEL') {
-      alert('유저 이탈로 메인페이지로 이동합니다.');
-      navigate('/match/select');
+      toast.error('유저 이탈로 메인페이지로 이동합니다.', {
+        position: "top-center",
+        autoClose: 3000,
+        onClose: () => navigate('/match/select')
+      });
     }
 
     if (type === 'GAME_START') {
