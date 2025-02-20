@@ -18,7 +18,7 @@ interface ResultItemProps {
   rank: number;
 }
 
-type Feedback = {
+export type Feedback = {
   algorithmType: string[];
   feedback: { code: string; description: string }[];
   summary: string;
@@ -98,12 +98,14 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
     return <LoadingSpinner loading={isLoading} />;
   }
 
+  console.log(player);
+
   return (
     <>
       <li className="flex gap-4 text-primary-white justify-between items-center  mb-4 ">
         <div className="flex justify-between items-center bg-gray-06 p-4 rounded-lg w-[55rem]">
-          {rank > 0 && player.isFinish ? (
-            <p className="w-10 text-center">{rank}</p>
+          {rank > 0 && Number(player.gameResult) > 0 ? (
+            <p className="w-10 text-center">{rank}위</p>
           ) : (
             <p className="w-10 text-center text-gray-02 text-sm">미해결</p>
           )}
@@ -134,7 +136,7 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
             {player.executeTime ? player.executeTime + '초' : '-'}
           </p>
           <p className="w-16 text-center text-sm">
-            {player.executeMemory ? player.executeMemory + 'MB' : '-'}
+            {player.executeMemory ? player.executeMemory + ' MB' : '-'}
           </p>
         </div>
 
@@ -146,13 +148,15 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
               className="w-[5.3rem]"
               children="AI 코칭"
             ></SmallButton>
-          ) : (
+          ) : Number(player.gameResult) > 0 ? (
             <SmallButton
               onClick={handleOpponentCode}
               backgroundColor="primary-orange"
               className="w-[5.3rem]"
               children="코드 확인"
             ></SmallButton>
+          ) : (
+            ''
           )}
         </div>
       </li>

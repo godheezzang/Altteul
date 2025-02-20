@@ -81,6 +81,7 @@ const useGameStore = create<GameState>(set => ({
     sessionStorage.removeItem('users');
     sessionStorage.removeItem('problem');
     sessionStorage.removeItem('testcases');
+    sessionStorage.removeItem('myTeam');
 
     set({
       gameId: null,
@@ -91,6 +92,7 @@ const useGameStore = create<GameState>(set => ({
       problem: null,
       testcases: [],
       isFinish: 'PENDING',
+      myTeam: null,
     });
   },
 }));

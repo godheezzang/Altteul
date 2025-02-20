@@ -147,7 +147,6 @@ const TeamIdePage = () => {
     <div className="flex max-w-full h-screen mt-[3.5rem] bg-primary-black border-t border-gray-04">
       <div className="min-w-[23rem] max-w-[30rem] border-gray-04">
         <ProblemInfo />
-        <VoiceChat />
         {/* <VoiceChat roomId={userRoomId} voiceToken={voiceToken} /> */}
       </div>
 
@@ -194,6 +193,7 @@ const TeamIdePage = () => {
               myRoomId={String(userRoomId)}
             />
           </div>
+          <VoiceChat />
         </div>
       </div>
 

@@ -92,6 +92,7 @@ const VoiceChat = () => {
 
       // Get a token from your application server with the room name and participant name
       const token = await createToken(userRoomId, userId);
+      console.log('openviduToken:', token);
 
       // Connect to the room with the LiveKit URL and the token
       await room.connect(LIVEKIT_URL, token);
@@ -103,7 +104,7 @@ const VoiceChat = () => {
       setLocalTrack(audioTrack);
       setIsConnected(true);
     } catch (error) {
-      console.log('There was an error connecting to the room:', (error as Error).message);
+      console.log('There was an error connecting to the room:', error as Error);
       await leaveRoom();
     }
   }
@@ -130,11 +131,14 @@ const VoiceChat = () => {
   const activeParticipants = new Set(remoteTracks.map(track => track.participantIdentity));
   activeParticipants.add(String(userId));
 
+  console.log('localTrack:', localTrack);
+  console.log('remoteTrack:', remoteTracks);
+
   return (
-    <div id="room" className="px-4 flex">
-      <div className="flex-1">
+    <div id="room" className="px-8 border-t border-gray-04 pt-4">
+      <div className="flex-1 mb-4">
         <div className="flex gap-2 mb-4">
-          <p>우리팀</p>
+          <p className="text-sm font-semibold text-gray-02">우리팀</p>
           <button onClick={toggleVoiceChat}>
             {isConnected ? (
               <img src={onVoice} alt="음성 채팅 떠나기" />
@@ -179,7 +183,7 @@ const VoiceChat = () => {
 
       {/* 상대팀 */}
       <div className="flex-1">
-        <p className="mb-4">상대팀</p>
+        <p className="mb-4 text-sm font-semibold text-gray-02">상대팀</p>
         <div className="flex gap-4">
           {opponent.users.map(user => (
             <div key={user.userId}>
@@ -192,7 +196,7 @@ const VoiceChat = () => {
                   className="w-[2.5rem] h-[2.5rem]"
                 />
               </div>
-              <p>{user.nickname}</p>
+              <p className="font-semibold text-gray-01">{user.nickname}</p>
             </div>
           ))}
         </div>

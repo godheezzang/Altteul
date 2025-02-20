@@ -1,35 +1,64 @@
 import useGameStore from '@stores/useGameStore';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '@assets/icon/Altteul.svg';
 import { useState } from 'react';
 import ConfirmModal from '@components/Common/ConfirmModal';
 import useModalStore from '@stores/modalStore';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
+import { useSocketStore } from '@stores/socketStore';
+import useAuthStore from '@stores/authStore';
+import { api } from '@utils/Api/commonApi';
+import ErrorPage from '@pages/Error/ErrorPage';
 
 const GameGnb = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isTeam = location.pathname.includes('/game/team');
   const { problem } = useGameStore();
-  const { openModal } = useModalStore();
+  const { token } = useAuthStore();
+  const { userRoomId, gameId, matchId, resetGameInfo } = useGameStore();
+  const socket = useSocketStore();
 
   const [showModal, setShowModal] = useState(false);
 
   const handleOutConfirm = () => {
     setShowModal(true);
   };
-  const handleNavigate = () => {
+  const handleNavigate = async () => {
     setShowModal(false);
+    if (userRoomId) {
+      try {
+        const response = await api.post(
+          '/game/leave',
+          {
+            roomId: userRoomId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-    if (isTeam) {
-      openModal(MODAL_TYPES.RESULT, {
-        type: GAME_TYPES.TEAM,
-        result: RESULT_TYPES.FAILURE,
-      });
-    } else {
-      openModal(MODAL_TYPES.RESULT, {
-        type: GAME_TYPES.SINGLE,
-        result: RESULT_TYPES.FAILURE,
-      });
+        if (response.status === 200) {
+          socket.unsubscribe(`/sub/game/${gameId}/submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`);
+          if (!isTeam) {
+            socket.unsubscribe(`/sub/single/room/${gameId}`);
+          } else if (isTeam) {
+            socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
+            socket.unsubscribe(`/sub/team/room/${matchId}`);
+          }
+          setTimeout(() => {
+            navigate('/');
+            resetGameInfo();
+          }, 200);
+        }
+      } catch (error) {
+        console.error(error);
+        <ErrorPage />;
+      }
     }
   };
 

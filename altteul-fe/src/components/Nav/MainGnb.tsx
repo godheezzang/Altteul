@@ -8,7 +8,7 @@ import { useSocketStore } from '@stores/socketStore';
 const MainGnb = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams()
+  const params = useParams();
   const { token, logout } = useAuthStore();
   const { openModal, closeModal } = useModalStore();
   const { disconnect } = useSocketStore();
@@ -47,7 +47,7 @@ const MainGnb = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 w-full z-50 px-8 text-sm h-[3.5rem] ${transparentNavigation ? 'bg-gradient-to-b from-primary-black to-transparent' : 'bg-primary-black'}`}
+        className={`fixed top-0 w-full z-20 px-8 text-sm h-[3.5rem] ${transparentNavigation ? 'bg-gradient-to-b from-primary-black to-transparent' : 'bg-primary-black'}`}
       >
         <div className="flex items-center justify-between h-[3.5rem]">
           {/* 좌측 영역 */}

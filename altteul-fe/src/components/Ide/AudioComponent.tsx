@@ -27,19 +27,30 @@ function AudioComponent({ track, participantIdentity }: AudioComponentProps) {
 
     return () => {
       track?.detach();
+      if (audioElement.current) {
+        audioElement.current.srcObject = null;
+      }
     };
   }, [track]);
 
   const toggleMute = () => {
-    if (track && 'setMuted' in track) {
-      track.setMuted(!track.isMuted);
+    if (track) {
+      if ('setMuted' in track) {
+        track.setMuted(!track.isMuted);
+        setIsMuted(!track.isMuted);
+      } else {
+        // RemoteAudioTrack의 경우 로컬에서만 음소거 처리
+        setIsMuted(!isMuted);
+        if (audioElement.current) {
+          audioElement.current.muted = !isMuted;
+        }
+      }
     }
-    setIsMuted(!isMuted);
   };
 
   return (
     <>
-      {track && <audio ref={audioElement} id={track?.sid} />}
+      {track && <audio ref={audioElement} id={track?.sid} muted={isMuted} />}
 
       {userInfo && (
         <>
@@ -56,7 +67,9 @@ function AudioComponent({ track, participantIdentity }: AudioComponentProps) {
               />
             </div>
 
-            <p className={`${userInfo.userId === userId ? 'text-primary-orange' : ''} text-center`}>
+            <p
+              className={`${userInfo.userId === userId ? 'text-primary-orange' : ''} font-semibold text-center ${isMuted ? 'text-gray-03' : 'text-gray-01'}`}
+            >
               {userInfo.nickname}
             </p>
           </div>
