@@ -30,6 +30,8 @@ const TeamIdePage = () => {
   const [output, setOutput] = useState<string>('');
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
+  const [usedItem, setUsedItem] = useState(null);
+  const [hittedItem, setHittedItem] = useState(null);
   const { userId, token } = useAuthStore();
   const userRoomId = myTeam.roomId;
   const { openModal } = useModalStore();
@@ -73,7 +75,7 @@ const TeamIdePage = () => {
         // => LOSE 모달 띄우고, setIsFinish('LOSE')
 
         if (submittedTeam.gameResult === 1 && submittedTeam.teamId === userRoomId) {
-          setIsFinish('WIN');
+        setIsFinish('WIN');
           openModal(MODAL_TYPES.RESULT, {
             type: GAME_TYPES.TEAM,
             result: RESULT_TYPES.SUCCESS,
@@ -210,6 +212,7 @@ const TeamIdePage = () => {
             language={language}
             setLanguage={setLanguage}
             myRoomId={String(userRoomId)}
+            item={hittedItem}
           />
           <Terminal output={output} isTeam={true} />
           <div className="text-center">
@@ -237,6 +240,7 @@ const TeamIdePage = () => {
               language={language}
               readOnly={true}
               myRoomId={String(userRoomId)}
+              item={null}
             />
           </div>
           <VoiceChat opponentRemainingUsers={opponentRemainingUsers} />
