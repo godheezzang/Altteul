@@ -10,6 +10,7 @@ spring:
             client-name: github
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
+            redirect-uri: "https://i12c203.p.ssafy.io:443/api/login/oauth2/code/github"
             scope:
               - profile
               - email

@@ -28,7 +28,7 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
 		User userDetails = (User) authentication.getPrincipal();
 		String token = jwtUtil.createJwt(userDetails.getUserId(), 60*60*10000L);
 
-		String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
+		String targetUrl = UriComponentsBuilder.fromUriString("https://i12c203.p.ssafy.io:443/")
 			.queryParam("accessToken", token)
 			.queryParam("userId", userDetails.getUserId())
 			.build().toUriString();
