@@ -8,19 +8,41 @@ import ProblemInfo from '@components/Ide/ProblemInfo';
 import SideProblemModal from '@components/Ide/SideProblemModal';
 import GameUserList from '@components/Ide/GameUserList';
 import useAuthStore from '@stores/authStore';
-import { MemberInfo, TeamInfo, User } from 'types/types';
+import { User } from 'types/types';
 import useModalStore from '@stores/modalStore';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 
-const MAX_REQUESTS = 5;
+const MAX_REQUESTS = 1;
+
+interface SubmittedTeam {
+  code: string;
+  createdAt: string;
+  duration: string | null;
+  executeMemory: string | null;
+  executeTime: string | null;
+  gameResult: number;
+  lang: string;
+  members: Member[];
+  passRate: number;
+  point: number;
+  teamId: number;
+  totalHeadCount: number;
+}
+
+interface Member {
+  nickname: string;
+  profileImage: string;
+  tierId: number;
+  userId: number;
+}
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, setUserRoomId, setIsFinish, isFinish } = useGameStore();
-  const { subscribe, sendMessage, connected, unsubscribe } = useSocketStore();
+  const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
+  const { subscribe, sendMessage, connected } = useSocketStore();
   const { openModal } = useModalStore();
 
   const [sideProblem, setSideProblem] = useState(null);
-  const [completeUsers, setCompleteUsers] = useState([]);
+  const [completeUsers, setCompleteUsers] = useState<number[]>([]);
   const [userProgress, setUserProgress] = useState<Record<number, number>>({});
   const [leftUsers, setLeftUsers] = useState<User[]>([]);
 
@@ -38,7 +60,19 @@ const SingleIdePage = () => {
     }
   }, [userId, users, roomId, setUserRoomId]);
 
-  useEffect(() => {}, [userProgress, completeUsers]);
+  useEffect(() => {
+    if (users.length > 0) {
+      const initialProgress = users.reduce(
+        (acc, user) => {
+          acc[user.userId] = 0;
+          return acc;
+        },
+        {} as Record<number, number>
+      );
+
+      setUserProgress(initialProgress);
+    }
+  }, [users]);
 
   useEffect(() => {
     if (!connected) return;
@@ -51,87 +85,118 @@ const SingleIdePage = () => {
     });
 
     // 코드 채점 결과 구독
-    subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      // console.log('📩 코드 채점 결과 수신:', data);
-    });
+    // subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
+    //   // console.log('📩 코드 채점 결과 수신:', data);
+    // });
 
     // 실시간 게임 현황 구독
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
       // console.log('📩 실시간 게임 현황 수신:', data);
 
-      // ✅ data?.data 체크 (최상위)
-      if (!data || !data.data) {
-        // console.warn('⚠️ 게임 현황 데이터가 없습니다:', data);
-        return;
+      // console.log('data:', data);
+
+      if (data?.type === '게임 현황' && data.data.gameType === 'S') {
+        const submittedTeam: SubmittedTeam = data.data.submittedTeam;
+
+        // submittedTeam의 gameResult가 0이 아니다 -> 문제를 해결함
+        // => submittedTeam.members[0].userId를 completeUsers, userProgress에 추가
+        // sumittedTeam의 gameResult가 0이다 -> 문제를 해결하지 못함
+        // => userProgress[member.userId] = submittedTeam.passRate 추가
+        // userProgress[member.userId] = 100이 되면 userProgress에서 해당 키와 값을 삭제
+
+        setUserProgress(prev => ({
+          ...prev,
+          [submittedTeam.members[0].userId]: submittedTeam.passRate,
+        }));
+
+        setUserProgress(prev => {
+          const updatedProgress = { ...prev };
+          Object.keys(updatedProgress).forEach(userId => {
+            if (updatedProgress[Number(userId)] === 100) {
+              delete updatedProgress[Number(userId)];
+            }
+          });
+
+          return updatedProgress;
+        });
+
+        if (submittedTeam.gameResult > 0) {
+          setCompleteUsers(prev => [...new Set([...prev, submittedTeam.members[0].userId])]);
+        }
+
+        // 만약 정답이고, 정답을 맞춘 userId가 현재 로그인한 유저의 userId라면
+        if (submittedTeam.gameResult > 0 && submittedTeam.members[0].userId === userId) {
+          setRequestCount(2);
+          setIsFinish('WIN');
+          openModal(MODAL_TYPES.RESULT, {
+            type: GAME_TYPES.SINGLE,
+            result: RESULT_TYPES.SUCCESS,
+          });
+        }
       }
 
-      const { submittedTeam, restTeam } = data.data;
-      const updatedProgress: Record<number, number> = {};
-      const completedUsers = [];
+      // // ✅ submittedTeam이 존재하는지 확인
+      // if (submittedTeam?.gameResult > 0 && Array.isArray(submittedTeam.members)) {
+      //   submittedTeam.members.forEach((member: MemberInfo) => {
+      //     if (!completeUsers.includes(member.userId)) {
+      //       // ✅ 중복 체크 후 추가
+      //       completeUsers.push(member.userId);
+      //       updatedProgress[member.userId] = 100; // 통과율 100%
+      //       console.log('문제 맞힌 사람:', member.userId);
+      //     }
 
-      // ✅ submittedTeam이 존재하는지 확인
-      if (submittedTeam?.gameResult > 0 && Array.isArray(submittedTeam.members)) {
-        submittedTeam.members.forEach((member: MemberInfo) => {
-          if (!completeUsers.includes(member.userId)) {
-            // ✅ 중복 체크 후 추가
-            completeUsers.push(member.userId);
-            updatedProgress[member.userId] = 100; // 통과율 100%
-            console.log('문제 맞힌 사람:', member.userId);
-          }
+      //     if (member.userId === userId) {
+      //       // 사이드 문제 모달 막기
+      //       setRequestCount(5);
+      //       setIsFinish('WIN');
+      //       console.log('single isFinish:', isFinish);
 
-          if (member.userId === userId) {
-            // 사이드 문제 모달 막기
-            setRequestCount(5);
-            setIsFinish('WIN');
-            console.log('single isFinish:', isFinish);
-
-            openModal(MODAL_TYPES.RESULT, {
-              type: GAME_TYPES.SINGLE,
-              result: RESULT_TYPES.SUCCESS,
-            });
-          }
-        });
-      } else if (submittedTeam?.gameResult === 0 && Array.isArray(submittedTeam.members)) {
-        submittedTeam.members.forEach((member: MemberInfo) => {
-          updatedProgress[member.userId] = submittedTeam.passRate;
-        });
-      }
-
-      // // ✅ restTeam이 존재하는지 확인
-      // if (Array.isArray(restTeam)) {
-      //   restTeam.forEach((team: TeamInfo) => {
-      //     if (team && Array.isArray(team.members)) {
-      //       team.members.forEach((member: MemberInfo) => {
-      //         updatedProgress[member.userId] = team.passRate || 0;
+      //       openModal(MODAL_TYPES.RESULT, {
+      //         type: GAME_TYPES.SINGLE,
+      //         result: RESULT_TYPES.SUCCESS,
       //       });
-      //     } else {
-      //       console.warn('⚠️ team 또는 members 데이터 없음:', team);
       //     }
       //   });
-      // } else {
-      //   console.warn('⚠️ restTeam 데이터 없음:', restTeam);
+      // } else if (submittedTeam?.gameResult === 0 && Array.isArray(submittedTeam.members)) {
+      //   submittedTeam.members.forEach((member: MemberInfo) => {
+      //     updatedProgress[member.userId] = submittedTeam.passRate;
+      //   });
       // }
 
-      setCompleteUsers(completeUsers);
-      setUserProgress(prev => ({ ...prev, ...updatedProgress }));
+      // setCompleteUsers(completeUsers);
+      // setUserProgress(prev => ({ ...prev, ...updatedProgress }));
     });
 
     // 퇴장하기 구독
     subscribe(`/sub/single/room/${gameId}`, data => {
-      // console.log('퇴장하기 구독 데이터:', data);
+      console.log('퇴장하기 구독 데이터:', data);
 
-      if (data.type === 'GAME_LEAVE') {
-        const { leftUser, remainingUsers } = data.data;
+      if (data.type === 'GAME_IN_PROGRESS_LEAVE') {
+        const { leftUser } = data.data;
 
-        setLeftUsers(prev => [...prev, leftUser]);
-        setUserProgress(remainingUsers);
+        // leftUser.userId가 userProgress에 있다면 userProgress에서 제거
+        setUserProgress(prev => {
+          const updatedProgress = { ...prev };
+          if (updatedProgress[leftUser.userId] !== undefined) {
+            delete updatedProgress[leftUser.userId];
+          }
+          return updatedProgress;
+        });
+
+        // leftUser.userId가 completeUsers에 있다면 leftUsers에 저장하지 않음
+        setLeftUsers(prev => {
+          if (!completeUsers.includes(leftUser.userId)) {
+            return [...prev, leftUser]; // completeUsers에 없으면 leftUser에 추가
+          }
+          return prev; // completeUsers에 있으면 반환
+        });
       }
     });
 
     return () => {
       // 모든 구독 해제
     };
-  }, [gameId, userProgress, completeUsers]);
+  }, []);
 
   // ✅ 사이드 문제 요청
   const requestSideProblem = () => {
@@ -145,17 +210,14 @@ const SingleIdePage = () => {
     if (!connected) return;
     if (requestCount >= MAX_REQUESTS) return;
 
-    const interval = setInterval(
-      () => {
-        if (requestCount < MAX_REQUESTS) {
-          requestSideProblem();
-          setRequestCount(prev => prev + 1);
-        } else {
-          clearInterval(interval);
-        }
-      },
-      60 * 10 * 1000
-    );
+    const interval = setInterval(() => {
+      if (requestCount < MAX_REQUESTS) {
+        requestSideProblem();
+        setRequestCount(prev => prev + 1);
+      } else {
+        clearInterval(interval);
+      }
+    }, 30 * 1000);
 
     return () => clearInterval(interval);
   }, [requestCount]);

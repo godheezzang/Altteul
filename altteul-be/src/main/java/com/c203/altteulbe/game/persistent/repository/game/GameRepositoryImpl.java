@@ -50,7 +50,8 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 					.from(userTeamRoom)
 					.join(userTeamRoom.teamRoom, teamRoom)  // `userTeamRoom`을 통해 `teamRoom`을 가져옴
 					.where(userTeamRoom.user.userId.eq(userId).and(teamRoom.activation.eq(false)))
-			));
+				).and(game.completedAt.isNotNull())
+			);
 
 		JPAQuery<Game> singleRoomQuery = queryFactory
 			.selectFrom(game)
@@ -64,7 +65,8 @@ public class GameRepositoryImpl extends QuerydslRepositorySupport implements Gam
 					.select(singleRoom.game)
 					.from(singleRoom)
 					.where(singleRoom.user.userId.eq(userId).and(singleRoom.activation.eq(false)))
-			));
+			).and(game.completedAt.isNotNull())
+		);
 
 		List<Game> teamRoomGames = teamRoomQuery.fetch();
 		List<Game> singleRoomGames = singleRoomQuery.fetch();

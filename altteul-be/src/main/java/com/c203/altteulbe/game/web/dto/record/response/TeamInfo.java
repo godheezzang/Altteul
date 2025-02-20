@@ -113,9 +113,9 @@ public class TeamInfo {
 		long seconds = totalSeconds % 60;
 
 		if (hours == 0) {
-			return String.format("%02d:%02d", minutes, seconds); // 분:초 포맷
+			return String.format("%02d분 %02d초", minutes, seconds); // 분:초 포맷
 		} else {
-			return String.format("%02d:%02d:%02d", hours, minutes, seconds); // 시:분:초 포맷
+			return String.format("%02d시간 %02d분 %02d초", hours, minutes, seconds); // 시:분:초 포맷
 		}
 	}
 

@@ -38,7 +38,7 @@ const BattleRecord = () => {
   }
 
   return (
-    <div>
+    <div className="mx-auto">
       {records.map((record, index) => (
         <BattleRecordItem key={index} record={record} />
       ))}

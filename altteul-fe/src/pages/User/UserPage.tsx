@@ -12,7 +12,7 @@ const UserPage = () => {
       <div className="min-h-screen fixed inset-0 bg-black/70"></div>
 
       {/* 실제 컨텐츠는 오버레이보다 위에 위치 */}
-      <div className="relative w-full max-w-[48vw] mx-auto">
+      <div className="relative w-full max-w-[60rem] mx-auto">
         <UserInfo />
         <BattleRecord />
       </div>
