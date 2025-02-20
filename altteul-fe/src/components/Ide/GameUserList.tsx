@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import useAuthStore from '@stores/authStore';
-import UserProfileImg from '@components/Common/UserProfileImg';
 import { User } from 'types/types';
+import UserProfile from '@components/Match/UserProfile';
 
 interface GameUserListProps {
   users: User[];
@@ -12,27 +11,16 @@ interface GameUserListProps {
 
 const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUserListProps) => {
   const { userId } = useAuthStore();
-  const [completedUsers, setCompletedUsers] = useState<User[]>([]);
 
-  useEffect(() => {
-    // completeUsers -> 맞힌 유저 userId 있는 배열
-    // users에서 completeUsers 안의 userId랑 비교해서 같으면 그 유저는 완료한 유저임
-    // 그 유저를 setCompletedUsers에 추가한다.
+  // 완료된 유저 목록
+  const completedUsers = users.filter(user => completeUsers.includes(user.userId));
 
-    if (!completeUsers.length || !users.length) return;
-
-    const updatedCompletedUsers = users.filter(user => completeUsers.includes(user.userId));
-    setCompletedUsers(updatedCompletedUsers);
-  }, [completeUsers]);
-
-  /** 진행 중인 유저 목록 */
+  // 진행중인 유저 목록
   const inProgressUsers = users.filter(
     user =>
-      !completeUsers.includes(user.userId) && !leftUsers.some(left => left.userId === user.userId)
+      Object.prototype.hasOwnProperty.call(userProgress, user.userId) &&
+      !completeUsers.includes(user.userId)
   );
-
-  // console.log('completeUsers:', completeUsers);
-  // console.log('completedUsers:', completedUsers);
 
   return (
     <div className="min-w-[8rem] w-full">
@@ -45,10 +33,11 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
               const progress = userProgress[user.userId] || 0;
               return (
                 <li key={user.userId} className="flex items-center space-x-2 mb-1 py-3 px-4 pl-2">
-                  <UserProfileImg
+                  <UserProfile
                     profileImg={user.profileImg}
                     tierId={user.tierId}
-                    customClass="mr-2"
+                    nickname={user.nickname}
+                    isNameShow={false}
                   />
                   <span
                     className={`font-semibold text-sm ${user.userId === Number(userId) ? 'text-primary-orange' : ''}`}
@@ -72,10 +61,11 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
           <ul>
             {completedUsers.map(user => (
               <li key={user.userId} className="flex items-center space-x-2 mb-1 py-3 px-4 pl-2">
-                <UserProfileImg
+                <UserProfile
                   profileImg={user.profileImg}
                   tierId={user.tierId}
-                  customClass="mr-2 shadow-passProfile"
+                  nickname={user.nickname}
+                  isNameShow={false}
                 />
                 <span
                   className={`font-semibold text-sm ${user.userId === Number(userId) ? 'text-primary-orange' : ''}`}
@@ -101,10 +91,11 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
                 key={user.userId}
                 className="flex items-center space-x-2 mb-1 py-3 px-4 pl-2 text-gray-400"
               >
-                <UserProfileImg
+                <UserProfile
                   profileImg={user.profileImg}
                   tierId={user.tierId}
-                  customClass="mr-2 opacity-50"
+                  nickname={user.nickname}
+                  isNameShow={false}
                 />
                 <span className="font-semibold text-sm">{user.nickname}</span>
                 <span className="text-xs">중간 퇴장</span>
