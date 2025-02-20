@@ -192,8 +192,8 @@ export interface MemberInfo {
 
 export interface ResultData {
   gameType: string;
-  myTeam: TeamInfo;
-  opponents: TeamInfo[];
+  restTeam: TeamInfo[];
+  submittedTeam: TeamInfo;
   status: number;
   message: string;
 }
@@ -389,4 +389,5 @@ export interface SocketStore {
   unsubscribe: (destination: string) => void;
   sendMessage: (destination: string, message: any) => void;
   restoreSubscriptions: () => void;
+  unsubscribeAll: () => void;
 }

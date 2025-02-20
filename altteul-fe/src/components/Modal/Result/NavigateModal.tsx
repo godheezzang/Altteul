@@ -27,7 +27,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
 
   // 한 문제 더 도전하기
   const handleContinue = async () => {
-    if (userRoomId) {
+    if (userRoomId && isTeam) {
       try {
         const response = await api.post(
           '/game/leave',
@@ -72,7 +72,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   };
 
   const handleNavigateMain = async () => {
-    if (userRoomId) {
+    if (userRoomId && isTeam) {
       try {
         const response = await api.post(
           '/game/leave',

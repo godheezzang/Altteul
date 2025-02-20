@@ -44,6 +44,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       setToken(cleanToken);
       setUserId(userId.toString());
       connect();
+      setForm({ username: '', password: '' });
       closeModal();
       navigate('/'); //리다이렉트 시켜서 App.tsx에 있는 소켓 관련 연결을 시도
     } catch (error) {
@@ -69,7 +70,7 @@ const LoginModal = ({ isOpen = false, onClose = () => {} }) => {
       isOpen={isOpen}
       onClose={closeModal}
       height="29rem"
-      minHeight='29rem'
+      minHeight="29rem"
       title="알뜰 로그인"
       className="bg-primary-white"
     >

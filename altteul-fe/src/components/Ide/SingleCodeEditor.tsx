@@ -30,7 +30,7 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly }: CodeEdit
 
   return (
     <div
-      className={`flex flex-col border-b border-gray-04 items-end ${readOnly ? 'mt-[2.35rem]' : ''}`}
+      className={`relative flex flex-col border-b border-gray-04 items-end ${readOnly ? 'mt-[2.35rem]' : ''} mb-8`}
     >
       {/* 언어 선택 드롭다운 */}
       {readOnly ? (
@@ -50,21 +50,25 @@ const CodeEditor = ({ code, setCode, language, setLanguage, readOnly }: CodeEdit
           fontSize="text-sm"
         />
       )}
-
       <Editor
-        height="55vh"
+        height="38rem"
         language={language}
         value={code}
         theme="vs-dark"
         options={{
           minimap: { enabled: false },
           fontSize: 14,
-          automaticLayout: true,
-          scrollBeyondLastLine: false,
           scrollbar: {
             vertical: 'auto',
-            horizontal: 'auto',
+            horizontal: 'hidden',
+            useShadows: false,
+            verticalHasArrows: false,
+            horizontalHasArrows: false,
+            alwaysConsumeMouseWheel: false,
           },
+          overviewRulerBorder: false,
+          overviewRulerLanes: 0,
+          hideCursorInOverviewRuler: true,
           readOnly: readOnly ? true : false,
         }}
         loading="에디터를 불러오는 중입니다."

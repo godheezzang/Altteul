@@ -1195,6 +1195,7 @@ __metadata:
     react-toastify: "npm:^11.0.3"
     sockjs-client: "npm:^1.6.1"
     tailwind-scrollbar: "npm:^3.0.0"
+    tailwind-scrollbar-hide: "npm:^2.0.0"
     tailwindcss: "npm:^3.4.1"
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.1"
@@ -5394,6 +5395,15 @@ __metadata:
     "@pkgr/core": "npm:^0.1.0"
     tslib: "npm:^2.6.2"
   checksum: 10c0/e0c262817444e5b872708adb6f5ad37951ba33f6b2d1d4477d45db1f57573a784618ceed5e6614e0225db330632b1f6b95bb74d21e4d013e45ad4bde03d0cb59
+  languageName: node
+  linkType: hard
+
+"tailwind-scrollbar-hide@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "tailwind-scrollbar-hide@npm:2.0.0"
+  peerDependencies:
+    tailwindcss: ">=3.0.0 || >= 4.0.0 || >= 4.0.0-beta.8 || >= 4.0.0-alpha.20"
+  checksum: 10c0/eb320b8fbb4d558fb025420fb21f291201781599b36ef5ff7be500f44daa04e41ff161a484180a180c8a6e38ac863d4f05ecaa73c1c8a58668bcc821fc2725fe
   languageName: node
   linkType: hard
 

@@ -1,4 +1,5 @@
 import ResultItem from '@components/Modal/Result/ResultItem';
+import { useEffect, useState } from 'react';
 import { MemberInfo, ResultData, TeamInfo } from 'types/types';
 
 interface ResultListProps {
@@ -30,39 +31,47 @@ const parseDuration = (duration: string): number => {
 };
 
 const ResultList = ({ results }: ResultListProps) => {
-  const myTeamMembers = results.myTeam.members.map((member: MemberInfo) => ({
-    ...member,
-    gameResult: results.myTeam.gameResult,
-    lang: results.myTeam.lang,
-    totalHeadCount: results.myTeam.totalHeadCount,
-    executeTime: results.myTeam.executeTime,
-    executeMemory: results.myTeam.executeMemory,
-    point: results.myTeam.point,
-    passRate: results.myTeam.passRate,
-    duration: results.myTeam.duration,
-    isMyTeam: true,
-  }));
+  const [sortedPlayers, setSortedPlayers] = useState([]);
 
-  const opponentMembers = results.opponents.flatMap((opponent: TeamInfo) =>
-    opponent.members.map((member: MemberInfo) => ({
-      ...member,
-      gameResult: opponent.gameResult,
-      lang: opponent.lang,
-      totalHeadCount: opponent.totalHeadCount,
-      executeTime: opponent.executeTime,
-      executeMemory: opponent.executeMemory,
-      point: opponent.point,
-      passRate: opponent.passRate,
-      duration: opponent.duration,
-      isMyTeam: false,
-    }))
-  );
+  useEffect(() => {
+    if (results.restTeam && results.submittedTeam) {
+      const myTeamMembers = results.submittedTeam?.members.map((member: MemberInfo) => ({
+        ...member,
+        gameResult: results.submittedTeam.gameResult,
+        lang: results.submittedTeam.lang,
+        totalHeadCount: results.submittedTeam.totalHeadCount,
+        executeTime: results.submittedTeam.executeTime,
+        executeMemory: results.submittedTeam.executeMemory,
+        point: results.submittedTeam.point,
+        passRate: results.submittedTeam.passRate,
+        duration: results.submittedTeam.duration,
+        isMyTeam: true,
+      }));
 
-  const sortedPlayers: SortedPlayer[] = [...myTeamMembers, ...opponentMembers].sort((a, b) => {
-    const durationA = parseDuration(a.duration);
-    const durationB = parseDuration(b.duration);
-    return durationA - durationB;
-  });
+      const opponentMembers = results.restTeam?.flatMap((opponent: TeamInfo) =>
+        opponent.members.map((member: MemberInfo) => ({
+          ...member,
+          gameResult: opponent.gameResult,
+          lang: opponent.lang,
+          totalHeadCount: opponent.totalHeadCount,
+          executeTime: opponent.executeTime,
+          executeMemory: opponent.executeMemory,
+          point: opponent.point,
+          passRate: opponent.passRate,
+          duration: opponent.duration,
+          isMyTeam: false,
+        }))
+      );
+
+      const sortedPlayers: SortedPlayer[] = [...myTeamMembers, ...opponentMembers].sort((a, b) => {
+        const durationA = parseDuration(a.duration);
+        const durationB = parseDuration(b.duration);
+        return durationA - durationB;
+      });
+
+      setSortedPlayers(sortedPlayers);
+    }
+  }, [results]);
 
   return (
     <div>

@@ -31,6 +31,20 @@
   }
 }
 
+html::-webkit-scrollbar {
+  width: 8px;
+}
+
+html::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #5c6269;
+  border-radius: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background-color: #242a32;
+}
+
 /* 모나코 에디터 설정 */
 .monaco-editor,
 .monaco-editor .overflow-guard,
@@ -39,9 +53,6 @@
 .monaco-editor.no-user-select,
 .monaco-editor.no-user-select,
 .margin-view-overlays {
-  position: static !important;
-  width: 100% !important;
-  height: 100% !important;
   background-color: #242a32 !important;
 }
 
@@ -55,7 +66,7 @@
 }
 
 .Toastify__toast--info {
-  background: #242A32;
-  border: #E06C2D;
-  border-color: #E06C2D;
+  background: #242a32;
+  border: #e06c2d;
+  border-color: #e06c2d;
 }
