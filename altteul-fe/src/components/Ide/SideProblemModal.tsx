@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSocketStore } from '@stores/socketStore';
 import SmallButton from '@components/Common/Button/SmallButton ';
 import useAuthStore from '@stores/authStore';
+import useGameStore from '@stores/useGameStore';
 
 interface SideProblemModalProps {
   gameId: number;
@@ -36,6 +37,8 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
   const { subscribe, sendMessage, connected } = useSocketStore();
   const [isMyAnswer, setIsMyAnswer] = useState(false);
+  const { opponent } = useGameStore();
+  const opponentRoomId = opponent.roomId;
 
   useEffect(() => {
     if (!connected) return;
@@ -73,6 +76,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     });
   };
 
+
   // 서버에서 결과를 받으면 정답 여부 확인
   useEffect(() => {
     if (sideProblemResult && isSubmitting) {
@@ -88,6 +92,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
               : `🎉 팀원이 사이드 문제를 풀었습니다! ${sideProblemResult?.data.itemName} 아이템을 얻었어요!`
             : `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트를 추가로 얻었어요!`
         );
+        requestUseItem(sideProblemResult?.data.itemId);
       } else {
         setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득에 실패했습니다.');
       }
@@ -97,6 +102,12 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   // 안풀래요 버튼 클릭 시
   const handleForfeit = () => {
     setShowForfeitMessage(true);
+  };
+
+  // 아이템 사용 요청을 보내는 함수
+  const requestUseItem = (itemId: number) => {
+    console.log("teamId :" + roomId )
+    sendMessage('/pub/item/use', { gameId, teamId: roomId, itemId });
   };
 
   return (
