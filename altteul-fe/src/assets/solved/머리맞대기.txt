@@ -1,3 +1,6 @@
+####
+Altteul
+###
 def min_max_head_sum(N, T, brain_speeds):
     extended_speeds = brain_speeds * 2
 

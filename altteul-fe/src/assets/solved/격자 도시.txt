@@ -1,3 +1,6 @@
+####
+Altteul
+###
 def count_street_lamps():
     N, M, K = map(int, input().split())
 
