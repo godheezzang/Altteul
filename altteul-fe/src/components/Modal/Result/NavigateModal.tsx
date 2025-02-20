@@ -11,6 +11,7 @@ import useAuthStore from '@stores/authStore';
 import { useSocketStore } from '@stores/socketStore';
 import ErrorPage from '@pages/Error/ErrorPage';
 import { Feedback } from '@components/Modal/Result/ResultItem';
+import LoadingSpinner from '@components/Common/LoadingSpinner';
 
 type NavigateModalProps = {
   isOpen: boolean;
@@ -20,7 +21,7 @@ type NavigateModalProps = {
 
 const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const { openModal } = useModalStore();
-  const { myTeam, userRoomId, gameId, matchId, resetGameInfo } = useGameStore();
+  const { myTeam, gameId, matchId, resetGameInfo, isFinish } = useGameStore();
   const { token, userId } = useAuthStore();
   const socket = useSocketStore();
   const navigate = useNavigate();
@@ -30,10 +31,11 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const [feedbacks, setFeedbacks] = useState<Feedback | null>(null);
   const [modalType, setModalType] = useState<'Feedback' | 'OpponentCode' | null>(null);
   const [userCodes, setUserCodes] = useState<{ nickname: string; code: string }>(null);
+  const userRoomId = myTeam?.roomId;
 
   // 한 문제 더 도전하기
   const handleContinue = async () => {
-    if (userRoomId) {
+    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
       try {
         const response = await api.post(
           '/game/leave',
@@ -67,56 +69,63 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
       }
     }
   };
+  // console.log('gameId:', gameId);
+  // console.log('teamId:', userRoomId);
 
   // AI 코칭 결과 보기
   const handleAiCoaching = async () => {
-    setShowModal(true);
-    setModalType('Feedback');
-    try {
-      setIsLoading(true);
-      const response = await api.get(`/game/result/feedback`, {
-        params: {
-          gameId: gameId,
-          teamId: userRoomId,
-        },
-      });
+    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+      setShowModal(true);
+      setModalType('Feedback');
+      try {
+        setIsLoading(true);
+        const response = await api.get(`/game/result/feedback`, {
+          params: {
+            gameId: gameId,
+            teamId: userRoomId,
+          },
+        });
 
-      setFeedbacks(JSON.parse(response?.data.data.content) || null);
-    } catch (error) {
-      console.error(error);
-      <ErrorPage />;
-    } finally {
-      setIsLoading(false);
+        setFeedbacks(JSON.parse(response?.data.data.content) || null);
+      } catch (error) {
+        console.error(error);
+        <ErrorPage />;
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   // 상대 코드 보기
   const handleOpponentCode = async () => {
-    setShowModal(true);
-    setModalType('OpponentCode');
+    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+      setShowModal(true);
+      setModalType('OpponentCode');
 
-    try {
-      setIsLoading(true);
-      const response = await api.get(`/game/code/${userRoomId}`, {
-        params: {
-          type: isTeam ? 'T' : 'S',
-          gameId: gameId,
-        },
-      });
+      try {
+        setIsLoading(true);
+        const response = await api.get(`/game/code/${userRoomId}`, {
+          params: {
+            type: isTeam ? 'T' : 'S',
+            gameId: gameId,
+          },
+        });
 
-      // console.log(response);
+        // console.log(response);
 
-      setUserCodes(response.data.data.userCodes[-1] || null);
-    } catch (error) {
-      console.error(error);
-      <ErrorPage />;
-    } finally {
-      setIsLoading(false);
+        setUserCodes(response?.data.data.userCodes[0] || null);
+        // console.log(userCodes);
+      } catch (error) {
+        console.error(error);
+        <ErrorPage />;
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const handleNavigateMain = async () => {
-    if (userRoomId) {
+    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
       try {
         const response = await api.post(
           '/game/leave',
@@ -154,6 +163,8 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const handleClose = () => {
     setShowModal(false);
   };
+
+  if (isLoading) return <LoadingSpinner loading={isLoading} />;
 
   return (
     <>
@@ -263,12 +274,12 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
               <>
                 <h2 className="text-lg font-semibold text-primary-white mb-8">상대 팀의 코드</h2>
                 <div className="bg-primary-black text-primary-white overflow-auto text-left flex-1 flex items-center justify-center">
-                  {userCodes ? (
+                  {userCodes.code.length > 0 ? (
                     <pre className="bg-gray-06 max-h-[20rem]">
                       <code className="text-sm">{userCodes.code}</code>
                     </pre>
                   ) : (
-                    <p className="text-center">아직 상대방이 문제를 풀지 못했어요. 😓</p>
+                    <p className="text-center">아직 상대팀이 문제를 풀지 못했어요. 😓</p>
                   )}
                 </div>
               </>
