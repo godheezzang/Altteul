@@ -48,7 +48,7 @@ const FriendRequestItem = ({ request, onRefresh }: FriendRequestItemProps) => {
         <img src={request.fromUserProfileImg} alt="프로필" className="w-10 h-10 rounded-full" />
         <div>
           <p className="font-semibold text-primary-white">{request.fromUserNickname}</p>
-          <p className="text-sm text-gray-400">친구 요청을 보냈습니다</p>
+          <p className="text-sm text-gray-400">친구 요청이 도착했습니다</p>
         </div>
       </div>
       <div className="flex">
