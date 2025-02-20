@@ -218,9 +218,9 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     formData.append('request', JSON.stringify(requestData));
 
     if (form.profileImg instanceof File) {
-      formData.append('profileImg', form.profileImg);
+      formData.append('image', form.profileImg);
     } else if (form.profileImg === null) {
-      formData.append('profileImg', '0');
+      formData.append('image', '0');
     }
     // 기존 이미지를 유지하는 경우 profileImg를 전송하지 않음
 
