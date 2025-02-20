@@ -4,7 +4,7 @@ WORKDIR /build
 
 # 그레들 파일이 변경되었을 때만 새롭게 의존 패키지 다운로드 받게 함.
 COPY build.gradle settings.gradle /build/
-RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
+RUN gradle dependencies --refresh-dependencies -x test
 
 # 빌더 이미지에서 애플리케이션 빌드
 COPY . /build
