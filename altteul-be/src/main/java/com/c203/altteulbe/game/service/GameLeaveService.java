@@ -188,9 +188,7 @@ public class GameLeaveService {
 		if (type == BattleType.S) {
 			keysToDelete = new ArrayList<>(Arrays.asList(
 				roomUsersKey,
-				RedisKeys.SingleRoomStatus(roomId),
-				RedisKeys.getEditorContent(roomId),
-				RedisKeys.getEditorAwareness(roomId)
+				RedisKeys.SingleRoomStatus(roomId)
 			));
 			if (userIds != null) {
 				userIds.forEach(userId -> keysToDelete.add(RedisKeys.userSingleRoom(Long.parseLong(userId))));
@@ -201,8 +199,7 @@ public class GameLeaveService {
 				RedisKeys.TeamRoomStatus(roomId),
 				RedisKeys.TeamMatchId(roomId),
 				RedisKeys.getRoomDbId(roomId),
-				RedisKeys.getEditorContent(roomId),
-				RedisKeys.getEditorAwareness(roomId)
+				RedisKeys.getRoomRedisId(roomId)
 			));
 
 			if (userIds != null) {
