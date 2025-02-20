@@ -107,12 +107,16 @@ public class TeamInfo {
 
 	private static String fromDurationToMinuteAndSecond(Duration duration) {
 
-		// 분 & 초 추출
-		long minutes = duration.toMinutes();
-		long seconds = duration.getSeconds() % 60; // 남은 초 계산
+		long totalSeconds = duration.getSeconds();
+		long hours = totalSeconds / 3600;
+		long minutes = (totalSeconds % 3600) / 60;
+		long seconds = totalSeconds % 60;
 
-		// 출력
-		return minutes + "분 " + seconds + "초";
+		if (hours == 0) {
+			return String.format("%02d:%02d", minutes, seconds); // 분:초 포맷
+		} else {
+			return String.format("%02d:%02d:%02d", hours, minutes, seconds); // 시:분:초 포맷
+		}
 	}
 
 	private static String getDuration(Room room) {
