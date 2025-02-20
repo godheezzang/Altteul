@@ -101,7 +101,10 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-primary-black p-8 rounded-md shadow-side w-[30rem] shadow-gray-03">
+      <div
+        className="bg-primary-black p-8 rounded-md shadow-side w-[30rem] shadow-gray-03"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="text-center mb-6">
           <h1 className="text-xxl font-semibold mb-1">보너스 문제!</h1>
           <p className="text-primary-orange">추가 점수를 획득할 수 있습니다.</p>

@@ -43,7 +43,7 @@ public class RankingHistory extends BaseCreatedEntity {
 	@Column(columnDefinition = "INT UNSIGNED")
 	private int ranking;
 
-	@Column(columnDefinition = "INT UNSIGNED")
+	//@Column(columnDefinition = "INT UNSIGNED")
 	private int rankingChange;   // 전날 랭킹과 당일 랭킹의 차이
 
 	public static RankingHistory create(User user, Tier tier, Long rankingPoint,

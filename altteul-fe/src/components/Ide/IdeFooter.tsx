@@ -50,8 +50,10 @@ const IdeFooter = ({ code, language, setOutput, userRoomId }: IdeFooterProps) =>
       if (response?.data.status === 200) {
         if (data.isNotCompileError) {
           setOutput(`컴파일 에러가 발생했습니다. ${data.message}`);
+        } else if (!data.testCases) {
+          setOutput(data?.message);
         } else {
-          const results = data.testCases
+          const results = data?.testCases
             .map(
               (test: { testCaseNumber: number; status: string; output: string; answer: string }) =>
                 `테스트 케이스 ${test.testCaseNumber}: ${test.status}\n출력: ${test.output}\n정답: ${test.answer}`

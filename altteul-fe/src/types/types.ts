@@ -46,6 +46,7 @@ export interface GameState {
   setProblem: (problem: Problem) => void;
   setTestcases: (testcases: TestCase[]) => void;
   setIsFinish?: (isFinish: 'WIN' | 'LOSE' | 'PENDING') => void;
+  resetGameInfo: () => void;
 }
 
 export interface MatchState {

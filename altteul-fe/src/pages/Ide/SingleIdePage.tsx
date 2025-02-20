@@ -15,12 +15,12 @@ import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
 const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
-  const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
+  const { gameId, roomId, users, setUserRoomId, setIsFinish, isFinish } = useGameStore();
   const { subscribe, sendMessage, connected, unsubscribe } = useSocketStore();
   const { openModal } = useModalStore();
 
   const [sideProblem, setSideProblem] = useState(null);
-  const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
+  const [completeUsers, setCompleteUsers] = useState([]);
   const [userProgress, setUserProgress] = useState<Record<number, number>>({});
   const [leftUsers, setLeftUsers] = useState<User[]>([]);
 
@@ -67,17 +67,24 @@ const SingleIdePage = () => {
 
       const { submittedTeam, restTeam } = data.data;
       const updatedProgress: Record<number, number> = {};
-      const completedSet = new Set(completeUsers);
+      const completedUsers = [];
 
       // ✅ submittedTeam이 존재하는지 확인
-      if (submittedTeam?.gameResult !== 1 && Array.isArray(submittedTeam.members)) {
+      if (submittedTeam?.gameResult > 0 && Array.isArray(submittedTeam.members)) {
         submittedTeam.members.forEach((member: MemberInfo) => {
-          completedSet.add(member.userId);
-          updatedProgress[member.userId] = 100; // 통과율 100%
+          if (!completeUsers.includes(member.userId)) {
+            // ✅ 중복 체크 후 추가
+            completeUsers.push(member.userId);
+            updatedProgress[member.userId] = 100; // 통과율 100%
+            console.log('문제 맞힌 사람:', member.userId);
+          }
 
           if (member.userId === userId) {
             // 사이드 문제 모달 막기
             setRequestCount(5);
+            setIsFinish('WIN');
+            console.log('single isFinish:', isFinish);
+
             openModal(MODAL_TYPES.RESULT, {
               type: GAME_TYPES.SINGLE,
               result: RESULT_TYPES.SUCCESS,
@@ -105,7 +112,7 @@ const SingleIdePage = () => {
       //   console.warn('⚠️ restTeam 데이터 없음:', restTeam);
       // }
 
-      setCompleteUsers(completedSet);
+      setCompleteUsers(completeUsers);
       setUserProgress(prev => ({ ...prev, ...updatedProgress }));
     });
 
