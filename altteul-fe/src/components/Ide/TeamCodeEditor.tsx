@@ -28,7 +28,7 @@ interface CodeEditorProps {
   // team: 
 }
 
-const SOCKET_URL = import.meta.env.VITE_SIGNALING_URL_PROD;
+const SOCKET_URL = window.location.hostname === 'localhost' ? import.meta.env.VITE_SIGNALING_URL_DEV : import.meta.env.VITE_SIGNALING_URL_PROD;
 
 const CodeEditor = ({ code, setCode, language, setLanguage, readOnly, roomId, myRoomId }: CodeEditorProps) => { 
   const ydoc = useMemo(() => new Y.Doc(), [])
