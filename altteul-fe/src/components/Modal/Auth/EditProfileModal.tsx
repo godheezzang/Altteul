@@ -218,7 +218,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileProps) => {
     formData.append('request', JSON.stringify(requestData));
 
     if (form.profileImg instanceof File) {
-      formData.append('profileImg', form.profileImg);
+      formData.append('image', form.profileImg);
     } else if (form.profileImg === null) {
       formData.append('profileImg', '0');
     }
