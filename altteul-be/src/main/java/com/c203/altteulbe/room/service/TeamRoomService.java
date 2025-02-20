@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -236,7 +237,7 @@ public class TeamRoomService {
 	/*
 	 * 스케줄러가 매칭할 팀을 찾은 후 실행되는 작업
 	 */
-	public void afterTeamMatch(String roomId1, String roomId2) {
+	/*public void afterTeamMatch(String roomId1, String roomId2) {
 
 		// 방 상태 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(Long.valueOf(roomId1)), "matched");
@@ -284,6 +285,55 @@ public class TeamRoomService {
 		// 두 팀의 정보를 websocket으로 전송 후 카운팅 시작
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
 		startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId);
+	}*/
+	public void afterTeamMatch(String roomId1, String roomId2) {
+		// 방 상태 변경
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(Long.valueOf(roomId1)), "matched");
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(Long.valueOf(roomId2)), "matched");
+
+		// Redis에서 두 팀을 매칭 중 상태에서 제거
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId1);
+		redisTemplate.opsForZSet().remove(RedisKeys.TEAM_MATCHING_ROOMS, roomId2);
+
+		String matchId = generateMatchId(roomId1, roomId2);
+		Map<String, String> matchIdPayload = Map.of("matchId", matchId);
+
+		// 매칭된 방의 matchId를 Redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId1)), matchId);
+		redisTemplate.opsForValue().set(RedisKeys.TeamMatchId(Long.valueOf(roomId2)), matchId);
+
+		// MATCHED 이벤트 전송
+		roomWebSocketService.sendWebSocketMessage(roomId1, "MATCHED", matchIdPayload, BattleType.T);
+		roomWebSocketService.sendWebSocketMessage(roomId2, "MATCHED", matchIdPayload, BattleType.T);
+		log.info("matchId = {}", matchId);
+
+		// 문제 및 테스트케이스 조회
+		List<Long> problemIds = problemRepository.findAllProblemIds();
+		if (problemIds.isEmpty()) {
+			throw new ProblemNotFoundException();
+		}
+		Long randomProblemId = problemIds.get(new Random().nextInt(problemIds.size()));
+		Problem problemEntity = problemRepository.findById(randomProblemId)
+			.orElseThrow(ProblemNotFoundException::new);
+
+		List<Testcase> testcaseEntities = testcaseRepository.findTestcasesByProblemId(problemEntity.getId());
+
+		GameStartForProblemDto problem = GameStartForProblemDto.from(problemEntity);
+		List<GameStartForTestcaseDto> testcases = testcaseEntities.stream()
+			.map(GameStartForTestcaseDto::from)
+			.collect(Collectors.toList());
+
+		// 이후 DB에 저장하기 위해 문제 pk를 redis에 저장
+		redisTemplate.opsForValue().set(RedisKeys.TeamRoomProblem(matchId), String.valueOf(randomProblemId));
+
+		// 각 팀의 유저 정보를 가져오는 메소드 호출
+		TeamMatchResponseDto teamMatchDto = getTeamMatchResponseDto(Long.parseLong(roomId1), Long.parseLong(roomId2), problem, testcases);
+
+		// 2초 후 COUNTING_READY 이벤트 전송
+		CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> {
+			roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
+			startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId);
+		});
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------
