@@ -56,7 +56,9 @@ function AudioComponent({ track, participantIdentity }: AudioComponentProps) {
               />
             </div>
 
-            <p className={`${userInfo.userId === userId ? 'text-primary-orange' : ''} text-center`}>
+            <p
+              className={`${userInfo.userId === userId ? 'text-primary-orange' : ''} font-semibold text-center ${isMuted ? 'text-gray-03' : 'text-gray-01'}`}
+            >
               {userInfo.nickname}
             </p>
           </div>
