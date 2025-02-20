@@ -44,7 +44,7 @@ function configureUrls() {
   }
 }
 
-const VoiceChat = () => {
+const VoiceChat = ({ opponentRemainingUsers }: { opponentRemainingUsers: number[] }) => {
   const { userRoomId, myTeam, opponent } = useGameStore();
   const { userId } = useAuthStore();
   const [room, setRoom] = useState<Room | undefined>(undefined);
@@ -131,8 +131,9 @@ const VoiceChat = () => {
   const activeParticipants = new Set(remoteTracks.map(track => track.participantIdentity));
   activeParticipants.add(String(userId));
 
-  console.log('localTrack:', localTrack);
-  console.log('remoteTrack:', remoteTracks);
+  const opponentExitUsers = opponent.users.filter(user =>
+    opponentRemainingUsers.includes(user.userId)
+  );
 
   return (
     <div id="room" className="px-8 border-t border-gray-04 pt-4">
@@ -168,7 +169,18 @@ const VoiceChat = () => {
               {myTeam.users
                 .filter(user => !activeParticipants.has(String(user.userId)))
                 .map(user => (
-                  <AudioComponent key={user.userId} participantIdentity={String(user.userId)} />
+                  <div key={user.userId} className={`transition-opacity opacity-50`}>
+                    <div className="p-1 rounded-full bg-gray-04">
+                      <UserProfile
+                        nickname={user.nickname}
+                        profileImg={user.profileImg}
+                        tierId={user.tierId}
+                        isNameShow={false}
+                        className="w-[2.5rem] h-[2.5rem]"
+                      />
+                    </div>
+                    <p className="font-semibold text-gray-01">{user.nickname}</p>
+                  </div>
                 ))}
             </>
           ) : (
@@ -185,62 +197,28 @@ const VoiceChat = () => {
       <div className="flex-1">
         <p className="mb-4 text-sm font-semibold text-gray-02">상대팀</p>
         <div className="flex gap-4">
-          {opponent.users.map(user => (
-            <div key={user.userId}>
-              <div className="p-1 rounded-full bg-gray-04">
-                <UserProfile
-                  nickname={user.nickname}
-                  profileImg={user.profileImg}
-                  tierId={user.tierId}
-                  isNameShow={false}
-                  className="w-[2.5rem] h-[2.5rem]"
-                />
-              </div>
-              <p className="font-semibold text-gray-01">{user.nickname}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+          {opponent.users.map(user => {
+            // ✅ 퇴장한 유저인지 확인
+            const isExitUser = opponentExitUsers.some(exitUser => exitUser.userId === user.userId);
 
-  return (
-    <div className="flex gap-2 border-t border-gray-04 py-6 px-4">
-      <div className="grow">
-        <p className="text-gray-02 font-semibold text-sm mb-2">우리 팀</p>
-        <div className="flex gap-2">
-          {/* {myTeam.users.map(user => {
-            const isMicOn = userMicStatus[user.userId] !== false; // false는 마이크 꺼짐 상태
             return (
-              <div key={user.userId} className="user">
-                <button onClick={() => toggleMic(String(user.userId))}>
-                  <UserProfileImg
+              <div
+                key={user.userId}
+                className={`transition-opacity ${isExitUser ? 'opacity-50' : ''}`}
+              >
+                <div className="p-1 rounded-full bg-gray-04">
+                  <UserProfile
+                    nickname={user.nickname}
                     profileImg={user.profileImg}
                     tierId={user.tierId}
-                    customClass={`max-w-[3rem] ${isMicOn ? 'border-2 border-primary-orange' : ''}`}
+                    isNameShow={false}
+                    className="w-[2.5rem] h-[2.5rem]"
                   />
-                  <span>{user.nickname}</span>
-                </button>
+                </div>
+                <p className="font-semibold text-gray-01">{user.nickname}</p>
               </div>
             );
-          })} */}
-        </div>
-      </div>
-      <div className="grow">
-        <p className="text-gray-02 font-semibold text-sm mb-2">상대 팀</p>
-        <div className="flex gap-2">
-          {/* {opponent.users.map(user => {
-            return (
-              <div key={user.userId} className="user">
-                <UserProfileImg
-                  profileImg={user.profileImg}
-                  tierId={user.tierId}
-                  customClass={`max-w-[3rem]`}
-                />
-                <span>{user.nickname}</span>
-              </div>
-            );
-          })} */}
+          })}
         </div>
       </div>
     </div>
