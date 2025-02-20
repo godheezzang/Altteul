@@ -33,7 +33,7 @@ const SingleFinalPage = () => {
 
     //언마운트 시 구독에 대한 콜백함수(handleMessage)정리 및 나가기 처리
     return () => {
-      console.log('singleFinalPage Out, 구독 취소');
+      // console.log('singleFinalPage Out, 구독 취소');
       // singleOut(roomId);
       socket.unsubscribe(`/sub/single/room/${roomId}`);
     };
@@ -42,7 +42,7 @@ const SingleFinalPage = () => {
   //소켓 응답 처리
   const handleMessage = (message: socketResponseMessage) => {
     const { type, data } = message;
-    console.log(message);
+    // console.log(message);
     if (type === 'LEAVE') {
       setWaitUsers(data.users.filter(user => user.userId !== leaderId));
       setHeadUser(data.users.find(user => user.userId === leaderId));
@@ -63,7 +63,7 @@ const SingleFinalPage = () => {
 
       //페이지 이동
       setTimeout(() => {
-        console.log('IDE 페이지 이동');
+        // console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
         //IDE 이동 후 match에서 쓰는 데이터 삭제(필요 없음)
         matchStore.clear();
@@ -73,9 +73,9 @@ const SingleFinalPage = () => {
     //혼자 남게 됐을 때 로직
     if (type === 'COUNTING_CANCEL') {
       toast.error('대기 중 상대 유저가 연결을 종료했습니다.', {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
-        onClose: () => navigate('/match/select')
+        onClose: () => navigate('/match/select'),
       });
     }
   };

@@ -7,11 +7,6 @@ import lose from '@assets/icon/result/lose.svg';
 import useModalStore from '@stores/modalStore';
 
 import { GAME_TYPES, RESULT_TYPES, GameType, ResultType, MODAL_TYPES } from 'types/modalTypes';
-import useGameStore from '@stores/useGameStore';
-import { api } from '@utils/Api/commonApi';
-import useAuthStore from '@stores/authStore';
-import ErrorPage from '@pages/Error/ErrorPage';
-import { useSocketStore } from '@stores/socketStore';
 
 type ResultModalProps = {
   isOpen: boolean;
@@ -22,10 +17,6 @@ type ResultModalProps = {
 
 const ResultModal = ({ isOpen, onClose, type, result }: ResultModalProps) => {
   const { openModal } = useModalStore();
-  const { userRoomId, myTeam } = useGameStore();
-  const { token } = useAuthStore();
-  const socket = useSocketStore();
-  const isTeam = location.pathname.includes('/game/team');
 
   // 결과에 따른 UI 설정
   //성공 유무 1차 필터링

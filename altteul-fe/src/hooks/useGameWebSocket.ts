@@ -16,10 +16,10 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const [sideProblemResult, setSideProblemResult] = useState(null);
   const [codeResult, setCodeResult] = useState(null);
   const [opponentCodeResult, setOpponentCodeResult] = useState(null);
-  const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set())
-  const [userProgress, setUserProgress] = useState<Record<number, number>>({})
+  const [completeUsers, setCompleteUsers] = useState<Set<number>>(new Set());
+  const [userProgress, setUserProgress] = useState<Record<number, number>>({});
   const socketStore = useSocketStore();
-  const [voiceActiveUsers, setVoiceActiveUsers] = useState<Set<number>>(new Set())
+  const [voiceActiveUsers, setVoiceActiveUsers] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const client = new Client({
@@ -29,11 +29,11 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log('✅ STOMP Connected (Game WebSocket)');
+        // console.log('✅ STOMP Connected (Game WebSocket)');
         setStompClient(client); // ✅ `stompClient` 상태 설정
       },
       onDisconnect: () => {
-        console.log('🔴 STOMP Disconnected (Game WebSocket)');
+        // console.log('🔴 STOMP Disconnected (Game WebSocket)');
       },
     });
 
@@ -66,7 +66,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
         destination: `/pub/side/receive`,
         body: JSON.stringify({ gameId: gameId, teamId: roomId }),
       });
-      console.log('📨 사이드 문제 요청 전송');
+      // console.log('📨 사이드 문제 요청 전송');
     }
   }, [stompClient, gameId, roomId]);
 
@@ -75,7 +75,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     if (stompClient?.connected) {
       stompClient.subscribe(`/sub/${gameId}/${roomId}/side-problem/receive`, message => {
         const data = JSON.parse(message.body);
-        console.log('📩 사이드 문제 수신 성공:', data);
+        // console.log('📩 사이드 문제 수신 성공:', data);
         setSideProblem(data);
       });
     } else {
@@ -91,7 +91,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
           destination: `/pub/side/submit`,
           body: JSON.stringify({ gameId: gameId, teamId: roomId, sideProblemId, answer }),
         });
-        console.log('📨 사이드 문제 채점 요청 전송');
+        // console.log('📨 사이드 문제 채점 요청 전송');
       }
     },
     [stompClient, gameId, roomId]
@@ -102,7 +102,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     if (stompClient?.connected) {
       stompClient.subscribe(`/sub/${gameId}/${roomId}/side-problem/result`, message => {
         const data = JSON.parse(message.body);
-        console.log('📩 사이드 문제 채점 결과 수신:', data);
+        // console.log('📩 사이드 문제 채점 결과 수신:', data);
         setSideProblemResult(data);
       });
     }
@@ -112,14 +112,14 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const submitCode = useCallback(
     (problemId: number, lang: string, code: string) => {
       if (stompClient?.connected) {
-        const payload = { gameId: gameId, teamId: roomId, problemId, lang, code }
+        const payload = { gameId: gameId, teamId: roomId, problemId, lang, code };
         stompClient.publish({
           destination: `/pub/judge/submition`,
           body: JSON.stringify({ gameId: gameId, teamId: roomId, problemId: 1, lang, code }),
         });
-        console.log(payload);
-        
-        console.log('📨 알고리즘 코드 제출 요청 전송');
+        // console.log(payload);
+
+        // console.log('📨 알고리즘 코드 제출 요청 전송');
       }
     },
     [stompClient, gameId, roomId]
@@ -130,19 +130,19 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     if (stompClient?.connected) {
       stompClient.subscribe(`/sub/${gameId}/${roomId}/team-submission/result`, message => {
         const data = JSON.parse(message.body);
-        console.log('📩 코드 채점 결과 수신:', data);
+        // console.log('📩 코드 채점 결과 수신:', data);
         setCodeResult(data);
 
-        // 정답을 다 맞췄을 때 
-        if (data.status === "P" && data.passCount === data.totalCount) {
-          const myUserId = Number(localStorage.getItem("userId"))
-          if (myUserId) updateUserStatus(myUserId)
+        // 정답을 다 맞췄을 때
+        if (data.status === 'P' && data.passCount === data.totalCount) {
+          const myUserId = Number(localStorage.getItem('userId'));
+          if (myUserId) updateUserStatus(myUserId);
         }
 
         // 일부만 정답을 맞췄을 때
-        if (data.status === "F" && data.passCount > 0) {
-          const myUserId = Number(localStorage.getItem("userId"))
-          updateUserProgress(myUserId, data.passCount, data.totalCount)
+        if (data.status === 'F' && data.passCount > 0) {
+          const myUserId = Number(localStorage.getItem('userId'));
+          updateUserProgress(myUserId, data.passCount, data.totalCount);
         }
       });
     }
@@ -152,21 +152,22 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     if (stompClient?.connected) {
       stompClient.subscribe(`/sub/${gameId}/${roomId}/opponent-submission/result`, message => {
         const data = JSON.parse(message.body);
-        console.log('상대 코드 채점 결과 수신', data);
+        // console.log('상대 코드 채점 결과 수신', data);
 
         setOpponentCodeResult(data);
-        
+
         // 상대방이 다 맞았을 때
-        if (data.status === "P" && data.passCount === data.totalCount) {
+        if (data.status === 'P' && data.passCount === data.totalCount) {
           users.forEach(user => {
-            if (user.roomId !== roomId) updateUserStatus(user.userId)
-          })
+            if (user.roomId !== roomId) updateUserStatus(user.userId);
+          });
         }
 
-        if (data.status === "F" && data.passCount > 0) {
+        if (data.status === 'F' && data.passCount > 0) {
           users.forEach(user => {
-            if (user.roomId !== roomId) updateUserProgress(user.userId, data.passCount, data.totalCount)
-          })
+            if (user.roomId !== roomId)
+              updateUserProgress(user.userId, data.passCount, data.totalCount);
+          });
         }
       });
     }
@@ -175,24 +176,24 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
   const subscribeToJoinVoice = () => {
     if (stompClient?.connected) {
       stompClient.subscribe(`/sub/team/${roomId}/voice/status`, message => {
-        const data = JSON.parse(message.body)
-        console.log(data);
-        
+        const data = JSON.parse(message.body);
+        // console.log(data);
+
         // data.status가 true -> 현재 보이스 활성화중인 애들
-      })
+      });
     }
-  }
+  };
 
   // 문제를 다 맞춘 유저는 완료된 유저 목록에 추가
   const updateUserStatus = (userId: number) => {
-    setCompleteUsers(prev => new Set(prev).add(userId))
-  }
+    setCompleteUsers(prev => new Set(prev).add(userId));
+  };
 
   // 유저 진행율 업데이트
   const updateUserProgress = (userId: number, passCount: number, totalCount: number) => {
     const progress = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
-    setUserProgress(prev => ({...prev, [userId]: progress}))
-  }
+    setUserProgress(prev => ({ ...prev, [userId]: progress }));
+  };
 
   return {
     sideProblem,
@@ -203,7 +204,7 @@ const useGameWebSocket = (gameId: number, roomId: number) => {
     submitSideProblemAnswer,
     submitCode,
     completeUsers,
-    userProgress
+    userProgress,
   };
 };
 

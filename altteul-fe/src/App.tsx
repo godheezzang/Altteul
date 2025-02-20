@@ -50,11 +50,7 @@ const App = () => {
   //전체 소켓 응답 메세지 핸들러
   const handleMessage = async (message: socketResponseMessage) => {
     //소켓 응답을 받는 경로
-    const allowedPaths = [
-      '/',
-      '/rank',
-      '/match/select',
-    ];
+    const allowedPaths = ['/', '/rank', '/match/select'];
 
     // users/:id 페이지도 허용하려면
     const isUsersPage = location.pathname.startsWith('/users/');
@@ -65,7 +61,7 @@ const App = () => {
     }
 
     const { type, data } = message;
-    console.log(message);
+    // console.log(message);
     //요청을 받은 경우
     if (type === 'INVITE_REQUEST_RECEIVED') {
       //React-Toastify를 사용한 confirm 대체

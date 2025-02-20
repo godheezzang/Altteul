@@ -20,11 +20,11 @@ const SearchResultsView = () => {
   });
   const fcStore = useFriendChatStore();
   const [searchUser, setSearchUser] = useState<User[]>([]);
-  
+
   useEffect(() => {
     getSearchResult(fcStore.searchQuery);
-    if(fcStore.searchQuery === '') {
-      fcStore.setCurrentView('main')
+    if (fcStore.searchQuery === '') {
+      fcStore.setCurrentView('main');
     }
   }, [fcStore.searchQuery]);
 
@@ -38,7 +38,7 @@ const SearchResultsView = () => {
       const others = userList.data.filter((user: User) => !friendIds.includes(user.userId));
       setSearchUser(others);
     } catch (error) {
-      console.log('검색결과 조회 중 error 발생: ', error);
+      // console.log('검색결과 조회 중 error 발생: ', error);
     } finally {
       fcStore.setIsSearching(false);
     }

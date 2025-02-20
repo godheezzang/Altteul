@@ -113,7 +113,7 @@ const FriendItem = ({ friend, onRefresh }: FriendItemProps) => {
       const payload = { userId: userId, friendId: friend.userid };
       await deleteFriend(Number(userId), friend.userid);
       sendMessage('/pub/friend/delete', payload);
-      console.log('친구 삭제 요청 전송', payload);
+      // console.log('친구 삭제 요청 전송', payload);
 
       toast.success(`${friend.nickname}님이 친구 목록에서 삭제되었습니다.`, {
         position: 'top-center',

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmitSideProblemResponseDto {
-	Long userId;
+	Long roomId;
 	SideProblemHistory.ProblemResult status;
 	Long itemId;
 	String itemName;
