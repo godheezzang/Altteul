@@ -2,13 +2,24 @@ import MediumButton from '@components/Common/Button/MediumButton';
 import { useNavigate } from 'react-router-dom';
 import errorbg from '@assets/background/error_page.svg';
 import useAuthStore from '@stores/authStore';
+import { useSocketStore } from '@stores/socketStore';
+import useGameStore from '@stores/useGameStore';
 
 const ErrorPage = () => {
   const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const socket = useSocketStore();
+  const resetGameInfo = useGameStore(state => state.resetGameInfo);
+  const { gameId, userRoomId, matchId } = useGameStore();
 
   const handleMoveMain = () => {
-    logout();
+    socket.unsubscribe(`/sub/game/${gameId}/submission/result`);
+    socket.unsubscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`);
+    socket.unsubscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`);
+    socket.unsubscribe(`/sub/single/room/${gameId}`);
+    socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
+    socket.unsubscribe(`/sub/team/room/${matchId}`);
+    resetGameInfo();
+
     navigate('/');
   };
   return (
