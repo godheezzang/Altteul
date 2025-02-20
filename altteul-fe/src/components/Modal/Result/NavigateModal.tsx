@@ -19,7 +19,7 @@ type NavigateModalProps = {
 
 const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const { openModal } = useModalStore();
-  const { myTeam, userRoomId } = useGameStore();
+  const { myTeam, userRoomId, gameId, matchId } = useGameStore();
   const { token } = useAuthStore();
   const socket = useSocketStore();
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
 
   // 한 문제 더 도전하기
   const handleContinue = async () => {
-    if (userRoomId && isTeam) {
+    if (userRoomId) {
       try {
         const response = await api.post(
           '/game/leave',
@@ -42,7 +42,15 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
         );
 
         if (response.status === 200) {
-          socket.restoreSubscriptions();
+          socket.unsubscribe(`/sub/game/${gameId}/submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`);
+          if (!isTeam) {
+            socket.unsubscribe(`/sub/single/room/${gameId}`);
+          } else if (isTeam) {
+            socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
+            socket.unsubscribe(`/sub/team/room/${matchId}`);
+          }
           onClose();
           navigate('/match/select');
         }
@@ -72,7 +80,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   };
 
   const handleNavigateMain = async () => {
-    if (userRoomId && isTeam) {
+    if (userRoomId) {
       try {
         const response = await api.post(
           '/game/leave',
@@ -87,7 +95,15 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
         );
 
         if (response.status === 200) {
-          socket.restoreSubscriptions();
+          socket.unsubscribe(`/sub/game/${gameId}/submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`);
+          socket.unsubscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`);
+          if (!isTeam) {
+            socket.unsubscribe(`/sub/single/room/${gameId}`);
+          } else if (isTeam) {
+            socket.unsubscribe(`/sub/${gameId}/${userRoomId}/opponent-submission/result`);
+            socket.unsubscribe(`/sub/team/room/${matchId}`);
+          }
           onClose();
           navigate('/');
         }
