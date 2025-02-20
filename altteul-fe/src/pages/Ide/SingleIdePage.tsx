@@ -16,7 +16,7 @@ const MAX_REQUESTS = 5;
 
 const SingleIdePage = () => {
   const { gameId, roomId, users, setUserRoomId, setIsFinish } = useGameStore();
-  const { subscribe, sendMessage, connected } = useSocketStore();
+  const { subscribe, sendMessage, connected, unsubscribe } = useSocketStore();
   const { openModal } = useModalStore();
 
   const [sideProblem, setSideProblem] = useState(null);
@@ -45,23 +45,23 @@ const SingleIdePage = () => {
 
     // 사이드 문제 구독
     subscribe(`/sub/${gameId}/${userRoomId}/side-problem/receive`, data => {
-      console.log('📩 사이드 문제 수신:', data);
+      // console.log('📩 사이드 문제 수신:', data);
       setSideProblem(data);
       setShowModal(true);
     });
 
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      console.log('📩 코드 채점 결과 수신:', data);
+      // console.log('📩 코드 채점 결과 수신:', data);
     });
 
     // 실시간 게임 현황 구독
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
-      console.log('📩 실시간 게임 현황 수신:', data);
+      // console.log('📩 실시간 게임 현황 수신:', data);
 
       // ✅ data?.data 체크 (최상위)
       if (!data || !data.data) {
-        console.warn('⚠️ 게임 현황 데이터가 없습니다:', data);
+        // console.warn('⚠️ 게임 현황 데이터가 없습니다:', data);
         return;
       }
 
@@ -70,10 +70,19 @@ const SingleIdePage = () => {
       const completedSet = new Set(completeUsers);
 
       // ✅ submittedTeam이 존재하는지 확인
-      if (submittedTeam?.gameResult === 1 && Array.isArray(submittedTeam.members)) {
+      if (submittedTeam?.gameResult !== 1 && Array.isArray(submittedTeam.members)) {
         submittedTeam.members.forEach((member: MemberInfo) => {
           completedSet.add(member.userId);
           updatedProgress[member.userId] = 100; // 통과율 100%
+
+          if (member.userId === userId) {
+            // 사이드 문제 모달 막기
+            setRequestCount(5);
+            openModal(MODAL_TYPES.RESULT, {
+              type: GAME_TYPES.SINGLE,
+              result: RESULT_TYPES.SUCCESS,
+            });
+          }
         });
       } else if (submittedTeam?.gameResult === 0 && Array.isArray(submittedTeam.members)) {
         submittedTeam.members.forEach((member: MemberInfo) => {
@@ -102,7 +111,7 @@ const SingleIdePage = () => {
 
     // 퇴장하기 구독
     subscribe(`/sub/single/room/${gameId}`, data => {
-      console.log('퇴장하기 구독 데이터:', data);
+      // console.log('퇴장하기 구독 데이터:', data);
 
       if (data.type === 'GAME_LEAVE') {
         const { leftUser, remainingUsers } = data.data;
@@ -121,7 +130,7 @@ const SingleIdePage = () => {
   const requestSideProblem = () => {
     sendMessage(`/pub/side/receive`, { gameId, teamId: userRoomId });
 
-    console.log('📨 사이드 문제 요청 전송');
+    // console.log('📨 사이드 문제 요청 전송');
   };
 
   // ✅ 10분마다 자동으로 사이드 문제 요청
@@ -151,7 +160,7 @@ const SingleIdePage = () => {
   }, [sideProblem]);
 
   return (
-    <div className="flex h-screen bg-primary-black border-t border-gray-04">
+    <div className="flex max-h-screen bg-primary-black border-t border-gray-04">
       <div className="min-w-[23em] max-w-[30rem] border-r border-gray-04">
         <ProblemInfo />
       </div>
