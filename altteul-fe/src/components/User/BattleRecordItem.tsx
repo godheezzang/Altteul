@@ -529,7 +529,7 @@ const BattleRecordItem = ({ record }: BattleRecordItemProps) => {
                     <span>{record.problem.problemId}.</span>
                     <span>{record.problem.problemTitle}</span>
                   </p>
-                  {parse(record.problem.description, options) as ReactNode}
+                  <div className='max-w-[50rem] overflow-auto'>{parse(record.problem.description) as ReactNode}</div>
                 </div>
               </div>
             )}

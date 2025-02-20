@@ -228,7 +228,7 @@ const SingleSearchPage = () => {
         </div>
 
         {/* TMI */}
-        <div className="absolute bottom-14 text-gray-100 text-[1rem]">{fact}</div>
+        <div className="absolute bottom-14 text-gray-100 text-[1.1rem]">{fact}</div>
       </div>
     </div>
   );
