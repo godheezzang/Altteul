@@ -286,6 +286,7 @@ public class TeamRoomService {
 		roomWebSocketService.sendWebSocketMessage(matchId, "COUNTING_READY", teamMatchDto, BattleType.T);
 		startCountingTeam(Long.parseLong(roomId1), Long.parseLong(roomId2), matchId);
 	}*/
+
 	public void afterTeamMatch(String roomId1, String roomId2) {
 		// 방 상태 변경
 		redisTemplate.opsForValue().set(RedisKeys.TeamRoomStatus(Long.valueOf(roomId1)), "matched");
