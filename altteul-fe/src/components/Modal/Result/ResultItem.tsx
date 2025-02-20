@@ -18,7 +18,7 @@ interface ResultItemProps {
   rank: number;
 }
 
-type Feedback = {
+export type Feedback = {
   algorithmType: string[];
   feedback: { code: string; description: string }[];
   summary: string;
