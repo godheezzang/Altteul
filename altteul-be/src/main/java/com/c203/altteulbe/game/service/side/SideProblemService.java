@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.c203.altteulbe.room.persistent.entity.Room;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +67,12 @@ public class SideProblemService {
 
 		Game game = gameRepository.findWithRoomByGameId(message.getGameId())
 			.orElseThrow(GameNotFoundException::new);
+		Room room;
+		if (game.getBattleType() == BattleType.S) {
+			room = singleRoomRepository.findById(message.getTeamId()).orElseThrow(RoomNotFoundException::new);
+		} else {
+			room = teamRoomRepository.findById(message.getTeamId()).orElseThrow(RoomNotFoundException::new);
+		}
 
 		// 채점 결과 브로드 캐스트
 		if (result == SideProblemHistory.ProblemResult.P) {
@@ -73,7 +80,7 @@ public class SideProblemService {
 				// 개인전
 				sideProblemWebsocketService.sendSubmissionResult(
 					SubmitSideProblemResponseDto.builder()
-						.userId(id)
+						.roomId(room instanceof SingleRoom ? ((SingleRoom) room).getId() : null)
 						.status(result)
 						.bonusPoint(50)
 						.build(),
@@ -93,7 +100,7 @@ public class SideProblemService {
 				// 결과 브로드 캐스트
 				sideProblemWebsocketService.sendSubmissionResult(
 					SubmitSideProblemResponseDto.builder()
-						.userId(id)
+						.roomId(room instanceof TeamRoom ? ((TeamRoom) room).getId() : null)
 						.status(result)
 						.itemId(item.getId())
 						.itemName(item.getItemName())
