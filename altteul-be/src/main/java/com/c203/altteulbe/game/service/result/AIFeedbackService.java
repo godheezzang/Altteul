@@ -43,11 +43,18 @@ public class AIFeedbackService {
 
 		String userPromptTemplate;
 
-		Room myRoom = game.getSingleRooms().stream()
-				.filter(singleRoom -> singleRoom.getId().equals(request.getTeamId()))
-				.findFirst()
-			.orElseThrow(RoomNotFoundException::new);
-
+		Room myRoom;
+		if (game.getBattleType() == BattleType.S) {
+			myRoom = game.getSingleRooms().stream()
+					.filter(singleRoom -> singleRoom.getId().equals(request.getTeamId()))
+					.findFirst()
+					.orElseThrow(RoomNotFoundException::new);
+		} else {
+			myRoom = game.getTeamRooms().stream()
+					.filter(teamRoom -> teamRoom.getId().equals(request.getTeamId()))
+					.findFirst()
+					.orElseThrow(RoomNotFoundException::new);
+		}
 		if (game.getBattleType() == BattleType.S) {
 			if (myRoom.getCode() == null) throw new CodeNotFoundException();
 			userPromptTemplate = getPrompt(game.getProblem(), myRoom);
