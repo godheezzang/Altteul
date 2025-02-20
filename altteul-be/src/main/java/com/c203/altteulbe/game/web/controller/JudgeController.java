@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class JudgeController {
 
 	private final JudgeService judgeService;
-
 	@PostMapping("/judge/check")
 	public GetHeartbeatResponse handleHeartbeat(@RequestHeader("X-JUDGE-SERVER-TOKEN") String token, @RequestBody GetHeartbeatRequestDto request) {
 		//log.info(token);
