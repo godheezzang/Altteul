@@ -31,8 +31,8 @@ const GameUserList = ({ users, completeUsers, userProgress, leftUsers }: GameUse
       !completeUsers.includes(user.userId) && !leftUsers.some(left => left.userId === user.userId)
   );
 
-  console.log('completeUsers:', completeUsers);
-  console.log('completedUsers:', completedUsers);
+  // console.log('completeUsers:', completeUsers);
+  // console.log('completedUsers:', completedUsers);
 
   return (
     <div className="min-w-[8rem] w-full">
