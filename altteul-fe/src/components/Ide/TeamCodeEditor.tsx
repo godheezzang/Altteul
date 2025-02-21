@@ -180,10 +180,11 @@ const CodeEditor = ({
       )}
       {isHidden && (
         <div
-          className="absolute inset-0 bg-black opacity-70 flex items-center justify-center text-white font-bold text-xl z-50"
+          className="absolute inset-0 bg-black opacity-70 flex items-center justify-center text-primary-white font-bold text-xl z-50"
           style={{ pointerEvents: 'none' }}
         >
-          5초 동안 아무것도 못하세요. 🤭🙏
+          <p>상대 팀이 아이템을 사용했습니다!!</p>
+          <p>5초 동안 아무것도 못하십니다 🤭🙏</p>
         </div>
       )}
       <Editor
