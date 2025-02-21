@@ -67,8 +67,12 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
           teamId: userRoomId,
         },
       });
-
-      setFeedbacks(JSON.parse(response?.data.data.content) || null);
+      console.log(response.data)
+      const data = response?.data.data.content
+      // const sliceData = data.slice(-3)
+      // console.log(sliceData);
+      console.log(data)
+      setFeedbacks(JSON.parse(data) || null);
     } catch (error) {
       console.error(error);
       <ErrorPage />;
