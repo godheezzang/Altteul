@@ -68,7 +68,7 @@ const ResultItem = ({ player, rank }: ResultItemProps) => {
         },
       });
       console.log(response.data)
-      const data = response?.data.data.content.slice(7, -3)
+      const data = response?.data.data.content
       // const sliceData = data.slice(-3)
       // console.log(sliceData);
       console.log(data)
