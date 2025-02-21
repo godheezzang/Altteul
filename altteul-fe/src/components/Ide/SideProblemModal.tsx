@@ -40,6 +40,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   const { myTeam } = useGameStore();
   const userRoomId = myTeam?.roomId;
 
+  // console.log('roomId:', roomId);
+  
+
   useEffect(() => {
     if (!connected) return;
 
@@ -82,7 +85,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
     if (sideProblemResult && isSubmitting) {
       setIsSubmitting(false);
 
-      // console.log('sideProblemResult:', sideProblemResult.data);
+      console.log('sideProblemResult:', sideProblemResult.data);
 
       if (sideProblemResult?.data.status === 'P') {
         setSubmissionResult(

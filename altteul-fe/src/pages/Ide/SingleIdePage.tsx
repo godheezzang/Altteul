@@ -53,6 +53,7 @@ const SingleIdePage = () => {
   const [output, setOutput] = useState<string>('');
   const { userId } = useAuthStore();
   const userRoomId = users.find(user => user.userId === Number(userId))?.roomId;
+  console.log('roomId:', userRoomId);
 
   useEffect(() => {
     if (userRoomId && userRoomId !== roomId) {
@@ -85,13 +86,13 @@ const SingleIdePage = () => {
     });
 
     // 코드 채점 결과 구독
-    // subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-    //   // console.log('📩 코드 채점 결과 수신:', data);
-    // });
+    subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
+      // console.log('📩 코드 채점 결과 수신:', data);
+    });
 
     // 실시간 게임 현황 구독
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
-      // console.log('📩 실시간 게임 현황 수신:', data);
+      console.log('📩 실시간 게임 현황 수신:', data);
 
       // console.log('data:', data);
 
@@ -266,7 +267,7 @@ const SingleIdePage = () => {
       {showModal && sideProblem && (
         <SideProblemModal
           gameId={gameId}
-          roomId={roomId}
+          roomId={userRoomId}
           problem={sideProblem?.data}
           onClose={() => setShowModal(false)}
         />
