@@ -42,7 +42,7 @@ const Modal = ({
 
   return (
     <div
-      className={`fixed inset-0 z-20 bg-black bg-opacity-55 flex justify-center items-center`}
+      className={`fixed inset-0 z-[60] bg-black bg-opacity-55 flex justify-center items-center`}
       onClick={isAuth || isEditUserInfo ? handleClose : undefined}
     >
       <div
