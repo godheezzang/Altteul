@@ -83,6 +83,8 @@ const IdeFooter = ({ code, language, setOutput, userRoomId }: IdeFooterProps) =>
       lang: serverLang,
       code: code,
     });
+
+    console.log('코드 제출');
   };
 
   return (
