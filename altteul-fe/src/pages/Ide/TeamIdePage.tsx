@@ -15,6 +15,7 @@ import useModalStore from '@stores/modalStore';
 import { TeamInfo, User } from 'types/types';
 import { createToken } from '@utils/openVidu';
 import { SubmittedTeam } from '@pages/Ide/SingleIdePage';
+import { toast } from 'react-toastify';
 
 const MAX_REQUESTS = 1;
 
@@ -56,7 +57,17 @@ const TeamIdePage = () => {
 
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      // console.log('📩 코드 채점 결과 수신:', data);
+      console.log('📩 코드 채점 결과 수신:', data);
+
+      if (data.type === '팀 제출 결과' && data.data.status === 'F') {
+        toast.error(
+          `틀렸습니다! \nTC ${data.data.totalCount}개 중 ${data.data.passCount}개 맞았습니다.`,
+          {
+            position: 'bottom-center',
+            autoClose: 5000,
+          }
+        );
+      }
     });
 
     // 실시간 게임 현황 구독

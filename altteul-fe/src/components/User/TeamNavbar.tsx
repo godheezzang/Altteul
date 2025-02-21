@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import noCodeImg from '@assets/icon/no_code.svg';
 import { CodeInfo, Problem } from 'types/types';
+import parse, { DOMNode, domToReact } from 'html-react-parser';
 
 type TeamTabsProps = {
   problemInfo: Problem;
@@ -10,6 +11,57 @@ type TeamTabsProps = {
 
 const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps) => {
   const [selectedTab, setSelectedTab] = useState<'info' | 'code'>('info');
+
+  const options = {
+    replace: (domNode: DOMNode, index: number) => {
+      if (
+        'type' in domNode &&
+        domNode.type === 'tag' &&
+        'name' in domNode &&
+        domNode.name === 'pre'
+      ) {
+        return (
+          <>
+            <h3
+              key={`h3-${index}`}
+              style={{
+                marginTop: '2rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </h3>
+            <p
+              key={`p-${index}`}
+              style={{
+                marginTop: '2rem',
+                marginBottom: '1rem',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </p>
+            <img
+              key={`img-${index}`}
+              style={{
+                marginBottom: '1rem',
+              }}
+            />
+            <pre
+              key={`pre-${index}`}
+              style={{
+                marginTop: '2rem',
+                backgroundColor: '#292F37',
+                padding: '1rem',
+                maxWidth: '100%',
+                textWrap: 'pretty',
+              }}
+            >
+              {domToReact(domNode.children as DOMNode[])}
+            </pre>
+          </>
+        );
+      }
+    },
+  };
 
   return (
     <div className="mt-6">
@@ -35,7 +87,7 @@ const TeamTabs = ({ problemInfo, teamCodeInfo, opponentCodeInfo }: TeamTabsProps
               <span>{problemInfo.problemId}.</span>
               <span>{problemInfo.problemTitle}</span>
             </p>
-            <p>{problemInfo.description}</p>
+            {parse(problemInfo.description) as ReactNode}
           </div>
         ) : (
           <div className="flex gap-4">
