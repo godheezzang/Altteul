@@ -21,7 +21,15 @@ type NavigateModalProps = {
 
 const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const { openModal } = useModalStore();
-  const { myTeam, gameId, matchId, resetGameInfo, isFinish } = useGameStore();
+  const {
+    myTeam,
+    gameId,
+    matchId,
+    resetGameInfo,
+    isFinish,
+    userRoomId: singleRoomId,
+  } = useGameStore();
+  const gameStore = useGameStore();
   const { token, userId } = useAuthStore();
   const socket = useSocketStore();
   const navigate = useNavigate();
@@ -31,11 +39,16 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   const [feedbacks, setFeedbacks] = useState<Feedback | null>(null);
   const [modalType, setModalType] = useState<'Feedback' | 'OpponentCode' | null>(null);
   const [userCodes, setUserCodes] = useState<{ nickname: string; code: string }>(null);
-  const userRoomId = myTeam?.roomId;
+  const userRoomId = isTeam ? myTeam?.roomId : singleRoomId;
 
   // 한 문제 더 도전하기
   const handleContinue = async () => {
-    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+    console.log('isFinish:', isFinish);
+    console.log('userRoomId:', userRoomId);
+
+    if ((userRoomId && isFinish === 'WIN') || (userRoomId && isFinish === 'LOSE')) {
+      console.log('한문제 더 도전하기 클릭');
+
       try {
         const response = await api.post(
           '/game/leave',
@@ -74,7 +87,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
 
   // AI 코칭 결과 보기
   const handleAiCoaching = async () => {
-    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+    if ((userRoomId && isFinish === 'WIN') || (userRoomId && isFinish === 'LOSE')) {
       setShowModal(true);
       setModalType('Feedback');
       try {
@@ -98,7 +111,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
 
   // 상대 코드 보기
   const handleOpponentCode = async () => {
-    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+    if ((userRoomId && isFinish === 'WIN') || (userRoomId && isFinish === 'LOSE')) {
       setShowModal(true);
       setModalType('OpponentCode');
 
@@ -125,7 +138,7 @@ const NavigateModal = ({ isOpen, onClose, type }: NavigateModalProps) => {
   };
 
   const handleNavigateMain = async () => {
-    if ((userRoomId && isFinish === 'WIN') || isFinish === 'LOSE') {
+    if ((userRoomId && isFinish === 'WIN') || (userRoomId && isFinish === 'LOSE')) {
       try {
         const response = await api.post(
           '/game/leave',
