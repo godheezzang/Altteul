@@ -16,14 +16,14 @@
 
 ### ⚙ 팀 구성
 
-|         |      포지션      |                      역할                      |
-|:-------:|:-------------:|:--------------------------------------------:|
-| **김덕진** |    FE, 팀장     |                                              |
-| **박가희** |   FE, FE 리더   |                                              |
-| **장희현** |      FE       |                                              |
-| **진우석** | FE, BE, BE 리더 |                                              |
-| **김성찬** |      BE       | 친구 신청, 채팅, OpenVidu 서버 배포, 유저 검색, 팀전/개인전 나가기 |
-| **김시아** |      BE       |   팀전/개인전 매칭, 랭킹 데이터 처리 및 페이지 조회/검색 , S3 연동   |
+|         |      포지션      |                                     역할                                      |
+|:-------:|:-------------:|:---------------------------------------------------------------------------:|
+| **김덕진** |    FE, 팀장     |                    팀전/개인전 매칭, 게임 초대, 친구 신청, 채팅, 회원 정보 수정                    |
+| **박가희** |   FE, FE 리더   | 메인, 대전 기록, 팀전/개인전 IDE, 코드 제출 및 실행, 보너스 문제, 아이템, OpenVidu로 음성 공유, AI 코칭, 디자인 |
+| **장희현** |      FE       |          로그인, 로그아웃, 디자인, 채팅 모달 일부, 공통 컴포넌트 제작, 에러 페이지, PPT, 영상 제작           |
+| **진우석** | FE, BE, BE 리더 |                회원, 코드 공유, 채점 서버 연동, 게임 결과 반환, 랭킹 페이지 조회 및 검색                |
+| **김성찬** |      BE       |                친구 신청, 채팅, OpenVidu 서버 배포, 유저 검색, 팀전/개인전 나가기                 |
+| **김시아** |      BE       |               팀전/개인전 매칭, 게임 초대, 랭킹 데이터 처리 및 페이지 조회/검색 , S3 연동               |
 
 <br>
 
@@ -64,14 +64,15 @@ https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 
 
 
-
 ### ⚙ 로그인
 
 ![login](README_assets/login.gif)
 
-
+- JWT, Spring Security 활용
 
 ### ⚙ 유저페이지
+
+![record](README_assets/record.gif)
 
 - 대전 기록 열람 가능
 - 해당 유저의 등수, 등급, 상위 분포 확인 가능
@@ -87,7 +88,7 @@ https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 
 
 - WebSocket을 통해 친구 신청 시 상대방에게 실시간으로 알람 생성 
-- Redis를 통해 친구의 온라인/오프라인 상태 확인
+- WebSocket, Redis를 통해 친구의 온라인/오프라인 상태 확인
 - 친구 신청을 위한 유저 검색 기능 제공 
 
 
@@ -116,16 +117,38 @@ https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 
 ### ⚙ 개인전 매칭
 
+|                                                       |                                                                     |
+|-------------------------------------------------------|---------------------------------------------------------------------|
+| ![single-matching](README_assets/single-matching.gif) | ![single-matching-cancel](README_assets/single-matching-cancel.gif) |
+| 매칭 후 게임 화면으로 이동                                       | 방 나가기                                                               |
+
+
+
 - 최소 2명, 최대 8명 게임 가능
 - redis를 통해 대기방 상태 및 소속된 유저들 관리
 - 게임 시작 시 redis에서 관리하던 데이터를 DB에 저장
 
 ### ⚙ 개인전 배틀
 
+|                                                   |                                                     |
+|---------------------------------------------------|-----------------------------------------------------|
+| ![single-coding](README_assets/single-coding.gif) | ![single-execute](README_assets/single-execute.gif) |
+| 코드 작성                                             | 코드 실행                                               |
+| ![single-submit](README_assets/single-submit.gif) | -                                                   |
+| 코드 제출 및 결과                                        | -                                                   
+
+
 - 실시간으로 상대의 테스트케이스 통과 현황 파악 가능
-- OpenAI를 통해 제출한 코드에 대해 피드백 제공
 
 ### ⚙ 팀전 매칭
+
+|                                                   |                                                                 |
+|---------------------------------------------------|-----------------------------------------------------------------|
+| ![team-matching](README_assets/team-matching.gif) | ![team-matching-cancel](README_assets/team-matching-cancel.gif) |
+| 매칭 후 게임 화면으로 이동                                   | 매칭 취소                                                           |
+| ![team-matched](README_assets/team-matched.gif)   | ![team-matching-leave](README_assets/team-matching-leave.gif)   |
+| 매칭 완료                                             | 방 나가기                                                           
+
 
 - 최소 2명, 최대 4명 게임 가능 
 - redis를 통해 대기방 상태 및 소속된 유저들 관리
@@ -144,6 +167,15 @@ https://www.erdcloud.com/d/4NDsDbCnsSfs4cGsh
 - 실시간으로 이루어지는 게임 특성 상 Redis TTL을 10분으로 설정하여 유효기간 지정
 
 ### ⚙ 팀전 배틀
+
+|                                               |                                                 |
+|-----------------------------------------------|-------------------------------------------------|
+| ![team-coding](README_assets/team-coding.gif) | ![team-opponent](README_assets/team-opponent.gif) |  ![team-opponent](README_assets/team-opponent.gif) 
+| 동시 코드 작성                                      | 상대팀 코드 블러 처리                                    |
+|   ![bonus](README_assets/bonus.gif)     |  ![team-execute](README_assets/team-execute.gif)   |
+| 보너스 문제 및 아이템 자동 적용                            | 코드 실행                                      |
+|![team-submit](README_assets/team-submit.gif) |   ![team-ai](README_assets/team-ai.gif)
+|  코드 제출 및 결과                                |    AI 코칭
 
 - 실시간으로 상대의 테스트케이스 통과 현황 파악 가능
 - 상대 팀의 IDE를 블러 처리한 상태로 노출
