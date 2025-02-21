@@ -217,7 +217,7 @@ const SingleIdePage = () => {
       } else {
         clearInterval(interval);
       }
-    }, 30 * 1000);
+    }, 10 * 1000);
 
     return () => clearInterval(interval);
   }, [requestCount]);

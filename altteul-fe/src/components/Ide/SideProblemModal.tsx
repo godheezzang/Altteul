@@ -37,9 +37,8 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
   const [sideProblemResult, setSideProblemResult] = useState<SideProblemResult>(null);
   const { subscribe, sendMessage, connected } = useSocketStore();
   const [isMyAnswer, setIsMyAnswer] = useState(false);
-  const { opponent, myTeam } = useGameStore();
-  const opponentRoomId = opponent.roomId;
-  const userRoomId = myTeam.roomId;
+  const { myTeam } = useGameStore();
+  const userRoomId = myTeam?.roomId;
 
   useEffect(() => {
     if (!connected) return;
@@ -49,7 +48,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
       console.log('📩 사이드 문제 채점 결과 수신:', data);
       setSideProblemResult(data);
 
-      setIsMyAnswer(data.data.roomId === userRoomId);
+      if (isTeam) {
+        setIsMyAnswer(data.data?.roomId === userRoomId);
+      }
     });
   }, [connected, gameId, roomId, subscribe]);
 
@@ -91,7 +92,8 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
               : `🎉 팀원이 사이드 문제를 풀었습니다! ${sideProblemResult?.data.itemName} 아이템을 얻었어요!`
             : `🎉 사이드 문제를 풀었습니다! ${sideProblemResult?.data.bonusPoint} 포인트를 추가로 얻었어요!`
         );
-        requestUseItem(sideProblemResult?.data.itemId);
+
+        isTeam && requestUseItem(sideProblemResult?.data.itemId);
       } else {
         setSubmissionResult('❌ 사이드 문제를 풀지 못했어요. 포인트 획득에 실패했습니다.');
       }
@@ -117,7 +119,9 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
       >
         <div className="text-center mb-6">
           <h1 className="text-xxl font-semibold mb-1">보너스 문제!</h1>
-          <p className="text-primary-orange">추가 점수를 획득할 수 있습니다.</p>
+          <p className="text-primary-orange">
+            추가 {isTeam ? '아이템을' : '점수를'} 획득할 수 있습니다.
+          </p>
           <p className="text-gray-02">1분 뒤 자동으로 창이 닫힙니다! 빠르게 풀어보세요.</p>
         </div>
 
@@ -133,7 +137,7 @@ const SideProblemModal = ({ gameId, roomId, problem, onClose }: SideProblemModal
           </div>
         ) : (
           <>
-            {isMyAnswer && (
+            {isTeam && isMyAnswer && (
               <div className="text-center text-primary-orange font-bold my-4">
                 팀원이 사이드 문제를 풀었습니다!
                 {/* <SmallButton onClick={onClose} className="mt-4 px-4 py-2">
