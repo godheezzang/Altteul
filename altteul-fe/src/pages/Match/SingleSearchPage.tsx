@@ -59,14 +59,16 @@ const SingleSearchPage = () => {
       setWaitUsers(data.users.filter(user => user.userId !== data.leaderId));
       setHeadUser(data.users.find(user => user.userId === data.leaderId));
       setIsLeader(currentUserId === data.leaderId);
+
+      // 대기 유저가 8명이 되면 자동으로 게임 시작
+      if (data.users.length >= 8) {
+        navigateFinalPage();
+      }
+
     } else if (type === 'COUNTING') {
       navigate('/match/single/final');
     }
 
-    // 대기 유저가 8명이 되면 자동으로 게임 시작
-    if (data.users.length >= 8) {
-      navigateFinalPage();
-    }
 
     reset(); //소켓 응답으로 유저 정보 업데이트 시 타이머 리셋
   };

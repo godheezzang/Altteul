@@ -36,6 +36,8 @@ const SingleFinalPage = () => {
       // console.log('singleFinalPage Out, 구독 취소');
       // singleOut(roomId);
       socket.unsubscribe(`/sub/single/room/${roomId}`);
+      //IDE 이동 후 match에서 쓰는 데이터 삭제(필요 없음)
+      matchStore.clear();
     };
   }, [roomId]);
 
@@ -65,8 +67,6 @@ const SingleFinalPage = () => {
       setTimeout(() => {
         // console.log('IDE 페이지 이동');
         navigate(`/game/single/${data.gameId}/${roomId}`);
-        //IDE 이동 후 match에서 쓰는 데이터 삭제(필요 없음)
-        matchStore.clear();
       }, 200); // 데이터 저장 후 안전하게 페이지 이동
     }
 
