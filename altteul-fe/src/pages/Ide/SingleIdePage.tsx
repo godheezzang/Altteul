@@ -11,6 +11,7 @@ import useAuthStore from '@stores/authStore';
 import { User } from 'types/types';
 import useModalStore from '@stores/modalStore';
 import { GAME_TYPES, MODAL_TYPES, RESULT_TYPES } from 'types/modalTypes';
+import { toast } from 'react-toastify';
 
 const MAX_REQUESTS = 1;
 
@@ -87,7 +88,19 @@ const SingleIdePage = () => {
 
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      // console.log('📩 코드 채점 결과 수신:', data);
+      console.log('📩 코드 채점 결과 수신:', data);
+
+      if (data.type === '팀 제출 결과' && data.data.status === 'F') {
+        console.log('틀린거 왜 안뜨지?');
+
+        toast.error(
+          `틀렸습니다! \nTC ${data.data.totalCount}개 중 ${data.data.passCount}개 맞았습니다.`,
+          {
+            position: 'bottom-center',
+            autoClose: 5000,
+          }
+        );
+      }
     });
 
     // 실시간 게임 현황 구독
