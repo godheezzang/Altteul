@@ -54,7 +54,7 @@ const SingleIdePage = () => {
   const [output, setOutput] = useState<string>('');
   const { userId } = useAuthStore();
   const userRoomId = users.find(user => user.userId === Number(userId))?.roomId;
-  console.log('roomId:', userRoomId);
+  // console.log('roomId:', userRoomId);
 
   useEffect(() => {
     if (userRoomId && userRoomId !== roomId) {
@@ -77,6 +77,10 @@ const SingleIdePage = () => {
   }, [users]);
 
   useEffect(() => {
+    setLeftUsers(prev => prev.filter(user => !completeUsers.includes(user.userId)));
+  }, [completeUsers]);
+
+  useEffect(() => {
     if (!connected) return;
 
     // 사이드 문제 구독
@@ -88,10 +92,10 @@ const SingleIdePage = () => {
 
     // 코드 채점 결과 구독
     subscribe(`/sub/${gameId}/${userRoomId}/team-submission/result`, data => {
-      console.log('📩 코드 채점 결과 수신:', data);
+      // console.log('📩 코드 채점 결과 수신:', data);
 
       if (data.type === '팀 제출 결과' && data.data.status === 'F') {
-        console.log('틀린거 왜 안뜨지?');
+        // console.log('틀린거 왜 안뜨지?');
 
         toast.error(
           `틀렸습니다! \nTC ${data.data.totalCount}개 중 ${data.data.passCount}개 맞았습니다.`,
@@ -105,7 +109,7 @@ const SingleIdePage = () => {
 
     // 실시간 게임 현황 구독
     subscribe(`/sub/game/${gameId}/submission/result`, data => {
-      console.log('📩 실시간 게임 현황 수신:', data);
+      // console.log('📩 실시간 게임 현황 수신:', data);
 
       // console.log('data:', data);
 
@@ -136,6 +140,7 @@ const SingleIdePage = () => {
 
         if (submittedTeam.gameResult > 0) {
           setCompleteUsers(prev => [...new Set([...prev, submittedTeam.members[0].userId])]);
+          // console.log('위 completeUsers:', completeUsers);
         }
 
         // 만약 정답이고, 정답을 맞춘 userId가 현재 로그인한 유저의 userId라면
@@ -149,41 +154,13 @@ const SingleIdePage = () => {
         }
       }
 
-      // // ✅ submittedTeam이 존재하는지 확인
-      // if (submittedTeam?.gameResult > 0 && Array.isArray(submittedTeam.members)) {
-      //   submittedTeam.members.forEach((member: MemberInfo) => {
-      //     if (!completeUsers.includes(member.userId)) {
-      //       // ✅ 중복 체크 후 추가
-      //       completeUsers.push(member.userId);
-      //       updatedProgress[member.userId] = 100; // 통과율 100%
-      //       console.log('문제 맞힌 사람:', member.userId);
-      //     }
-
-      //     if (member.userId === userId) {
-      //       // 사이드 문제 모달 막기
-      //       setRequestCount(5);
-      //       setIsFinish('WIN');
-      //       console.log('single isFinish:', isFinish);
-
-      //       openModal(MODAL_TYPES.RESULT, {
-      //         type: GAME_TYPES.SINGLE,
-      //         result: RESULT_TYPES.SUCCESS,
-      //       });
-      //     }
-      //   });
-      // } else if (submittedTeam?.gameResult === 0 && Array.isArray(submittedTeam.members)) {
-      //   submittedTeam.members.forEach((member: MemberInfo) => {
-      //     updatedProgress[member.userId] = submittedTeam.passRate;
-      //   });
-      // }
-
       // setCompleteUsers(completeUsers);
       // setUserProgress(prev => ({ ...prev, ...updatedProgress }));
     });
 
     // 퇴장하기 구독
     subscribe(`/sub/single/room/${gameId}`, data => {
-      console.log('퇴장하기 구독 데이터:', data);
+      // console.log('퇴장하기 구독 데이터:', data);
 
       if (data.type === 'GAME_IN_PROGRESS_LEAVE') {
         const { leftUser } = data.data;
@@ -200,6 +177,9 @@ const SingleIdePage = () => {
         // leftUser.userId가 completeUsers에 있다면 leftUsers에 저장하지 않음
         setLeftUsers(prev => {
           if (!completeUsers.includes(leftUser.userId)) {
+            // console.log('leftUser.userId:', leftUser.userId);
+            // console.log('completeUsers:', completeUsers);
+
             return [...prev, leftUser]; // completeUsers에 없으면 leftUser에 추가
           }
           return prev; // completeUsers에 있으면 반환
