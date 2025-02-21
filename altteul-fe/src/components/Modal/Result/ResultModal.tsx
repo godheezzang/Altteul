@@ -1,5 +1,5 @@
 // src/components/common/Modal/ResultModal.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from '@components/Common/Modal';
 import SmallButton from '@components/Common/Button/Button';
 import win from '@assets/icon/result/win.svg';
@@ -7,6 +7,7 @@ import lose from '@assets/icon/result/lose.svg';
 import useModalStore from '@stores/modalStore';
 
 import { GAME_TYPES, RESULT_TYPES, GameType, ResultType, MODAL_TYPES } from 'types/modalTypes';
+import { useLocation } from 'react-router-dom';
 
 type ResultModalProps = {
   isOpen: boolean;
